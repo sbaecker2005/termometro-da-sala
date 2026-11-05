@@ -52,7 +52,7 @@ Cortes rápidos de 3 s cada, gravados antes, com o nome da disciplina na tela.
 
 | Tela | Disciplina |
 |---|---|
-| Archi com a "Visão em quatro camadas" aberta e as visões Motivação, Negócio, Aplicação e Tecnologia na árvore do modelo (`arquitetura/termometro-da-sala.archimate`) | Arquitetura (TOGAF) |
+| Archi com a "Visão em quatro camadas" aberta e as visões Motivação, Negócio, Aplicação, Tecnologia e Implementação e migração na árvore do modelo (`arquitetura/termometro-da-sala.archimate`) | Arquitetura (TOGAF) |
 | Notebook do modelo com a tabela de MAE de validação e teste | Machine Learning |
 | Saída do `dotnet test` com os 40 testes passando | SOA e Testing |
 | Windows Server com o IIS e o pool da API | Operating Systems |
