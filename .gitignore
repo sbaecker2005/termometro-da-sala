@@ -1,0 +1,25 @@
+# .NET
+bin/
+obj/
+*.user
+.vs/
+appsettings.*.local.json
+
+# Node / Expo
+node_modules/
+.expo/
+dist/
+
+# Python
+__pycache__/
+.ipynb_checkpoints/
+.venv/
+
+# Segredos
+secrets.h
+*.env
+.env*
+
+# Sistema
+.DS_Store
+Thumbs.db
