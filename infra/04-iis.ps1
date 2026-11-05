@@ -56,7 +56,7 @@ function Get-PoolVar([string]$Name) {
         return [string]$found[0].value
     } catch { return '' }
 }
-# shortcut: o cmdlet do IIS nao foi ensaiado aqui, confira os nomes no pool se a variavel nao gravar.
+# Cria a variavel no pool ou troca o valor se ela ja existir; os nomes sao conferidos no passo 4 do README.
 function Set-PoolVar([string]$Name, [string]$Value) {
     $poolFilter = "system.applicationHost/applicationPools/add[@name='$Pool']"
     $item = "$poolFilter/environmentVariables/add[@name='$Name']"

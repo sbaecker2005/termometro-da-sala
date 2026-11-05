@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Modo de exibicao personalizado do Visualizador de Eventos (painel de acompanhamento do Termometro).
+  Importar na VM: eventvwr.msc > Action > Import Custom View... > escolher este arquivo.
+  Junta num lugar so: queda e volta do pool (WAS), queda e volta do W3SVC (SCM),
+  erro da API no IIS (ANCM V2), disparo dos alertas de CPU, disco e memoria (PLA)
+  e auditoria de logon RDP e da pasta de fotos (Security).
+  O log Security so aparece para conta administrativa.
+-->
+<ViewerConfig>
+  <QueryConfig>
+    <QueryParams>
+      <UserQuery />
+    </QueryParams>
+    <QueryNode>
+      <Name>Termometro - acompanhamento</Name>
+      <Description>WAS 5002/5009/5011, SCM 7031/7034/7036, AspNetCore Module V2, Diagnosis-PLA 2031 e Security 4624 (RDP)/4625/4656/4663</Description>
+      <QueryList>
+        <Query Id="0" Path="System">
+          <!-- Pool: 5009 worker terminou sem aviso, 5011 falha de comunicacao, 5002 pool desligado pelo Rapid-Fail -->
+          <Select Path="System">*[System[Provider[@Name='Microsoft-Windows-WAS'] and (EventID=5002 or EventID=5009 or EventID=5011)]]</Select>
+          <!-- Servico: 7031 e 7034 terminou sem aviso, 7036 mudou de estado (filtrar W3SVC na mensagem) -->
+          <Select Path="System">*[System[Provider[@Name='Service Control Manager'] and (EventID=7031 or EventID=7034 or EventID=7036)]]</Select>
+          <!-- Erro na subida ou no processo da API dentro do IIS -->
+          <Select Path="Application">*[System[Provider[@Name='IIS AspNetCore Module V2']]]</Select>
+          <!-- Alerta do conjunto Termometro-Alertas (logman -el) -->
+          <Select Path="Application">*[System[Provider[@Name='Microsoft-Windows-Diagnosis-PLA'] and (EventID=2031)]]</Select>
+          <Select Path="Microsoft-Windows-Diagnosis-PLA/Operational">*[System[(EventID=2031)]]</Select>
+          <!-- Logon por RDP (tipo 10), logon recusado e acesso a objeto na pasta de fotos (SACL do 06) -->
+          <Select Path="Security">*[System[(EventID=4624)] and EventData[Data[@Name='LogonType']='10']]</Select>
+          <Select Path="Security">*[System[(EventID=4625 or EventID=4656 or EventID=4663)]]</Select>
+        </Query>
+      </QueryList>
+    </QueryNode>
+  </QueryConfig>
+</ViewerConfig>
