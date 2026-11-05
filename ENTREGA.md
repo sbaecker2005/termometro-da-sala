@@ -1,23 +1,33 @@
 # Entrega — Termômetro da Sala
 
-Prazo: **19/11/2026, 23h55**. Um integrante envia cada disciplina no Teams. Repositório: https://github.com/sbaecker2005/termometro-da-sala
+Prazo: **19/11/2026, 23h55**. Um integrante envia cada disciplina no Teams, menos Operating Systems, que vai por formulário. Repositório: https://github.com/sbaecker2005/termometro-da-sala
 
-O briefing pede ZIP só em C# e em Mobile. Nas outras, o envio é link, PDF ou vídeo, e não há arquivo para compactar.
+O briefing pede ZIP só em C# e em Mobile. Nas outras, o envio é link, PDF, vídeo ou formulário, e não há arquivo para compactar.
 
-O comando abaixo monta a lista do que entra no ZIP. `Compress-Archive` não tira pasta aninhada com `-Exclude`. Rode na raiz do repositório, no Windows PowerShell. Troque `app` e `entrega-app.zip` por `desktop` e `entrega-desktop.zip` na disciplina de C#.
+O comando abaixo gera o ZIP com a pasta e as subpastas. Ele deixa de fora só `bin`, `obj`, `.vs`, `node_modules`, `.expo`, `dist`, a pasta `fotos`, os arquivos `.env*` e o `*.user`; o `app/assets` (ícones e splash) entra. Rode na raiz do repositório, no Windows PowerShell. Na disciplina de C#, troque `app` por `desktop` na primeira linha.
 
 ```powershell
+$pasta = 'app'
 $raiz = (Get-Location).Path
-$pasta = Join-Path $raiz 'app'
-$incluir = [IO.Directory]::GetFiles($pasta, '*', 'AllDirectories') | Where-Object {
-  $_ -notmatch '\\(bin|obj|node_modules|fotos)\\' -and
-  [IO.Path]::GetExtension($_) -notin '.user','.jpg','.jpeg','.png','.gif','.webp','.bmp','.heic'
-} | ForEach-Object { [WildcardPattern]::Escape($_.Substring($raiz.Length + 1)) }
-if (Test-Path entrega-app.zip) { Remove-Item entrega-app.zip }
-Compress-Archive -Path $incluir -DestinationPath entrega-app.zip
+$zip = Join-Path $raiz "entrega-$pasta.zip"
+if (Test-Path $zip) { Remove-Item $zip }
+Add-Type -AssemblyName System.IO.Compression, System.IO.Compression.FileSystem
+$arquivo = [IO.Compression.ZipFile]::Open($zip, 'Create')
+try {
+  [IO.Directory]::GetFiles((Join-Path $raiz $pasta), '*', 'AllDirectories') | Where-Object {
+    $_ -notmatch '\\(bin|obj|\.vs|node_modules|\.expo|dist|fotos)\\' -and
+    [IO.Path]::GetFileName($_) -notlike '.env*' -and
+    [IO.Path]::GetExtension($_) -ne '.user'
+  } | ForEach-Object {
+    $nome = $_.Substring($raiz.Length + 1).Replace('\', '/')
+    [void][IO.Compression.ZipFileExtensions]::CreateEntryFromFile($arquivo, $_, $nome)
+  }
+} finally { $arquivo.Dispose() }
 ```
 
-O escape existe porque a pasta `app/app/salas/[id]` faria o `-Path` tratar colchetes como curinga.
+O `Compress-Archive` não serve aqui: com uma lista de arquivos ele grava tudo na raiz do ZIP, sem as pastas, e os dois `index.tsx` do app colidem. O comando acima grava cada arquivo com o caminho relativo (`app/app/salas/[id].tsx`) e com barra `/`, que abre no Windows, no macOS e no Linux.
+
+Antes de enviar, abra o ZIP e confira que existem `app/assets/icon.png`, `app/app/salas/[id].tsx` e `app/package.json` (ou, no desktop, `desktop/integrantes.txt` e os `.csproj`).
 
 ## SOA e Web Services
 
@@ -53,7 +63,7 @@ README com execução, descrição e nomes: `api/README.md`.
 
 ## C# Windows Forms
 
-**Enviar:** o ZIP do `desktop/` (comando acima, com `desktop` e `entrega-desktop.zip`) e o `desktop/integrantes.txt` (RM, nome completo e link). O txt já entra no ZIP.
+**Enviar:** o ZIP do `desktop/` (comando do topo com `$pasta = 'desktop'`, que gera o `entrega-desktop.zip`) e o `desktop/integrantes.txt` (RM, nome completo e link). O txt já entra no ZIP.
 
 O briefing desta disciplina não divide a nota em pontos. O que a página 29 pede:
 
@@ -69,11 +79,36 @@ O briefing desta disciplina não divide a nota em pontos. O que a página 29 ped
 - [ ] Preencher RM e link em `desktop/integrantes.txt` e o RM no README
 - [ ] Fazer a entrevista e escrever nome, escola e data no README
 - [ ] Abrir o pull request da versão e criar as tags no GitHub (`v0.1.0` em diante)
-- [ ] Gerar o ZIP e enviar no Teams, um integrante
+- [ ] Gerar o ZIP e conferir numa pasta limpa (comandos abaixo)
+- [ ] Enviar ZIP e txt no Teams, um integrante
+
+Conferência do ZIP do desktop: extrair numa pasta vazia, fora do repositório, compilar e rodar o autoteste. O resultado tem que ser `0`. Rode na raiz do repositório, depois de gerar o `entrega-desktop.zip`.
+
+```powershell
+$teste = Join-Path $env:TEMP 'conferencia-desktop'
+if (Test-Path $teste) { Remove-Item $teste -Recurse -Force }
+Expand-Archive .\entrega-desktop.zip -DestinationPath $teste
+$proj = Join-Path $teste 'desktop\TermometroDaSala.Desktop\TermometroDaSala.Desktop.csproj'
+dotnet build $proj
+dotnet run --project $proj --no-build -- --autoteste
+"autoteste: $LASTEXITCODE"
+Get-Content (Join-Path $teste 'desktop\integrantes.txt') -Encoding UTF8
+```
+
+Se o build falhar, ou se o autoteste não devolver `0`, ou se o `integrantes.txt` ainda tiver o marcador de preenchimento, o ZIP não vai.
 
 ## IA e Machine Learning
 
-**Enviar:** o notebook `ml/termometro_da_sala.ipynb` e o link do vídeo de até 2 min. Roteiro: `ml/ROTEIRO-VIDEO.md`.
+**Enviar:** o notebook `ml/termometro_da_sala.ipynb`, o link do vídeo de até 2 min e o link do repositório, na mesma tarefa. Roteiro: `ml/ROTEIRO-VIDEO.md`.
+
+O briefing pede, além do notebook, o dataset com a origem, o modelo treinado, a métrica e o README com as decisões. Esses arquivos estão no repositório, então o link vai junto. Texto para a tarefa:
+
+```text
+Notebook: termometro_da_sala.ipynb (anexo)
+Vídeo (até 2 min): [preencher]
+Repositório: https://github.com/sbaecker2005/termometro-da-sala
+Pasta de ML (README, dataset INMET A701, modelo.json): https://github.com/sbaecker2005/termometro-da-sala/tree/main/ml
+```
 
 | Item | Pontos | Onde |
 |---|---:|---|
@@ -84,8 +119,8 @@ O briefing desta disciplina não divide a nota em pontos. O que a página 29 ped
 | Integração na solução | 1,0 | `api/TermometroDaSala.Api/modelo/modelo.json`, previsão no app e no desktop |
 
 - [ ] Preencher o RM no README, no notebook e em `ml/gerar_notebook.py` (gerar o notebook de novo depois, para os dois não divergirem)
-- [ ] Gravar o vídeo e colar o link no Teams
-- [ ] Enviar notebook e link
+- [ ] Gravar o vídeo e colar o link no texto acima
+- [ ] Enviar notebook, link do vídeo e link do repositório
 
 ## Mobile e IoT
 
@@ -105,7 +140,7 @@ O briefing desta disciplina não divide a nota em pontos. O que a página 29 ped
 
 ## Operating Systems
 
-**Enviar:** o link do GitHub e o vídeo de até 7 min. Roteiro: `infra/ROTEIRO-VIDEO.md`.
+**Enviar:** pelo formulário da disciplina (não pelo Teams), um integrante, até 19/11 às 23h55. Vão o link do GitHub e o do vídeo de até 7 min, e as respostas do bloco "Respostas do formulário" abaixo. Roteiro do vídeo: `infra/ROTEIRO-VIDEO.md`.
 
 | Item | Pontos | Onde |
 |---|---:|---|
@@ -118,8 +153,51 @@ O briefing desta disciplina não divide a nota em pontos. O que a página 29 ped
 
 - [ ] Montar a VM e preencher `infra/EVIDENCIAS.md` (prints, PIDs, IP, data)
 - [ ] Preencher a equipe e os RMs no README e em `infra/EVIDENCIAS.md`
-- [ ] Gravar o vídeo de até 7 min e publicar o link
-- [ ] Enviar o link do repositório no Teams
+- [ ] Gravar o vídeo de até 7 min e publicar o link com acesso liberado ao professor
+- [ ] Trocar os campos `[preencher]` do bloco abaixo pelos valores reais do `infra/EVIDENCIAS.md`
+- [ ] Preencher e enviar o formulário, um integrante
+
+### Respostas do formulário
+
+Os campos com valor fixo vêm dos scripts e do `infra/README.md`. Os que dependem da VM ou da equipe estão com `[preencher]` e saem do `infra/EVIDENCIAS.md` depois do ensaio. Se o formulário perguntar algo que não está aqui, a resposta vem do mesmo README, e nenhuma resposta leva senha, chave da coordenação, connection string ou segredo HMAC.
+
+| Campo | Resposta |
+|---|---|
+| Projeto | Termômetro da Sala |
+| Equipe (nome e RM) | [preencher] |
+| Repositório | https://github.com/sbaecker2005/termometro-da-sala |
+| Roteiro de configuração | https://github.com/sbaecker2005/termometro-da-sala/tree/main/infra (README, scripts `01` a `09` e `TESTE-DE-FALHA.md`) |
+| Evidências (prints e saídas) | https://github.com/sbaecker2005/termometro-da-sala/blob/main/infra/EVIDENCIAS.md e a pasta `infra/evidencias/` |
+| Vídeo (link e duração) | [preencher] |
+| Sistema e virtualização | Windows Server 2022, avaliação, Desktop Experience; versão e hipervisor: [preencher] |
+| Hostname | `SRV-TERMOMETRO` |
+| IP fixo do servidor e do cliente | [preencher] (o mesmo de `infra/EVIDENCIAS.md:8`) |
+| Domínio do AD | `termometro.local` (NetBIOS `TERMOMETRO`), floresta nova criada pelo `02-ad-dns.ps1` |
+| DNS | DNS integrado ao AD no próprio servidor; registro A `api.termometro.local` apontando para o servidor; zona reversa e PTR do servidor; cliente com DNS no servidor e ingressado no domínio |
+| Comandos de diagnóstico (saídas em `infra/evidencias/`) | `hostname`, `ipconfig /all`, `nslookup api.termometro.local`, `nslookup` reverso do IP, `Test-NetConnection api.termometro.local -Port 443`, `Get-ADDomain` |
+| Usuários e grupos | OU `Termometro`; grupo `Coordenacao` com `coordenador`; grupo `AdminsTermometro` com `admin.termometro` (único com RDP) |
+| GPO | `Termometro-Seguranca`: senha de 12 caracteres com complexidade, histórico 24, expiração 90 dias, bloqueio após 5 erros por 15 min, bloqueio de tela em 600 s, RDP com NLA só para `AdminsTermometro`, auditoria de Logon e File System |
+| File Server e DFS | Compartilhamento `Manuais` (leitura para `Coordenacao`) publicado no namespace `\\termometro.local\Escola\Manuais` |
+| Acesso remoto | RDP administrativo restrito a `AdminsTermometro`, porta 3389 liberada só para o IP do cliente. RDS completo exigido pelo professor? [preencher] |
+| Site no IIS | `Termometro`, pasta `C:\Sites\Termometro`, bindings HTTP 80 e HTTPS 443 com host `api.termometro.local` |
+| URL da aplicação | `https://api.termometro.local/` (painel) e `https://api.termometro.local/ambientes` (lista das salas) |
+| Pool de aplicativos | `TermometroPool`: No Managed Code, `ApplicationPoolIdentity`, `AlwaysRunning`, idle timeout 0, preload e Application Initialization ligados, Rapid-Fail Protection habilitado |
+| Dependências | Hosting Bundle .NET 8 (AspNetCoreModuleV2), SQL Server Express 2022 (instância `SQLEXPRESS`, banco `Termometro`, migrações `Inicial`, `Enums` e `SegredosPorDispositivo`) |
+| Permissões NTFS | `IIS AppPool\TermometroPool` com leitura e execução em `C:\Sites\Termometro` e Modify em `C:\Dados\Termometro\Fotos`; SYSTEM e Administrators com controle total; herança desligada; usuários da escola sem acesso às fotos |
+| Banco | Login `IIS APPPOOL\TermometroPool` só com `db_datareader` e `db_datawriter`; a migração é aplicada pelo administrador (`Banco__Migrar=false` no pool) |
+| Monitor de Desempenho | Conjunto `Termometro-Alertas`, amostra a cada 15 s, registro no log Application |
+| Alerta de CPU | `\Processor(_Total)\% Processor Time` acima de 80% |
+| Alerta de disco | `\LogicalDisk(C:)\% Free Space` abaixo de 15% |
+| Alerta de memória | `\Memory\Available MBytes` abaixo de 512 MB |
+| Histórico de recursos | Conjunto `Termometro-Recursos`, mesmos contadores, BLG em `C:\PerfLogs\Termometro\Recursos` |
+| Recuperação do serviço | W3SVC isolado em processo próprio, com reinício automático pelo Service Control Manager: 3 tentativas, 5 s entre elas, contador zerado em 24 h (`sc.exe failure` e `failureflag 1`) |
+| Recuperação do pool | O WAS sobe um worker novo quando o `w3wp.exe` do `TermometroPool` cai; `AlwaysRunning` e preload sobem sem esperar requisição |
+| Teste de falha | `09-teste-de-falha.ps1 -Parte Pool` mata só o worker do pool; `-Parte Servico` mata só o processo do W3SVC. Nos dois, o PID muda sozinho e só depois `/` e `/ambientes` respondem HTTP 200 |
+| Resultado do teste (PIDs antes e depois, horários) | [preencher] |
+| Eventos de falha e recuperação | System: WAS (worker do pool) e Service Control Manager 7031, 7034 e 7036; Application e Diagnosis-PLA: disparo dos alertas. IDs e horários observados: [preencher] |
+| Logs de auditoria | Security: 4624 e 4625 (RDP permitido e negado), 4656 e 4663 (acesso à pasta de fotos) |
+| Logs do IIS | `C:\inetpub\logs\LogFiles\W3SVC<ID>\u_ex*.log`, horário em UTC, com `sc-status` 200 em `/` e `/ambientes` depois da recuperação |
+| Leitura de dados no vídeo | MQTT pelo `broker.hivemq.com` (saída 1883 pela NAT) ou `POST /leituras` pelo Insomnia com `Mqtt__Desligado=true`; usado: [preencher] |
 
 ## Physical Computing
 
@@ -138,7 +216,14 @@ O briefing desta disciplina não divide a nota em pontos. O que a página 29 ped
 
 ## Testing (TOGAF) e pitch
 
-**Enviar:** o diagrama ArchiMate e o documento descritivo. O pitch de até 4 min, no YouTube, entra nesta disciplina. Roteiro do pitch: `arquitetura/PITCH.md`.
+**Enviar:** quatro coisas, na mesma tarefa do Teams. O pitch de até 4 min entra nesta disciplina. Roteiro do pitch: `arquitetura/PITCH.md`.
+
+1. O modelo ArchiMate: `arquitetura/termometro-da-sala.archimate`, o arquivo que abre no Archi.
+2. Um PNG por visão (motivação, negócios, aplicação e tecnologia, e as demais visões que o modelo tiver), exportado do Archi pelo menu de exportar a visão como imagem. Hoje o repositório tem só `arquitetura/diagrama-archi.png`, com todas as camadas juntas.
+3. O PDF do documento descritivo, exportado de `arquitetura/DOCUMENTO.md`, com capa (projeto, equipe com nome e RM, disciplina) e as imagens das visões em PNG. Imagem SVG costuma sumir na exportação; por isso o PDF usa os PNGs.
+4. O link do pitch no YouTube, como não listado, testado numa aba anônima.
+
+Nenhum desses quatro pode ir com o marcador de preenchimento. O `.md` não substitui o PDF.
 
 | Item | Peso | Onde |
 |---|---:|---|
@@ -151,12 +236,14 @@ O briefing desta disciplina não divide a nota em pontos. O que a página 29 ped
 
 - [ ] Fazer a entrevista e colocar a fala no pitch e o piloto da escola na seção 7
 - [ ] Preencher os RMs em `arquitetura/DOCUMENTO.md` e `arquitetura/PITCH.md`
-- [ ] Gravar o pitch de até 4 min, publicar no YouTube e enviar o link
-- [ ] Enviar diagrama e documento no Teams
+- [ ] Exportar do Archi um PNG por visão
+- [ ] Exportar o PDF do documento com os PNGs
+- [ ] Gravar o pitch de até 4 min e publicar no YouTube como não listado
+- [ ] Enviar `.archimate`, PNGs, PDF e link do YouTube no Teams
 
 ## Campos ainda em branco
 
-O marcador de RM, link e ensaio é a palavra preencher entre colchetes. O de bairro, na ficha, é a expressão bairro da escola entrevistada entre colchetes. O de print no roteiro da VM é a palavra colar entre colchetes. Este arquivo só aponta a linha; não é um campo para preencher.
+O marcador de RM, link e ensaio é a palavra preencher entre colchetes. O de bairro, na ficha, é a expressão bairro da escola entrevistada entre colchetes. O de print no roteiro da VM é a palavra colar entre colchetes. Fora o texto da tarefa de ML e o bloco de respostas do formulário de OS, este arquivo só aponta a linha; não é um campo para preencher.
 
 ### RM
 
