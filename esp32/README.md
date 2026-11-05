@@ -29,7 +29,8 @@ O ESP32 é o sensor da porta da sala. Não é um projeto à parte: a leitura del
 decidir e registrar a ação.
 
 ```text
-DHT22 ──> ESP32 ──> LED na porta (verde / amarelo / vermelho fixo / vermelho piscando)
+DHT22 ──> ESP32 ──> na porta: LED (verde / amarelo / vermelho fixo / vermelho piscando),
+            │        LCD com índice e nível por extenso, buzzer em Perigo e botão "Ciente"
             │        funciona mesmo sem internet
             │
             └──> leitura assinada (HMAC-SHA256) ──MQTT──> broker.hivemq.com:1883
@@ -45,7 +46,9 @@ DHT22 ──> ESP32 ──> LED na porta (verde / amarelo / vermelho fixo / verm
              desta sala)                   sala 3)                 salas e registra a ação)
 ```
 
-- O LED dá o aviso imediato na porta, mesmo com a rede fora.
+- O LED dá o aviso imediato na porta, mesmo com a rede fora. O LCD escreve o
+  nível, para quem não distingue as cores, e o buzzer chama a atenção em Perigo
+  até o professor apertar "Ciente".
 - A API é a fonte oficial: recalcula o índice com a mesma fórmula e recusa
   leitura com assinatura errada, reenviada, atrasada ou de dispositivo revogado
   ([CONTRATO.md](../CONTRATO.md), seção 2).
@@ -60,9 +63,13 @@ DHT22 ──> ESP32 ──> LED na porta (verde / amarelo / vermelho fixo / verm
 | 1 | Resistor de 10 kΩ | Pull-up da linha de dados do DHT22 |
 | 3 | LEDs: verde, amarelo e vermelho (`wokwi-led`) | Nível de calor na porta da sala |
 | 3 | Resistores de 220 Ω | Limitam a corrente de cada LED |
+| 1 | LCD 16x2 com módulo I2C (`wokwi-lcd1602`, `pins: i2c`, endereço 0x27) | Índice e nível por extenso; não depende da cor |
+| 1 | Buzzer (`wokwi-buzzer`) | Bip curto a cada 2 s em Perigo |
+| 1 | Botão "Ciente" (`wokwi-pushbutton`) | O professor confirma que viu o Perigo e o buzzer silencia |
 
-Bibliotecas (`libraries.txt`): DHT sensor library, Adafruit Unified Sensor e
-PubSubClient. Wi-Fi, FreeRTOS, NTP e mbedTLS (HMAC) vêm do core Arduino ESP32.
+Bibliotecas (`libraries.txt`): DHT sensor library, Adafruit Unified Sensor,
+PubSubClient e LiquidCrystal I2C. Wi-Fi, FreeRTOS, NTP, I2C (Wire), `tone()` e
+mbedTLS (HMAC) vêm do core Arduino ESP32.
 
 ## Pinagem
 
@@ -73,23 +80,46 @@ PubSubClient. Wi-Fi, FreeRTOS, NTP e mbedTLS (HMAC) vêm do core Arduino ESP32.
 | DHT22 | GND | GND | — |
 | LED verde | ânodo, via 220 Ω | D18 | 18 (`VERDE`) |
 | LED amarelo | ânodo, via 220 Ω | D19 | 19 (`AMARELO`) |
-| LED vermelho | ânodo, via 220 Ω | D21 | 21 (`VERMELHO`) |
+| LED vermelho | ânodo, via 220 Ω | D4 | 4 (`VERMELHO`) |
 | LEDs | cátodo | GND | — |
+| LCD 16x2 I2C | VCC | VIN (5 V) | — |
+| LCD 16x2 I2C | SDA | D21 | 21 (I2C padrão do `Wire`) |
+| LCD 16x2 I2C | SCL | D22 | 22 (I2C padrão do `Wire`) |
+| LCD 16x2 I2C | GND | GND | — |
+| Buzzer | + (pino 2) | D26 | 26 (`BUZZER`) |
+| Buzzer | − (pino 1) | GND | — |
+| Botão "Ciente" | 1.l | D27, com pull-up interno | 27 (`BOTAO`) |
+| Botão "Ciente" | 2.l | GND | — |
 
+O vermelho saiu do D21 porque o LCD usa o I2C padrão do ESP32 (D21 e D22).
 O DHT22 começa em 33 °C e 55 % (`diagram.json`); durante a simulação, os
 valores mudam clicando no sensor.
 
-## Níveis e LEDs
+Para conferir o circuito sem abrir o Wokwi: `python esp32/conferir_circuito.py`
+(na raiz do repositório). O script lê o `diagram.json`, o `sketch.ino` e o
+`libraries.txt` e confere peças, pinos, cada GPIO do sketch ligado à peça
+certa, retorno pelo GND, ausência de curto entre GPIOs e as bibliotecas. A
+compilação continua sendo feita pelo Wokwi.
 
-| Índice de calor | Nível | LED | Ação sugerida |
-|---|---|---|---|
-| < 27 °C | Normal | verde | nenhuma |
-| ≥ 27 e < 32 °C | Atenção | amarelo | água, janelas abertas, ventiladores |
-| ≥ 32 e < 41 °C | Cuidado extremo | vermelho fixo | pausa, troca de sala, adiar Educação Física |
-| ≥ 41 °C | Perigo | vermelho piscando (500 ms) | tirar a turma da sala |
+## Níveis, LEDs, LCD e buzzer
+
+| Índice de calor | Nível | LED | LCD (2ª linha) | Buzzer | Ação sugerida |
+|---|---|---|---|---|---|
+| < 27 °C | Normal | verde | `Normal` | mudo | nenhuma |
+| ≥ 27 e < 32 °C | Atenção | amarelo | `Atencao` | mudo | água, janelas abertas, ventiladores |
+| ≥ 32 e < 41 °C | Cuidado extremo | vermelho fixo | `Cuidado extremo` | mudo | pausa, troca de sala, adiar Educação Física |
+| ≥ 41 °C | Perigo | vermelho piscando (500 ms) | `Perigo` | bip de 150 ms a cada 2 s | tirar a turma da sala |
+
+A 1ª linha do LCD mostra a temperatura e o índice (`33.0C ind 37.8C`). O LCD
+não tem acentos, por isso `Atencao`. Em Perigo, o botão "Ciente" silencia o
+buzzer e o LCD passa a `Perigo (ciente)`; o LED continua piscando. Quando o nível sai de
+Perigo, o "ciente" é zerado e um novo Perigo volta a bipar. O botão só vale em
+Perigo e é local: não entra na leitura assinada nem muda o contrato com a API.
 
 Todos apagados: ainda não mediu ou o sensor deu valor inválido (ver Serial);
-apagado não é Normal. O índice segue a fórmula NOAA/Rothfusz, a mesma da API.
+apagado não é Normal. Sensor inválido: o LCD mostra `Sem leitura` /
+`sensor invalido`; antes da primeira medição, `Medindo...`. O índice segue a
+fórmula NOAA/Rothfusz, a mesma da API.
 Medição e LED a cada 10 s, mesmo sem Wi-Fi. A conexão MQTT roda numa tarefa
 FreeRTOS separada para não travar a medição nem o pisca. Sem NTP, só o alerta
 local funciona: a leitura não é publicada com data inventada.
@@ -103,7 +133,8 @@ local funciona: a leitura não é publicada com data inventada.
 3. Iniciar a simulação e abrir o Serial (115200). Ao ligar, o ESP32 imprime o
    HMAC `2f7c847dc59835d4a9bacbf9f4b642af0cc563cbf1bf90efb91d127f38297ba0` e
    “Vetores de calor OK”. Se um vetor falhar, o assert para o arranque.
-4. A cada 10 s: temperatura, umidade, índice e nível no Serial e o LED do nível.
+4. A cada 10 s: temperatura, umidade, índice e nível no Serial, o LED do nível
+   e o LCD atualizado (antes da primeira medição, `Medindo...`).
    Depois do NTP, “Leitura publicada”. Wi-Fi `Wokwi-GUEST`, sem senha.
 5. Com a API rodando (`api/README.md`), a leitura aparece em
    `GET /ambientes/sala-03/leituras`, no painel web (`http://localhost:5080/`)
@@ -115,11 +146,13 @@ Roteiro do vídeo: [ROTEIRO-VIDEO.md](ROTEIRO-VIDEO.md). Prints em `evidencias/`
 
 | Teste | Esperado | Resultado observado |
 |---|---|---|
-| Ligar a simulação | HMAC do vetor e “Vetores de calor OK” no Serial | [preencher] |
-| 24 °C / 40 % | índice 23,5 °C, Normal, LED verde | [preencher] |
-| 29 °C / 50 % | índice 29,7 °C, Atenção, LED amarelo | [preencher] |
-| 33 °C / 55 % | índice 37,8 °C, Cuidado extremo, LED vermelho fixo | [preencher] |
-| 37 °C / 55 % | índice 48,5 °C, Perigo, LED vermelho piscando | [preencher] |
+| Ligar a simulação | HMAC do vetor e “Vetores de calor OK” no Serial; LCD `Termometro Sala` / `Medindo...` | [preencher] |
+| 24 °C / 40 % | índice 23,5 °C, Normal, LED verde, LCD `24.0C ind 23.5C` / `Normal` | [preencher] |
+| 29 °C / 50 % | índice 29,7 °C, Atenção, LED amarelo, LCD `Atencao` | [preencher] |
+| 33 °C / 55 % | índice 37,8 °C, Cuidado extremo, LED vermelho fixo, LCD `Cuidado extremo`, buzzer mudo | [preencher] |
+| 37 °C / 55 % | índice 48,5 °C, Perigo, LED vermelho piscando, LCD `Perigo`, bip a cada 2 s | [preencher] |
+| Apertar "Ciente" em Perigo | buzzer para, LCD `Perigo (ciente)`, Serial “Professor ciente do Perigo”, LED segue piscando | [preencher] |
+| Voltar a 33 °C e subir a 37 °C | o bip volta no novo Perigo | [preencher] |
 | Depois do NTP | “Leitura publicada” a cada 10 s | [preencher] |
 | API real | leitura na sala-03 com `"suspeita": false` e o mesmo índice | [preencher] |
 | Sem Wi-Fi (SSID inválido no `WiFi.begin`) | LED segue o sensor e nada é publicado | [preencher] |
@@ -141,3 +174,7 @@ marque a leitura como `suspeita` (salto acima de 5 °C).
   descrito no contrato. A previsão assume diferença constante entre sala e rua
   nas próximas 2 h e pode superestimar no fim da tarde. Um aparelho real
   precisa de calibração com termo-higrômetro de referência.
+- O "Ciente" fica só no aparelho: a coordenação não vê quem apertou nem quando.
+  Levar isso à API exige um campo novo no contrato (seção 2) e um novo vetor.
+- No Wokwi o LCD é ligado ao VIN (5 V). Num aparelho real, um módulo I2C com
+  pull-up para 5 V pede conversor de nível no SDA e no SCL do ESP32 (3,3 V).

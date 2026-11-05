@@ -8,8 +8,13 @@
  * professor vê no app e a coordenação vê no desktop e no painel web.
  *
  * Circuito: DHT22 em 3,3 V com DATA no GPIO 15 (pull-up de 10 kΩ);
- * LEDs verde (GPIO 18), amarelo (GPIO 19) e vermelho (GPIO 21), cada um com
- * resistor de 220 Ω e cátodo no GND.
+ * LEDs verde (GPIO 18), amarelo (GPIO 19) e vermelho (GPIO 4), cada um com
+ * resistor de 220 Ω e cátodo no GND; LCD 16x2 I2C (endereço 0x27) em SDA 21 e
+ * SCL 22; buzzer no GPIO 26; botão "Ciente" entre o GPIO 27 e o GND.
+ *
+ * Na porta: o LED dá a cor, o LCD escreve a temperatura, o índice e o nível por
+ * extenso (quem não distingue as cores também entende) e o buzzer bipa em Perigo até o
+ * professor apertar "Ciente". O botão é só local: não muda a leitura publicada.
  *
  * Fluxo: sensor -> LED local (funciona sem internet) -> fila de 1 posição ->
  * tarefa MQTT separada -> broker -> API (valida HMAC, ordem e horário).
@@ -18,6 +23,7 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <DHT.h>
+#include <LiquidCrystal_I2C.h>
 #include <time.h>
 #include <esp_sntp.h>
 #include <mbedtls/md.h>
@@ -28,8 +34,9 @@
 #include <freertos/task.h>
 #include "secrets.h"  // AMBIENTE_ID, DISPOSITIVO e SEGREDO (copiar de secrets.exemplo.h)
 
-// Pinos (GPIO) do DevKit V1, os mesmos D15, D18, D19 e D21 do diagram.json.
-constexpr int PIN_DHT = 15, VERDE = 18, AMARELO = 19, VERMELHO = 21;
+// Pinos (GPIO) do DevKit V1, os mesmos D15, D18, D19, D4, D26 e D27 do diagram.json.
+// O LCD usa o I2C padrão do ESP32 (SDA 21, SCL 22), por isso o vermelho fica no 4.
+constexpr int PIN_DHT = 15, VERDE = 18, AMARELO = 19, VERMELHO = 4, BUZZER = 26, BOTAO = 27;
 const char TOPICO[] = "fiap-gs/termometro-da-sala/leituras";
 
 // Níveis de calor do contrato (seção 3). SEM_LEITURA apaga todos os LEDs.
@@ -37,6 +44,7 @@ enum Nivel { SEM_LEITURA = -1, NORMAL = 0, ATENCAO = 1, CUIDADO = 2, PERIGO = 3 
 const char *const NOME_NIVEL[] = {"Normal", "Atencao", "Cuidado extremo", "Perigo"};
 
 DHT dht(PIN_DHT, DHT22);
+LiquidCrystal_I2C lcd(0x27, 16, 2);  // endereço padrão do LCD 1602 I2C do Wokwi
 WiFiClient rede;
 PubSubClient mqtt(rede);
 volatile bool relogioSincronizado = false;  // vira true no primeiro acerto do NTP
@@ -45,6 +53,8 @@ volatile bool relogioSincronizado = false;  // vira true no primeiro acerto do N
 struct Leitura { char temperatura[16]; int umidade; long long instante; };
 QueueHandle_t fila;  // 1 posição: só a leitura mais recente espera a conexão
 Nivel nivelAtual = SEM_LEITURA;
+double temperaturaAtual = 0, indiceAtual = 0;
+bool ciente = false;  // professor apertou "Ciente" neste Perigo; zera quando o nível sai de Perigo
 
 // Índice de calor em °C com uma casa decimal (NOAA/Rothfusz, CONTRATO.md seção 3).
 double indiceCalor(double tempC, double rh) {
@@ -84,6 +94,29 @@ bool assinar(const char *texto, const char *chave, char *hex) {
   return true;
 }
 
+// Buzzer: bip de 150 ms a cada 2 s em Perigo, até o professor apertar "Ciente".
+bool buzzerLigado(Nivel n, bool jaCiente, uint32_t ms) {
+  return n == PERIGO && !jaCiente && ms % 2000 < 150;
+}
+
+// Texto do LCD (16 colunas): temperatura e índice em cima, nível por extenso embaixo.
+void textoLcd(Nivel n, double temp, double indice, bool jaCiente, char *linha1, char *linha2) {
+  if (n == SEM_LEITURA) {
+    snprintf(linha1, 17, "Sem leitura");
+    snprintf(linha2, 17, "sensor invalido");
+    return;
+  }
+  snprintf(linha1, 17, "%.1fC ind %.1fC", temp, indice);
+  snprintf(linha2, 17, "%s%s", NOME_NIVEL[n], n == PERIGO && jaCiente ? " (ciente)" : "");
+}
+
+void mostrarLcd() {
+  char linha1[17], linha2[17];
+  textoLcd(nivelAtual, temperaturaAtual, indiceAtual, ciente, linha1, linha2);
+  lcd.setCursor(0, 0); lcd.printf("%-16s", linha1);  // espaços apagam o texto anterior
+  lcd.setCursor(0, 1); lcd.printf("%-16s", linha2);
+}
+
 // Autoteste ao ligar: vetor HMAC público e os quatro casos de calor do contrato.
 // Se algum falhar, o assert para o ESP32 antes de medir ou publicar.
 void conferirVetores() {
@@ -102,6 +135,18 @@ void conferirVetores() {
   // Bordas dos limites: o valor exato do limite já pertence ao nível de cima.
   assert(nivel(26.9) == NORMAL && nivel(27) == ATENCAO &&
          nivel(32) == CUIDADO && nivel(41) == PERIGO);
+  // Buzzer só em Perigo sem "Ciente", e só nos primeiros 150 ms de cada 2 s.
+  assert(buzzerLigado(PERIGO, false, 0) && buzzerLigado(PERIGO, false, 2149) &&
+         !buzzerLigado(PERIGO, false, 150) && !buzzerLigado(PERIGO, true, 0) &&
+         !buzzerLigado(CUIDADO, false, 0) && !buzzerLigado(SEM_LEITURA, false, 0));
+  // LCD: nível por extenso, cabe em 16 colunas e "(ciente)" só aparece em Perigo.
+  char l1[17], l2[17];
+  textoLcd(PERIGO, 37, 48.5, true, l1, l2);
+  assert(strcmp(l1, "37.0C ind 48.5C") == 0 && strcmp(l2, "Perigo (ciente)") == 0);
+  textoLcd(CUIDADO, 33, 37.8, true, l1, l2);
+  assert(strcmp(l2, "Cuidado extremo") == 0);
+  textoLcd(SEM_LEITURA, 0, 0, false, l1, l2);
+  assert(strcmp(l1, "Sem leitura") == 0);
   Serial.println("Vetores de calor OK");
 }
 
@@ -155,7 +200,12 @@ void conectarEPublicar(void *) {
 void setup() {
   Serial.begin(115200);
   pinMode(VERDE, OUTPUT); pinMode(AMARELO, OUTPUT); pinMode(VERMELHO, OUTPUT);
+  pinMode(BOTAO, INPUT_PULLUP);  // solto = HIGH, apertado = LOW
   dht.begin();
+  lcd.init();  // também inicia o Wire em SDA 21 e SCL 22
+  lcd.backlight();
+  lcd.print("Termometro Sala");
+  lcd.setCursor(0, 1); lcd.print("Medindo...");
   conferirVetores();
   fila = xQueueCreate(1, sizeof(Leitura));
   assert(fila);
@@ -175,9 +225,11 @@ void setup() {
   assert(criada == pdPASS);
 }
 
-// Medição a cada 10 s e LEDs atualizados a cada 10 ms (o vermelho pisca em Perigo).
+// Medição a cada 10 s; LEDs, buzzer e botão conferidos a cada 10 ms.
 void loop() {
   static uint32_t ultimaLeitura = millis();
+  static uint32_t ultimoToque = 0;
+  static bool botaoAntes = HIGH, bipando = false;
   uint32_t agora = millis();
   if (uint32_t(agora - ultimaLeitura) >= 10000) {
     ultimaLeitura = agora;
@@ -191,16 +243,35 @@ void loop() {
       snprintf(l.temperatura, sizeof l.temperatura, "%.1f", temp);
       l.umidade = (int)lround(umidade);
       // Calcula com os valores já formatados, para ter as mesmas entradas da API.
-      double indice = indiceCalor(atof(l.temperatura), l.umidade);
-      nivelAtual = nivel(indice);
+      temperaturaAtual = atof(l.temperatura);
+      indiceAtual = indiceCalor(temperaturaAtual, l.umidade);
+      nivelAtual = nivel(indiceAtual);
       Serial.printf("Temperatura %s C, umidade %d%%, indice %.1f C, nivel %s\n",
-                    l.temperatura, l.umidade, indice, NOME_NIVEL[nivelAtual]);
+                    l.temperatura, l.umidade, indiceAtual, NOME_NIVEL[nivelAtual]);
       if (relogioSincronizado) {
         l.instante = (long long)time(nullptr);
         // shortcut: QoS 0 e so a leitura mais recente, evoluir se precisar recuperar quedas.
         xQueueOverwrite(fila, &l);
       } else Serial.println("Aguardando NTP; LED local ativo");
     }
+    if (nivelAtual != PERIGO) ciente = false;  // um novo Perigo volta a bipar
+    mostrarLcd();
+  }
+  // Botão "Ciente": borda de descida com 50 ms de folga contra o repique do contato.
+  bool botao = digitalRead(BOTAO);
+  if (botao == LOW && botaoAntes == HIGH && uint32_t(agora - ultimoToque) >= 50) {
+    ultimoToque = agora;
+    if (nivelAtual == PERIGO && !ciente) {
+      ciente = true;
+      Serial.println("Professor ciente do Perigo; buzzer silenciado ate o nivel baixar");
+      mostrarLcd();
+    }
+  }
+  botaoAntes = botao;
+  bool bipar = buzzerLigado(nivelAtual, ciente, agora);
+  if (bipar != bipando) {  // tone/noTone só na troca, não a cada volta
+    if (bipar) tone(BUZZER, 2000); else noTone(BUZZER);
+    bipando = bipar;
   }
   digitalWrite(VERDE, nivelAtual == NORMAL);
   digitalWrite(AMARELO, nivelAtual == ATENCAO);
