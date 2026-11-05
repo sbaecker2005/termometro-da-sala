@@ -13,6 +13,9 @@ static class Program
         try
         {
             using var http = new HttpClient { BaseAddress = Configuracao.LerUrl(), Timeout = TimeSpan.FromSeconds(5) };
+            // a API exige a chave da coordenação nas rotas de escrita; ela vem do ambiente, nunca do git
+            var chave = Environment.GetEnvironmentVariable("TERMOMETRO_CHAVE_COORDENACAO");
+            if (!string.IsNullOrWhiteSpace(chave)) http.DefaultRequestHeaders.Add("X-Chave-Coordenacao", chave);
             Application.Run(new Form1(new ServicoSalasApi(http), new ServicoSalasLocal(
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TermometroDaSala", "dados.json"))));
             return 0;
