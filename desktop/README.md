@@ -28,6 +28,7 @@ Equipe: **Termômetro da Sala**. Integrante: Samuel Baecker — RM [preencher]. 
 2. Abra `TermometroDaSala.Desktop.sln`, nesta pasta.
 3. No **Gerenciador de Soluções**, clique com o botão direito em `TermometroDaSala.Desktop` e escolha **Definir como Projeto de Inicialização**.
 4. Aperte **F5**. Os testes ficam em **Teste > Gerenciador de Testes > Executar Todos os Testes**.
+5. Para ver o layout no Designer, dê dois cliques em `Telas/TelaCoordenacao.cs` (tela principal) ou em `Telas/CadastroSala.cs` (cadastro). Os controles ficam no `.Designer.cs` de cada tela; o código ao lado só carrega dados e trata os cliques.
 
 ## Executar pela linha de comando (Windows e SDK .NET 8)
 
@@ -45,6 +46,7 @@ O padrão é `http://localhost:5080/`. Não coloque credenciais nesse arquivo. O
 
 ## Uso
 
+- No topo ficam o nome do sistema, a situação da conexão (API, MODO LOCAL ou DEMONSTRAÇÃO) e a legenda de cores. A janela e o executável usam o ícone do termômetro (`termometro.ico`).
 - **Atualizar** recarrega salas, previsões e ações; ocorre também a cada 30 segundos. O nível sempre tem texto e cor. Avisos identificam leitura antiga, previsão da rua e DEMONSTRAÇÃO.
 - **Cadastrar sala** exige `sala-NN`, nome, andar entre 0 e 20 e face norte/sul/leste/oeste. Há opção de ventilador e mensagens por campo via ErrorProvider.
 - Selecione uma sala, escolha o nível e descreva a ação (5–300 caracteres), depois use **Registrar ação**. A hora aparece no horário de São Paulo.
@@ -54,7 +56,7 @@ O padrão é `http://localhost:5080/`. Não coloque credenciais nesse arquivo. O
 
 ### Legenda de cores
 
-O nível aparece sempre por texto e cor, para não depender só da cor.
+O nível aparece sempre por texto e cor, para não depender só da cor. A mesma legenda fica na tela, logo acima da grade, e o autoteste confere que as cores dela são as da grade.
 
 | Texto na grade | Cor da célula | Significado |
 |---|---|---|
@@ -66,7 +68,11 @@ O nível aparece sempre por texto e cor, para não depender só da cor.
 
 ### Telas
 
-[preencher: prints da grade com salas coloridas, do cadastro com erro por campo, de uma ação registrada, do CSV aberto no Excel, da confirmação de revogação e do aviso MODO LOCAL]
+Tela principal sem API e sem dados neste computador (modo DEMONSTRAÇÃO, uma sala de exemplo por nível):
+
+![Tela da coordenação em modo demonstração](docs/tela-demonstracao.png)
+
+[preencher: prints com a API ligada: grade com salas coloridas, cadastro com erro por campo, ação registrada, CSV aberto no Excel, confirmação de revogação e aviso MODO LOCAL]
 
 ## API e modo local
 
@@ -89,20 +95,36 @@ HTTP 4xx e JSON inválido são erros apresentados ao operador. Uma falha isolada
 Gravações não são repetidas automaticamente em outro serviço: após falha de conexão, confira se o servidor recebeu a operação antes de tentar novamente.
 
 O arquivo local é `%LOCALAPPDATA%/TermometroDaSala/dados.json`, separado dos dados da API.
-Começa vazio: cadastre salas para demonstrar sem API. As ações (numeradas em sequência) e a marcação de revogação persistem após fechar o programa.
-Sem sensor/API, os níveis aparecem como **Sem leitura / Sem previsão**; não há medição ou previsão artificial.
+As ações (numeradas em sequência) e a marcação de revogação persistem após fechar o programa.
+
+**DEMONSTRAÇÃO.** Enquanto esse arquivo não existe (por exemplo, quem abre o ZIP sem a API), o modo local mostra quatro salas de exemplo, uma por nível, com previsão e duas ações. A faixa de situação diz "MODO LOCAL — DEMONSTRAÇÃO", cada linha traz o aviso DEMONSTRAÇÃO, os nomes terminam em "(exemplo)" e as duas ações começam com "DEMONSTRAÇÃO:", inclusive no CSV exportado. Os exemplos nunca são gravados: registrar ação ou revogar sensor numa sala de exemplo é recusado, e o primeiro cadastro de sala cria o arquivo só com a sala cadastrada. A partir daí, sem sensor nem API, as salas aparecem como **Sem leitura / Sem previsão**; fora da demonstração não há medição ou previsão artificial.
 Uma revogação local **não bloqueia o sensor no servidor**. A cada atualização o cliente tenta novamente a API e sinaliza a troca de origem.
 Não há sincronização automática: cadastros e ações locais continuam no arquivo local quando a API retorna.
 Use uma instância por computador para evitar gravações concorrentes no arquivo local.
 Arquivo inválido gera erro e é preservado; faça uma cópia antes de corrigir ou recuperar o JSON.
 
-As leituras do Wokwi e do modo demonstração são simuladas. O desktop apenas exibe o marcador recebido da API.
-Não calcula delta térmico: sem leituras recentes, exibe a previsão da rua com aviso, conforme a API.
+As leituras do Wokwi e do modo demonstração da API são simuladas. Com a API ligada, o desktop apenas exibe o marcador recebido dela e não calcula delta térmico: sem leituras recentes, exibe a previsão da rua com aviso, conforme a API.
+Sem API e sem `dados.json`, os exemplos da DEMONSTRAÇÃO (acima) trazem leitura, previsão e delta fixos, só ilustrativos; nada é calculado a partir de sensor.
 O delta pressupõe que a diferença sala–rua das últimas 3 h persiste por 2 h; pode superestimar ao fim da tarde.
 
 ## Chave da coordenação
 
 As rotas de escrita da API (cadastro de sala, ação, revogação) exigem a chave da coordenação. Defina a variável de ambiente `TERMOMETRO_CHAVE_COORDENACAO` com o mesmo valor configurado na API antes de abrir o terminal; sem ela, essas ações voltam 401 e o terminal avisa.
+
+## Organização do código
+
+| Pasta | Conteúdo |
+|---|---|
+| `Dominio/` | Uma classe por arquivo: `Sala`, `Acao`, `Previsao`, `Leitura`, o enum `NivelCalor` (com o texto de cada nível), `HorarioEscola` e `CadastroInvalidoException` |
+| `Servicos/` | `IServicoSalas` e as duas implementações (`ServicoSalasApi` e `ServicoSalasLocal`), `DadosLocais`, `DadosDemonstracao`, `ExportacaoCsv`, `Configuracao` e os conversores de JSON |
+| `Telas/` | `TelaCoordenacao` e `CadastroSala`, cada uma com o seu `.Designer.cs` |
+
+O domínio é encapsulado: as propriedades têm `private set`, então só a própria classe muda o seu estado.
+
+- `Sala.Criar(...)` valida antes de criar e, se algum campo estiver errado, lança `CadastroInvalidoException` com a mensagem de cada campo, que o cadastro mostra no ErrorProvider. A sala só muda por `Revogar()` e `ReceberLeitura(...)`.
+- `Acao` tem um construtor que valida sala, nível e descrição (5 a 300 caracteres, sem espaços nas pontas). O número da ação vem da API ou do modo local.
+- A sala que chega da API ou do arquivo passa por `Problemas()` antes de aparecer na tela.
+- O enum segue a convenção do C# (`Normal`, `Atencao`, `Cuidado`, `Perigo`). O conversor `NivelCalorJson` grava em minúsculas, como a API, e por isso o arquivo local da versão anterior continua abrindo.
 
 ## Diagrama de classes
 
@@ -111,10 +133,10 @@ classDiagram
     direction LR
     class NivelCalor {
         <<enumeration>>
-        normal
-        atencao
-        cuidado
-        perigo
+        Normal
+        Atencao
+        Cuidado
+        Perigo
     }
     class Sala {
         +string Id
@@ -125,7 +147,13 @@ classDiagram
         +string DispositivoId
         +bool SensorRevogado
         +bool SemLeitura
+        +bool Demonstracao
         +Leitura Leitura
+        +Criar(id, nome, andar, faceSol, temVentilador)$ Sala
+        +Validar(id, nome, andar, faceSol)$ erros
+        +Problemas() erros
+        +Revogar()
+        +ReceberLeitura(leitura)
     }
     class Leitura {
         <<record>>
@@ -139,6 +167,8 @@ classDiagram
         +NivelCalor NivelPrevisto
         +bool SemLeiturasRecentes
         +bool Demonstracao
+        +bool RuaDisponivel
+        +Valida(ambienteId) bool
     }
     class Acao {
         +long Id
@@ -146,6 +176,12 @@ classDiagram
         +NivelCalor Nivel
         +string Descricao
         +DateTimeOffset RegistradoEm
+        +Acao(ambienteId, nivel, descricao, registradoEm)
+        +ValidarDescricao(texto)$ string
+        +Conferir()
+    }
+    class CadastroInvalidoException {
+        +Erros por campo
     }
     class IServicoSalas {
         <<interface>>
@@ -158,26 +194,27 @@ classDiagram
     }
     class ServicoSalasApi
     class ServicoSalasLocal
-    class Validacoes {
+    class DadosDemonstracao {
         <<static>>
     }
     class ExportacaoCsv {
         <<static>>
     }
-    class Form1
+    class TelaCoordenacao
     class CadastroSala
 
     Sala --> Leitura : leitura atual
+    Sala ..> CadastroInvalidoException : lança
     Leitura --> NivelCalor
     Previsao --> NivelCalor
     Acao --> NivelCalor
     IServicoSalas <|.. ServicoSalasApi
     IServicoSalas <|.. ServicoSalasLocal
-    Form1 --> IServicoSalas : API e local
-    Form1 --> CadastroSala : abre
-    Form1 ..> ExportacaoCsv
-    ServicoSalasApi ..> Validacoes
-    ServicoSalasLocal ..> Validacoes
+    ServicoSalasLocal ..> DadosDemonstracao : sem arquivo
+    TelaCoordenacao --> IServicoSalas : API e local
+    TelaCoordenacao --> CadastroSala : abre
+    TelaCoordenacao ..> ExportacaoCsv
+    CadastroSala ..> Sala : Criar
 ```
 
 `ServicoSalasApi` fala com a API por HTTP e `ServicoSalasLocal` grava no arquivo JSON. A tela usa só a interface `IServicoSalas`, então troca de origem sem mudar o resto do código.
@@ -191,7 +228,7 @@ dotnet test TermometroDaSala.Desktop.sln
 dotnet run --project TermometroDaSala.Desktop -- --autoteste
 ```
 
-O autoteste não depende de pacote e retorna 0 em sucesso e 1 em falha. Os quatro casos verificam limites dos campos, CSV/relógio, persistência/arquivo inválido e o contrato HTTP com um handler em memória, sem rede.
+O autoteste não depende de pacote e retorna 0 em sucesso e 1 em falha. Os seis casos verificam limites dos campos e o encapsulamento do domínio, CSV/relógio, persistência/arquivo inválido, o contrato HTTP com um handler em memória (sem rede), a demonstração do modo local (que nunca é gravada) e as telas montadas pelo Designer, com a legenda nas mesmas cores da grade.
 As respostas usadas no teste de contrato são as que a API devolve: sala com leitura, sala sem leitura (`ultimaLeituraEm: ""`), previsão da rua, previsão sem a rua (`ruaDisponivel: false`), 503 `sem-dados-para-prever`, 503 sem esse motivo, 404 e ação com `id` numérico.
 
 ## Versões
