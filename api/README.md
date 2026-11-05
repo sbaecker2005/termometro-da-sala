@@ -46,24 +46,31 @@ O assinante MQTT conecta em `broker.hivemq.com:1883`, tópico `fiap-gs/termometr
 
 Semente: salas `sala-01` a `sala-04`, dispositivo `esp32-sala-0N` em cada uma, segredo de demonstração `segredo-de-teste-sala-0N` (a sala 03 continua com o vetor público do contrato). Cada um é revogável por `POST /dispositivos/{id}/revogar`. Não é segredo de produção.
 
-A coordenação autentica `POST /ambientes`, `POST /acoes` e `POST /dispositivos/{id}/revogar` com o cabeçalho `X-Chave-Coordenacao`. O valor vem da configuração `ChaveCoordenacao` (variável de ambiente de mesmo nome) e não entra no git. Sem ela, ou com valor diferente, a resposta é 401 e nada é gravado. `POST /leituras` continua só com HMAC. `POST /ocorrencias` não exige essa chave.
+A coordenação autentica `POST /ambientes`, `PUT` e `DELETE /ambientes/{id}`, `POST /acoes`, `POST /dispositivos/{id}/revogar` e `GET /ocorrencias/{id}/foto` com o cabeçalho `X-Chave-Coordenacao`. O valor vem da configuração `ChaveCoordenacao` (variável de ambiente de mesmo nome) e não entra no git. Sem ela, ou com valor diferente, a resposta é 401 e nada é gravado. `POST /leituras` continua só com HMAC. `POST /ocorrencias` não exige essa chave, mas a foto gravada só abre com ela: pode mostrar pessoas.
 
-As rotas de escrita (`POST /ambientes`, `/acoes`, `/leituras`, `/ocorrencias`, `/dispositivos/{id}/revogar` e `/demo/semear`) aceitam 30 pedidos por minuto por IP. O seguinte responde 429.
+As rotas de escrita (`POST /ambientes`, `PUT` e `DELETE /ambientes/{id}`, `POST /acoes`, `/leituras`, `/ocorrencias`, `/dispositivos/{id}/revogar` e `/demo/semear`) aceitam 30 pedidos por minuto por IP. O seguinte responde 429.
+
+Toda resposta leva `X-Content-Type-Options: nosniff`, para o navegador não interpretar uma foto ou um CSV como outro tipo. Em Production a API redireciona para HTTPS e manda `Strict-Transport-Security` (HSTS). Teste: `RespostasLevamNosniffEProducaoLevaHsts`.
 
 ## Rotas
 
 | Método | Rota | O que faz |
 |---|---|---|
 | GET | `/ambientes` | Salas com nível e índice atuais, `temVentilador` e `dispositivoId` (null sem sensor) |
-| POST | `/ambientes` | Cadastra sala sem criar ou vincular um sensor. Exige `X-Chave-Coordenacao` |
+| POST | `/ambientes` | Cadastra sala sem criar ou vincular um sensor. 201 com `Location: /ambientes/{id}`. Exige `X-Chave-Coordenacao` |
+| GET | `/ambientes/{id}` | Uma sala, no mesmo formato de cada item de `GET /ambientes`. 404 se não existe |
+| PUT | `/ambientes/{id}` | Altera nome, andar, face e ventilador. Corpo igual ao do POST, com o `id` da rota (senão 400 `id-divergente`). Exige `X-Chave-Coordenacao` |
+| DELETE | `/ambientes/{id}` | 204. Leva junto dispositivos, ocorrências (e as fotos delas no disco), ações e previsões da sala. Com leituras, 409 `ambiente-com-leituras`. Exige `X-Chave-Coordenacao` |
+| GET | `/ambientes/{id}/ocorrencias` | Ocorrências da sala (`id`, `ambienteId`, `descricao`, `criadaEm`), da mais recente à mais antiga, sem a foto |
 | GET | `/ambientes/{id}/leituras` | Leituras em JSON. `?formato=csv` devolve CSV |
 | GET | `/ambientes/{id}/previsao` | Rua daqui a 2 h, delta da sala e nível previsto. Sem rua, usa a última leitura válida da sala (`ruaDisponivel: false`); 503 sem rua e sem leitura válida recente |
 | POST | `/leituras` | Mesma leitura assinada do MQTT |
 | POST | `/ocorrencias` | Multipart: `ambienteId`, `descricao`, `foto` JPEG até 5 MB. Exige a estrutura de um JPEG (quadro SOF com altura e largura e início da varredura SOS); os pixels não são decodificados. A API regrava o JPEG sem o segmento APP1 (EXIF) |
-| GET | `/ocorrencias/{id}/foto` | A foto da ocorrência, só pelo id |
+| GET | `/ocorrencias/{id}/foto` | A foto da ocorrência pelo id. Exige `X-Chave-Coordenacao` (401 sem ela) |
 | GET | `/acoes?dia=AAAA-MM-DD` | Ações do dia civil de São Paulo; data ausente/inválida retorna 400 |
-| POST | `/acoes` | Ação tomada: `ambienteId`, `nivel`, `descricao`. Exige `X-Chave-Coordenacao` |
-| POST | `/dispositivos/{id}/revogar` | Marca o dispositivo como inativo. Exige `X-Chave-Coordenacao` |
+| POST | `/acoes` | Ação tomada: `ambienteId`, `nivel`, `descricao`. 201 com `Location: /acoes?dia=` do dia; 400 `nivel` ou `descricao`. Exige `X-Chave-Coordenacao` |
+| GET | `/niveis` | As 4 faixas da tabela `NiveisAcao`: `nivel`, `nome`, `indiceMin` e `acaoSugerida` |
+| POST | `/dispositivos/{id}/revogar` | Marca o dispositivo como inativo. É uma ação de estado (não apaga nem substitui o recurso), por isso POST com verbo em vez de PUT/DELETE. Exige `X-Chave-Coordenacao` |
 | POST | `/demo/semear?ambienteId=` | Só com `ASPNETCORE_ENVIRONMENT=Demo`. 409 sem leitura ao vivo |
 
 `POST /leituras`:
@@ -86,24 +93,31 @@ O delta é a média de (índice da sala − índice da rua) nas últimas 3 h, co
 
 Fora do Demo nenhuma rotina grava `LeiturasRua`, então pode não haver rua. Nesse caso a API não inventa a rua nem devolve "normal" por falta de dado: `ruaDisponivel` vem `false`, `indiceSalaPrevisto` é o índice da última leitura válida da sala nas últimas 3 h (a hipótese é que a sala se mantenha), `nivelPrevisto` é o nível desse índice, `deltaSala` vem `null`, `semLeiturasRecentes` vem `false` e `indiceRuaPrevisto` vem `0`, sem significado. Sem rua e sem leitura válida recente, a rota responde 503 `{"motivo":"sem-dados-para-prever"}`. Testes: `SemRuaForaDoDemoAPrevisaoSegueASalaENaoDizNormal` e `DemoComRuaQuenteNaoMarcaSalaFrescaComoSuspeita`.
 
-Fora do Demo, com a rua gravada em `LeiturasRua`, a rua daqui a 2 h vem da árvore de regressão em `TermometroDaSala.Api/modelo/modelo.json` (cópia de `ml/modelo.json`, profundidade 8 e folha mínima 30, treinada no notebook com o horário do INMET, estação A701, 2022–2025). No teste de 2025 o MAE foi 0,958 °C, contra 1,442 °C do baseline "daqui a 2 h = agora". O recall do nível "cuidado" ainda é baixo; a análise está em `ml/README.md`. O caminho fica em `Modelo:Caminho`. Sem o arquivo, ou com JSON inválido, a API repete o índice da rua de agora e registra no log. Como hoje nada grava `LeiturasRua`, a prova de que a API aplica o modelo é o teste `PrevisorModeloTestes`, com o mesmo vetor da seção 6 do notebook (26,97 °C).
+A rua daqui a 2 h vem da árvore de regressão em `TermometroDaSala.Api/modelo/modelo.json` (cópia de `ml/modelo.json`, profundidade 8 e folha mínima 30, treinada no notebook com o horário do INMET, estação A701, 2022–2025). No teste de 2025 o MAE foi 0,958 °C, contra 1,442 °C do baseline "daqui a 2 h = agora". O recall do nível "cuidado" ainda é baixo; a análise está em `ml/README.md`. O caminho fica em `Modelo:Caminho`. `ModeloRua` lê o arquivo, confere a árvore e monta os mesmos atributos do notebook (temperatura, umidade, hora e mês em seno e cosseno, variação da última hora). Sem o arquivo, ou com JSON inválido, a API registra no log e cai na regra provisória.
 
-No ambiente Demo, a rua vem de `demo/rua-dia-quente.csv` (dia quente de exemplo) projetado na hora local de São Paulo; a rua daqui a 2 h é a hora do CSV duas horas à frente, sem o modelo. `POST /demo/semear` lê `demo/leituras-simuladas.csv` e desloca a curva para terminar na última leitura ao vivo (`origem = dispositivo`), gravando as 3 h anteriores com `origem = simulada`.
+- Fora do Demo (`PrevisorRuaModelo`), a entrada do modelo é a rua gravada em `LeiturasRua`. Sem modelo, repete o índice da rua de agora.
+- No Demo (`PrevisorRuaDemo`), a rua vem de `demo/rua-dia-quente.csv` (dia quente de exemplo) projetado na hora local de São Paulo. A entrada do modelo é a hora atual do CSV, com a variação desde a hora anterior do CSV e o mês de hoje, e o `indiceRuaPrevisto` que app, desktop e painel mostram é a saída do modelo. Sem modelo, usa a hora do CSV duas horas à frente.
+
+O teste `PrevisorModeloTestes.DemoAplicaOModeloAoDiaDoCsvEDaOMesmoValor` monta um CSV com o vetor da seção 6 do notebook (15/01/2026 14h, 30 °C, 50%, 28,5 °C uma hora antes) e confere que o Demo e o previsor do banco devolvem o mesmo valor, 26,97 °C. `DemoComRuaQuenteNaoMarcaSalaFrescaComoSuspeita` confere pela rota que, no Demo, `indiceRuaPrevisto` é a saída do modelo para a hora do CSV, e não a hora do CSV duas horas à frente.
+
+`POST /demo/semear` lê `demo/leituras-simuladas.csv` e desloca a curva para terminar na última leitura ao vivo (`origem = dispositivo`), gravando as 3 h anteriores com `origem = simulada`.
+
+Cada previsão devolvida com 200 é gravada em `Previsoes`, com `CalculadaEm`, para comparar depois o previsto com o que a sala mediu (teste `PrevisaoServidaEntraNoHistorico`).
 
 Limitação: o delta assume que a diferença das últimas 3 h se mantém nas próximas 2 h. No fim da tarde ele tende a superestimar.
 
 ## Dados
 
-As leituras do sensor no Wokwi, as leituras do modo demonstração e as ocorrências são simuladas. Os dados meteorológicos de exemplo em `demo/` não substituem a série real do INMET. Nenhum dado de aluno é coletado. A foto é salva com nome GUID na pasta `Fotos:Pasta` e só é servida pelo id da ocorrência.
+As leituras do sensor no Wokwi, as leituras do modo demonstração e as ocorrências são simuladas. Os dados meteorológicos de exemplo em `demo/` não substituem a série real do INMET. Nenhum dado de aluno é coletado. A foto é salva com nome GUID na pasta `Fotos:Pasta` e só é servida pelo id da ocorrência, com a chave da coordenação. A lista de ocorrências da sala não leva a foto.
 
 ## Camadas
 
 | Pasta | Responsabilidade |
 |---|---|
-| `Dominio/Entidades` | As 8 entidades persistidas e os enums `Nivel`, `Origem`, `FaceSol` e `TipoAmbiente` |
-| `Dominio/Contrato.cs` | Regras puras, sem banco: `IndiceCalor` (NOAA e faixas), `Assinatura` (HMAC do texto canônico), `ValidadorLeitura` (motivos de recusa e leitura suspeita) e `Relogio` (hora de São Paulo) |
+| `Dominio/Entidades` | As 8 entidades persistidas e os enums `Nivel`, `Origem`, `FaceSol` e `TipoAmbiente`. `Dispositivo.Revogar()` desativa o sensor sem apagar o histórico |
+| `Dominio/Contrato.cs` | Regras puras, sem banco: `IndiceCalor` (NOAA e faixas, devolve o enum `Nivel`), `Assinatura` (HMAC do texto canônico), `ValidadorLeitura` (motivos de recusa e leitura suspeita) e `Relogio` (hora de São Paulo) |
 | `Contratos` | Entradas e saídas da API (DTOs). A entrada de ambiente valida com DataAnnotations; as saídas não devolvem as entidades do banco |
-| `Servicos` | Casos de uso: `ServicoLeituras` (recebe, valida e grava a leitura, vinda de HTTP ou MQTT), `ConsultaPrevisao` com os previsores da rua (`PrevisorRuaModelo`, `PrevisorRuaBaseline`, `PrevisorRuaDemo`) e `AssinanteMqtt` (serviço em segundo plano) |
+| `Servicos` | Casos de uso: `ServicoLeituras` (recebe, valida e grava a leitura, vinda de HTTP ou MQTT), `ConsultaPrevisao` (monta e grava a previsão) com os previsores da rua (`PrevisorRuaModelo`, `PrevisorRuaBaseline`, `PrevisorRuaDemo`) e `ModeloRua` (lê e avalia o `modelo.json`) e `AssinanteMqtt` (serviço em segundo plano) |
 | `Filtros` | `ExigeChaveCoordenacao`: devolve 401 sem o cabeçalho `X-Chave-Coordenacao` correto |
 | `Controllers` | Rotas HTTP: traduzem a requisição, chamam o domínio ou o serviço e devolvem o status |
 | `Dados` | `SalaDb` (EF Core: mapeamento, FKs e semente), `SalaDbFactory` (design-time) e `Migrations` |
@@ -187,8 +201,14 @@ erDiagram
 ```
 
 `LeituraRua` e `NivelAcao` não têm FK: a primeira guarda a série da rua e a segunda as
-faixas de nível com a ação sugerida. Os enums são gravados como texto. `Leituras` tem
-índice em `(AmbienteId, MedidoEm)`, a consulta mais usada.
+faixas de nível com a ação sugerida, servidas por `GET /niveis` (o teste
+`NiveisVemDaTabelaEBatemComAsFaixasDoCodigo` confere que a tabela e `IndiceCalor` dizem
+o mesmo). `Previsoes` guarda cada previsão servida. Os enums são gravados como texto.
+`Leituras` tem índice em `(AmbienteId, MedidoEm)`, a consulta mais usada.
+
+Os filtros rodam no banco: `GET /ambientes` busca só a última leitura de cada sala por
+subconsulta, `GET /acoes` converte o dia de São Paulo num intervalo UTC e a previsão filtra
+as últimas 3 h e a rua no `WHERE`. Nada traz a tabela inteira para a memória.
 
 ## Configuração do banco e migrações
 
@@ -228,7 +248,7 @@ use `Banco__Migrar=false`.
 | 3 | `20261105050515_SegredosPorDispositivo` | Troca o segredo de demonstração das salas 01, 02 e 04 para um por dispositivo. A sala 03 mantém o vetor público do contrato |
 
 Exclusão em cascata: apagar um ambiente apaga seus dispositivos, leituras, previsões,
-ocorrências e ações. A FK `Leituras -> Dispositivos` é `NO ACTION` (`Restrict` no EF):
+ocorrências e ações; a API apaga também os arquivos de foto das ocorrências. A FK `Leituras -> Dispositivos` é `NO ACTION` (`Restrict` no EF):
 o SQL Server não aceita que uma tabela receba cascata por dois caminhos
 (`Ambientes -> Leituras` e `Ambientes -> Dispositivos -> Leituras`, erro 1785), e um
 dispositivo com leituras não deve sumir com o histórico. O teste `EsquemaTestes` confere
@@ -251,9 +271,11 @@ dotnet ef migrations script --idempotent --project TermometroDaSala.Api -o evide
 {"id":"sala-05","nome":"Sala 5","andar":1,"faceSol":"oeste","temVentilador":true}
 ```
 
-Retorna 201 com `{"id":"sala-05"}`. ID no formato `sala-NN`, nome de 1 a 80 caracteres
-(não só espaços), andar de 0 a 20 e face `leste`, `norte`, `oeste` ou `sul`.
-Entrada inválida retorna 400; ID existente retorna 409. O tipo é `sala`.
+Retorna 201 com `{"id":"sala-05"}` e `Location: /ambientes/sala-05`. ID no formato `sala-NN`,
+nome de 1 a 80 caracteres (não só espaços), andar de 0 a 20 e face `leste`, `norte`,
+`oeste` ou `sul`. Entrada inválida retorna 400; ID existente retorna 409. O tipo é `sala`.
+`PUT /ambientes/sala-05` recebe o mesmo corpo e altera a sala; `DELETE /ambientes/sala-05`
+apaga a sala que ainda não tem leituras (com leituras, 409, para não perder o histórico).
 O cadastro não provisiona credenciais de sensor: `dispositivoId` fica null até haver
 um dispositivo vinculado. Os sensores da semente continuam disponíveis no GET.
 
@@ -273,25 +295,35 @@ Use um banco de
 `esp32-sala-01` precisa estar ativo no início. Desligue MQTT (`Mqtt__Desligado=true`)
 e o simulador durante o roteiro para não disputar os timestamps.
 
-1. Execute `POST /leituras - sucesso`: o pre-request script gera `medidoEm` atual,
-   assina o texto canônico com a chave pública de teste e guarda o corpo em
-   `leitura_aceita`. Espere 201. Para outra leitura nova, aguarde ao menos um segundo.
-2. Execute `POST /leituras - reenvio`: reutiliza exatamente o corpo anterior;
-   espere 400 com `motivo: reenvio`.
-3. Execute `POST /leituras - assinatura-invalida`: espere 400 com esse motivo.
-4. Execute `POST /leituras - fora-da-faixa`: assina 70 °C para o sensor da sala 04;
-   espere 400 com esse motivo.
-5. Execute `POST /dispositivos/{id}/revogar` (sala 01): espere 200. Depois execute
-   `POST /leituras - dispositivo-revogado`: espere 400 com esse motivo.
-6. Execute `POST /ambientes`: espere 201 na primeira vez e 409 se repetir.
-7. Execute `POST /acoes` e `GET /acoes?dia=AAAA-MM-DD`, ajustando `dia` para hoje em
-   São Paulo: espere 201 e 200 com a ação registrada.
-8. No multipart de `POST /ocorrencias`, selecione um JPEG real de uma sala vazia,
+As requisições estão em pastas por recurso (Leituras, Dispositivos, Ambientes, Ações e
+níveis, Ocorrências, Demonstração) e numeradas na ordem do roteiro. Cada uma confere o
+status esperado na aba de testes do Insomnia (after-response com `insomnia.expect`).
+
+1. `01 POST /leituras - sucesso`: o pre-request script gera `medidoEm` atual, assina o
+   texto canônico com a chave pública de teste e guarda o corpo em `leitura_aceita`.
+   Espere 201. Para outra leitura nova, aguarde ao menos um segundo.
+2. `02 POST /leituras - reenvio`: reutiliza exatamente o corpo anterior; 400 `reenvio`.
+3. `03 POST /leituras - assinatura-invalida`: 400 com esse motivo.
+4. `04 POST /leituras - fora-da-faixa`: assina 70 °C para o sensor da sala 04; 400 com esse motivo.
+5. `05 POST /dispositivos/{id}/revogar` (sala 01): 200. Depois
+   `06 POST /leituras - dispositivo-revogado`: 400 com esse motivo.
+6. `07 POST /ambientes`: 201 com `Location: /ambientes/sala-05`. `08` repete o corpo: 409
+   `ambiente-existente`. `09` vai sem `X-Chave-Coordenacao`: 401 e nada gravado.
+7. `10 GET /ambientes/{id}` (200), `11 PUT /ambientes/{id}` (200, nome novo),
+   `12 DELETE /ambientes/{id} - com leituras` na sala 03 (409 `ambiente-com-leituras`;
+   rode depois do `01`, porque sem leitura a sala 03 seria apagada de verdade) e
+   `13 DELETE /ambientes/{id}` na sala 05 (204). Como a sala 05 sai no passo 13, o roteiro
+   pode ser repetido.
+8. `14 POST /acoes` e `15 GET /acoes?dia=AAAA-MM-DD`, ajustando `dia` para hoje em
+   São Paulo: 201 e 200 com a ação registrada.
+9. No multipart de `16 POST /ocorrencias`, selecione um JPEG real de uma sala vazia,
    sem alunos ou dados pessoais (até 5 MB; nome simples, por exemplo `sala.jpg`).
-   Espere 201. O after-response script guarda `id` em `ocorrencia_id`;
-   `GET /ocorrencias/{id}/foto` usa essa variável e deve retornar 200, `image/jpeg`.
-9. Confira também GET ambientes, leituras, CSV e previsão. `/demo/semear` exige
-   ambiente Demo e uma leitura ao vivo: 404 fora de Demo, 409 sem leitura, 201 após ela.
+   Espere 201. O script guarda `id` em `ocorrencia_id`. `17 GET /ambientes/{id}/ocorrencias`
+   mostra a ocorrência no topo. `18` pede a foto sem a chave (401) e `19` com a chave
+   (200, `image/jpeg`).
+10. `20` a `24`: `GET /ambientes`, leituras em JSON e CSV, previsão (200; 503 sem rua e sem
+    leitura válida recente) e `GET /niveis`. `25 POST /demo/semear` exige ambiente Demo e
+    uma leitura ao vivo: 404 fora de Demo, 409 sem leitura, 201 após ela.
 
 As fotos locais ficam em `TermometroDaSala.Api/fotos/`, ignorada pelo repositório.
 Cada passo tem o print correspondente em [evidencias/](evidencias/README.md), sem dados
@@ -303,9 +335,13 @@ pessoais ou credenciais.
 dotnet test
 ```
 
-São 40 testes xUnit: vetores do contrato (HMAC, índice de calor, relógio de São Paulo),
-leitura do modelo de previsão, rotas da API, previsão sem rua, limite do MQTT, estrutura do
-JPEG e o esquema do banco. Os testes de rota usam
-SQLite em memória; `EsquemaTestes` monta o modelo com o provedor do SQL Server, sem
+São 47 testes xUnit: vetores do contrato (HMAC, índice de calor, relógio de São Paulo),
+leitura do modelo de previsão (no banco e no Demo, com o mesmo valor), rotas da API (CRUD de
+salas, ocorrências, foto com chave, níveis, cabeçalhos de segurança), previsão sem rua e
+histórico, limite do MQTT, estrutura do JPEG e o esquema do banco. Os testes de rota usam
+SQLite em memória, só no projeto de testes (a API referencia apenas o provedor do SQL
+Server). Como o SQLite não ordena `DateTimeOffset`, os testes gravam as datas como ticks UTC
+(`SqliteDeTeste.cs`), e as consultas com `WHERE` e `ORDER BY` por data rodam no banco do mesmo
+jeito que no SQL Server. `EsquemaTestes` monta o modelo com o provedor do SQL Server, sem
 conectar, e confere as FKs e o script das migrações. A saída da última execução está em
 [evidencias/dotnet-test.txt](evidencias/dotnet-test.txt).

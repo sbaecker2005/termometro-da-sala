@@ -32,6 +32,8 @@ public sealed record AcaoCriadaSaida(long Id);
 public sealed record LeituraCriadaSaida(long Id, bool Suspeita, double IndiceCalor, string Nivel);
 public sealed record DispositivoSaida(string Id, bool Ativo);
 public sealed record DemoSaida(int Inseridas);
+public sealed record NivelSaida(string Nivel, string Nome, double IndiceMin, string AcaoSugerida);
+public sealed record OcorrenciaSaida(string Id, string AmbienteId, string Descricao, DateTimeOffset CriadaEm);
 public sealed record AcaoSaida(long Id, string AmbienteId, string Nivel, string Descricao, DateTimeOffset RegistradoEm);
 public sealed record PrevisaoSaida(string AmbienteId, DateTimeOffset PrevistoPara, double IndiceRuaPrevisto,
     double? DeltaSala, double? IndiceSalaPrevisto, string NivelPrevisto, bool SemLeiturasRecentes, bool Demonstracao, bool RuaDisponivel);

@@ -17,7 +17,7 @@ public class DispositivosController(SalaDb _db) : ControllerBase
     {
         var dispositivo = await _db.Dispositivos.FindAsync(id);
         if (dispositivo is null) return NotFound();
-        dispositivo.Ativo = false;
+        dispositivo.Revogar();
         await _db.SaveChangesAsync();
         return Ok(new DispositivoSaida(dispositivo.Id, false));
     }

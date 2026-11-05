@@ -123,13 +123,18 @@ médico nem medição IBUTG.
 
 ## 4. Previsão da sala
 
-Rua atual: dia quente do CSV INMET reproduzido. Rua daqui a 2 h: fora do Demo,
-modelo treinado com dados reais, aplicado pela API com atributos do mesmo
-boletim e hora local sobre a rua gravada em `LeiturasRua`; no Demo, a hora do
-CSV duas horas à frente, sem o modelo. Como hoje nada grava a rua fora do Demo,
-a aplicação do modelo pela API é conferida no teste `PrevisorModeloTestes`, com
-o mesmo vetor da seção 6 do notebook. Busca ao vivo A701 e reserva Open-Meteo
-são evolução opcional.
+Rua atual: dia quente do CSV INMET reproduzido. Rua daqui a 2 h: o modelo
+treinado com dados reais (`ml/modelo.json`, árvore de regressão), aplicado pela
+API com os atributos do notebook: temperatura, umidade, hora local, mês e variação
+da última hora. Fora do Demo, a entrada é a rua gravada em `LeiturasRua`. No Demo,
+a entrada é a hora atual do CSV (temperatura, umidade e variação desde a hora
+anterior do CSV), com o mês de hoje; o `indiceRuaPrevisto` que app, desktop e
+painel mostram é a saída do modelo. Sem `modelo.json` válido, o Demo usa a hora do
+CSV duas horas à frente e fora dele a rua de agora se repete. O teste
+`PrevisorModeloTestes.DemoAplicaOModeloAoDiaDoCsvEDaOMesmoValor` confere que o Demo
+e o previsor do banco devolvem o mesmo valor para o vetor da seção 6 do notebook
+(15/01/2026 14h, 30 °C, 50%, +1,5 °C na última hora: 26,97 °C). Busca ao vivo A701
+e reserva Open-Meteo são evolução opcional.
 
 Delta = média de (índice da sala − índice da rua), comparados no mesmo instante
 UTC, nas últimas 3 h, com pelo menos 3 leituras válidas. Exemplo: sala
@@ -157,6 +162,10 @@ Sem previsão da rua (fora do Demo nada grava a rua), `ruaDisponivel` vem
 é `0`, que não vai para a tela. App, desktop e painel avisam que a previsão
 usa a última leitura válida da sala porque a previsão da rua não está disponível.
 Uma leitura suspeita aparece em “agora”, mas não entra na previsão.
+Cada previsão devolvida com 200 é gravada na tabela `Previsoes` (com `CalculadaEm`),
+para comparar depois o previsto com o que a sala mediu. A rota é anônima e painel,
+app e desktop a consultam a cada 30 s, então grava no máximo uma por sala a cada
+10 min; as consultas seguintes só leem (teste `PrevisaoServidaEntraNoHistorico`).
 
 ## 5. Demonstração
 
@@ -184,3 +193,25 @@ Para evidenciar plausibilidade, salto de 12 °C vira “suspeita” quando essa 
 estiver habilitada. Enquanto houver leitura simulada na janela, app e desktop
 exibem “DEMONSTRAÇÃO”. Wokwi, histórico semeado e ocorrências da gravação são
 simulados; a rua vem de dado real histórico reproduzido.
+
+## 6. Salas, ocorrências e níveis
+
+Escritas da coordenação levam o cabeçalho `X-Chave-Coordenacao`; sem ele, ou com
+valor errado, 401 `{"motivo":"chave-invalida"}` e nada é gravado. Recusas 400 da
+API levam `{"motivo":"..."}`; as de validação do corpo vêm no formato padrão do
+ASP.NET Core (`errors`). Toda resposta leva `X-Content-Type-Options: nosniff`; em
+Production, HTTPS com `Strict-Transport-Security`.
+
+| Rota | Chave | Respostas |
+|---|---|---|
+| `POST /ambientes` | sim | 201 com `Location: /ambientes/{id}`; 400; 409 `ambiente-existente` |
+| `GET /ambientes/{id}` | não | 200 com o mesmo objeto de cada item de `GET /ambientes`; 404 |
+| `PUT /ambientes/{id}` | sim | Corpo igual ao do POST, com o mesmo `id` da rota. 200 `{"id":...}`; 400 `id-divergente`; 404 |
+| `DELETE /ambientes/{id}` | sim | 204, levando junto dispositivos, ocorrências (e as fotos delas no disco), ações e previsões da sala; 409 `ambiente-com-leituras` (o histórico não se apaga); 404 |
+| `GET /ambientes/{id}/ocorrencias` | não | 200 com `[{"id","ambienteId","descricao","criadaEm"}]`, da mais recente à mais antiga, sem a foto; 404 sala inexistente |
+| `GET /ocorrencias/{id}/foto` | sim | 200 `image/jpeg`; 401 sem chave; 404. A foto pode mostrar pessoas, então só a coordenação abre |
+| `GET /niveis` | não | 200 com as 4 faixas da tabela `NiveisAcao`: `nivel`, `nome`, `indiceMin`, `acaoSugerida` (seção 3) |
+| `POST /acoes` | sim | 201 com `Location: /acoes?dia=AAAA-MM-DD` (dia de São Paulo); 400 `nivel` ou `descricao`; 404 |
+
+O app do professor lista as ocorrências da sala e não abre fotos; o desktop da
+coordenação não exibe fotos.

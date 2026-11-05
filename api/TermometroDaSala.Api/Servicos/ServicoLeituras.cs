@@ -45,9 +45,8 @@ public class ServicoLeituras
         }
 
         var quando = DateTimeOffset.FromUnixTimeSeconds(entrada.MedidoEm);
-        // shortcut: ordena na memória, o SQLite do teste não ordena DateTimeOffset; volte ao ORDER BY se uma sala passar de um dia de leituras
-        var anteriores = await _db.Leituras.Where(l => l.DispositivoId == entrada.Dispositivo).ToListAsync();
-        double? anterior = anteriores.OrderByDescending(l => l.MedidoEm).FirstOrDefault()?.TemperaturaC;
+        var anterior = await _db.Leituras.Where(l => l.DispositivoId == entrada.Dispositivo)
+            .OrderByDescending(l => l.MedidoEm).Select(l => (double?)l.TemperaturaC).FirstOrDefaultAsync();
         var suspeita = ValidadorLeitura.Suspeita(entrada.TemperaturaC, anterior, _rua.TemperaturaNoInstante(quando));
         if (suspeita) _log.LogWarning("leitura marcada: {Motivo}", "suspeita");
 
@@ -59,7 +58,7 @@ public class ServicoLeituras
             TemperaturaC = entrada.TemperaturaC,
             UmidadePct = entrada.UmidadePct,
             IndiceCalor = indice,
-            Nivel = Enum.Parse<Nivel>(IndiceCalor.Nivel(indice)),
+            Nivel = IndiceCalor.Nivel(indice),
             MedidoEm = quando,
             Origem = origem,
             Suspeita = suspeita,

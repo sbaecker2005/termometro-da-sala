@@ -16,7 +16,7 @@ public class LeiturasController(SalaDb _db, ServicoLeituras _leituras) : Control
     public async Task<IActionResult> Leituras(string id, [FromQuery] string? formato)
     {
         if (!await _db.Ambientes.AnyAsync(a => a.Id == id)) return NotFound();
-        var linhas = (await _db.Leituras.Where(l => l.AmbienteId == id).ToListAsync()).OrderBy(l => l.MedidoEm).ToList();
+        var linhas = await _db.Leituras.Where(l => l.AmbienteId == id).OrderBy(l => l.MedidoEm).ThenBy(l => l.Id).ToListAsync();
         if (!string.Equals(formato, "csv", StringComparison.OrdinalIgnoreCase))
             return Ok(linhas.Select(l => new LeituraSaida
             {
