@@ -1,0 +1,38 @@
+  Passed TermometroDaSala.Api.Tests.VetoresTestes.IndiceDeCalor(temp: 38, umidade: 70, esperado: 62.5, nivel: "perigo")
+  Passed TermometroDaSala.Api.Tests.VetoresTestes.IndiceDeCalor(temp: 24, umidade: 40, esperado: 23.5, nivel: "normal")
+  Passed TermometroDaSala.Api.Tests.VetoresTestes.IndiceDeCalor(temp: 30, umidade: 50, esperado: 31, nivel: "atencao")
+  Passed TermometroDaSala.Api.Tests.VetoresTestes.IndiceDeCalor(temp: 33.399999999999999, umidade: 58, esperado: 39.799999999999997, nivel: "cuidado")
+  Passed TermometroDaSala.Api.Tests.VetoresTestes.DiaQuenteProjetadoNaHoraLocal
+  Passed TermometroDaSala.Api.Tests.VetoresTestes.HmacDoContrato
+  Passed TermometroDaSala.Api.Tests.VetoresTestes.RelogioInmet1700UtcE14hEmSaoPaulo
+  Passed TermometroDaSala.Api.Tests.VetoresTestes.LimitesDaJanelaEDaFaixa
+  Passed TermometroDaSala.Api.Tests.VetoresTestes.SuspeitaNoSaltoENaRua
+  Passed TermometroDaSala.Api.Tests.EsquemaTestes.NenhumaTabelaRecebeCascataPorDoisCaminhos
+  Passed TermometroDaSala.Api.Tests.EsquemaTestes.LeituraNaoApagaEmCascataPeloDispositivo
+  Passed TermometroDaSala.Api.Tests.EsquemaTestes.ScriptDasMigracoesTemUmaCascataSoEmLeituras
+  Passed TermometroDaSala.Api.Tests.PrevisorModeloTestes.TresLinhasBatemComAFormulaEComAHoraDeSaoPaulo
+  Passed TermometroDaSala.Api.Tests.PrevisorModeloTestes.ArquivoAusenteOuInvalidoCaiNoProvisorio
+  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastroRecusaEntradaInvalida(id: "invalido", nome: "Sala", andar: 0, faceSol: "leste")
+  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastroRecusaEntradaInvalida(id: "sala-05", nome: "Sala", andar: 0, faceSol: "desconhecida")
+  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastroRecusaEntradaInvalida(id: "sala-05", nome: "Sala", andar: 21, faceSol: "leste")
+  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastroRecusaEntradaInvalida(id: "sala-05", nome: "Sala", andar: -1, faceSol: "leste")
+  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastroRecusaEntradaInvalida(id: "sala-05", nome: " ", andar: 0, faceSol: "leste")
+  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastroRecusaEntradaInvalida(id: "sala-05", nome: "Sala", andar: 0, faceSol: "0")
+  Passed TermometroDaSala.Api.Tests.ApiTestes.ConsultaDeLeiturasParametrizada
+  Passed TermometroDaSala.Api.Tests.ApiTestes.RecusasELeituraAceita
+  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastraSalaSemCriarSensorERecusaDuplicata
+  Passed TermometroDaSala.Api.Tests.ApiTestes.SegredoDeOutraSalaNaoAssina
+  Passed TermometroDaSala.Api.Tests.ApiTestes.LeiturasEmCsv
+  Passed TermometroDaSala.Api.Tests.ApiTestes.CoordenacaoSemChaveNaoGravaELeituraContinuaComHmac
+  Passed TermometroDaSala.Api.Tests.ApiTestes.DeltaSemTresParesENuloEComTresFechaOExemplo
+  Passed TermometroDaSala.Api.Tests.ApiTestes.UploadRemoveSegmentoApp1
+  Passed TermometroDaSala.Api.Tests.ApiTestes.EscritaAcimaDeTrintaPorMinutoResponde429
+  Passed TermometroDaSala.Api.Tests.ApiTestes.AcoesDoDiaUsamLimitesDeSaoPauloEContratoDoDesktop
+  Passed TermometroDaSala.Api.Tests.ApiTestes.FactoryUsaConnectionStringDoAmbiente
+  Passed TermometroDaSala.Api.Tests.ApiTestes.UploadRecusaOQueNaoEJpegENomeComDoisPontos
+  Passed TermometroDaSala.Api.Tests.ApiTestes.RegistraAcao
+  Passed TermometroDaSala.Api.Tests.ApiTestes.DemoSemearForaDoAmbienteDemoResponde404
+  Passed TermometroDaSala.Api.Tests.ApiTestes.DemoSemearExigeLeituraAoVivoEAncoraNela
+Total tests: 35
+     Passed: 35
+ Total time: 2.9356 Seconds
