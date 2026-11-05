@@ -84,7 +84,7 @@ O índice de calor é o da NOAA (Rothfusz), em °C com 1 casa. Faixas: abaixo de
 
 O delta é a média de (índice da sala − índice da rua) nas últimas 3 h, com no mínimo 3 pares no mesmo instante UTC, sem as leituras suspeitas. A previsão da sala é o índice da rua daqui a 2 h mais o delta. Sem pares suficientes, `deltaSala` e `indiceSalaPrevisto` vêm `null` e `semLeiturasRecentes` vem `true`: mostra-se só a rua.
 
-A rua daqui a 2 h vem do modelo linear em `TermometroDaSala.Api/modelo/modelo.json` (cópia de `ml/modelo.json`, regressão treinada no notebook com o horário do INMET, estação A701, 2022–2025). No teste de 2025 o MAE foi 1,05 °C, contra 1,44 °C do baseline "daqui a 2 h = agora". O caminho fica em `Modelo:Caminho`. Sem o arquivo, ou com JSON inválido, a API repete o índice da rua de agora e registra no log.
+A rua daqui a 2 h vem da árvore de regressão em `TermometroDaSala.Api/modelo/modelo.json` (cópia de `ml/modelo.json`, profundidade 8 e folha mínima 30, treinada no notebook com o horário do INMET, estação A701, 2022–2025). No teste de 2025 o MAE foi 0,958 °C, contra 1,442 °C do baseline "daqui a 2 h = agora". O recall do nível "cuidado" ainda é baixo; a análise está em `ml/README.md`. O caminho fica em `Modelo:Caminho`. Sem o arquivo, ou com JSON inválido, a API repete o índice da rua de agora e registra no log.
 
 No ambiente Demo, a rua vem de `demo/rua-dia-quente.csv` (dia quente de exemplo) projetado na hora local de São Paulo. `POST /demo/semear` lê `demo/leituras-simuladas.csv` e desloca a curva para terminar na última leitura ao vivo (`origem = dispositivo`), gravando as 3 h anteriores com `origem = simulada`.
 
@@ -93,6 +93,100 @@ Limitação: o delta assume que a diferença das últimas 3 h se mantém nas pr�
 ## Dados
 
 As leituras do sensor no Wokwi, as leituras do modo demonstração e as ocorrências são simuladas. Os dados meteorológicos de exemplo em `demo/` não substituem a série real do INMET. Nenhum dado de aluno é coletado. A foto é salva com nome GUID na pasta `Fotos:Pasta` e só é servida pelo id da ocorrência.
+
+## Camadas
+
+| Pasta | Responsabilidade |
+|---|---|
+| `Dominio/Entidades` | As 8 entidades persistidas e os enums `Nivel`, `Origem`, `FaceSol` e `TipoAmbiente` |
+| `Dominio/Contrato.cs` | Regras puras, sem banco: `IndiceCalor` (NOAA e faixas), `Assinatura` (HMAC do texto canônico), `ValidadorLeitura` (motivos de recusa e leitura suspeita) e `Relogio` (hora de São Paulo) |
+| `Contratos` | Entradas e saídas da API (DTOs). A entrada de ambiente valida com DataAnnotations; as saídas não devolvem as entidades do banco |
+| `Servicos` | Casos de uso: `ServicoLeituras` (recebe, valida e grava a leitura, vinda de HTTP ou MQTT), `ConsultaPrevisao` com os previsores da rua (`PrevisorRuaModelo`, `PrevisorRuaBaseline`, `PrevisorRuaDemo`) e `AssinanteMqtt` (serviço em segundo plano) |
+| `Filtros` | `ExigeChaveCoordenacao`: devolve 401 sem o cabeçalho `X-Chave-Coordenacao` correto |
+| `Controllers` | Rotas HTTP: traduzem a requisição, chamam o domínio ou o serviço e devolvem o status |
+| `Dados` | `SalaDb` (EF Core: mapeamento, FKs e semente), `SalaDbFactory` (design-time) e `Migrations` |
+
+## Modelo de dados
+
+```mermaid
+erDiagram
+    Ambiente ||--o{ Dispositivo : "tem (cascade)"
+    Ambiente ||--o{ Leitura : "recebe (cascade)"
+    Dispositivo ||--o{ Leitura : "envia (no action)"
+    Ambiente ||--o{ Previsao : "tem (cascade)"
+    Ambiente ||--o{ Ocorrencia : "tem (cascade)"
+    Ambiente ||--o{ Acao : "tem (cascade)"
+
+    Ambiente {
+        string Id PK "sala-NN"
+        string Nome
+        string Tipo
+        int Andar
+        string FaceSol
+        bool TemVentilador
+    }
+    Dispositivo {
+        string Id PK
+        string AmbienteId FK
+        string Segredo
+        bool Ativo
+        datetimeoffset UltimoMedidoEm
+    }
+    Leitura {
+        long Id PK
+        string AmbienteId FK
+        string DispositivoId FK
+        double TemperaturaC
+        int UmidadePct
+        double IndiceCalor
+        string Nivel
+        datetimeoffset MedidoEm
+        string Origem
+        bool Suspeita
+    }
+    Previsao {
+        long Id PK
+        string AmbienteId FK
+        datetimeoffset PrevistoPara
+        double IndiceRuaPrevisto
+        double DeltaSala
+        double IndiceSalaPrevisto
+        string NivelPrevisto
+        bool SemLeiturasRecentes
+        datetimeoffset CalculadaEm
+    }
+    Ocorrencia {
+        guid Id PK
+        string AmbienteId FK
+        string Descricao
+        string CaminhoFoto
+        datetimeoffset CriadaEm
+    }
+    Acao {
+        long Id PK
+        string AmbienteId FK
+        string Nivel
+        string Descricao
+        datetimeoffset RegistradaEm
+    }
+    LeituraRua {
+        long Id PK
+        datetimeoffset MedidoEm
+        double TemperaturaC
+        int UmidadePct
+        double IndiceCalor
+    }
+    NivelAcao {
+        string Nivel PK
+        string Nome
+        double IndiceMin
+        string AcaoSugerida
+    }
+```
+
+`LeituraRua` e `NivelAcao` não têm FK: a primeira guarda a série da rua e a segunda as
+faixas de nível com a ação sugerida. Os enums são gravados como texto. `Leituras` tem
+índice em `(AmbienteId, MedidoEm)`, a consulta mais usada.
 
 ## Configuração do banco e migrações
 
@@ -120,13 +214,31 @@ $env:ConnectionStrings__Sala="Server=localhost,14333;Database=TermometroDaSala;U
 # Aguarde o SQL Server ficar pronto; depois execute build, migrations list e database update acima.
 ```
 
-Histórico esperado: `20261105025544_Inicial`, `20261105033613_Enums` e `20261105050515_SegredosPorDispositivo`, que troca o segredo de demonstração das salas 01, 02 e 04.
-A segunda mantém os valores textuais e reduz o tamanho de Tipo (4), FaceSol (5),
-Nivel/NivelPrevisto (7) e Origem (11) ao tamanho dos enums. Não remove tabelas ou linhas.
-Em banco existente, confira antes se há valores fora do domínio ou maiores que esses
-limites; corrija-os com revisão antes de aplicar. Faça backup antes de migrar dados que
-precisem ser preservados. Os testes usam SQLite em memória e não comprovam a aplicação
-no SQL Server.
+Ao subir, a API aplica as migrações pendentes (`Database.Migrate()`). Para desligar,
+use `Banco__Migrar=false`.
+
+### Migrações
+
+| Ordem | Migração | O que faz |
+|---|---|---|
+| 1 | `20261105025544_Inicial` | Cria as 8 tabelas, as chaves, os índices e a semente (4 salas, 4 dispositivos e as 4 faixas de `NiveisAcao`) |
+| 2 | `20261105033613_Enums` | Mantém os valores textuais dos enums e reduz as colunas ao tamanho deles: Tipo (4), FaceSol (5), Nivel/NivelPrevisto (7) e Origem (11). Não remove tabelas nem linhas |
+| 3 | `20261105050515_SegredosPorDispositivo` | Troca o segredo de demonstração das salas 01, 02 e 04 para um por dispositivo. A sala 03 mantém o vetor público do contrato |
+
+Exclusão em cascata: apagar um ambiente apaga seus dispositivos, leituras, previsões,
+ocorrências e ações. A FK `Leituras -> Dispositivos` é `NO ACTION` (`Restrict` no EF):
+o SQL Server não aceita que uma tabela receba cascata por dois caminhos
+(`Ambientes -> Leituras` e `Ambientes -> Dispositivos -> Leituras`, erro 1785), e um
+dispositivo com leituras não deve sumir com o histórico. O teste `EsquemaTestes` confere
+o modelo e o script gerado para o SQL Server.
+
+Em banco que já tenha dados, confira antes da migração 2 se há valores fora do domínio
+ou maiores que esses limites e faça backup. Para conferir sem banco:
+
+```powershell
+dotnet ef migrations has-pending-model-changes --project TermometroDaSala.Api
+dotnet ef migrations script --idempotent --project TermometroDaSala.Api -o evidencias/migracoes-idempotente.sql
+```
 
 ## Cadastro e ações do desktop
 
@@ -179,37 +291,17 @@ e o simulador durante o roteiro para não disputar os timestamps.
    ambiente Demo e uma leitura ao vivo: 404 fora de Demo, 409 sem leitura, 201 após ela.
 
 As fotos locais ficam em `TermometroDaSala.Api/fotos/`, ignorada pelo repositório.
-Salve as capturas manuais em `api/evidencias/`, sem dados pessoais ou credenciais.
-A aplicação de migrações no SQL Server e as capturas de cada resposta ainda precisam
-ser executadas no ambiente de apresentação.
+Cada passo tem o print correspondente em [evidencias/](evidencias/README.md), sem dados
+pessoais ou credenciais.
 
-## Verificação local
-
-```powershell
-dotnet build --no-restore
-dotnet test --no-restore
-```
-
-Nesta execução local, o MSBuild padrão da solução retornou código 1 sem diagnóstico
-(zero erros reportados). A execução serial concluiu com zero avisos e 25 testes aprovados:
+## Testes automatizados
 
 ```powershell
-dotnet build --no-restore -m:1
-dotnet test --no-restore -m:1
+dotnet test
 ```
 
-Caso esta worktree não tenha `obj/project.assets.json`, gere os assets sem rede,
-utilizando somente pacotes já presentes no cache (não baixa dependências):
-
-```powershell
-dotnet restore TermometroDaSala.Api/TermometroDaSala.Api.csproj --source "$env:USERPROFILE/.nuget/packages" -p:NuGetAudit=false
-dotnet restore TermometroDaSala.Api.Tests/TermometroDaSala.Api.Tests.csproj --source "$env:USERPROFILE/.nuget/packages" -p:NuGetAudit=false --disable-parallel
-```
-
-### Limitação preexistente a conferir no SQL Server
-
-A migração Inicial define exclusão em cascata pelos dois caminhos
-`Ambientes -> Leituras` e `Ambientes -> Dispositivos -> Leituras`.
-O SQL Server pode recusar a criação dessas FKs com erro 1785 (múltiplos caminhos
-de cascata). A migração Enums não altera essas FKs; valide o histórico num banco
-de apresentação antes de afirmar que o provisionamento completo funciona.
+São 35 testes xUnit: vetores do contrato (HMAC, índice de calor, relógio de São Paulo),
+leitura do modelo de previsão, rotas da API e o esquema do banco. Os testes de rota usam
+SQLite em memória; `EsquemaTestes` monta o modelo com o provedor do SQL Server, sem
+conectar, e confere as FKs e o script das migrações. A saída da última execução está em
+[evidencias/dotnet-test.txt](evidencias/dotnet-test.txt).

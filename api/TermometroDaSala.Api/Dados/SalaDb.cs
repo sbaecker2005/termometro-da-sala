@@ -30,7 +30,8 @@ public class SalaDb : DbContext
         model.Entity<Leitura>().Property(l => l.Nivel).HasConversion<string>().HasMaxLength(7);
         model.Entity<Leitura>().Property(l => l.Origem).HasConversion<string>().HasMaxLength(11);
         model.Entity<Leitura>().HasOne(e => e.Ambiente).WithMany(a => a.Leituras).HasForeignKey(l => l.AmbienteId);
-        model.Entity<Leitura>().HasOne(l => l.Dispositivo).WithMany(d => d.Leituras).HasForeignKey(l => l.DispositivoId);
+        model.Entity<Leitura>().HasOne(l => l.Dispositivo).WithMany(d => d.Leituras).HasForeignKey(l => l.DispositivoId)
+            .OnDelete(DeleteBehavior.Restrict); // evita o erro 1785: Leituras já recebe cascata por Ambientes
         model.Entity<Leitura>().HasIndex(l => new { l.AmbienteId, l.MedidoEm });
 
         model.Entity<LeituraRua>().HasIndex(r => r.MedidoEm);

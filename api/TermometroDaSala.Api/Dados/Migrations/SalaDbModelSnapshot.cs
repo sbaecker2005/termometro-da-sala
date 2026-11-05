@@ -416,7 +416,7 @@ namespace TermometroDaSala.Api.Dados.Migrations
                     b.HasOne("TermometroDaSala.Api.Dominio.Entidades.Dispositivo", "Dispositivo")
                         .WithMany("Leituras")
                         .HasForeignKey("DispositivoId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Ambiente");
