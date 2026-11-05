@@ -9,4 +9,6 @@ public class DesktopTests
     [Fact] public void ExportaCsvSeguroEConverteODia() => ValidacoesAutoteste.CsvERelogio();
     [Fact] public Task PersisteSemSobrescreverArquivoInvalido() => ValidacoesAutoteste.Persistencia();
     [Fact] public Task UsaContratoHttpEValidaRevogacao() => ValidacoesAutoteste.ContratoApi();
+    [Fact] public Task MostraDemonstracaoSemGravarExemplos() => ValidacoesAutoteste.Demonstracao();
+    [Fact] public void MontaTelasPeloDesignerComLegenda() => ValidacoesAutoteste.Telas();
 }

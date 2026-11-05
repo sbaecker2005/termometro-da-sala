@@ -11,6 +11,16 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 - Campo `ruaDisponivel` na previsão. Quando é falso, o aviso da linha diz que a previsão usa a última leitura válida da sala.
 - Previsão com 503 `sem-dados-para-prever` aparece como "Sem dados para prever", sem tratar como falha; 404 aparece como sala não encontrada.
 - Casos de teste de contrato para previsão sem a rua, 503 com e sem o motivo e 404.
+- Modo DEMONSTRAÇÃO no modo local: sem API e sem arquivo de dados, a tela mostra quatro salas de exemplo (uma por nível), previsões e duas ações, tudo marcado como DEMONSTRAÇÃO. Os exemplos nunca são gravados.
+- Cabeçalho com o nome do sistema, legenda de cores na tela e ícone do termômetro na janela e no executável.
+- Casos de teste do encapsulamento do domínio, da demonstração e das telas montadas pelo Designer (6 no total).
+
+### Alterado
+
+- `Form1` virou `TelaCoordenacao`, com o layout inteiro no `TelaCoordenacao.Designer.cs`, para abrir no Designer do Visual Studio. O cadastro (`CadastroSala`) ganhou arquivo e Designer próprios.
+- Domínio encapsulado: `Sala.Criar` e o construtor de `Acao` validam, as propriedades têm `private set`, e a sala muda só por `Revogar()` e `ReceberLeitura()`. A classe estática `Validacoes` saiu; cada regra ficou na sua entidade.
+- `NivelCalor` em PascalCase (`Normal`, `Atencao`, `Cuidado`, `Perigo`), com conversor que mantém o JSON em minúsculas. O contrato com a API e o arquivo local da versão anterior não mudam.
+- Um arquivo por classe, nas pastas `Dominio/`, `Servicos/` e `Telas/`.
 
 ## [0.2.0] - 2026-11-05
 
