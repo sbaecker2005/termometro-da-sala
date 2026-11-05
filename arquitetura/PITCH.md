@@ -1,55 +1,69 @@
 # Termômetro da Sala: roteiro do pitch
 
-Vídeo de até 4 minutos, enviado em Testing. Tempo total do roteiro: 3min55s.
+Vídeo de até 4 minutos, enviado em Testing. Tempo total do roteiro: 3min40s, com 20 s de folga sobre o limite. O briefing pede a solução e as entregas que mais somaram: o bloco "Entregas" cumpre essa parte.
 
 Antes de gravar: os números do impacto estão na seção 7 do `DOCUMENTO.md`. Se um número mudar lá, ele muda aqui e no slide 6.
 
 | Tempo | Bloco | Slide |
 |---|---|---:|
-| 0:00 a 0:25 | Abertura | 1 e 2 |
-| 0:25 a 0:55 | Fala da pessoa entrevistada | 3 |
-| 0:55 a 2:45 | Demonstração | 4 e 5 |
-| 2:45 a 3:30 | Impacto com números | 6 |
-| 3:30 a 3:55 | Encerramento | 7 e 8 |
+| 0:00 a 0:20 | Abertura | 1 e 2 |
+| 0:20 a 0:45 | Fala da pessoa entrevistada | 3 |
+| 0:45 a 2:25 | Demonstração | 4 e 5 |
+| 2:25 a 2:40 | Entregas | telas gravadas |
+| 2:40 a 3:20 | Impacto com números | 6 |
+| 3:20 a 3:40 | Encerramento | 7 e 8 |
 
-## Abertura (0:00 a 0:25)
+## Abertura (0:00 a 0:20)
 
 > Somos o Termômetro da Sala. Eu sou Samuel Baecker, RM [preencher]. [Demais integrantes, com nome e RM.]
 >
 > Nas tardes quentes, a sala de aula passa do limite seguro sem que ninguém meça, e a escola só reage quando alguém passa mal.
 
-## Fala da pessoa entrevistada (0:25 a 0:55)
+## Fala da pessoa entrevistada (0:20 a 0:45)
 
-**[Espaço para a fala de 20 a 25 segundos: nome e função de [pessoa entrevistada], da escola [nome da escola], [bairro].]**
+**[Espaço para a fala de 20 segundos: nome e função de [pessoa entrevistada], da escola [nome da escola], [bairro].]**
 
 Peça autorização para usar a voz ou a imagem. Se a pessoa preferir, leia a frase dela com o crédito na tela. Sem alunos no vídeo. Trecho sugerido: em que horário a sala esquenta e o que acontece hoje quando isso ocorre.
 
 > [Uma frase ligando a fala ao problema.] Hoje, essa informação não existe em lugar nenhum. Vou mostrar como ela passa a existir.
 
-## Demonstração no modo demonstração (0:55 a 2:45)
+## Demonstração no modo demonstração (0:45 a 2:25)
 
 Gravar entre 12h e 17h, com a API no ambiente `Demo`. Deixe o Wokwi publicando antes de começar e rode `POST /demo/semear?ambienteId=sala-03`.
 
 | Tempo | Tela | O que mostrar | Fala |
 |---|---|---|---|
-| 0:55 a 1:15 | Wokwi | O ESP32 na porta da sala, em 33 °C, com o LED vermelho e a publicação no Serial | "Este sensor fica na porta da sala. Ele mede o calor, acende a cor do nível mesmo sem internet e envia a leitura assinada." |
-| 1:15 a 1:35 | App, lista de salas | As salas com nível e índice, e a sala 3 em Cuidado extremo | "O professor vê as salas pelo app. As cores sempre vêm com o nome do nível." |
-| 1:35 a 2:00 | App, sala 3 | Nível de agora, previsão para 2 h, ação sugerida e a etiqueta DEMONSTRAÇÃO. Rua prevista 34 + delta 4 = 38 | "O modelo, treinado com dados reais do INMET, prevê a rua daqui a 2 horas. Somamos o quanto esta sala costuma passar da rua e temos a previsão da sala. No teste, o erro médio foi 0,958 °C, contra 1,442 °C de supor que nada vai mudar. Esta etiqueta avisa que as leituras são de demonstração." |
-| 2:00 a 2:15 | Wokwi + terminal | Subir o slider em passos de até 4 °C, esperando 10 s entre eles, até a sala virar Perigo no terminal | "A sala esquentou. A coordenação vê isso em todas as salas ao mesmo tempo." |
-| 2:15 a 2:30 | Terminal da coordenação | Registrar a ação "tirar a turma da sala" | "Quem decide é a coordenação. A ação fica registrada, e é com esse registro que medimos o resultado." |
-| 2:30 a 2:45 | App, nova ocorrência | Descrição + foto da sala vazia pela câmera, e o painel web por 2 s | "O professor registra a ocorrência com foto da sala, sem pessoas. Nenhum dado de aluno entra no sistema." |
+| 0:45 a 1:00 | Wokwi | O ESP32 na porta da sala, em 33 °C, com o LED vermelho e a publicação no Serial | "Este sensor fica na porta da sala. Ele mede o calor, acende a cor do nível mesmo sem internet e envia a leitura assinada." |
+| 1:00 a 1:15 | App, lista de salas | As salas com nível e índice, e a sala 3 em Cuidado extremo | "O professor vê as salas pelo app. As cores sempre vêm com o nome do nível." |
+| 1:15 a 1:40 | App, sala 3 | Nível de agora, previsão para 2 h, ação sugerida e a etiqueta DEMONSTRAÇÃO. Rua prevista 34 + delta 4 = 38 | "O modelo, treinado com dados reais do INMET, prevê a rua daqui a 2 horas. Somamos o quanto esta sala costuma passar da rua e temos a previsão da sala. No teste, o erro médio foi 0,958 °C, contra 1,442 °C de supor que nada vai mudar. Esta etiqueta avisa que as leituras são de demonstração." |
+| 1:40 a 1:55 | Wokwi + terminal | Subir o slider em passos de até 4 °C, esperando 10 s entre eles, até a sala virar Perigo no terminal | "A sala esquentou. A coordenação vê isso em todas as salas ao mesmo tempo." |
+| 1:55 a 2:10 | Terminal da coordenação | Registrar a ação "tirar a turma da sala" | "Quem decide é a coordenação. A ação fica registrada, e é com esse registro que medimos o resultado." |
+| 2:10 a 2:25 | App, nova ocorrência | Descrição + foto da sala vazia pela câmera, e o painel web por 2 s | "O professor registra a ocorrência com foto da sala, sem pessoas. Nenhum dado de aluno entra no sistema." |
 
 Com 55 % de umidade, a sala já vira Perigo no passo de 37 °C. Nesse caso, pare o slider ali. Arrastar 12 °C de uma vez gera uma leitura suspeita e atrapalha a cena.
 
-## Impacto (2:45 a 3:30)
+## Entregas (2:25 a 2:40)
 
-> A Seduc-SP publica cerca de 3,5 milhões de alunos na rede estadual. No Censo de 2024, 67.468 de 70.346 salas estaduais não têm climatização, 95,9 %. Se essa parcela valer para as matrículas, são cerca de 3,36 milhões de alunos. Trinta e cinco por turma continua premissa.
->
-> O INMET chama de onda de calor a máxima 5 graus acima da média do mês, por cinco dias, numa área ampla. Na capital, de 2022 a 2025, a rua chegou a 34 graus em 21 dias. Isso não é a contagem oficial de ondas, e é na rua. Dentro da sala, ninguém mede.
->
-> Nosso indicador é simples: aulas em Perigo sem ação registrada. A meta é zero.
+Cortes rápidos de 3 a 4 s cada, gravados antes, com o nome da disciplina na tela.
 
-## Encerramento (3:30 a 3:55)
+| Tela | Disciplina |
+|---|---|
+| Archi com a "Visão em quatro camadas" aberta (`arquitetura/termometro-da-sala.archimate`) | Arquitetura (TOGAF) |
+| Notebook do modelo com a tabela de MAE de validação e teste | Machine Learning |
+| Saída do `dotnet test` com os 32 testes passando | C# e Testing |
+| Windows Server com o IIS e o pool da API | Operating Systems |
+
+> Por trás da demonstração: o modelo ArchiMate em quatro camadas, o notebook com dados reais do INMET, a API com 32 testes passando e o servidor Windows que publica tudo.
+
+## Impacto (2:40 a 3:20)
+
+> A Seduc-SP publica cerca de 3,5 milhões de alunos na rede estadual. No Censo de 2024, 67.468 de 70.346 salas estaduais não têm climatização, 95,9 %. Se essa parcela valer para as matrículas, são cerca de 3,36 milhões de alunos.
+>
+> Na capital, de 2022 a 2025, a rua chegou a 34 graus em 21 dias. Não é a contagem oficial de ondas de calor do INMET, e é na rua. Dentro da sala, ninguém mede.
+>
+> Nosso indicador é simples: aulas em Perigo sem ação registrada. No piloto de quatro semanas, a meta é zero, com a ação registrada em até 15 minutos depois do alerta.
+
+## Encerramento (3:20 a 3:40)
 
 > O Termômetro da Sala não climatiza a sala. Ele faz uma coisa que hoje ninguém faz: mostra o calor antes de alguém passar mal e registra o que foi feito. Esse histórico vira a prova para pedir a obra que a escola precisa.
 >
@@ -91,6 +105,6 @@ Com 55 % de umidade, a sala já vira Perigo no passo de 37 °C. Nesse caso, pare
 - Aplicação e tecnologia: API, app, terminal, painel, ESP32, Windows Server
 
 ### Slide 8: O que muda
-- Indicador: aulas em Perigo sem ação registrada. Meta: zero
+- Indicador: aulas em Perigo sem ação registrada. Meta do piloto (4 semanas): zero, com ação em até 15 min do alerta
 - O histórico por sala mostra onde climatizar primeiro
 - Termômetro da Sala
