@@ -1,11 +1,12 @@
 #Requires -RunAsAdministrator
-[CmdletBinding()]
+[CmdletBinding(SupportsShouldProcess)]
 param(
     [ValidatePattern('^[A-Za-z0-9_-]+$')][string]$Site = 'Termometro',
     [ValidatePattern('^[A-Za-z0-9_-]+$')][string]$Pool = 'TermometroPool',
     [string]$SitePath = 'C:\Sites\Termometro',
     [string]$PhotosPath = 'C:\Dados\Termometro\Fotos',
-    [string]$DnsName = 'api.termometro.local',
+    [ValidatePattern('^[A-Za-z0-9.-]+$')][string]$DnsName = 'api.termometro.local',
+    [string]$CertExportPath = 'C:\GS\api-termometro.cer',
     [switch]$MqttDesligado
 )
 $ErrorActionPreference = 'Stop'
@@ -14,6 +15,8 @@ $photosFolder = [IO.Path]::GetFullPath($PhotosPath).TrimEnd('\')
 if ($siteFolder -eq $photosFolder -or $photosFolder.StartsWith("$siteFolder\",[StringComparison]::OrdinalIgnoreCase) -or $siteFolder.StartsWith("$photosFolder\",[StringComparison]::OrdinalIgnoreCase)) {
     throw 'Site e fotos devem ser pastas separadas, sem sobreposicao.'
 }
+# Ensaio: -WhatIf confere os parametros acima e para aqui, sem instalar nem gravar nada.
+if (-not $PSCmdlet.ShouldProcess($env:COMPUTERNAME, "IIS, pool $Pool, site $Site (HTTP 80 e HTTPS 443 em $DnsName), pastas, ACL e firewall")) { return }
 Install-WindowsFeature Web-Server,Web-Mgmt-Console,Web-AppInit,Web-Http-Logging,Web-Request-Monitor,FS-FileServer -IncludeManagementTools | Out-Null
 Import-Module WebAdministration
 foreach ($path in $SitePath,$PhotosPath) { New-Item -ItemType Directory -Path $path -Force | Out-Null }
@@ -89,5 +92,24 @@ Set-PoolVar 'ASPNETCORE_HTTPS_PORT' '443'
 Set-PoolVar 'Banco__Migrar' 'false'
 if ($MqttDesligado -or $env:Mqtt__Desligado -eq 'true') { Set-PoolVar 'Mqtt__Desligado' 'true' }
 elseif ($env:Mqtt__Desligado -eq 'false') { Set-PoolVar 'Mqtt__Desligado' 'false' }
+# HTTPS: a API redireciona para 443 em Production, entao o binding e a porta 443 saem daqui.
+# Reaproveita o certificado valido do nome; so cria outro se nao houver.
+$cert = @(Get-ChildItem Cert:\LocalMachine\My | Where-Object { $_.Subject -eq "CN=$DnsName" -and $_.HasPrivateKey -and $_.NotAfter -gt (Get-Date).AddDays(30) } | Sort-Object NotAfter -Descending) | Select-Object -First 1
+if (-not $cert) { $cert = New-SelfSignedCertificate -DnsName $DnsName -CertStoreLocation Cert:\LocalMachine\My }
+# So a parte publica vai para Root da propria VM: sem isso os testes HTTPS do 08 e do 09 param por falta de confianca.
+New-Item -ItemType Directory -Path (Split-Path -Parent $CertExportPath) -Force | Out-Null
+Export-Certificate -Cert $cert -FilePath $CertExportPath | Out-Null
+if (-not (Test-Path "Cert:\LocalMachine\Root\$($cert.Thumbprint)")) { Import-Certificate -FilePath $CertExportPath -CertStoreLocation Cert:\LocalMachine\Root | Out-Null }
+if (-not (Get-WebBinding -Name $Site -Protocol https -Port 443 -HostHeader $DnsName)) {
+    New-WebBinding -Name $Site -Protocol https -Port 443 -HostHeader $DnsName -SslFlags 1
+}
+# SNI: o certificado fica preso ao nome; binding que ja tem certificado e preservado.
+if (-not (Test-Path "IIS:\SslBindings\!443!$DnsName")) {
+    (Get-WebBinding -Name $Site -Protocol https -Port 443 -HostHeader $DnsName).AddSslCertificate($cert.Thumbprint, 'My')
+}
+if (-not (Get-NetFirewallRule -Name TermometroHTTPS -ErrorAction SilentlyContinue)) {
+    New-NetFirewallRule -Name TermometroHTTPS -DisplayName 'Termometro HTTPS laboratorio' -Direction Inbound -Action Allow -Protocol TCP -LocalPort 443 -Profile Domain,Private -RemoteAddress LocalSubnet | Out-Null
+}
 if ((Get-WebAppPoolState -Name $Pool).Value -eq 'Started') { Restart-WebAppPool -Name $Pool }
+Write-Host "HTTPS 443 em $DnsName com o certificado $($cert.Thumbprint); parte publica em $CertExportPath, para importar no cliente. Firewall 80 e 443 so para a sub-rede local."
 Write-Host 'Pool: ConnectionStrings__Sala, Fotos__Pasta, ChaveCoordenacao, ASPNETCORE_ENVIRONMENT=Production, ASPNETCORE_HTTPS_PORT=443, Banco__Migrar=false. MQTT ligado exige NAT de saida na 1883; senao use -MqttDesligado. Instale o Hosting Bundle .NET 8 x64 depois do IIS e reinicie a VM. Fotos ficam fora do site; nao sao compartilhadas por SMB.'

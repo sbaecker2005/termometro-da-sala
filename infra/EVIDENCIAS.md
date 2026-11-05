@@ -2,6 +2,8 @@
 
 Nenhuma evidência foi coletada por este roteiro. Use somente dados simulados; recorte senhas, chaves, tokens e detalhes privados. Guarde prints em `infra/evidencias/` quando existirem; não crie prints vazios. Registre resultado real, inclusive falhas. Datas dos logs IIS são UTC.
 
+As saídas de comando de E01 a E12 saem prontas do `10-coletar-evidencias.ps1` (README, passo 10), um arquivo por item em `infra/evidencias/AAAA-MM-DD/`. Em cada "Print/saída" abaixo, coloque o link desse arquivo e o print de tela que o comando não cobre.
+
 Equipe/RMs: [preencher]  
 Data/fuso do ensaio: [preencher]  
 Versão Windows/avaliação e hipervisor: [preencher]  
@@ -126,9 +128,10 @@ Print/saída e leitura de `\\termometro.local\Escola\Manuais` como coordenador: 
 ```powershell
 logman query Termometro-Alertas
 logman query Termometro-Recursos
+schtasks /query /tn Termometro-Monitoramento-Boot /v /fo LIST
 ```
 
-Prints dos três contadores com caminhos localizados, limites e estado Running: [colar]. BLG/histórico: [link]. Evento de alerta de cada recurso no ensaio separado (contador, limite, valor, provedor e hora): [colar]. Tarefa/agendamento para iniciar após boot, reinicialização e coletor operacional ativo: [colar]. Limites temporários removidos e operacionais restaurados: [preencher].
+Prints dos três contadores com caminhos localizados, limites, ação `Termometro-Recursos` no disparo e estado Running: [colar]. BLG/histórico: [link]. Evento de alerta de cada recurso no ensaio separado (contador, limite, valor, provedor e hora): [colar]. Tarefa `Termometro-Monitoramento-Boot`, reinicialização e os dois conjuntos em Running sem intervenção: [colar]. Limites temporários removidos e operacionais restaurados: [preencher].
 
 ## E10 — recuperação do pool (1 ponto com E11)
 
@@ -149,7 +152,9 @@ Print de isolamento do PID e saída do 09 parte Servico: [colar]. PID antes/depo
 
 ```powershell
 Get-WinEvent -FilterHashtable @{LogName='System'; StartTime=(Get-Date).AddMinutes(-15)} -MaxEvents 60 | Select-Object TimeCreated,ProviderName,Id,Message
-Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4624,4625,4656,4663; StartTime=(Get-Date).AddMinutes(-15)} -MaxEvents 30 | Select-Object TimeCreated,Id,Message
+Get-WinEvent -LogName Security -FilterXPath "*[System[EventID=4624 and TimeCreated[timediff(@SystemTime) <= 900000]] and EventData[Data[@Name='LogonType']='10']]" -MaxEvents 30 | Select-Object TimeCreated,Id,Message
+Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4625; StartTime=(Get-Date).AddMinutes(-15)} -MaxEvents 30 | Select-Object TimeCreated,Id,Message
+Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4656,4663; StartTime=(Get-Date).AddMinutes(-15)} -MaxEvents 30 | Select-Object TimeCreated,Id,Message
 ```
 
 Selecione só eventos do ensaio antes de publicar saídas. Prints System, Application, Security e trecho de `C:\inetpub\logs\LogFiles\W3SVC<ID>\u_ex*.log` com URL/sc-status e hora UTC: [colar]. Mostre causa, PID/serviço e requisição após recuperação; não prometa IDs que o Windows não gerou.
@@ -164,7 +169,7 @@ Não marque E13 só com o processo no ar. As duas URLs, a migração e uma leitu
 
 - [ ] Ficha, bairro, link, equipe e RMs preenchidos.
 - [ ] E01–E13 com provas reais e sem segredos.
-- [ ] Sintaxe dos nove scripts aprovada e ensaio completo na VM.
+- [ ] Sintaxe dos dez scripts aprovada, ensaio completo na VM e `10-coletar-evidencias.ps1` rodado no servidor e no cliente (E02).
 - [ ] RDS mínimo confirmado com professor, ou implantação completa evidenciada.
 - [ ] Vídeo acessível, duração até 7 min e fluxo real completo.
 - [ ] Um integrante enviou o formulário de entrega (link do repositório e do vídeo) até 19/11 às 23h55.

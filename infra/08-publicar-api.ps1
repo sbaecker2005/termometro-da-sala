@@ -1,5 +1,5 @@
 #Requires -RunAsAdministrator
-[CmdletBinding()]
+[CmdletBinding(SupportsShouldProcess)]
 param(
     [Parameter(Mandatory)][string]$PublishPath,
     [string]$SitePath = 'C:\Sites\Termometro',
@@ -25,6 +25,14 @@ if (-not (Get-WebGlobalModule | Where-Object Name -eq 'AspNetCoreModuleV2')) { t
 if (-not (Test-Path -LiteralPath "$source\wwwroot\index.html" -PathType Leaf)) { throw 'Painel wwwroot/index.html ausente.' }
 $photosFolder = [IO.Path]::GetFullPath($PhotosPath).TrimEnd('\')
 if (-not (Test-Path -LiteralPath $photosFolder -PathType Container)) { throw "Pasta de fotos ausente: $photosFolder. Rode o 04." }
+# A API redireciona para 443 em Production: sem binding com certificado e porta 443 aberta, a sonda HTTPS falharia depois da copia.
+if ($ProbeUri.Scheme -eq 'https') {
+    $sni = "IIS:\SslBindings\!$($ProbeUri.Port)!$($ProbeUri.Host)"
+    if (-not (Get-WebBinding -Protocol https -Port $ProbeUri.Port -HostHeader $ProbeUri.Host) -or -not (Test-Path $sni)) { throw "Binding HTTPS $($ProbeUri.Port) com certificado ausente para $($ProbeUri.Host). Rode o 04." }
+    if (-not (Get-NetFirewallRule -Name TermometroHTTPS -ErrorAction SilentlyContinue)) { throw 'Regra de firewall TermometroHTTPS (443) ausente. Rode o 04.' }
+}
+# Ensaio: -WhatIf confere a publicacao, o modulo, as pastas e o HTTPS acima e para aqui, sem parar o pool nem copiar.
+if (-not $PSCmdlet.ShouldProcess($Pool, "Gravar variaveis do pool, backup em $backups e copia de $source para $target")) { return }
 function Get-PoolVar([string]$Name) {
     try {
         $vars = @(Get-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.applicationHost/applicationPools/add[@name='$Pool']" -Name environmentVariables -ErrorAction Stop).Collection

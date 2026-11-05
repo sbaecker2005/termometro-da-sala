@@ -2,7 +2,7 @@
 
 ## Preparação
 
-Use somente a VM isolada e com checkpoint. Termine o README e publique a aplicação. O 09 testa por HTTPS, então a parte pública do certificado precisa estar em `Cert:\LocalMachine\Root` **da própria VM** (README, passo 4, "HTTPS no laboratório"): sem isso o `Invoke-WebRequest` para com erro de confiança antes de matar o processo. Confira antes:
+Use somente a VM isolada e com checkpoint. Termine o README e publique a aplicação. O 09 testa por HTTPS, então a parte pública do certificado precisa estar em `Cert:\LocalMachine\Root` **da própria VM**; o `04-iis.ps1` faz essa importação (README, passo 4, "HTTPS no laboratório"). Sem isso o `Invoke-WebRequest` para com erro de confiança antes de matar o processo. Confira antes:
 
 ```powershell
 Get-ChildItem Cert:\LocalMachine\Root | Where-Object Subject -eq 'CN=api.termometro.local'
