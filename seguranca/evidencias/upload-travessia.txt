@@ -1,14 +1,10 @@
-comando: dotnet test (trecho de UploadRecusaOQueNaoEJpegENomeComDoisPontos, arquivo ../x.jpg)
-4108-          WHERE "a"."Id" = @__entrada_AmbienteId_0)
-4109-warn: TermometroDaSala.Api.Controllers.OcorrenciasController[0]
-4110:      ocorrencia recusada: nome-invalido
-4111-warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]
-4112-      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.
---
-4120-          WHERE "a"."Id" = @__entrada_AmbienteId_0)
-4121-warn: TermometroDaSala.Api.Controllers.OcorrenciasController[0]
-4122:      ocorrencia recusada: nome-invalido
-4123-warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]
-4124-      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.
-
-4311:  Passed TermometroDaSala.Api.Tests.ApiTestes.UploadRecusaOQueNaoEJpegENomeComDoisPontos [207 ms]
+Evidencia C3: upload com nome de arquivo com travessia
+Ambiente: Windows 11, .NET SDK 8.0.427, banco SQLite em memoria dos testes (nenhum banco real)
+Data: 05/11/2026 08:59 (UTC-3)
+Origem: trecho do log da execucao do Comando 2 de dotnet-test-seguranca.txt (16 testes de seguranca, 16 aprovados)
+Teste: ApiTestes.UploadRecusaOQueNaoEJpegENomeComDoisPontos (ApiTestes.cs:142-150), nomes ../foto.jpg e ../x.jpg
+Linhas de log obtidas (OcorrenciasController.cs:22-23, log em :111):
+  ocorrencia recusada: nome-invalido
+  ocorrencia recusada: nome-invalido
+Esperado: 400 com motivo nome-invalido para os dois nomes. Obtido: duas recusas nome-invalido e teste aprovado (o .txt cai em 400 nao-jpeg).
+Resultado: Passed TermometroDaSala.Api.Tests.ApiTestes.UploadRecusaOQueNaoEJpegENomeComDoisPontos

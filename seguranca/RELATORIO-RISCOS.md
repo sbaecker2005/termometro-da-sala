@@ -3,10 +3,26 @@
 ## Relatório de Gestão de Riscos
 
 **Equipe:** Termômetro da Sala  
-**Integrante informado:** Samuel Baecker - RM [preencher]  
+**Integrantes:** Samuel Baecker - RM [preencher]; [preencher demais integrantes - RM]  
 **Disciplina:** Cybersecurity  
 **Instituição:** FIAP — Engenharia de Software, Global Solution 2026.2  
 **Data da análise:** 05/11/2026
+
+## Resumo executivo
+
+O Termômetro da Sala mede o calor de salas de aula sem climatização (ESP32), envia as leituras assinadas por MQTT a uma API ASP.NET Core com SQL Server e apoia a coordenação na decisão de agir. O professor registra ocorrências com foto pelo app. Os ativos mais sensíveis são as **fotos de ocorrência** (podem expor menores, LGPD art. 14), os **segredos dos dispositivos** e o **servidor Windows**.
+
+A análise seguiu a ISO/IEC 27005:2022 e a NIST SP 800-30 Rev. 1, com ameaças classificadas por STRIDE e vulnerabilidades ligadas ao OWASP Top 10 2021 e ao CWE. Foram identificados **14 riscos**. Sem controles, 6 eram críticos e 8 altos. Com os controles que o código já executa e que a suíte de testes comprova (32 de 32 testes aprovados em 05/11/2026), ficam **1 crítico, 3 altos, 8 moderados e 2 baixos**.
+
+| Prioridade | Risco | Classe depois | O que segue aberto |
+|---|---|---|---|
+| 1 | R9 — acesso indevido por RDP ao servidor | Crítico (20) | GPO, firewall e auditoria têm roteiro (`infra/06-gpo.ps1`, `infra/04-iis.ps1`), mas ainda não foram aplicados e comprovados no laboratório Windows Server (E11) |
+| 2 | R6 — foto que identifica aluno (OSINT/LGPD) | Alto (10) | O upload remove EXIF, mas um rosto na imagem só é barrado pela revisão humana |
+| 3 | R13 — MQTT na porta 1883 sem TLS | Alto (10) | Leituras trafegam em claro no broker público; aceito só no laboratório com dados simulados |
+| 4 | R14 — sem HSTS e cabeçalhos de segurança | Alto (12) | `Program.cs` não usa `UseHsts` nem `nosniff`; o roteiro do IIS ainda não cria o binding 443 |
+| 5 | R12 — foto lida sem autorização | Moderado (8) | `GET /ocorrencias/{id}/foto` exige só o GUID da ocorrência; lacuna declarada |
+
+Nenhuma credencial de produção nem dado de aluno foi encontrado no repositório público (exercício de OSINT na seção 4.1). Os segredos `segredo-de-teste-sala-01` a `-04` são **valores de teste, públicos de propósito e revogáveis**, e serão revogados após a avaliação de 19/11/2026.
 
 ## 1. Escopo e ficha resumida
 
@@ -24,9 +40,30 @@
 
 O escopo inclui banco, API REST, assinante MQTT, servidor Windows, dispositivo, configuração de segredos, contas administrativas e imagens. Abrange SQL Injection (SQLi), inclusão/leitura indevida de arquivo local (LFI), exposição por fontes abertas (OSINT), acesso remoto e disponibilidade. Não é certificação de segurança nem validação clínica dos limites de calor.
 
-**Estado observado em 05/11/2026:** a API tem salas, leituras assinadas, ocorrências, ações, revogação e previsão. O HMAC usa segredo distinto por dispositivo. A coordenação escreve com `X-Chave-Coordenacao`. As rotas de escrita têm cota de 30 pedidos por minuto por IP. O upload regrava o JPEG sem APP1. O app do professor continua com simulação por padrão (`app/app.config.ts:4`). GPO, firewall, nmap e IIS não foram executados nesta pasta: ficam para a VM do Samuel. As saídas locais estão em [evidencias/](evidencias/).
+**Estado observado em 05/11/2026:** a API tem salas, leituras assinadas, ocorrências, ações, revogação e previsão. O HMAC usa segredo distinto por dispositivo. A coordenação escreve com `X-Chave-Coordenacao`. As rotas de escrita têm cota de 30 pedidos por minuto por IP. O upload regrava o JPEG sem APP1. O app do professor continua com simulação por padrão (`app/app.config.ts:4`). GPO, firewall, nmap e IIS têm roteiro na pasta `infra/`, mas a aplicação e a coleta no laboratório Windows Server ainda não foram feitas. As saídas locais estão em [evidencias/](evidencias/).
 
-## 2. Inventário e classificação dos ativos
+## 2. Método
+
+A análise segue o processo de gestão de riscos da **ISO/IEC 27005:2022** e as etapas de avaliação da **NIST SP 800-30 Rev. 1**:
+
+| Etapa (ISO/IEC 27005) | O que foi feito (NIST SP 800-30, tarefa 2) | Seção |
+|---|---|---|
+| Estabelecimento do contexto | Escopo, partes interessadas e critérios de aceitação do risco | 1 e 5 |
+| Identificação | Inventário dos ativos; fontes e eventos de ameaça; vulnerabilidades e condições predisponentes | 3 e 4 |
+| Análise | Probabilidade (1 a 5) e impacto (1 a 5) de cada evento, antes e depois dos controles | 5 |
+| Avaliação | Pontuação P × I comparada com o critério de aceitação | 5 |
+| Tratamento | Controles com critério de aceitação, tipo, controle da ISO/IEC 27001:2022 Anexo A, custo e responsável | 6 |
+| Monitoramento e comunicação | Riscos residuais, gatilhos de reavaliação e evidências | 7 e 8 |
+
+Classificações usadas:
+
+- **STRIDE** para a natureza da ameaça: S falsificação de identidade, T adulteração, R repúdio, I divulgação de informação, D negação de serviço, E elevação de privilégio.
+- **OWASP Top 10 2021** (e OWASP API Security Top 10 2023 quando o Top 10 não tem categoria) e **CWE** para a vulnerabilidade.
+- **ISO/IEC 27001:2022, Anexo A** para os controles.
+
+A escala é semiquantitativa, como a da NIST SP 800-30 (cinco níveis). Os valores são julgamento da equipe a partir do código e da arquitetura, sem frequência de incidentes medida. O impacto pode continuar elevado mesmo quando a probabilidade cai. Opções de tratamento da ISO/IEC 27005: modificar (mitigar com controle), reter (aceitar), evitar ou compartilhar.
+
+## 3. Inventário e classificação dos ativos
 
 Escala de criticidade de confidencialidade (C), integridade (I) e disponibilidade (D): **baixa**, **média** ou **alta**, conforme o dano da exposição, alteração ou indisponibilidade. Criticidade não é probabilidade de ataque.
 
@@ -41,32 +78,49 @@ Escala de criticidade de confidencialidade (C), integridade (I) e disponibilidad
 | A7 | Fotos de ocorrências e metadados | Alta | Alta | Média | Aplicativo/backend; podem identificar pessoas e local, embora isso seja proibido pelo projeto |
 | A8 | App, desktop e painel público | Média | Alta | Média | Interfaces; painel mostra somente informação por sala, sem fotos; dados do professor ficam no aparelho |
 
-O app armazena nome e escola do professor localmente (`app/services/professor.ts:5` e `:19`); isso continua sendo dado pessoal de adulto, sem equivaler a autenticação. O objetivo de não coletar dados de aluno não significa ausência de qualquer dado pessoal.
+O app armazena nome e escola do professor localmente (`app/services/professor.ts:6` e `:19`); isso continua sendo dado pessoal de adulto, sem equivaler a autenticação. O objetivo de não coletar dados de aluno não significa ausência de qualquer dado pessoal.
 
-## 3. Ameaças, vulnerabilidades e consequências
+## 4. Ameaças, vulnerabilidades e consequências
 
-| Risco | Ativos | Agente e cenário concreto | Vulnerabilidade a impedir | Consequência |
-|---|---|---|---|---|
-| R1 — leitura forjada | A1, A2, A4 | Pessoa no tópico público publica calor falso para liberar a turma ou ocultar calor real | Ingestão sem assinatura por dispositivo ou sem associação dispositivo/ambiente | Alerta e previsão incorretos; decisão operacional prejudicada |
-| R2 — reenvio | A1, A2 | Ouvinte copia uma mensagem válida e a publica novamente, inclusive após reinício da API | Aceitar timestamp igual/anterior; estado antirreenvio só em memória; corrida entre MQTT e HTTP | Histórico duplicado ou leitura antiga tratada como atual |
-| R3 — SQLi na consulta de leituras | A1, A2 | Cliente manda apóstrofo e `OR 1=1` no id de `GET /ambientes/{id}/leituras` | Concatenar o id em SQL | Leitura ou alteração indevida de registros |
-| R4 — LFI no download | A3, A7 | Cliente tenta `../`, caminho absoluto ou nome de arquivo do Windows no identificador da foto | Usar caminho fornecido pelo cliente em leitura de disco | Exposição de configuração, credenciais ou arquivos do servidor |
-| R5 — upload malicioso | A2, A3, A7 | Cliente envia script como JPEG, nome com travessia ou arquivo grande | Confiar em extensão/MIME, permitir execução no diretório de imagens ou não limitar tamanho | Execução, sobrescrita de arquivos ou disco cheio |
-| R6 — OSINT e LGPD | A7, A8 | Terceiro reconhece aluno, uniforme, placa, documento ou localização em foto pública | Fotografar pessoas, enviar EXIF/localização ou publicar fotos no mural/repositório | Identificação e exposição de menor de idade |
-| R7 — segredo do Wokwi | A4, A5 | Visitante do projeto copia o segredo e assina novas mensagens daquele dispositivo | Link do simulador permite ver todos os arquivos, inclusive secrets.h | HMAC válido produzido por terceiro até revogação |
-| R8 — negação de serviço | A2, A4 | Terceiro ocupa o tópico com lixo; broker público cai ou limita conexões | Dependência de serviço público sem garantia de capacidade; payloads sem limite | Falta de medições recentes e atraso na resposta da coordenação |
-| R9 — acesso indevido/RDP | A1, A3, A6 | Conta comum ou atacante tenta logon remoto no servidor | RDP exposto, permissões amplas, senha fraca e auditoria desativada | Tomada do servidor e dos dados |
-| R10 — credenciais versionadas | A1, A3, A5 | Leitor de repositório, histórico, print ou log recupera segredo | Segredo em configuração rastreada; acreditar que ignorar arquivo remove histórico | Forja de leituras, acesso ao banco ou servidor |
-| R11 — semeadura indevida | A1, A2 | Cliente chama POST /demo/semear no ambiente de produção | Rota de carga simulada registrada em qualquer ambiente e sem HMAC | Histórico artificial influencia previsão real |
-| R12 — operações administrativas sem controle | A2, A6, A7 | Cliente direto tenta registrar ação, revogar sensor ou ler foto sem autorização | Confundir identificação local do professor e middleware com autenticação/autorização | Decisões falsas, revogação indevida e acesso a imagens |
+| Risco | Ativos | Agente e cenário concreto | Vulnerabilidade a impedir | Consequência | STRIDE | OWASP 2021 | CWE |
+|---|---|---|---|---|---|---|---|
+| R1 — leitura forjada | A1, A2, A4 | Pessoa no tópico público publica calor falso para liberar a turma ou ocultar calor real | Ingestão sem assinatura por dispositivo ou sem associação dispositivo/ambiente | Alerta e previsão incorretos; decisão operacional prejudicada | S, T | A07 | CWE-345 |
+| R2 — reenvio | A1, A2 | Ouvinte copia uma mensagem válida e a publica novamente, inclusive após reinício da API | Aceitar timestamp igual/anterior; estado antirreenvio só em memória; corrida entre MQTT e HTTP | Histórico duplicado ou leitura antiga tratada como atual | S, T | A07 | CWE-294 |
+| R3 — SQLi na consulta de leituras | A1, A2 | Cliente manda apóstrofo e `OR 1=1` no id de `GET /ambientes/{id}/leituras` | Concatenar o id em SQL | Leitura ou alteração indevida de registros | T, I | A03 | CWE-89 |
+| R4 — LFI no download | A3, A7 | Cliente tenta `../`, caminho absoluto ou nome de arquivo do Windows no identificador da foto | Usar caminho fornecido pelo cliente em leitura de disco | Exposição de configuração, credenciais ou arquivos do servidor | I | A01 | CWE-22 |
+| R5 — upload malicioso | A2, A3, A7 | Cliente envia script como JPEG, nome com travessia ou arquivo grande | Confiar em extensão/MIME, permitir execução no diretório de imagens ou não limitar tamanho | Execução, sobrescrita de arquivos ou disco cheio | T, E, D | A04 | CWE-434 |
+| R6 — OSINT e LGPD | A7, A8 | Terceiro reconhece aluno, uniforme, placa, documento ou localização em foto pública | Fotografar pessoas, enviar EXIF/localização ou publicar fotos no mural/repositório | Identificação e exposição de menor de idade | I | A01 | CWE-359, CWE-212 |
+| R7 — segredo do Wokwi | A4, A5 | Visitante do projeto copia o segredo e assina novas mensagens daquele dispositivo | Link do simulador permite ver todos os arquivos, inclusive secrets.h | HMAC válido produzido por terceiro até revogação | I, S | A07 | CWE-798 |
+| R8 — negação de serviço | A2, A4 | Terceiro ocupa o tópico com lixo; broker público cai ou limita conexões | Dependência de serviço público sem garantia de capacidade; payloads sem limite | Falta de medições recentes e atraso na resposta da coordenação | D | API4:2023 | CWE-770 |
+| R9 — acesso indevido/RDP | A1, A3, A6 | Conta comum ou atacante tenta logon remoto no servidor | RDP exposto, permissões amplas, senha fraca e auditoria desativada | Tomada do servidor e dos dados | S, E | A07 | CWE-307, CWE-269 |
+| R10 — credenciais versionadas | A1, A3, A5 | Leitor de repositório, histórico, print ou log recupera segredo | Segredo em configuração rastreada; acreditar que ignorar arquivo remove histórico | Forja de leituras, acesso ao banco ou servidor | I | A07 | CWE-798 |
+| R11 — semeadura indevida | A1, A2 | Cliente chama POST /demo/semear no ambiente de produção | Rota de carga simulada registrada em qualquer ambiente e sem HMAC | Histórico artificial influencia previsão real | T | A05 | CWE-489 |
+| R12 — operações administrativas sem controle | A2, A6, A7 | Cliente direto tenta registrar ação, revogar sensor ou ler foto sem autorização | Confundir identificação local do professor e middleware com autenticação/autorização | Decisões falsas, revogação indevida e acesso a imagens | E, S, I | A01 | CWE-862, CWE-639 |
+| R13 — MQTT sem TLS | A2, A4 | Qualquer pessoa assina o tópico `fiap-gs/termometro-da-sala/leituras` em `broker.hivemq.com:1883` e lê ou altera mensagens em trânsito | Porta 1883 sem TLS e sem autenticação no broker (`api/TermometroDaSala.Api/appsettings.json:6-7`, `esp32/sketch.ino:124`) | Leituras e identificadores de dispositivo expostos; base para R1, R2 e R8 | I, T | A02 | CWE-319 |
+| R14 — sem HSTS e cabeçalhos de segurança | A2, A6, A8 | Na rede da escola, alguém força o navegador a usar HTTP (rebaixamento) e captura a `X-Chave-Coordenacao`, ou explora a interpretação de conteúdo pelo navegador | `Program.cs` não chama `UseHsts` nem envia `X-Content-Type-Options: nosniff`; o roteiro do IIS libera só a porta 80 | Chave da coordenação capturada; ações e revogações falsas | I, T | A05 | CWE-319, CWE-693 |
 
 `UseAuthorization()` em `api/TermometroDaSala.Api/Program.cs:67` sozinho não protege as rotas. A escrita da coordenação passa pelo filtro `ExigeChaveCoordenacaoAttribute`. Leitura de foto e `POST /ocorrencias` seguem sem essa chave.
 
-## 4. Matriz de risco: probabilidade × impacto
+### 4.1 Exercício de OSINT sobre o próprio projeto
+
+Em 05/11/2026 a equipe procurou, na cópia local do repositório público, o que um terceiro descobre sem acesso privilegiado. Comandos e saídas estão em [evidencias/osint.txt](evidencias/osint.txt).
+
+| Achado | Onde | Decisão |
+|---|---|---|
+| Segredos `segredo-de-teste-sala-01` a `-04` (44 ocorrências em 18 arquivos) | `api/TermometroDaSala.Api/Dados/SalaDb.cs:64-67`, migrações, testes, `esp32/secrets.exemplo.h`, `CONTRATO.md` | **Valores de teste**, publicados de propósito como vetor do contrato HMAC para a banca reproduzir a assinatura. Valem só para os quatro dispositivos semeados do laboratório e nunca são chave de produção. A coordenação revoga os quatro com `POST /dispositivos/{id}/revogar` após a avaliação; um uso real cadastra dispositivos novos com segredo gerado fora do repositório |
+| Broker e tópico MQTT públicos | `appsettings.json:6-8`, `esp32/sketch.ino:124` | Aceito só no laboratório (R13); leitura assinada (C1) e sem dado pessoal |
+| Chave da coordenação e senha de banco | Nenhum valor no repositório; `api/insomnia.json` traz o campo vazio e `api/README.md:119` usa variável de ambiente | Nada a remover |
+| Nomes de pessoas | Só o nome do integrante, exigido nas entregas; nenhum e-mail, telefone, aluno ou entrevistado | Manter apenas nome e RM dos integrantes |
+| Escola e bairro | Apenas marcadores a preencher | Ao preencher, nunca citar turma, sala real ou horário de aula |
+| Fotos | Nenhuma foto de sala ou ocorrência; `api/TermometroDaSala.Api/fotos/` está no `.gitignore` | Prints só de sala vazia ou equipamento |
+
+A busca no histórico do git e a conferência do link do Wokwi estão listadas no mesmo arquivo como passos a executar pela equipe.
+
+## 5. Matriz de risco: probabilidade × impacto
 
 Probabilidade (P): 1 rara, 2 improvável, 3 possível, 4 provável, 5 quase certa. Impacto (I): 1 desprezível, 2 pequeno/reversível, 3 interrupção localizada, 4 perda relevante ou decisão operacional incorreta, 5 comprometimento amplo ou exposição de menores. Pontuação **P × I**: 1–4 baixo; 5–9 moderado; 10–16 alto; 17–25 crítico.
 
-“Antes” estima o cenário sem o conjunto de controles. “Depois” usa os controles que o código desta pasta já executa (HMAC por dispositivo, consulta LINQ, nome GUID, validação, 404 do Demo, chave da coordenação, cota de escrita e remoção de APP1). C7 e a parte de rede de C8 não entram nessa conta: GPO, firewall, nmap e IIS ficam na VM do Samuel, e por isso R9 continua crítico. A escala é julgamento qualitativo da equipe, sem frequência medida. O impacto pode continuar elevado mesmo quando a probabilidade diminui.
+“Antes” estima o cenário sem o conjunto de controles. “Depois” usa só os controles que o código já executa e que a suíte de testes comprova (HMAC por dispositivo, consulta LINQ, nome GUID, validação, 404 do Demo, chave da coordenação, cota de escrita e remoção de APP1). C7, a parte de rede de C8, C11 e C12 não entram nessa conta enquanto não houver evidência no laboratório; por isso R9 continua crítico e R13 e R14 continuam altos.
 
 | ID | Antes P | Antes I | Antes P×I / classe | Controles | Depois P | Depois I | Depois P×I / classe |
 |---|---:|---:|---|---|---:|---:|---|
@@ -78,50 +132,94 @@ Probabilidade (P): 1 rara, 2 improvável, 3 possível, 4 provável, 5 quase cert
 | R6 | 4 | 5 | 20 crítico | C9 | 2 | 5 | 10 alto |
 | R7 | 5 | 4 | 20 crítico | C1, C6 | 3 | 3 | 9 moderado |
 | R8 | 4 | 4 | 16 alto | cota de 30/min; broker público permanece | 3 | 3 | 9 moderado |
-| R9 | 4 | 5 | 20 crítico | C7 ainda na VM | 4 | 5 | 20 crítico |
+| R9 | 4 | 5 | 20 crítico | C7, a comprovar no laboratório | 4 | 5 | 20 crítico |
 | R10 | 3 | 5 | 15 alto | C6 | 2 | 4 | 8 moderado |
 | R11 | 3 | 4 | 12 alto | C5 | 1 | 4 | 4 baixo |
 | R12 | 4 | 5 | 20 crítico | C10 | 2 | 4 | 8 moderado |
+| R13 | 5 | 4 | 20 crítico | C1 (assinatura); C12 pendente | 5 | 2 | 10 alto |
+| R14 | 3 | 4 | 12 alto | C11 pendente | 3 | 4 | 12 alto |
 
-Não se aceita exposição real de menores nem produção aberta com risco alto. O recorte demonstrativo reduz o impacto de R7/R8 por usar dados simulados, decisão humana e sinalização local; fora desse recorte é necessário reavaliar a matriz.
+Critério de aceitação: não se aceita exposição real de menores nem produção aberta com risco alto ou crítico. O recorte demonstrativo reduz o impacto de R7, R8 e R13 por usar dados simulados, decisão humana e sinalização local; fora desse recorte a matriz precisa ser refeita.
 
-## 5. Controles e comprovação
+## 6. Controles e comprovação
 
 | ID | Controle e critério de aceitação | Onde está implementado / estado observado | Evidência a anexar |
 |---|---|---|---|
-| C1 | HMAC-SHA256 por dispositivo; bytes UTF-8 `ambienteId\|dispositivo\|temperaturaC\|umidadePct\|medidoEm`, temperatura com uma casa e cultura invariável, comparação em tempo constante. Validar vínculo com ambiente, dispositivo ativo, timestamp estritamente crescente e persistido; rejeitar mais de 10 min atrás ou 1 min à frente. HTTP e MQTT devem usar a mesma regra; atualização atômica impede duplicata concorrente | `Assinatura.Confere` e `FixedTimeEquals` em `api/TermometroDaSala.Api/Dominio/Contrato.cs:71` e `:79`. Motivos em `ValidadorLeitura.Motivo` (`Contrato.cs:98`). HTTP em `LeiturasController.cs:41`; MQTT em `AssinanteMqtt.cs:63`; os dois chamam `ServicoLeituras.Receber` (`ServicoLeituras.cs:26`), que registra a recusa em `:43`. Segredo distinto em `SalaDb.cs:64` e na migração `Dados/Migrations/20261105050515_SegredosPorDispositivo.cs:13`. Testes: `VetoresTestes.HmacDoContrato`, `ApiTestes.RecusasELeituraAceita`, `ApiTestes.SegredoDeOutraSalaNaoAssina` | E02–E04 e `seguranca/evidencias/recusas-log.txt` |
-| C2 | Consultas LINQ/EF; nunca concatenar o id em SQL. O texto do cliente vai como parâmetro, nunca dentro do SQL | `GET /ambientes/{id}/leituras` em `LeiturasController.cs:19`: `Where(l => l.AmbienteId == id)`. Não há SQL montado no controlador. `ToQueryString()` (SQLite do teste e provedor SQL Server, sem abrir conexão) mostra o `WHERE` comparando com um parâmetro `@...`; o texto `OR 1=1` não aparece no comando. O GET com esse id responde 404 e não lista as outras salas. Teste: `ApiTestes.ConsultaDeLeiturasParametrizada` | E05 |
-| C3 | Gerar nome GUID no servidor; guardar imagem fora de diretório executável e servir por id de ocorrência, resolvido no banco; nunca aceitar caminho do cliente. GUID evita colisão, não substitui autorização | Nome em `OcorrenciasController.cs:31`. Leitura só com `Path.GetFileName` em `:47`. Nome com `..`, `/` ou `\` recusado em `:22` (`nome-invalido`). O `foto.jpg` de `app/app/salas/[id]/ocorrencia.tsx:38` é só o nome enviado pelo cliente. Teste: `ApiTestes.UploadRecusaOQueNaoEJpegENomeComDoisPontos` (`../x.jpg`) | E06–E07 e `seguranca/evidencias/upload-travessia.txt` |
-| C4 | Validar na API ambiente existente, campos/tipos, temperatura -10 a 60 °C e umidade 0 a 100%; descrição 10–500 caracteres após trim; foto obrigatória, tamanho limitado, conteúdo de imagem decodificável e tipo permitido. Limite de bytes também na ingestão MQTT/HTTP | Cliente: `app/domain/ocorrencia.ts:6`, `ocorrencia.tsx:54`, `ocorrencia.test.ts:5`. Servidor: descrição, 5 MB e JPEG em `OcorrenciasController.cs:19-24`; teto da requisição em `:15`. Faixa da leitura em `ValidadorLeitura` (`Contrato.cs:106`). Testes: `ApiTestes.RecusasELeituraAceita` (`fora-da-faixa`), `VetoresTestes.LimitesDaJanelaEDaFaixa`, `ApiTestes.CadastroRecusaEntradaInvalida`, `ApiTestes.UploadRecusaOQueNaoEJpegENomeComDoisPontos` | E07–E08 |
-| C5 | Registrar `/demo/semear` apenas em Demo; em Production responder 404. Demonstrar que a mesma rota funciona em Demo para evitar falso positivo de rota inexistente | `DemoController.cs:20`: fora do ambiente Demo a ação retorna 404. No ambiente Demo o mesmo caminho grava, se houver leitura ao vivo. Testes: `ApiTestes.DemoSemearForaDoAmbienteDemoResponde404` e `ApiTestes.DemoSemearExigeLeituraAoVivoEAncoraNela` | E09 e `seguranca/evidencias/demo-semear-404.txt` |
-| C6 | Segredos fora dos arquivos versionados e dos logs; chave distinta por dispositivo, revogável; configuração protegida no IIS e ACL mínima. Conciliar cadastro de dispositivos e origem dos segredos sem duplicar chave em configuração pública | Semente de demonstração distinta em `SalaDb.cs:64-67` (vetor público do contrato, não chave de produção). `esp32/secrets.h` ignorado em `.gitignore:19`. `ChaveCoordenacao` não está no appsettings; o filtro lê a configuração em `ExigeChaveCoordenacaoAttribute.cs:16`. ACL do IIS e revisão de histórico: pendente na VM do Samuel. Teste do segredo alheio: `ApiTestes.SegredoDeOutraSalaNaoAssina`. Saída de `git check-ignore`: `seguranca/evidencias/git-check-ignore.txt` | E10 |
-| C7 | GPO: RDP apenas grupo autorizado do AD, política de senha/bloqueio e firewall restrito à administração; auditoria de logon e da pasta de fotos (política + SACL), NTFS só permite escrita ao pool e administradores; logs protegidos | Pendente na VM do Samuel. O repositório tem o roteiro `infra/06-gpo.ps1`; esta pasta não aplica GPO. R9 permanece crítico até a evidência E11 | E11, na VM |
-| C8 | Reduzir superfície de rede: HTTPS para usuários, SQL somente interno, RDP somente rede administrativa, MQTT de saída sem abrir listener no servidor. LED local sem internet e aviso de leitura desatualizada; não fabricar dados atuais | HTTPS só em Production: `Program.cs:62`. Cota das rotas de escrita: `Program.cs:12` (30 por minuto por IP, 429 em `Program.cs:14`). Teste: `ApiTestes.EscritaAcimaDeTrintaPorMinutoResponde429`. Certificado, firewall, nmap, listener MQTT e LED: pendente na VM do Samuel | E12 e E13, na VM; a cota está na suíte |
-| C9 | Nenhum dado de aluno: foto de sala/equipamento vazio, texto sem nomes, painel sem imagens e revisão antes de publicar. Minimizar metadados, excluir cópias locais de teste ao encerrar e revisar retenção antes de uso real | O upload regrava o JPEG sem APP1 em `OcorrenciasController.cs:28` (`SemApp1` em `:68`). Teste: `ApiTestes.UploadRemoveSegmentoApp1` (o arquivo devolvido conserva `JFIF` e não contém `GPS-TESTE` nem o marcador APP1). O app pede `exif: false` em `ocorrencia.tsx:36` e orienta em `:84` e `:91`. Isso não impede um rosto na imagem: a revisão humana continua obrigatória | E14 |
-| C10 | Autenticar e autorizar ações, revogação e cadastro de sala na API; menor privilégio nas contas/pool/SQL. Foto e ocorrência do professor não usam a chave da coordenação | Filtro `ExigeChaveCoordenacaoAttribute.cs:20`: cabeçalho `X-Chave-Coordenacao`, comparação em tempo constante, 401 `chave-invalida` se faltar, se divergir ou se a configuração estiver vazia. Aplicado em `AmbientesController.cs:17`, `AcoesController.cs:30` e `DispositivosController.cs:15`. Teste: `ApiTestes.CoordenacaoSemChaveNaoGravaELeituraContinuaComHmac` (401 sem gravar; `POST /leituras` e `POST /ocorrencias` seguem sem a chave). Identificação no aparelho (`app/services/professor.ts:19`) não é essa chave. Contas, pool e SQL: pendente na VM do Samuel. `GET` da foto continua só com o id | E15 |
+| C1 | HMAC-SHA256 por dispositivo; bytes UTF-8 `ambienteId\|dispositivo\|temperaturaC\|umidadePct\|medidoEm`, temperatura com uma casa e cultura invariável, comparação em tempo constante. Validar vínculo com ambiente, dispositivo ativo, timestamp estritamente crescente e persistido; rejeitar mais de 10 min atrás ou 1 min à frente. HTTP e MQTT devem usar a mesma regra; atualização atômica impede duplicata concorrente | `Assinatura.Confere` e `FixedTimeEquals` em `api/TermometroDaSala.Api/Dominio/Contrato.cs:71` e `:79`. Motivos em `ValidadorLeitura.Motivo` (`Contrato.cs:98`). HTTP em `LeiturasController.cs:41`; MQTT em `AssinanteMqtt.cs:63`; os dois chamam `ServicoLeituras.Receber` (`ServicoLeituras.cs:26`), que registra a recusa em `:43`. Segredo distinto em `SalaDb.cs:64` e na migração `Dados/Migrations/20261105050515_SegredosPorDispositivo.cs:13`. Testes: `VetoresTestes.HmacDoContrato`, `ApiTestes.RecusasELeituraAceita`, `ApiTestes.SegredoDeOutraSalaNaoAssina` | E02–E04, `evidencias/recusas-log.txt` |
+| C2 | Consultas LINQ/EF; nunca concatenar o id em SQL. O texto do cliente vai como parâmetro, nunca dentro do SQL | `GET /ambientes/{id}/leituras` em `LeiturasController.cs:18-19`: `Where(l => l.AmbienteId == id)`. Não há SQL montado no controlador. `ToQueryString()` (SQLite do teste e provedor SQL Server, sem abrir conexão) mostra o `WHERE` comparando com um parâmetro `@...`; o texto `OR 1=1` não aparece no comando. O GET com esse id responde 404 e não lista as outras salas. Teste: `ApiTestes.ConsultaDeLeiturasParametrizada` | E05, `evidencias/consulta-parametrizada.txt` |
+| C3 | Gerar nome GUID no servidor; guardar imagem fora de diretório executável e servir por id de ocorrência, resolvido no banco; nunca aceitar caminho do cliente. GUID evita colisão, não substitui autorização | Nome em `OcorrenciasController.cs:31`. A rota de leitura só aceita GUID (`{id:guid}`, `:42`) e usa `Path.GetFileName` em `:47`. Nome com `..`, `/` ou `\` recusado em `:22-23` (`nome-invalido`). O `foto.jpg` de `app/app/salas/[id]/ocorrencia.tsx:39` é só o nome enviado pelo cliente. Pasta de fotos fora do site no IIS: `infra/04-iis.ps1:85`. Teste: `ApiTestes.UploadRecusaOQueNaoEJpegENomeComDoisPontos` (`../x.jpg`) | E06–E07, `evidencias/upload-travessia.txt` |
+| C4 | Validar na API ambiente existente, campos/tipos, temperatura -10 a 60 °C e umidade 0 a 100%; descrição 10–500 caracteres após trim; foto obrigatória, tamanho limitado, conteúdo de imagem decodificável e tipo permitido. Limite de bytes também na ingestão MQTT/HTTP | Cliente: `app/domain/ocorrencia.ts:6`, `ocorrencia.tsx:55`, `ocorrencia.test.ts:5`. Servidor: descrição, 5 MB e JPEG em `OcorrenciasController.cs:19-24`; teto da requisição em `:15`. Faixa da leitura em `ValidadorLeitura` (`Contrato.cs:106`). Testes: `ApiTestes.RecusasELeituraAceita` (`fora-da-faixa`), `VetoresTestes.LimitesDaJanelaEDaFaixa`, `ApiTestes.CadastroRecusaEntradaInvalida`, `ApiTestes.UploadRecusaOQueNaoEJpegENomeComDoisPontos` | E07–E08 |
+| C5 | Registrar `/demo/semear` apenas em Demo; em Production responder 404. Demonstrar que a mesma rota funciona em Demo para evitar falso positivo de rota inexistente | `DemoController.cs:20`: fora do ambiente Demo a ação retorna 404. No ambiente Demo o mesmo caminho grava, se houver leitura ao vivo. Testes: `ApiTestes.DemoSemearForaDoAmbienteDemoResponde404` e `ApiTestes.DemoSemearExigeLeituraAoVivoEAncoraNela` | E09, `evidencias/demo-semear-404.txt` |
+| C6 | Segredos fora dos arquivos versionados e dos logs; chave distinta por dispositivo, revogável; configuração protegida no IIS e ACL mínima. Valores de teste declarados como tais e revogados após a avaliação | Os segredos `segredo-de-teste-sala-01` a `-04` em `SalaDb.cs:64-67` são **valores de teste revogáveis**, públicos como vetor do contrato, nunca de produção (seção 4.1). Revogação por `POST /dispositivos/{id}/revogar` (`DispositivosController.cs:13`). `esp32/secrets.h` ignorado em `.gitignore:19`. `ChaveCoordenacao` não está no appsettings; o filtro lê a configuração em `ExigeChaveCoordenacaoAttribute.cs:16`, e o roteiro do IIS grava a chave só no pool (`infra/04-iis.ps1:72-86`). Teste do segredo alheio: `ApiTestes.SegredoDeOutraSalaNaoAssina`. Busca no histórico do git: a executar (`evidencias/osint.txt`, item 8) | E10, `evidencias/git-check-ignore.txt`, `evidencias/osint.txt` |
+| C7 | GPO: RDP apenas grupo autorizado do AD, política de senha/bloqueio e firewall restrito à administração; auditoria de logon e da pasta de fotos (política + SACL), NTFS só permite escrita ao pool e administradores; logs protegidos | Roteiro pronto: política de senha (mínimo 12, histórico 24) e bloqueio após 5 tentativas por 15 min em `infra/06-gpo.ps1:11`; auditoria de logon e de sistema de arquivos em `:27`; SACL da pasta de fotos em `:30-33`; ACL NTFS só para SYSTEM, Administradores e pool em `infra/04-iis.ps1:40-46`. A aplicar e comprovar no laboratório Windows Server; R9 segue crítico até a evidência E11 | E11 |
+| C8 | Reduzir superfície de rede: HTTPS para usuários, SQL somente interno, RDP somente rede administrativa, MQTT de saída sem abrir listener no servidor. LED local sem internet e aviso de leitura desatualizada; não fabricar dados atuais | Cota das rotas de escrita: `Program.cs:12` (30 por minuto por IP, 429 em `:14`); teste `ApiTestes.EscritaAcimaDeTrintaPorMinutoResponde429`. Firewall da API só para a sub-rede local, perfis Domínio e Privado: `infra/04-iis.ps1:49`. Redirecionamento HTTPS só em Production: `Program.cs:62`, com porta 443 definida no pool em `infra/04-iis.ps1:88`. **Exceção de laboratório declarada:** o roteiro ainda não cria binding 443 com certificado nem regra de firewall 443; até isso existir, a API roda só na sub-rede local e a chave da coordenação não trafega fora dela. nmap, listener MQTT e LED: a executar no laboratório | E12 e E13; a cota está na suíte |
+| C9 | Nenhum dado de aluno: foto de sala/equipamento vazio, texto sem nomes, painel sem imagens e revisão antes de publicar. Minimizar metadados, excluir cópias locais de teste ao encerrar e revisar retenção antes de uso real | O upload regrava o JPEG sem APP1 em `OcorrenciasController.cs:28` (`SemApp1` em `:68`). Teste: `ApiTestes.UploadRemoveSegmentoApp1` (o arquivo devolvido conserva `JFIF` e não contém `GPS-TESTE` nem o marcador APP1). O app pede `exif: false` em `ocorrencia.tsx:37` e orienta em `:85` e `:92`. Isso não impede um rosto na imagem: a revisão humana continua obrigatória | E14 |
+| C10 | Autenticar e autorizar ações, revogação e cadastro de sala na API; menor privilégio nas contas/pool/SQL. Foto e ocorrência do professor não usam a chave da coordenação | Filtro `ExigeChaveCoordenacaoAttribute.cs:20`: cabeçalho `X-Chave-Coordenacao`, comparação em tempo constante, 401 `chave-invalida` se faltar, se divergir ou se a configuração estiver vazia. Aplicado em `AmbientesController.cs:17`, `AcoesController.cs:30` e `DispositivosController.cs:15`. Teste: `ApiTestes.CoordenacaoSemChaveNaoGravaELeituraContinuaComHmac` (401 sem gravar; `POST /leituras` e `POST /ocorrencias` seguem sem a chave). Identificação no aparelho (`app/services/professor.ts:19`) não é essa chave. **Lacuna declarada (R12):** `GET /ocorrencias/{id}/foto` (`OcorrenciasController.cs:42`) exige só o GUID; o tratamento previsto é exigir a chave ou um token de curta duração. Contas, pool e SQL: a comprovar no laboratório | E15 |
+| C11 | HSTS e cabeçalhos de segurança: `UseHsts` em Production, `X-Content-Type-Options: nosniff` em todas as respostas, binding 443 com certificado no IIS | Pendente. `Program.cs` tem só `UseHttpsRedirection` (`:62`). Ao implementar, cobrir com teste e reavaliar R14 | Teste automatizado e E12 |
+| C12 | MQTT com TLS (porta 8883) e autenticação no broker; o ESP32 confere o certificado do broker | Pendente; obrigatório antes de qualquer piloto com decisão real. No laboratório vale a exceção da seção 7 | Configuração do broker e captura sem texto em claro |
 
-Não há obrigação de acrescentar autenticação AD ao app nesta entrega documental. Há obrigação de declarar a limitação e restringir o laboratório enquanto a autorização da API não estiver comprovada. Qualquer mudança de rota ou DTO requer ajustar os comandos do roteiro, os consumidores e o contrato na integração.
+### 6.1 Classificação dos controles
 
-## 6. Riscos residuais e plano de tratamento
+Tipo: **P** preventivo, **D** detectivo, **C** corretivo. Controles do Anexo A da ABNT NBR ISO/IEC 27001:2022. Estado: **implementado** (no código e com teste), **roteiro pronto** (script existe, falta aplicar no laboratório) ou **pendente**.
 
-| Risco residual | Tratamento e responsável funcional | Prazo/gatilho | Condição de encerramento |
+| ID | Tipo | ISO/IEC 27001:2022, Anexo A | Custo e viabilidade | Responsável funcional | Estado |
+|---|---|---|---|---|---|
+| C1 | P, D | 8.24 Uso de criptografia; 8.5 Autenticação segura; 8.15 Registros (logs) | Baixo; já no código, sem dependência paga | Backend | Implementado |
+| C2 | P | 8.28 Codificação segura | Nenhum; padrão do EF Core | Backend | Implementado |
+| C3 | P | 8.28 Codificação segura; 8.3 Restrição de acesso à informação | Baixo; já no código | Backend e infraestrutura | Implementado |
+| C4 | P | 8.26 Requisitos de segurança da aplicação; 8.28 Codificação segura | Baixo; já no código | Backend e app | Implementado |
+| C5 | P | 8.31 Separação dos ambientes de desenvolvimento, teste e produção; 8.33 Informações de teste | Nenhum | Backend | Implementado |
+| C6 | P, C | 5.17 Informações de autenticação; 8.4 Acesso ao código-fonte; 8.33 Informações de teste | Baixo; revogação já existe na API | Responsável pelo repositório e coordenação | Implementado; revogação dos valores de teste após 19/11/2026 |
+| C7 | P, D | 5.15 Controle de acesso; 8.2 Direitos de acesso privilegiado; 8.5 Autenticação segura; 8.15 Registros (logs); 8.16 Atividades de monitoramento | Baixo; recursos nativos do Windows Server, sem licença extra | Infraestrutura | Roteiro pronto |
+| C8 | P | 8.20 Segurança de redes; 8.22 Segregação de redes; 8.6 Gestão de capacidade | Baixo; certificado autoassinado no laboratório, certificado público gratuito para uso real | Infraestrutura e backend | Cota implementada; rede com roteiro pronto; binding 443 pendente |
+| C9 | P, C | 5.34 Privacidade e proteção de dados pessoais; 8.10 Exclusão de informações; 8.11 Mascaramento de dados | Baixo; remoção de EXIF já no código, revisão humana custa tempo da equipe | App, backend e coordenação | Implementado (técnico); revisão humana a cada entrega |
+| C10 | P | 5.15 Controle de acesso; 8.5 Autenticação segura; 8.3 Restrição de acesso à informação | Baixo para a chave; médio para estender à foto (consumidores do app e do desktop mudam) | Backend | Implementado, com a lacuna da foto declarada |
+| C11 | P | 8.9 Gestão de configuração; 8.26 Requisitos de segurança da aplicação | Baixo; duas linhas no `Program.cs` e um teste | Backend e infraestrutura | Pendente |
+| C12 | P | 8.24 Uso de criptografia; 8.21 Segurança dos serviços de rede | Médio; broker gerenciado ou próprio com TLS e certificado gravado no ESP32 | Dispositivo e backend | Pendente |
+
+Não há obrigação de acrescentar autenticação AD ao app nesta entrega. Há obrigação de declarar a limitação e restringir o laboratório enquanto a autorização da API não estiver comprovada. Qualquer mudança de rota ou DTO requer ajustar os comandos do roteiro, os consumidores e o contrato na integração.
+
+## 7. Riscos residuais e plano de tratamento
+
+| Risco residual | Tratamento (ISO/IEC 27005) e responsável funcional | Prazo/gatilho | Condição de encerramento |
 |---|---|---|---|
-| Chave de demonstração visível no Wokwi (R7) | Coordenação/backend: aceitar apenas durante avaliação isolada com dados simulados; chave única por dispositivo, revogação após avaliação. Para instalação física, provisionar chave fora do fonte em NVS e proteger acesso físico | Revogar imediatamente após avaliação de 19/11/2026 ou antes se houver abuso | Mensagem assinada com a chave antiga é recusada; nenhuma chave de produção usada no Wokwi |
-| Broker público sem SLA/controle de publicação (R8) | Dispositivo/backend: aceitar só no laboratório; LED autônomo, aviso de desatualização e POST /leituras como alternativa de demonstração. Migrar para broker autenticado com TLS e limites antes de uso operacional | Antes de qualquer piloto com decisões reais | Queda ensaiada sem dado antigo parecer atual; migração e disponibilidade reavaliadas |
-| Foto pode conter pessoa apesar do aviso (R6) | Equipe/app: evitar coleta; revisar cada imagem e texto antes da entrega; remover ocorrência indevida e cópias, registrar incidente sem reproduzir dado. Não usar rosto real para testar | Antes de qualquer envio, print ou publicação | Conjunto entregue sem identificação de aluno e sem metadados desnecessários |
-| Upload, RDP e foto sem chave (R5/R9/R12) | Backend/infraestrutura: a API já recusa travessia, não-JPEG e escrita da coordenação sem chave. RDP, NTFS e o GET da foto sem chave continuam. Não expor o serviço fora do laboratório até a VM | Antes de disponibilizar a API fora do laboratório | E11 na VM; foto continua acessível a quem souber o id |
-| Exclusão não remove credencial antiga (R10) | Responsável pelo repositório: revisar histórico sem divulgar valores; se houve exposição, revogar primeiro e tratar cópias/histórico | Antes de publicar repositório e a cada suspeita | Chave exposta inutilizada; revisão documentada |
+| Chave de demonstração visível no Wokwi e no repositório (R7, R10) | Reter no laboratório; coordenação/backend: chave única por dispositivo, revogação após avaliação. Para instalação física, provisionar chave fora do fonte em NVS e proteger acesso físico | Revogar imediatamente após a avaliação de 19/11/2026 ou antes se houver abuso | Mensagem assinada com a chave antiga é recusada; nenhuma chave de produção usada no Wokwi |
+| Broker público sem SLA, sem TLS e sem controle de publicação (R8, R13) | Reter no laboratório; dispositivo/backend: LED autônomo, aviso de desatualização e POST /leituras como alternativa de demonstração. Modificar antes de uso real com C12 | Antes de qualquer piloto com decisões reais | Broker autenticado com TLS; queda ensaiada sem dado antigo parecer atual |
+| Sem HSTS, sem cabeçalhos e sem binding 443 (R14) | Modificar com C11; backend e infraestrutura | Antes de expor a API fora da sub-rede do laboratório | Teste automatizado dos cabeçalhos e nmap mostrando 443 com certificado |
+| Foto pode conter pessoa apesar do aviso (R6) | Modificar e evitar: revisar cada imagem e texto antes da entrega; remover ocorrência indevida e cópias, registrar incidente sem reproduzir dado. Não usar rosto real para testar | Antes de qualquer envio, print ou publicação | Conjunto entregue sem identificação de aluno e sem metadados desnecessários |
+| Upload, RDP e foto sem chave (R5, R9, R12) | Backend/infraestrutura: a API já recusa travessia, não-JPEG e escrita da coordenação sem chave. Aplicar C7 no laboratório; proteger o GET da foto (C10). Não expor o serviço fora do laboratório antes disso | Antes de disponibilizar a API fora do laboratório | E11 comprovada; GET da foto sem chave responde 401 |
+| Exclusão não remove credencial antiga (R10) | Responsável pelo repositório: revisar histórico sem divulgar valores; se houve exposição, revogar primeiro e tratar cópias/histórico | Antes de publicar o repositório e a cada suspeita | Chave exposta inutilizada; revisão documentada em `evidencias/osint.txt` |
 
-A coordenação mantém a decisão humana; alertas apoiam o protocolo escolar e não garantem proteção à saúde. A revogação existe na API e exige a chave. A autonomia do LED e a GPO ainda dependem da VM para sustentar qualquer redução de R9.
+A coordenação mantém a decisão humana; alertas apoiam o protocolo escolar e não garantem proteção à saúde. A revogação existe na API e exige a chave. A autonomia do LED e a GPO dependem da coleta no laboratório para sustentar qualquer redução de R9.
 
-## 7. Coleta, revisão e entrega
+## 8. Evidências
 
-O roteiro [EVIDENCIAS.md](EVIDENCIAS.md) define E01–E15. As saídas que não precisam da VM estão em [evidencias/](evidencias/): suíte `dotnet test`, log das recusas de leitura, upload `../x.jpg`, 404 de `/demo/semear` fora do Demo e `git check-ignore esp32/secrets.h`. nmap, IIS, GPO e LED ficam para o Samuel na VM. Um 404 de rota que não existe não substitui o 404 do ambiente Demo, já coberto pelo teste.
+O roteiro [EVIDENCIAS.md](EVIDENCIAS.md) define E01–E15. As saídas que não dependem do laboratório estão em [evidencias/](evidencias/), geradas em 05/11/2026 no Windows da equipe, com banco SQLite em memória dos testes:
 
-Incorporar o roteiro preenchido como anexo deste relatório e exportar **um único PDF**, com capa, matriz, controles, riscos residuais e evidências legíveis. Fazer um envio por equipe na tarefa de Cybersecurity do Teams até **19/11**, conforme o briefing, página 28. Completar o RM e conferir a composição da equipe antes da exportação; somente Samuel Baecker foi informado para esta versão.
+| Arquivo | Controle | Resultado obtido |
+|---|---|---|
+| `dotnet-test-seguranca.txt` | C1–C5, C9, C10, cota | Suíte completa 32/32; 16 testes de segurança listados, 16 aprovados |
+| `recusas-log.txt` | C1 | Cinco motivos de recusa no log da API |
+| `consulta-parametrizada.txt` | C2 | Id com `OR 1=1` vira parâmetro `@__id_0` de 18 caracteres; GET responde 404 |
+| `upload-travessia.txt` | C3 | `../foto.jpg` e `../x.jpg` recusados com `nome-invalido` |
+| `demo-semear-404.txt` | C5 | `fora-do-ambiente` e 404 |
+| `git-check-ignore.txt` | C6 | `esp32/secrets.h` coberto por `.gitignore:19` |
+| `osint.txt` | C6, C9 | Exercício de OSINT da seção 4.1 |
 
-## 8. Referências internas
+nmap, IIS, GPO e LED são coletados no laboratório Windows Server. Um 404 de rota que não existe não substitui o 404 do ambiente Demo, já coberto pelo teste.
 
-- `docs/briefing-fiap.txt:551`: Cybersecurity, página 28; critérios de ativos/ameaças (2,5), vulnerabilidades/riscos (3,0), controles (2,5) e evidências técnicas (2,0).
-- `docs/PLANO.md:70`: contrato entre partes; `:109`: recusas; `:192`: núcleo de Cybersecurity; `:251`: armadilhas.
-- Arquivos de implementação e linhas identificados na seção 5, inspecionados em 05/11/2026.
+O roteiro preenchido entra como anexo deste relatório num **único PDF**, com capa, matriz, controles, riscos residuais e evidências legíveis. Um envio por equipe na tarefa de Cybersecurity do Teams até **19/11/2026**, conforme o Enunciado GS 2026.2, p. 28.
+
+## 9. Referências
+
+1. ABNT. **ABNT NBR ISO/IEC 27001:2022** — Segurança da informação, segurança cibernética e proteção à privacidade — Sistemas de gestão da segurança da informação — Requisitos. Anexo A.
+2. ABNT. **ABNT NBR ISO/IEC 27002:2022** — Segurança da informação, segurança cibernética e proteção à privacidade — Controles de segurança da informação.
+3. ISO/IEC. **ISO/IEC 27005:2022** — Information security, cybersecurity and privacy protection — Guidance on managing information security risks.
+4. NIST. **SP 800-30 Rev. 1** — Guide for Conducting Risk Assessments. Gaithersburg: NIST, 2012.
+5. OWASP Foundation. **OWASP Top 10:2021**. Disponível em: https://owasp.org/Top10/.
+6. OWASP Foundation. **OWASP API Security Top 10:2023**. Disponível em: https://owasp.org/API-Security/.
+7. MITRE. **Common Weakness Enumeration (CWE)**. Disponível em: https://cwe.mitre.org/.
+8. SHOSTACK, Adam. **Threat Modeling: Designing for Security**. Indianapolis: Wiley, 2014 (modelo STRIDE).
+9. BRASIL. **Lei nº 13.709, de 14 de agosto de 2018** (Lei Geral de Proteção de Dados Pessoais), art. 14 (dados de crianças e adolescentes) e art. 46 (medidas de segurança).
+10. FIAP. **Enunciado da Global Solution 2026.2**, Cybersecurity, p. 28: critérios de ativos e ameaças (2,5), vulnerabilidades e riscos (3,0), controles (2,5) e evidências técnicas (2,0).
+11. Arquivos de implementação e linhas citados nas seções 4 a 6, conferidos em 05/11/2026.
