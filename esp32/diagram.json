@@ -11,7 +11,10 @@
     { "type": "wokwi-resistor", "id": "rv", "top": 40, "left": 130, "attrs": { "value": "220" } },
     { "type": "wokwi-resistor", "id": "ra", "top": 110, "left": 130, "attrs": { "value": "220" } },
     { "type": "wokwi-resistor", "id": "rr", "top": 180, "left": 130, "attrs": { "value": "220" } },
-    { "type": "wokwi-resistor", "id": "pullup", "top": -60, "left": 100, "attrs": { "value": "10000" } }
+    { "type": "wokwi-resistor", "id": "pullup", "top": -60, "left": 100, "attrs": { "value": "10000" } },
+    { "type": "wokwi-lcd1602", "id": "lcd", "top": -120, "left": -260, "attrs": { "pins": "i2c" } },
+    { "type": "wokwi-buzzer", "id": "buzzer", "top": 120, "left": -200, "attrs": { "volume": "0.1" } },
+    { "type": "wokwi-pushbutton", "id": "ciente", "top": 220, "left": -200, "attrs": { "color": "blue", "label": "Ciente" } }
   ],
   "connections": [
     [ "esp:TX0", "$serialMonitor:RX", "", [] ],
@@ -27,9 +30,17 @@
     [ "esp:D19", "ra:1", "gold", [] ],
     [ "ra:2", "amarelo:A", "gold", [] ],
     [ "amarelo:C", "esp:GND.1", "black", [] ],
-    [ "esp:D21", "rr:1", "red", [] ],
+    [ "esp:D4", "rr:1", "red", [] ],
     [ "rr:2", "vermelho:A", "red", [] ],
-    [ "vermelho:C", "esp:GND.1", "black", [] ]
+    [ "vermelho:C", "esp:GND.1", "black", [] ],
+    [ "esp:VIN", "lcd:VCC", "red", [] ],
+    [ "esp:GND.2", "lcd:GND", "black", [] ],
+    [ "esp:D21", "lcd:SDA", "blue", [] ],
+    [ "esp:D22", "lcd:SCL", "purple", [] ],
+    [ "esp:D26", "buzzer:2", "orange", [] ],
+    [ "buzzer:1", "esp:GND.2", "black", [] ],
+    [ "esp:D27", "ciente:1.l", "blue", [] ],
+    [ "ciente:2.l", "esp:GND.2", "black", [] ]
   ],
   "dependencies": {}
 }
