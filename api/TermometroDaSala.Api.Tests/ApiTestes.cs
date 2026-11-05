@@ -128,11 +128,11 @@ public class ApiTestes
         var semeou = await c.PostAsync("/demo/semear?ambienteId=sala-03", new StringContent(""));
         Assert.Equal(HttpStatusCode.Created, semeou.StatusCode);
         var simuladas = db.Leituras.Where(l => l.Origem == "simulada").ToList();
-        Assert.Equal(6, simuladas.Count);
+        Assert.Equal(18, simuladas.Count); // demo/leituras-simuladas.csv: 3 h a cada 10 min (gerador.py)
         var ancora = simuladas.OrderBy(l => l.MedidoEm).Last();
         Assert.Equal(33.4, ancora.TemperaturaC, 1);
         Assert.Equal(58, ancora.UmidadePct);
-        Assert.Equal(quando.AddMinutes(-30), ancora.MedidoEm);
+        Assert.Equal(quando.AddMinutes(-10), ancora.MedidoEm);
     }
 
     [Fact]
