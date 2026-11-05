@@ -2,6 +2,7 @@ import { Stack, router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { RotuloNivel } from '../../components/RotuloNivel';
+import { apresentarNivel } from '../../domain/nivel';
 import { listarAmbientes, type Ambiente } from '../../services/api';
 import { horaSaoPaulo, indiceEmGraus } from '../../services/hora';
 import type { RotaParams } from '../../rotas';
@@ -27,7 +28,9 @@ export default function Salas() {
 
   useFocusEffect(
     useCallback(() => {
-      void lerProfessor().then(setProfessor);
+      lerProfessor()
+        .then(setProfessor)
+        .catch(() => setProfessor(null));
       carregar();
     }, [carregar]),
   );
@@ -77,14 +80,24 @@ export default function Salas() {
                 router.push({ pathname: '/salas/[id]', params: { id: item.id } satisfies RotaParams['/salas/[id]'] })
               }
               accessibilityRole="button"
-              accessibilityLabel={`${item.nome}, ${item.nivelAtual}, ${indiceEmGraus(item.indiceAtual)}`}
+              accessibilityLabel={
+                item.semLeitura
+                  ? `${item.nome}, sem leitura`
+                  : `${item.nome}, ${apresentarNivel(item.nivelAtual).nome}, ${indiceEmGraus(item.indiceAtual)}`
+              }
             >
               <View style={styles.linha}>
                 <Text style={styles.nome}>{item.nome}</Text>
-                <RotuloNivel nivel={item.nivelAtual} />
+                {item.semLeitura ? <Text style={styles.semLeitura}>Sem leitura</Text> : <RotuloNivel nivel={item.nivelAtual} />}
               </View>
-              <Text style={styles.detalhe}>Índice de calor {indiceEmGraus(item.indiceAtual)}</Text>
-              <Text style={styles.detalhe}>Última leitura {horaSaoPaulo(item.ultimaLeituraEm)}</Text>
+              {item.semLeitura ? (
+                <Text style={styles.detalhe}>O sensor desta sala ainda não enviou leitura.</Text>
+              ) : (
+                <>
+                  <Text style={styles.detalhe}>Índice de calor {indiceEmGraus(item.indiceAtual)}</Text>
+                  <Text style={styles.detalhe}>Última leitura {horaSaoPaulo(item.ultimaLeituraEm)}</Text>
+                </>
+              )}
             </Pressable>
           )}
         />
@@ -102,6 +115,15 @@ const styles = StyleSheet.create({
   linha: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 },
   nome: { fontSize: 18, fontWeight: '700', color: '#18181B' },
   detalhe: { color: '#3F3F46' },
+  semLeitura: {
+    backgroundColor: '#E4E4E7',
+    color: '#27272A',
+    fontWeight: '700',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    overflow: 'hidden',
+  },
   erro: { color: '#B91C1C', textAlign: 'center' },
   botao: { backgroundColor: '#14532D', borderRadius: 8, paddingHorizontal: 16, paddingVertical: 12 },
   botaoTexto: { color: '#fff', fontWeight: '700' },

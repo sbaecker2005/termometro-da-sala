@@ -1,7 +1,8 @@
 import type { ExpoConfig } from 'expo/config';
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:5080';
-const apiMock = (process.env.EXPO_PUBLIC_API_MOCK ?? '1') !== '0';
+// '0' usa a API; 'vazio' e 'erro' forçam esses estados da lista; qualquer outro valor liga o simulado.
+const apiMock = process.env.EXPO_PUBLIC_API_MOCK ?? '1';
 
 const config: ExpoConfig = {
   name: 'Termômetro da Sala',

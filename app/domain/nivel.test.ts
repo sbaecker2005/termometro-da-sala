@@ -14,7 +14,7 @@ describe('nivelDeIndice', () => {
   });
 
   it('recusa índice que não é número', () => {
-    assert.throws(() => nivelDeIndice(Number.NaN), /indice invalido/);
+    assert.throws(() => nivelDeIndice(Number.NaN), /índice inválido/);
   });
 });
 

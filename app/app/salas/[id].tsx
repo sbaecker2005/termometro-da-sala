@@ -89,10 +89,16 @@ export default function DetalheSala() {
           ) : (
             <View style={styles.bloco}>
               <Text style={styles.secao}>Agora</Text>
-              <RotuloNivel nivel={sala.nivelAtual} />
-              <Text style={styles.indice}>{indiceEmGraus(sala.indiceAtual)}</Text>
-              <Text style={styles.meta}>Última leitura {horaSaoPaulo(sala.ultimaLeituraEm)}</Text>
-              <Text style={styles.acao}>Ação: {agora.acao}</Text>
+              {sala.semLeitura ? (
+                <Text style={styles.aviso}>Sem leitura: o sensor desta sala ainda não enviou dados.</Text>
+              ) : (
+                <>
+                  <RotuloNivel nivel={sala.nivelAtual} />
+                  <Text style={styles.indice}>{indiceEmGraus(sala.indiceAtual)}</Text>
+                  <Text style={styles.meta}>Última leitura {horaSaoPaulo(sala.ultimaLeituraEm)}</Text>
+                  <Text style={styles.acao}>Ação: {agora.acao}</Text>
+                </>
+              )}
               <Text style={styles.secao}>Daqui a 2 h</Text>
               <RotuloNivel nivel={previsao.nivelPrevisto} />
               <Text style={styles.indice}>
