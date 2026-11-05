@@ -14,4 +14,11 @@
 | Indicador de impacto | Aulas no nível "Perigo" sem ação registrada (meta: zero) e minutos entre o alerta e a ação |
 | ODS conectados | 3 (meta 3.d), 4 (meta 4.a), 11 (meta 11.b) e 13 (meta 13.1) |
 
-O relatório está em [RELATORIO-RISCOS.md](RELATORIO-RISCOS.md). O roteiro de evidências está em [EVIDENCIAS.md](EVIDENCIAS.md).
+| Arquivo | Conteúdo |
+|---|---|
+| [RELATORIO-RISCOS.md](RELATORIO-RISCOS.md) | Relatório de gestão de riscos: ativos, agentes de ameaça, fluxo de dados, riscos, cenários de ataque e controles |
+| [fluxo-dados.svg](fluxo-dados.svg) | Diagrama de fluxo de dados com as fronteiras de confiança |
+| [ANEXO-EVIDENCIAS.md](ANEXO-EVIDENCIAS.md) | Anexo do PDF: esperado x obtido de cada evidência |
+| [EVIDENCIAS.md](EVIDENCIAS.md) | Roteiro de coleta no laboratório (fica fora do PDF) |
+| [cenarios-ataque.ps1](cenarios-ataque.ps1) | Executa os cenários de SQLi, LFI e OSINT contra a própria API e imprime esperado x obtido |
+| [evidencias/](evidencias/) | Saídas obtidas localmente |

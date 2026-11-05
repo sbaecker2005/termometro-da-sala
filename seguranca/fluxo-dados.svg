@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 650" width="980" height="650" font-family="Segoe UI, Arial, sans-serif" font-size="13" role="img" aria-labelledby="titulo desc">
+  <title id="titulo">Fluxo de dados e fronteiras de confiança do Termômetro da Sala</title>
+  <desc id="desc">Sensor ESP32 publica leitura assinada no broker MQTT público; a API no Windows Server assina o tópico, valida e grava no SQL Server e na pasta de fotos. App do professor, desktop da coordenação, painel web e estação administrativa acessam o servidor atravessando fronteiras de confiança.</desc>
+  <defs>
+    <marker id="seta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#344054"/>
+    </marker>
+  </defs>
+  <rect width="980" height="650" fill="#ffffff"/>
+  <text x="20" y="30" font-size="18" font-weight="600" fill="#101828">Fluxo de dados e fronteiras de confiança</text>
+  <line x1="660" y1="25" x2="700" y2="25" stroke="#b42318" stroke-width="2" stroke-dasharray="7 5"/>
+  <text x="708" y="30" fill="#344054">fronteira de confiança</text>
+  <circle cx="880" cy="25" r="10" fill="#101828"/>
+  <text x="880" y="29" fill="#ffffff" font-size="11" font-weight="600" text-anchor="middle">n</text>
+  <text x="896" y="30" fill="#344054">fluxo</text>
+
+  <!-- Zonas -->
+  <rect x="20" y="60" width="250" height="140" rx="8" fill="#fff7ed" stroke="#b42318" stroke-width="2" stroke-dasharray="7 5"/>
+  <text x="32" y="80" font-weight="600" fill="#9a3412">Sala de aula (acesso físico)</text>
+  <rect x="20" y="230" width="250" height="140" rx="8" fill="#fef3f2" stroke="#b42318" stroke-width="2" stroke-dasharray="7 5"/>
+  <text x="32" y="250" font-weight="600" fill="#b42318">Internet pública</text>
+  <rect x="330" y="60" width="630" height="400" rx="8" fill="#ecfdf3" stroke="#b42318" stroke-width="2" stroke-dasharray="7 5"/>
+  <text x="342" y="80" font-weight="600" fill="#067647">Laboratório Windows Server (termometro.local)</text>
+  <rect x="20" y="490" width="940" height="140" rx="8" fill="#eff8ff" stroke="#b42318" stroke-width="2" stroke-dasharray="7 5"/>
+  <text x="32" y="510" font-weight="600" fill="#175cd3">Clientes fora do servidor</text>
+
+  <!-- Nós -->
+  <g fill="#ffffff" stroke="#344054" stroke-width="1.5">
+    <rect x="40" y="95" width="210" height="75" rx="6"/>
+    <rect x="40" y="265" width="210" height="75" rx="6"/>
+    <rect x="360" y="105" width="300" height="135" rx="6"/>
+    <rect x="720" y="100" width="215" height="75" rx="6"/>
+    <rect x="720" y="200" width="215" height="75" rx="6"/>
+    <rect x="720" y="330" width="215" height="95" rx="6"/>
+    <rect x="40" y="525" width="200" height="80" rx="6"/>
+    <rect x="270" y="525" width="200" height="80" rx="6"/>
+    <rect x="500" y="525" width="200" height="80" rx="6"/>
+    <rect x="730" y="525" width="200" height="80" rx="6"/>
+  </g>
+  <g fill="#101828">
+    <text x="52" y="118" font-weight="600">ESP32 + DHT22 + LED (A4)</text>
+    <text x="52" y="138">segredo HMAC próprio (A5)</text>
+    <text x="52" y="157">LED funciona sem rede</text>
+
+    <text x="52" y="288" font-weight="600">Broker MQTT público</text>
+    <text x="52" y="308">broker.hivemq.com:1883</text>
+    <text x="52" y="327">sem TLS, sem autenticação</text>
+
+    <text x="372" y="128" font-weight="600">IIS + API ASP.NET Core (A2, A3)</text>
+    <text x="372" y="148">assinante MQTT: conexão de saída</text>
+    <text x="372" y="168">valida HMAC, janela, faixa e foto</text>
+    <text x="372" y="188">chave da coordenação nas escritas</text>
+    <text x="372" y="208">cota de 30 escritas/min por IP</text>
+    <text x="372" y="228">consultas LINQ parametrizadas</text>
+
+    <text x="732" y="123" font-weight="600">SQL Server (A1)</text>
+    <text x="732" y="143">salas, leituras, ocorrências</text>
+    <text x="732" y="162">só rede interna (1433)</text>
+
+    <text x="732" y="223" font-weight="600">Pasta de fotos (A7)</text>
+    <text x="732" y="243">fora do site, nome GUID</text>
+    <text x="732" y="262">sem APP1/EXIF, SACL</text>
+
+    <text x="732" y="353" font-weight="600">AD, GPO e auditoria (A6)</text>
+    <text x="732" y="373">RDP só grupo autorizado</text>
+    <text x="732" y="392">senha 12+, bloqueio em 5</text>
+    <text x="732" y="411">eventos 4625 e 4663</text>
+
+    <text x="52" y="548" font-weight="600">App do professor (A8)</text>
+    <text x="52" y="568">foto de sala vazia</text>
+    <text x="52" y="587">nome e escola só no aparelho</text>
+
+    <text x="282" y="548" font-weight="600">Desktop da coordenação</text>
+    <text x="282" y="568">X-Chave-Coordenacao</text>
+    <text x="282" y="587">ações e revogação</text>
+
+    <text x="512" y="548" font-weight="600">Painel web (navegador)</text>
+    <text x="512" y="568">só leitura por sala</text>
+    <text x="512" y="587">nenhuma foto</text>
+
+    <text x="742" y="548" font-weight="600">Estação administrativa</text>
+    <text x="742" y="568">rede administrativa</text>
+    <text x="742" y="587">RDP com conta do AD</text>
+  </g>
+
+  <rect x="345" y="385" width="355" height="62" rx="6" fill="#fffaeb" stroke="#344054" stroke-width="1.5"/>
+  <g fill="#101828" text-anchor="middle">
+    <text x="520" y="403" font-weight="600">Firewall do servidor</text>
+    <text x="520" y="421" font-size="12">80/443: sub-rede local</text>
+    <text x="520" y="439" font-size="12">1433: só interna; 3389: só rede administrativa</text>
+  </g>
+
+  <!-- Fluxos -->
+  <g fill="none" stroke="#344054" stroke-width="2" marker-end="url(#seta)">
+    <path d="M145,170 V263"/>
+    <path d="M250,302 H300 V200 H358"/>
+    <path d="M140,525 V470 H390 V242"/>
+    <path d="M440,525 V242"/>
+    <path d="M600,525 V242"/>
+    <path d="M660,138 H718"/>
+    <path d="M660,232 H718"/>
+    <path d="M830,525 V427"/>
+  </g>
+  <g font-size="11" font-weight="600" text-anchor="middle">
+    <circle cx="145" cy="215" r="11" fill="#101828"/><text x="145" y="219" fill="#ffffff">1</text>
+    <circle cx="300" cy="250" r="11" fill="#101828"/><text x="300" y="254" fill="#ffffff">2</text>
+    <circle cx="265" cy="470" r="11" fill="#101828"/><text x="265" y="474" fill="#ffffff">3</text>
+    <circle cx="440" cy="475" r="11" fill="#101828"/><text x="440" y="479" fill="#ffffff">4</text>
+    <circle cx="600" cy="475" r="11" fill="#101828"/><text x="600" y="479" fill="#ffffff">5</text>
+    <circle cx="690" cy="125" r="11" fill="#101828"/><text x="690" y="129" fill="#ffffff">6</text>
+    <circle cx="690" cy="250" r="11" fill="#101828"/><text x="690" y="254" fill="#ffffff">7</text>
+    <circle cx="830" cy="475" r="11" fill="#101828"/><text x="830" y="479" fill="#ffffff">8</text>
+  </g>
+</svg>

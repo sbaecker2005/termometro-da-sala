@@ -1,6 +1,6 @@
 # Termômetro da Sala — roteiro de evidências de Cybersecurity
 
-Anexo de [RELATORIO-RISCOS.md](RELATORIO-RISCOS.md). **Estado: parte local coletada em 05/11/2026; nmap, IIS, GPO e LED são coletados no laboratório Windows Server.** Não fazer varredura nem inundação do broker público. Não mostrar chaves, senhas, tokens, strings de conexão ou pessoas nos prints.
+Roteiro de coleta do [RELATORIO-RISCOS.md](RELATORIO-RISCOS.md); não entra no PDF. Os resultados (esperado x obtido e prints) vão para o [ANEXO-EVIDENCIAS.md](ANEXO-EVIDENCIAS.md). **Estado: parte local coletada em 05/11/2026; nmap, IIS, GPO e LED são coletados no laboratório Windows Server.** Não fazer varredura nem inundação do broker público. Não mostrar chaves, senhas, tokens, strings de conexão ou pessoas nos prints.
 
 Rotas existentes: `POST /leituras`, `GET/POST /ambientes`, `GET /ambientes/{id}/leituras`, `GET /ambientes/{id}/previsao`, `POST /ocorrencias`, `GET /ocorrencias/{id}/foto`, `GET/POST /acoes`, `POST /dispositivos/{id}/revogar`, `POST /demo/semear`. Não há `GET /ocorrencias?busca=`, rota de cadastro de dispositivo nem de reativação. O SQLi do roteiro usa `GET /ambientes/{id}/leituras`. Recusas de leitura: `assinatura-invalida`, `reenvio`, `dispositivo-revogado`, `atrasada`, `fora-da-faixa`. Saídas locais em [evidencias/](evidencias/). Cada arquivo traz só o trecho que prova cada controle, sem a semente de teste.
 
@@ -242,7 +242,7 @@ Get-ChildItem api,app,esp32 -Recurse -File |
     Select-Object FullName
 ```
 
-Esperado: regra para secrets.h/configurações locais, exemplo sem chave real e configuração de execução protegida por ACL. Lista de arquivos e `.gitignore` **não provam** exclusão do versionamento nem ausência em histórico. O responsável pelo repositório deve revisar arquivos rastreados, histórico e exportação pública pela interface que já utiliza e anexar declaração/print redigido sem valores. Essa revisão não foi executada aqui. Não abrir variáveis de ambiente do pool em print que mostre valores.
+Esperado: regra para secrets.h/configurações locais, exemplo sem chave real e configuração de execução protegida por ACL. Lista de arquivos e `.gitignore` **não provam** exclusão do versionamento nem ausência em histórico. A busca no histórico do git foi executada em 05/11/2026 e está em `evidencias/osint.txt`, item 8 (só os vetores de teste). O responsável pelo repositório repete a busca antes da entrega e confere a exportação pública pela interface que já utiliza, com print redigido sem valores. Não abrir variáveis de ambiente do pool em print que mostre valores.
 
 No Wokwi, declarar que quem tem link consegue ver o segredo de demonstração. Não tentar comprovar sigilo inexistente. Anexar revogação e recusa posterior de E04, sem fotografar a chave.
 
@@ -333,4 +333,4 @@ Os arquivos temporários de leitura têm assinatura, não chave. Guardar somente
 
 ## Montagem do PDF único
 
-Inserir os prints nos espaços E01–E15, com legenda que distingue resultado obtido do esperado, data, ambiente e arquivo/linha. Se um teste falhar ou não puder ser executado, declarar o fato e manter o risco aberto. Revisar legibilidade, ausência de dados pessoais/segredos e RM da capa. Juntar relatório e este anexo em um único PDF, conferir a versão exportada e entregar no Teams até 19/11/2026. A ferramenta de exportação fica a critério da equipe; não é necessário alterar o projeto para gerar o documento.
+Antes do E04, rodar `seguranca/cenarios-ataque.ps1 -Api https://api.termometro.local` (cenários S1 a S3 do relatório; em Production o HTTP só redireciona). Inserir os prints na coluna do laboratório do [ANEXO-EVIDENCIAS.md](ANEXO-EVIDENCIAS.md), com legenda que distingue resultado obtido do esperado, data, ambiente e arquivo/linha. Se um teste falhar ou não puder ser executado, declarar o fato e manter o risco aberto. Revisar legibilidade, ausência de dados pessoais/segredos e RM da capa. Juntar relatório e o ANEXO-EVIDENCIAS.md em um único PDF; este roteiro fica fora, conferir a versão exportada e entregar no Teams até 19/11/2026. A ferramenta de exportação fica a critério da equipe; não é necessário alterar o projeto para gerar o documento.

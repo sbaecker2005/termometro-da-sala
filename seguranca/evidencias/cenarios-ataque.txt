@@ -1,0 +1,148 @@
+Evidencia: cenarios de ataque S1 (SQLi), S2 (LFI e upload) e S3 (OSINT) da secao 4.2 do relatorio
+Ambiente: Windows 11, .NET SDK 8.0.427, Windows PowerShell 5.1 e curl.exe do Windows
+API: o mesmo pipeline dos testes (ApiFabrica em api/TermometroDaSala.Api.Tests/ApiTestes.cs: ambiente Testing,
+     banco SQLite em memoria com a semente das 4 salas, MQTT desligado), exposto em http://localhost:5099
+     por um encaminhador HTTP.sys local usado so nesta coleta (fora do repositorio). Nenhum banco real, nenhum servico
+     de terceiros. O 403 do S2.2 e do S2.3 vem desse encaminhador; a prova reproduzivel e a execucao contra o IIS.
+Comando (a partir da raiz do repositorio):
+  $env:CHAVE_COORDENACAO = '<chave de teste do ambiente>'   # nunca impressa pelo script
+  .\seguranca\cenarios-ataque.ps1 -Api http://localhost:5099
+No laboratorio Windows Server o mesmo comando roda contra a API publicada no IIS com -Api https://api.termometro.local
+(em Production a API redireciona HTTP para HTTPS; ANEXO-EVIDENCIAS.md, linhas S1 a S3). O script sai com o numero de
+passos que divergem: 0 nesta execucao.
+
+Saida obtida:
+  Cenarios de ataque - Termometro da Sala
+  Data: 2026-11-05T11:04:26.1204592-03:00
+  API: http://localhost:5099
+  
+  S1 - SQL Injection no id de GET /ambientes/{id}/leituras (R3, controle C2)
+  S1.1 Dado de referencia: leituras assinadas na sala-01 (que a injecao tentaria listar) e na sala-04
+        esperado: 201 e 201
+        obtido:   201 e 201  [CONFERE]
+  S1.2 Linha de base: GET /ambientes/sala-04/leituras
+        esperado: 200 com as leituras so da sala-04 (ao menos a do S1.1)
+        obtido:   200, 1 leituras  [CONFERE]
+  S1.3 Injecao no id: sala-04' OR 1=1 --
+        esperado: 404, sem leituras de outra sala nem segredo
+        obtido:   404, 162 bytes  [CONFERE]
+  S1.4 Injecao no id: x' UNION SELECT Id, Segredo FROM Dispositivos --
+        esperado: 404, sem leituras de outra sala nem segredo
+        obtido:   404, 162 bytes  [CONFERE]
+  S1.5 Injecao no id: sala-04'; DROP TABLE Leituras; --
+        esperado: 404, sem leituras de outra sala nem segredo
+        obtido:   404, 162 bytes  [CONFERE]
+  S1.6 Injecao no parametro formato: csv' OR '1'='1
+        esperado: 200 em JSON com as mesmas 1 leituras da sala-04
+        obtido:   200, 1 leituras  [CONFERE]
+  S1.7 Depois do DROP TABLE: GET /ambientes/sala-01/leituras
+        esperado: 200 com a leitura do S1.1 (tabela intacta)
+        obtido:   200, 1 leituras  [CONFERE]
+  
+  S2 - LFI e upload malicioso (R4, R5, controle C3 e C4)
+  S2.1 GET /appsettings.json (configuracao fora de wwwroot)
+        esperado: 404, sem ConnectionStrings
+        obtido:   404, 0 bytes  [CONFERE]
+  S2.2 GET /../appsettings.json (travessia na URL, sem normalizar no cliente)
+        esperado: 4xx, sem ConnectionStrings
+        obtido:   403, 312 bytes  [CONFERE]
+  S2.3 GET /ocorrencias/..%2F..%2Fappsettings.json/foto
+        esperado: 4xx (404 na API), sem bytes de arquivo do servidor
+        obtido:   403, 312 bytes  [CONFERE]
+  S2.4 GET /ocorrencias/C%3A%5CWindows%5Cwin.ini/foto
+        esperado: 4xx (404 na API), sem bytes de arquivo do servidor
+        obtido:   404, 0 bytes  [CONFERE]
+  S2.5 GET /ocorrencias/59a3641c-ca1c-4d78-bff9-2db2956eaa03/foto
+        esperado: 4xx (404 na API), sem bytes de arquivo do servidor
+        obtido:   404, 162 bytes  [CONFERE]
+  S2.6 Upload de JPEG valido com nome ../../wwwroot/index.html
+        esperado: 400 nome-invalido
+        obtido:   400 nome-invalido  [CONFERE]
+  S2.7 Upload de JPEG valido com nome ..\..\web.config
+        esperado: 400 nome-invalido
+        obtido:   400 nome-invalido  [CONFERE]
+  S2.8 Upload de pagina ASPX declarada como image/jpeg
+        esperado: 400 nao-jpeg
+        obtido:   400 nao-jpeg  [CONFERE]
+  S2.9 Upload legitimo (JPEG de sala vazia)
+        esperado: 201 com id GUID gerado no servidor
+        obtido:   201 id=d66d5a14-bae4-4e2e-904b-17f296fc0fbc  [CONFERE]
+  S2.10 GET da foto pelo id, sem nenhuma chave (lacuna R12)
+        esperado: 200 hoje (lacuna declarada; alvo do C10 e 401)
+        obtido:   200, 28 bytes  [CONFERE]
+  
+  S3 - OSINT: vetor de teste publico e metadados de foto (R6, R7, R10, controle C6, C9 e C10)
+  S3.1 Leitura forjada com o segredo-de-teste-sala-04 copiado do repositorio publico
+        esperado: 201 (vetor de teste vale ate a revogacao: risco R7 real)
+        obtido:   201  [CONFERE]
+  S3.2 Upload de foto com APP1/EXIF contendo GPS-TESTE
+        esperado: 201
+        obtido:   201  [CONFERE]
+  S3.3 Download da foto: procurar GPS-TESTE nos bytes
+        esperado: 200 sem GPS-TESTE (APP1 removido)
+        obtido:   200, GPS-TESTE presente: False  [CONFERE]
+  S3.4 Atacante tenta revogar o sensor sem a chave da coordenacao
+        esperado: 401 chave-invalida
+        obtido:   401 chave-invalida  [CONFERE]
+  S3.5 Coordenacao revoga esp32-sala-04 (resposta ao vazamento)
+        esperado: 200 com ativo false
+        obtido:   200 {"id":"esp32-sala-04","ativo":false}  [CONFERE]
+  S3.6 Mesma forja depois da revogacao
+        esperado: 400 dispositivo-revogado
+        obtido:   400 dispositivo-revogado  [CONFERE]
+  
+  Passos que divergem do esperado: 0
+
+Log da API na mesma execucao (trechos; o EF Core registra o comando SQL sem o valor dos parametros):
+  S1.3 a S1.5: o id injetado chega inteiro como parametro @__id_0; o tamanho e o do texto do ataque
+  (18, 48 e 33 caracteres) e o OR / UNION / DROP nao entram no comando:
+    Executed DbCommand (0ms) [Parameters=[@__id_0='?' (Size = 18)], CommandType='Text', CommandTimeout='30']
+    SELECT EXISTS (
+    SELECT 1
+    FROM "Ambientes" AS "a"
+    WHERE "a"."Id" = @__id_0)
+    Executed DbCommand (0ms) [Parameters=[@__id_0='?' (Size = 48)], CommandType='Text', CommandTimeout='30']
+    SELECT EXISTS (
+    SELECT 1
+    FROM "Ambientes" AS "a"
+    WHERE "a"."Id" = @__id_0)
+    Executed DbCommand (0ms) [Parameters=[@__id_0='?' (Size = 33)], CommandType='Text', CommandTimeout='30']
+    SELECT EXISTS (
+    SELECT 1
+    FROM "Ambientes" AS "a"
+    WHERE "a"."Id" = @__id_0)
+  Pedidos que chegaram a API (22 pedidos de 21 dos 23 passos; o S1.1 faz dois; metodo, caminho bruto e status):
+    POST /leituras -> 201
+    POST /leituras -> 201
+    GET /ambientes/sala-04/leituras -> 200
+    GET /ambientes/sala-04%27%20OR%201%3D1%20--/leituras -> 404
+    GET /ambientes/x%27%20UNION%20SELECT%20Id%2C%20Segredo%20FROM%20Dispositivos%20--/leituras -> 404
+    GET /ambientes/sala-04%27%3B%20DROP%20TABLE%20Leituras%3B%20--/leituras -> 404
+    GET /ambientes/sala-04/leituras?formato=csv%27%20OR%20%271%27%3D%271 -> 200
+    GET /ambientes/sala-01/leituras -> 200
+    GET /appsettings.json -> 404
+    GET /ocorrencias/C%3A%5CWindows%5Cwin.ini/foto -> 404
+    GET /ocorrencias/59a3641c-ca1c-4d78-bff9-2db2956eaa03/foto -> 404
+    POST /ocorrencias -> 400
+    POST /ocorrencias -> 400
+    POST /ocorrencias -> 400
+    POST /ocorrencias -> 201
+    GET /ocorrencias/d66d5a14-bae4-4e2e-904b-17f296fc0fbc/foto -> 200
+    POST /leituras -> 201
+    POST /ocorrencias -> 201
+    GET /ocorrencias/591bb2f3-eb2f-4987-9645-2b14989a6aaf/foto -> 200
+    POST /dispositivos/esp32-sala-04/revogar -> 401
+    POST /dispositivos/esp32-sala-04/revogar -> 200
+    POST /leituras -> 400
+  S2.2 e S2.3 nao aparecem acima: no ensaio local, o HTTP.sys do encaminhador de coleta recusou a travessia com 403
+  antes da API. Sem ele, o Kestrel normaliza /../appsettings.json para /appsettings.json (404, como no S2.1) e a rota
+  so aceita GUID ({id:guid}, OcorrenciasController.cs:42), que recusa o S2.3 com 404, como o S2.4. A execucao
+  contra o IIS no laboratorio e o que confirma o resultado no servidor publicado.
+  S3.4: o 401 sai do filtro ExigeChaveCoordenacao antes de qualquer comando no banco; o S3.5, com a chave,
+  executa o UPDATE "Dispositivos" SET "Ativo" = @p0. O S3.6 registra "leitura recusada: dispositivo-revogado".
+
+Esperado: 23 passos conferem. Obtido: 23 conferem, 0 divergem (S1: 7, S2: 10, S3: 6).
+Composicao dos 23: 16 ataques barrados (S1.3 a S1.7, S2.1 a S2.8, S3.3, S3.4 e S3.6), 2 lacunas declaradas
+confirmadas (S2.10/R12 e S3.1/R7) e 5 passos de referencia ou da coordenacao (S1.1, S1.2, S2.9, S3.2 e S3.5).
+Observacao: S2.10 confere porque o esperado HOJE e 200 (lacuna R12 declarada); o alvo do C10 e 401.
+S3.1 confere porque o vetor de teste publico assina leituras validas ate a revogacao (risco R7 aceito no laboratorio).

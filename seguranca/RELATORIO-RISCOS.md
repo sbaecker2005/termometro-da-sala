@@ -23,7 +23,7 @@ A análise seguiu a ISO/IEC 27005:2022 e a NIST SP 800-30 Rev. 1, com ameaças c
 | 5 | R13 — MQTT na porta 1883 sem TLS | Alto (10) | Leituras trafegam em claro no broker público; aceito só no laboratório com dados simulados |
 | 6 | R12 — foto lida sem autorização | Moderado (8) | `GET /ocorrencias/{id}/foto` exige só o GUID da ocorrência; lacuna declarada |
 
-Nos arquivos da versão atual do repositório público não há credencial de produção nem dado de aluno (exercício de OSINT na seção 4.1). A busca no histórico do git ainda não foi executada (`evidencias/osint.txt`, item 8), então a ausência no histórico não está comprovada. Os segredos `segredo-de-teste-sala-01` a `-04` são **valores de teste, públicos de propósito e revogáveis**, e serão revogados após a avaliação de 19/11/2026.
+Nos arquivos da versão atual do repositório público e no histórico do git não há credencial de produção nem dado de aluno (exercício de OSINT na seção 4.1 e `evidencias/osint.txt`, item 8). Três cenários de ataque (SQLi, LFI e OSINT) foram executados passo a passo contra a API local com banco de teste: os 23 passos conferem, sendo 16 ataques barrados, 2 lacunas declaradas confirmadas (S2.10, foto lida sem chave, R12; S3.1, forja com o vetor de teste público, R7) e 5 passos de referência ou da coordenação (seção 4.2). Os segredos `segredo-de-teste-sala-01` a `-04` são **valores de teste, públicos de propósito e revogáveis**, e serão revogados após a avaliação de 19/11/2026.
 
 ## 1. Escopo e ficha resumida
 
@@ -50,8 +50,8 @@ A análise segue o processo de gestão de riscos da **ISO/IEC 27005:2022** e as 
 | Etapa (ISO/IEC 27005) | O que foi feito (NIST SP 800-30, etapa 2, tarefas 2-1 a 2-6) | Seção |
 |---|---|---|
 | Estabelecimento do contexto | Escopo, partes interessadas e critérios de aceitação do risco | 1 e 5 |
-| Identificação | Inventário dos ativos; fontes e eventos de ameaça; vulnerabilidades e condições predisponentes | 3 e 4 |
-| Análise | Probabilidade (1 a 5) e impacto (1 a 5) de cada evento, antes e depois dos controles | 5 |
+| Identificação | Inventário dos ativos; agentes (fontes) de ameaça; fluxo de dados e fronteiras de confiança; eventos de ameaça; vulnerabilidades e condições predisponentes | 3 e 4 |
+| Análise | Cenários de ataque passo a passo; probabilidade (1 a 5) e impacto (1 a 5) de cada evento, antes e depois dos controles | 4.2 e 5 |
 | Avaliação | Pontuação P × I comparada com o critério de aceitação | 5 |
 | Tratamento | Controles com critério de aceitação, tipo, controle da ISO/IEC 27001:2022 Anexo A, custo e responsável | 6 |
 | Monitoramento e comunicação | Riscos residuais, gatilhos de reavaliação e evidências | 7 e 8 |
@@ -68,18 +68,51 @@ A escala é semiquantitativa, como a da NIST SP 800-30 (cinco níveis). Os valor
 
 Escala de criticidade de confidencialidade (C), integridade (I) e disponibilidade (D): **baixa**, **média** ou **alta**, conforme o dano da exposição, alteração ou indisponibilidade. Criticidade não é probabilidade de ataque.
 
-| ID | Ativo e conteúdo | C | I | D | Responsável funcional e justificativa |
-|---|---|---|---|---|---|
-| A1 | Banco SQL Server: ambientes, dispositivos, leituras, previsões, ocorrências e ações | Alta | Alta | Alta | Backend/coordenação; alteração muda alertas e histórico; segredos e fotos exigem restrição |
-| A2 | API REST e assinante MQTT | Média | Alta | Alta | Backend; é a fronteira de validação entre internet, dispositivo e banco |
-| A3 | Windows Server, IIS, AD, disco de fotos e logs | Alta | Alta | Alta | Infraestrutura; comprometimento dá acesso a serviços, arquivos e contas |
-| A4 | ESP32, sensor e LED local | Baixa | Alta | Alta | Dispositivo/coordenação; leitura ou sinal incorreto prejudica a decisão; LED deve continuar sem rede |
-| A5 | Segredos HMAC por dispositivo, conexão do banco e credenciais administrativas | Alta | Alta | Alta | Backend/infraestrutura; permitem forja ou tomada de controle; indisponibilidade impede operação |
-| A6 | Contas da coordenação e grupos administrativos/RDP | Alta | Alta | Alta | Coordenação/infraestrutura; habilitam decisões, revogação e administração |
-| A7 | Fotos de ocorrências e metadados | Alta | Alta | Média | Aplicativo/backend; podem identificar pessoas e local, embora isso seja proibido pelo projeto |
-| A8 | App, desktop e painel público | Média | Alta | Média | Interfaces; painel mostra somente informação por sala, sem fotos; dados do professor ficam no aparelho |
+| ID | Ativo e conteúdo | C | I | D | Responsável funcional e justificativa | Cidadão afetado |
+|---|---|---|---|---|---|---|
+| A1 | Banco SQL Server: ambientes, dispositivos, leituras, previsões, ocorrências e ações | Alta | Alta | Alta | Backend/coordenação; alteração muda alertas e histórico; segredos e fotos exigem restrição | Aluno (alerta errado ou histórico falso); coordenação (decisão) |
+| A2 | API REST e assinante MQTT | Média | Alta | Alta | Backend; é a fronteira de validação entre internet, dispositivo e banco | Aluno e professor (alerta ausente ou errado) |
+| A3 | Windows Server, IIS, AD, disco de fotos e logs | Alta | Alta | Alta | Infraestrutura; comprometimento dá acesso a serviços, arquivos e contas | Todos: aluno, professor e coordenação |
+| A4 | ESP32, sensor e LED local | Baixa | Alta | Alta | Dispositivo/coordenação; leitura ou sinal incorreto prejudica a decisão; LED deve continuar sem rede | Aluno e professor na sala (sinal local) |
+| A5 | Segredos HMAC por dispositivo, conexão do banco e credenciais administrativas | Alta | Alta | Alta | Backend/infraestrutura; permitem forja ou tomada de controle; indisponibilidade impede operação | Aluno (leitura forjada esconde calor real) |
+| A6 | Contas da coordenação e grupos administrativos/RDP | Alta | Alta | Alta | Coordenação/infraestrutura; habilitam decisões, revogação e administração | Coordenação; aluno indiretamente |
+| A7 | Fotos de ocorrências e metadados | Alta | Alta | Média | Aplicativo/backend; podem identificar pessoas e local, embora isso seja proibido pelo projeto | Aluno menor de idade (identificação); professor |
+| A8 | App, desktop e painel público | Média | Alta | Média | Interfaces; painel mostra somente informação por sala, sem fotos; dados do professor ficam no aparelho | Professor (nome e escola no aparelho); coordenação |
 
 O app armazena nome e escola do professor localmente (`app/services/professor.ts:6` e `:19`); isso continua sendo dado pessoal de adulto, sem equivaler a autenticação. O objetivo de não coletar dados de aluno não significa ausência de qualquer dado pessoal.
+
+### 3.1 Agentes de ameaça
+
+Quem pode atacar o Termômetro da Sala, por que, com que meios e qual cidadão sofre o dano. A capacidade segue a escala da NIST SP 800-30 (baixa, média, alta).
+
+| ID | Agente | Motivação | Capacidade | Ativos-alvo | Dano ao cidadão | Riscos |
+|---|---|---|---|---|---|---|
+| AG1 | Aluno curioso ou que quer liberar a turma | Sair mais cedo, brincadeira, testar o sistema | Baixa a média: celular, cliente MQTT gratuito, leitura do repositório público | A4, A5, broker | Alerta falso interrompe a aula, ou calor real fica escondido e colegas passam mal | R1, R2, R7, R13 |
+| AG2 | Pessoa de dentro da escola (funcionário ou terceirizado com acesso à rede ou ao servidor) | Esconder falha, evitar trabalho, curiosidade sobre fotos | Média: rede interna, conta do AD, acesso físico ao servidor | A1, A3, A6, A7 | Fotos de menores expostas; ações e revogações falsificadas | R6, R9, R11, R12 |
+| AG3 | Atacante oportunista na internet (robôs de varredura) | Ganho genérico: sequestro de dados, servidor para botnet | Média a alta, automatizada: varredura de portas, cargas prontas de SQLi e LFI | A1, A2, A3 | Sistema fora do ar no dia quente; banco vazado ou apagado | R3, R4, R5, R9, R14 |
+| AG4 | Coletor OSINT (golpista ou pessoa que monta perfil de crianças) | Identificar e localizar alunos, escola e rotina | Baixa técnica, muita paciência: busca no GitHub, no Wokwi, em fotos e metadados | A7, A8, repositório público | Menor identificado e localizado (LGPD art. 14) | R6, R7, R10 |
+| AG5 | Robô ou anônimo no tópico MQTT público | Spam, teste de brokers abertos, sem alvo específico | Publica e assina qualquer tópico sem autenticação | Broker, A2 | Leituras falsas ou ausentes na tela da coordenação | R1, R8, R13 |
+
+A banca e a equipe usam os vetores de teste públicos de propósito (seção 4.1). Elas não são agentes de ameaça, mas o mesmo valor serve ao AG1 e ao AG4 até a revogação.
+
+### 3.2 Fluxo de dados e fronteiras de confiança
+
+![Fluxo de dados e fronteiras de confiança](fluxo-dados.svg)
+
+Cada linha tracejada é uma fronteira de confiança: tudo que a atravessa é tratado como não confiável até a API validar.
+
+| Fluxo | De → para | Dado | Fronteira atravessada | Controle na travessia | Riscos |
+|---|---|---|---|---|---|
+| 1 | ESP32 → broker público | Leitura com sala, dispositivo, temperatura, umidade, horário e HMAC; o segredo não trafega | Sala de aula → internet | C1 (assinatura por dispositivo) | R1, R2, R7, R13 |
+| 2 | Broker → assinante da API (conexão de saída) | A mesma mensagem, até 1024 bytes | Internet → laboratório | C1 e C4 (1024 bytes); nenhuma porta aberta no servidor para MQTT (C8) | R1, R2, R8, R13 |
+| 3 | App do professor → API | `POST /ocorrencias` (texto e foto) e `GET /ambientes` | Cliente → servidor | C3, C4, C9 e cota de escrita | R4, R5, R6, R12 |
+| 4 | Desktop da coordenação → API | `POST /acoes`, `POST /ambientes` e `POST /dispositivos/{id}/revogar` com `X-Chave-Coordenacao` | Cliente → servidor | C10, cota de escrita, HTTPS do C8 (roteiro) | R12, R14 |
+| 5 | Painel web → API | `GET /ambientes`, leituras e previsão, sem fotos | Navegador → servidor | C2 | R3, R14 |
+| 6 | API → SQL Server | Comandos do EF Core com parâmetros | Nenhuma: mesmo servidor; controle pela conta do pool e ACL | C2; porta 1433 só interna (C8) | R3 |
+| 7 | API → pasta de fotos | JPEG sem APP1, nome GUID gerado no servidor | Nenhuma: mesmo servidor; controle pela conta do pool e ACL | C3, C9; NTFS e SACL (C7) | R4, R5, R6 |
+| 8 | Estação administrativa → Windows Server | RDP 3389 com conta do AD | Rede administrativa → servidor | C7; firewall do C8 | R9 |
+
+`POST /leituras` por HTTP é o caminho alternativo dos fluxos 1 e 2 e passa pelo mesmo `ServicoLeituras.Receber` (C1).
 
 ## 4. Ameaças, vulnerabilidades e consequências
 
@@ -110,12 +143,69 @@ Em 05/11/2026 a equipe procurou, na cópia local do repositório público, o que
 |---|---|---|
 | Segredos `segredo-de-teste-sala-01` a `-04` (56 ocorrências em 21 arquivos, contando os próprios roteiros que os citam) | `api/TermometroDaSala.Api/Dados/SalaDb.cs:65-68`, migrações, testes, `esp32/secrets.exemplo.h`, `CONTRATO.md` | **Valores de teste**, publicados de propósito como vetor do contrato HMAC para a banca reproduzir a assinatura. Valem só para os quatro dispositivos semeados do laboratório e nunca são chave de produção. A coordenação revoga os quatro com `POST /dispositivos/{id}/revogar` após a avaliação; um uso real cadastra dispositivos novos com segredo gerado fora do repositório |
 | Broker e tópico MQTT públicos | `appsettings.json:6-8`, `esp32/sketch.ino:162` | Aceito só no laboratório (R13); leitura assinada (C1) e sem dado pessoal |
-| Chave da coordenação e senha de banco | Nenhum valor no repositório; `api/insomnia.json` traz o campo vazio e `api/README.md:215` usa variável de ambiente | Nada a remover na versão atual; histórico ainda não conferido |
+| Chave da coordenação e senha de banco | Só o valor de teste `chave-teste` em `api/TermometroDaSala.Api.Tests/ApiTestes.cs:544` e `:561`, usado pela suíte automatizada; `api/insomnia.json` traz o campo vazio e `api/README.md:215` usa variável de ambiente | **Valor de teste**, público como os vetores, nunca configurado no IIS (a chave do laboratório fica só no pool, `infra/04-iis.ps1:72-86`). Histórico conferido no item 8 |
 | Nomes de pessoas | Só o nome do integrante, exigido nas entregas; nenhum e-mail, telefone, aluno ou entrevistado | Manter apenas nome e RM dos integrantes |
 | Escola e bairro | Apenas marcadores a preencher | Ao preencher, nunca citar turma, sala real ou horário de aula |
 | Fotos | Nenhuma foto de sala ou ocorrência; `api/TermometroDaSala.Api/fotos/` está no `.gitignore` | Prints só de sala vazia ou equipamento |
 
-A busca no histórico do git e a conferência do link do Wokwi estão listadas no mesmo arquivo como passos a executar pela equipe. Até essa busca rodar, o relatório não afirma que o histórico está limpo.
+A busca no histórico do git foi executada em 05/11/2026 (`evidencias/osint.txt`, item 8): só aparecem os vetores de teste do item 1 e o valor de teste `chave-teste` da suíte automatizada (`ApiTestes.cs:544` e `:561`); `esp32/secrets.h` nunca foi commitado e nenhuma chave da coordenação de uso real, senha, `.env` ou certificado entrou em commit algum. A conferência do link do Wokwi (item 9) fica para a equipe, depois de publicado.
+
+### 4.2 Cenários de ataque passo a passo
+
+Os três cenários pedidos no enunciado foram modelados e executados em 05/11/2026 só contra a própria API, com o script [cenarios-ataque.ps1](cenarios-ataque.ps1). A API rodou com o mesmo pipeline dos testes automatizados: ambiente de teste, banco SQLite em memória com a semente das quatro salas e MQTT desligado. Saída completa e trechos do log em [evidencias/cenarios-ataque.txt](evidencias/cenarios-ataque.txt): **23 passos, os 23 com o resultado esperado**: 16 ataques barrados (S1.3 a S1.7, S2.1 a S2.8, S3.3, S3.4 e S3.6), 2 lacunas declaradas e confirmadas (S2.10, R12; S3.1, R7) e 5 passos de referência ou da coordenação (S1.1, S1.2, S2.9, S3.2 e S3.5). O script sai com o número de passos que divergem. No laboratório, a equipe roda o mesmo script contra a API publicada no IIS, com `-Api https://api.termometro.local` (anexo, linhas S1 a S3).
+
+**Cenário 1: SQL Injection na consulta de leituras (AG3; R3)**
+
+O atacante procura um parâmetro que vá para o banco. `GET /ambientes` é público e mostra os ids das salas; o id entra na rota `GET /ambientes/{id}/leituras`.
+
+| Passo | Ação do atacante | Onde é barrado | Esperado | Obtido |
+|---|---|---|---|---|
+| S1.1 | Grava uma leitura legítima na sala-01, para ter o que roubar, e outra na sala-04, para a linha de base | Não é ataque: leituras assinadas | 201 e 201 | 201 e 201 |
+| S1.2 | Linha de base: lê as leituras da sala-04 | Não é ataque | 200, só a sala-04, ao menos 1 leitura | 200, 1 leitura |
+| S1.3 | Id `sala-04' OR 1=1 --` para listar todas as salas | C2: `AnyAsync(a => a.Id == id)` em `LeiturasController.cs:18`; o id vai inteiro como parâmetro `@__id_0` | 404, nada de outra sala | 404; log com `@__id_0` de 18 caracteres |
+| S1.4 | Id `x' UNION SELECT Id, Segredo FROM Dispositivos --` para roubar os segredos | C2, mesma linha | 404, nenhum segredo | 404; `@__id_0` de 48 caracteres |
+| S1.5 | Id `sala-04'; DROP TABLE Leituras; --` para apagar o histórico | C2, mesma linha | 404 | 404; `@__id_0` de 33 caracteres |
+| S1.6 | Injeção no parâmetro `formato=csv' OR '1'='1` | O parâmetro só escolhe JSON ou CSV (`LeiturasController.cs:20`) e nunca chega ao SQL | 200, as mesmas leituras da sala-04 | 200, 1 leitura, a mesma do S1.2 |
+| S1.7 | Confere se o `DROP` funcionou | — | 200 com a leitura do S1.1 | 200, 1 leitura: tabela intacta |
+
+Onde o ataque para: no primeiro comando SQL. O texto do atacante nunca vira SQL, só valor de parâmetro (CWE-89 tratada). O teste `ApiTestes.ConsultaDeLeiturasParametrizada` repete a prova com o provedor do SQL Server (`evidencias/consulta-parametrizada.txt`).
+
+**Cenário 2: LFI e upload malicioso nas fotos (AG3 e AG2; R4 e R5)**
+
+O atacante quer ler arquivos do servidor (`appsettings.json`, `web.config`, `win.ini`) pela rota de foto ou gravar um arquivo executável no site.
+
+| Passo | Ação do atacante | Onde é barrado | Esperado | Obtido |
+|---|---|---|---|---|
+| S2.1 | `GET /appsettings.json` | Só `wwwroot` é servido (`Program.cs:64-65`) | 404 | 404 |
+| S2.2 | `GET /../appsettings.json` sem normalizar a URL | No ensaio local, barrado pelo HTTP.sys do encaminhador de coleta; sem ele, o Kestrel normaliza para `/appsettings.json` (404, como no S2.1). A execução contra o IIS no laboratório é o que confirma | 4xx, sem o arquivo | 403 |
+| S2.3 | `GET /ocorrencias/..%2F..%2Fappsettings.json/foto` | No ensaio local, barrado pelo HTTP.sys do encaminhador de coleta; sem ele, a rota `{id:guid}` recusa com 404 (`OcorrenciasController.cs:42`). A execução contra o IIS no laboratório é o que confirma | 4xx, sem o arquivo | 403 |
+| S2.4 | `GET /ocorrencias/C%3A%5CWindows%5Cwin.ini/foto` | Rota `{id:guid}` (`OcorrenciasController.cs:42`) | 404 | 404, 0 bytes |
+| S2.5 | GUID inventado | Id resolvido no banco (`:45-46`); o caminho do disco nunca vem do cliente (`:47`) | 404 | 404 |
+| S2.6 | Upload de JPEG válido com nome `../../wwwroot/index.html` | Nome com `..`, `/` ou `\` recusado (`:22-23`) | 400 `nome-invalido` | 400 `nome-invalido` |
+| S2.7 | Upload com nome `..\..\web.config` | Mesma regra | 400 `nome-invalido` | 400 `nome-invalido` |
+| S2.8 | Página ASPX enviada como `image/jpeg` | Bytes `FF D8 FF` conferidos (`:24` e `:58-64`) | 400 `nao-jpeg` | 400 `nao-jpeg` |
+| S2.9 | Upload legítimo | Nome GUID gerado no servidor (`:31`), fora do site no IIS (`infra/04-iis.ps1:85`) | 201 com GUID | 201 com GUID |
+| S2.10 | Lê a foto do S2.9 sem chave | **Não barrado:** lacuna R12 declarada | 200 hoje (alvo: 401) | 200 |
+
+Onde o ataque para: na rota (só GUID), no banco (o id vira nome de arquivo gerado pelo servidor) e na validação do upload. O S2.10 mostra o que segue aberto: quem conhece o GUID de uma ocorrência baixa a foto (seção 6, C10).
+
+**Cenário 3: OSINT sobre o projeto (AG4 e AG1; R6, R7 e R10)**
+
+O atacante só usa o que está publicado: o repositório no GitHub, o link do Wokwi e as fotos.
+
+| Passo | Ação do atacante | Onde é barrado | Esperado | Obtido |
+|---|---|---|---|---|
+| S3.0a | Lê o repositório e acha `segredo-de-teste-sala-0N` (`SalaDb.cs:65-68`) | **Não barrado:** vetores de teste públicos de propósito | Encontrado | Encontrado (`evidencias/osint.txt`, item 1) |
+| S3.0b | Procura no histórico do git um segredo real, `secrets.h`, `.env` ou a chave da coordenação | C6: segredos fora do repositório desde o primeiro commit | Nada além dos valores de teste | Só os vetores e o valor de teste `chave-teste` dos testes automatizados (`osint.txt`, item 8) |
+| S3.1 | Forja uma leitura da sala-04 com o vetor copiado | **Não barrado até a revogação:** risco R7 aceito no laboratório | 201 | 201 |
+| S3.2 e S3.3 | Envia foto com EXIF de localização (`GPS-TESTE`) e baixa de volta para ver se a localização sobrou | C9: `SemApp1` regrava o JPEG sem APP1 (`OcorrenciasController.cs:28` e `:69`) | 200 sem `GPS-TESTE` | 200, `GPS-TESTE` ausente |
+| S3.4 | Tenta revogar o sensor da sala para esconder o calor | C10: `ExigeChaveCoordenacaoAttribute.cs:20`, antes de qualquer acesso ao banco | 401 `chave-invalida` | 401 `chave-invalida` |
+| S3.5 | A coordenação responde ao vazamento e revoga `esp32-sala-04` | C6: `DispositivosController.cs:20` | 200, `ativo: false` | 200, `ativo: false` |
+| S3.6 | Repete a forja | C1: `dispositivo-revogado` (`Contrato.cs:102`) | 400 `dispositivo-revogado` | 400 `dispositivo-revogado` |
+| S3.7 | Abre o link do Wokwi e lê o `secrets.h` | **Não barrado:** só o vetor da sala-03 fica visível | Só o vetor da sala-03 | A executar pela equipe depois de publicar (`osint.txt`, item 9) |
+| S3.8 | Procura rosto, uniforme ou nome de aluno numa foto | **Não barrado por código:** revisão humana (C9) | Nenhuma pessoa nas fotos entregues | A executar pela equipe a cada entrega (E14) |
+
+Onde o ataque para: o repositório não entrega nada além dos vetores de teste, e cada vetor é desligado pela revogação. O vazamento por imagem só é barrado em parte: a localização sai no upload, o rosto depende de revisão humana (R6 continua alto).
 
 ## 5. Matriz de risco: probabilidade × impacto
 
@@ -151,7 +241,7 @@ Critério de aceitação: não se aceita exposição real de menores nem produç
 | C3 | Gerar nome GUID no servidor; guardar imagem fora de diretório executável e servir por id de ocorrência, resolvido no banco; nunca aceitar caminho do cliente. GUID evita colisão, não substitui autorização | Nome em `OcorrenciasController.cs:31`. A rota de leitura só aceita GUID (`{id:guid}`, `:42`) e usa `Path.GetFileName` em `:47`. Nome com `..`, `/` ou `\` recusado em `:22-23` (`nome-invalido`). O `foto.jpg` de `app/app/salas/[id]/ocorrencia.tsx:39` é só o nome enviado pelo cliente. Pasta de fotos fora do site no IIS: `infra/04-iis.ps1:85`. Teste: `ApiTestes.UploadRecusaOQueNaoEJpegENomeComDoisPontos` (`../x.jpg`) | E06–E07, `evidencias/upload-travessia.txt` |
 | C4 | Validar na API ambiente existente, campos/tipos, temperatura -10 a 60 °C e umidade 0 a 100%; descrição 10–500 caracteres após trim; foto obrigatória, tamanho limitado, tipo permitido e estrutura de JPEG conferida (decodificação completa dos pixels planejada). Limite de bytes também na ingestão MQTT | Cliente: `app/domain/ocorrencia.ts:9`, `ocorrencia.tsx:55`, `ocorrencia.test.ts:5`. Servidor: descrição 10–500 em `OcorrenciasController.cs:20`; foto vazia ou acima de 5 MB recusada com 400 `arquivo` em `:21`; teto da requisição de 6 MB em `:15`. Faixa da leitura em `ValidadorLeitura` (`Contrato.cs:106`). Testes: `ApiTestes.RecusasELeituraAceita` (`fora-da-faixa`), `VetoresTestes.LimitesDaJanelaEDaFaixa`, `ApiTestes.CadastroRecusaEntradaInvalida`, `ApiTestes.UploadRecusaOQueNaoEJpegENomeComDoisPontos`. Tipo: `Content-Type` e três primeiros bytes `FF D8 FF` (`OcorrenciasController.cs:58-64`); estrutura: `SemApp1` (`:69`) devolve vazio, e a ação responde 400 `nao-jpeg` (`:29`), se faltar quadro SOF com altura e largura maiores que zero ou varredura SOS. Teste: `ApiTestes.UploadRecusaJpegSemQuadroOuSemVarredura`. MQTT: mensagem acima de 1024 bytes (`AssinanteMqtt.cs:12`) é descartada antes de desserializar (`:60`), com log `acima-do-limite`. Teste: `ApiTestes.MqttDescartaMensagemAcimaDoLimite`. **Parcial:** os pixels não são decodificados, então um arquivo com cabeçalhos JPEG válidos e dados de imagem corrompidos passa; `POST /leituras` só tem o limite padrão do servidor web. Planejado: decodificar a imagem no servidor | E07–E08 |
 | C5 | `/demo/semear` só grava em Demo; em qualquer outro ambiente responde 404 sem tocar no banco. Demonstrar que a mesma rota funciona em Demo para evitar falso positivo de rota inexistente | A rota existe em todos os ambientes; a primeira linha da ação, `DemoController.cs:20`, confere o ambiente e, fora de Demo, registra `demo semear recusado: fora-do-ambiente` e retorna 404. Esse log separa a recusa de uma rota inexistente. No ambiente Demo o mesmo caminho grava, se houver leitura ao vivo. Testes: `ApiTestes.DemoSemearForaDoAmbienteDemoResponde404` e `ApiTestes.DemoSemearExigeLeituraAoVivoEAncoraNela` | E09, `evidencias/demo-semear-404.txt` |
-| C6 | Segredos fora dos arquivos versionados e dos logs; chave distinta por dispositivo, revogável; configuração protegida no IIS e ACL mínima. Valores de teste declarados como tais e revogados após a avaliação | Os segredos `segredo-de-teste-sala-01` a `-04` em `SalaDb.cs:65-68` são **valores de teste revogáveis**, públicos como vetor do contrato, nunca de produção (seção 4.1). Revogação por `POST /dispositivos/{id}/revogar` (`DispositivosController.cs:13`). `esp32/secrets.h` ignorado em `.gitignore:19`. `ChaveCoordenacao` não está no appsettings; o filtro lê a configuração em `ExigeChaveCoordenacaoAttribute.cs:16`, e o roteiro do IIS grava a chave só no pool (`infra/04-iis.ps1:72-86`). Teste do segredo alheio: `ApiTestes.SegredoDeOutraSalaNaoAssina`. Busca no histórico do git: a executar (`evidencias/osint.txt`, item 8) | E10, `evidencias/git-check-ignore.txt`, `evidencias/osint.txt` |
+| C6 | Segredos fora dos arquivos versionados e dos logs; chave distinta por dispositivo, revogável; configuração protegida no IIS e ACL mínima. Valores de teste declarados como tais e revogados após a avaliação | Os segredos `segredo-de-teste-sala-01` a `-04` em `SalaDb.cs:65-68` são **valores de teste revogáveis**, públicos como vetor do contrato, nunca de produção (seção 4.1). Revogação por `POST /dispositivos/{id}/revogar` (`DispositivosController.cs:13`). `esp32/secrets.h` ignorado em `.gitignore:19`. `ChaveCoordenacao` não está no appsettings; o filtro lê a configuração em `ExigeChaveCoordenacaoAttribute.cs:16`, e o roteiro do IIS grava a chave só no pool (`infra/04-iis.ps1:72-86`). Teste do segredo alheio: `ApiTestes.SegredoDeOutraSalaNaoAssina`. Busca no histórico do git executada em 05/11/2026: só os vetores de teste e o `chave-teste` da suíte (`evidencias/osint.txt`, item 8) | E10, `evidencias/git-check-ignore.txt`, `evidencias/osint.txt` |
 | C7 | GPO: RDP apenas grupo autorizado do AD, política de senha/bloqueio e firewall restrito à administração; auditoria de logon e da pasta de fotos (política + SACL), NTFS só permite escrita ao pool e administradores; logs protegidos | Roteiro pronto: política de senha (mínimo 12, histórico 24) e bloqueio após 5 tentativas por 15 min em `infra/06-gpo.ps1:11`; auditoria de logon e de sistema de arquivos em `:27`; SACL da pasta de fotos em `:30-33`; ACL NTFS só para SYSTEM, Administradores e pool em `infra/04-iis.ps1:40-46`. A aplicar e comprovar no laboratório Windows Server; R9 segue crítico até a evidência E11 | E11 |
 | C8 | Reduzir superfície de rede: HTTPS para usuários, SQL somente interno, RDP somente rede administrativa, MQTT de saída sem abrir listener no servidor. LED local sem internet e aviso de leitura desatualizada; não fabricar dados atuais | Cota das rotas HTTP de escrita: `Program.cs:12` (30 por minuto por IP, 429 em `:14`); teste `ApiTestes.EscritaAcimaDeTrintaPorMinutoResponde429`. A ingestão MQTT não passa por essa cota. Roteiro de rede: firewall HTTP 80 só para a sub-rede local, perfis Domínio e Privado (`infra/04-iis.ps1:49`); binding HTTPS 443 com certificado do laboratório e regra de firewall `TermometroHTTPS` na porta 443, também só para a sub-rede local (`infra/README.md`, seção "HTTPS no laboratório"); porta 443 informada à API pelo pool (`infra/04-iis.ps1:88`) e redirecionamento HTTPS só em Production (`Program.cs:62`). HTTP 80 continua aberto para a inicialização do IIS e só redireciona; HSTS e `nosniff` ficam em C11. Aplicação no Windows Server, nmap, listener MQTT e LED: a executar no laboratório | E12 e E13; a cota está na suíte |
 | C9 | Nenhum dado de aluno: foto de sala/equipamento vazio, texto sem nomes, painel sem imagens e revisão antes de publicar. Minimizar metadados, excluir cópias locais de teste ao encerrar e revisar retenção antes de uso real | O upload regrava o JPEG sem APP1 em `OcorrenciasController.cs:28` (`SemApp1` em `:69`). Teste: `ApiTestes.UploadRemoveSegmentoApp1` (o arquivo devolvido conserva `JFIF` e não contém `GPS-TESTE` nem o marcador APP1). O app pede `exif: false` em `ocorrencia.tsx:37` e orienta em `:85` e `:92`. Isso não impede um rosto na imagem: a revisão humana continua obrigatória | E14 |
@@ -190,13 +280,13 @@ Não há obrigação de acrescentar autenticação AD ao app nesta entrega. Há 
 | Duplicata concorrente e volume MQTT sem limite (R2, R8) | Modificar com a parte planejada de C1 (atualização atômica); limitar volume por dispositivo no assinante ou usar broker próprio (C12); backend | Antes de qualquer piloto com decisões reais | Teste de duas gravações paralelas com uma só aceita; inundação ensaiada no broker próprio sem perda de leituras legítimas |
 | Foto pode conter pessoa apesar do aviso (R6) | Modificar e evitar: revisar cada imagem e texto antes da entrega; remover ocorrência indevida e cópias, registrar incidente sem reproduzir dado. Não usar rosto real para testar | Antes de qualquer envio, print ou publicação | Conjunto entregue sem identificação de aluno e sem metadados desnecessários |
 | Upload, RDP e foto sem chave (R5, R9, R12) | Backend/infraestrutura: a API já recusa travessia, não-JPEG e escrita da coordenação sem chave. Aplicar C7 no laboratório; proteger o GET da foto (C10). Não expor o serviço fora do laboratório antes disso | Antes de disponibilizar a API fora do laboratório | E11 comprovada; GET da foto sem chave responde 401 |
-| Exclusão não remove credencial antiga (R10) | Responsável pelo repositório: revisar histórico sem divulgar valores; se houve exposição, revogar primeiro e tratar cópias/histórico | Já: o repositório é público. Rodar a busca do item 8 de `evidencias/osint.txt` antes da entrega de 19/11/2026 e repetir a cada suspeita | Chave exposta inutilizada; revisão documentada em `evidencias/osint.txt` |
+| Exclusão não remove credencial antiga (R10) | Responsável pelo repositório: revisar histórico sem divulgar valores; se houve exposição, revogar primeiro e tratar cópias/histórico | Já: o repositório é público. Busca do item 8 de `evidencias/osint.txt` executada em 05/11/2026, sem achado além dos vetores de teste e do `chave-teste` da suíte; repetir antes da entrega de 19/11/2026 e a cada suspeita | Chave exposta inutilizada; revisão documentada em `evidencias/osint.txt` |
 
 A coordenação mantém a decisão humana; alertas apoiam o protocolo escolar e não garantem proteção à saúde. A revogação existe na API e exige a chave. A autonomia do LED e a GPO dependem da coleta no laboratório para sustentar qualquer redução de R9.
 
 ## 8. Evidências
 
-O roteiro [EVIDENCIAS.md](EVIDENCIAS.md) define E01–E15. As saídas que não dependem do laboratório estão em [evidencias/](evidencias/), geradas em 05/11/2026 no Windows da equipe, com banco SQLite em memória dos testes:
+O anexo [ANEXO-EVIDENCIAS.md](ANEXO-EVIDENCIAS.md) traz, para cada evidência E01–E15 e para os cenários S1 a S3, o controle, o comando, o resultado esperado, o resultado obtido e a data. Os comandos completos ficam no roteiro [EVIDENCIAS.md](EVIDENCIAS.md), que não entra no PDF. As saídas que não dependem do laboratório estão em [evidencias/](evidencias/), geradas em 05/11/2026 no Windows da equipe, com banco SQLite em memória dos testes:
 
 | Arquivo | Controle | Resultado obtido |
 |---|---|---|
@@ -206,11 +296,12 @@ O roteiro [EVIDENCIAS.md](EVIDENCIAS.md) define E01–E15. As saídas que não d
 | `upload-travessia.txt` | C3 | `../foto.jpg` e `../x.jpg` recusados com `nome-invalido` |
 | `demo-semear-404.txt` | C5 | `fora-do-ambiente` e 404 |
 | `git-check-ignore.txt` | C6 | `esp32/secrets.h` coberto por `.gitignore:19` |
-| `osint.txt` | C6, C9 | Exercício de OSINT da seção 4.1 |
+| `osint.txt` | C6, C9 | Exercício de OSINT da seção 4.1, com a busca no histórico do git |
+| `cenarios-ataque.txt` | C1–C4, C6, C9, C10 | Cenários S1 a S3 da seção 4.2: 23 passos conferem (16 ataques barrados, 2 lacunas declaradas confirmadas, 5 de referência ou da coordenação) |
 
 nmap, IIS, GPO e LED são coletados no laboratório Windows Server. Um 404 de rota que não existe não substitui o 404 do ambiente Demo, já coberto pelo teste.
 
-O roteiro preenchido entra como anexo deste relatório num **único PDF**, com capa, matriz, controles, riscos residuais e evidências legíveis. Um envio por equipe na tarefa de Cybersecurity do Teams até **19/11/2026**, conforme o Enunciado GS 2026.2, p. 28.
+O relatório e o anexo de evidências, com os prints do laboratório, formam um **único PDF**, com capa, matriz, controles, riscos residuais e evidências legíveis. O diagrama `fluxo-dados.svg` entra como imagem. Um envio por equipe na tarefa de Cybersecurity do Teams até **19/11/2026**, conforme o Enunciado GS 2026.2, p. 28.
 
 ## 9. Referências
 
