@@ -44,22 +44,26 @@ No PowerShell: `$env:ASPNETCORE_ENVIRONMENT="Demo"`.
 
 O assinante MQTT conecta em `broker.hivemq.com:1883`, tópico `fiap-gs/termometro-da-sala/leituras` (configurável em `Mqtt`). Para desligar: `Mqtt__Desligado=true`.
 
-Semente: salas `sala-01` a `sala-04`, dispositivo `esp32-sala-0N` em cada uma, segredo de demonstração `segredo-de-teste-sala-03`. Ele é revogável por `POST /dispositivos/{id}/revogar`. Não é segredo de produção.
+Semente: salas `sala-01` a `sala-04`, dispositivo `esp32-sala-0N` em cada uma, segredo de demonstração `segredo-de-teste-sala-0N` (a sala 03 continua com o vetor público do contrato). Cada um é revogável por `POST /dispositivos/{id}/revogar`. Não é segredo de produção.
+
+A coordenação autentica `POST /ambientes`, `POST /acoes` e `POST /dispositivos/{id}/revogar` com o cabeçalho `X-Chave-Coordenacao`. O valor vem da configuração `ChaveCoordenacao` (variável de ambiente de mesmo nome) e não entra no git. Sem ela, ou com valor diferente, a resposta é 401 e nada é gravado. `POST /leituras` continua só com HMAC. `POST /ocorrencias` não exige essa chave.
+
+As rotas de escrita (`POST /ambientes`, `/acoes`, `/leituras`, `/ocorrencias`, `/dispositivos/{id}/revogar` e `/demo/semear`) aceitam 30 pedidos por minuto por IP. O seguinte responde 429.
 
 ## Rotas
 
 | Método | Rota | O que faz |
 |---|---|---|
 | GET | `/ambientes` | Salas com nível e índice atuais, `temVentilador` e `dispositivoId` (null sem sensor) |
-| POST | `/ambientes` | Cadastra sala sem criar ou vincular um sensor |
+| POST | `/ambientes` | Cadastra sala sem criar ou vincular um sensor. Exige `X-Chave-Coordenacao` |
 | GET | `/ambientes/{id}/leituras` | Leituras em JSON. `?formato=csv` devolve CSV |
 | GET | `/ambientes/{id}/previsao` | Rua daqui a 2 h, delta da sala e nível previsto |
 | POST | `/leituras` | Mesma leitura assinada do MQTT |
-| POST | `/ocorrencias` | Multipart: `ambienteId`, `descricao`, `foto` JPEG até 5 MB |
+| POST | `/ocorrencias` | Multipart: `ambienteId`, `descricao`, `foto` JPEG até 5 MB. A API regrava o JPEG sem o segmento APP1 (EXIF) |
 | GET | `/ocorrencias/{id}/foto` | A foto da ocorrência, só pelo id |
 | GET | `/acoes?dia=AAAA-MM-DD` | Ações do dia civil de São Paulo; data ausente/inválida retorna 400 |
-| POST | `/acoes` | Ação tomada: `ambienteId`, `nivel`, `descricao` |
-| POST | `/dispositivos/{id}/revogar` | Marca o dispositivo como inativo |
+| POST | `/acoes` | Ação tomada: `ambienteId`, `nivel`, `descricao`. Exige `X-Chave-Coordenacao` |
+| POST | `/dispositivos/{id}/revogar` | Marca o dispositivo como inativo. Exige `X-Chave-Coordenacao` |
 | POST | `/demo/semear?ambienteId=` | Só com `ASPNETCORE_ENVIRONMENT=Demo`. 409 sem leitura ao vivo |
 
 `POST /leituras`:
@@ -116,7 +120,7 @@ $env:ConnectionStrings__Sala="Server=localhost,14333;Database=TermometroDaSala;U
 # Aguarde o SQL Server ficar pronto; depois execute build, migrations list e database update acima.
 ```
 
-Histórico esperado: `20261105025544_Inicial` e `20261105033613_Enums`.
+Histórico esperado: `20261105025544_Inicial`, `20261105033613_Enums` e `20261105050515_SegredosPorDispositivo`, que troca o segredo de demonstração das salas 01, 02 e 04.
 A segunda mantém os valores textuais e reduz o tamanho de Tipo (4), FaceSol (5),
 Nivel/NivelPrevisto (7) e Origem (11) ao tamanho dos enums. Não remove tabelas ou linhas.
 Em banco existente, confira antes se há valores fora do domínio ou maiores que esses
@@ -146,7 +150,10 @@ do dia seguinte. Um dia sem ações retorna `[]`.
 ## Roteiro do Insomnia
 
 Importe `insomnia.json` numa versão do Insomnia com scripts de requisição e resposta e
-`require('crypto-js')`. Ajuste `base_url` e `dia` no ambiente Base. Use um banco de
+`require('crypto-js')`. Ajuste `base_url` e `dia` no ambiente Base. Preencha
+`chave_coordenacao` só nesse ambiente local: é o valor de `ChaveCoordenacao`, e o arquivo
+versionado deixa o campo vazio. As escritas compartilham o limite de 30 por minuto por IP.
+Use um banco de
 **demonstração**, pois a revogação persiste; para repetir os testes de leitura, o
 `esp32-sala-01` precisa estar ativo no início. Desligue MQTT (`Mqtt__Desligado=true`)
 e o simulador durante o roteiro para não disputar os timestamps.

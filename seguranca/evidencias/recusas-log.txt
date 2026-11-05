@@ -1,0 +1,3 @@
+      leitura recusada: assinatura-invalida
+      leitura recusada: reenvio
+      leitura recusada: dispositivo-revogado

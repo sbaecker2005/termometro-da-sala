@@ -157,14 +157,14 @@ namespace TermometroDaSala.Api.Dados.Migrations
                             Id = "esp32-sala-01",
                             AmbienteId = "sala-01",
                             Ativo = true,
-                            Segredo = "segredo-de-teste-sala-03"
+                            Segredo = "segredo-de-teste-sala-01"
                         },
                         new
                         {
                             Id = "esp32-sala-02",
                             AmbienteId = "sala-02",
                             Ativo = true,
-                            Segredo = "segredo-de-teste-sala-03"
+                            Segredo = "segredo-de-teste-sala-02"
                         },
                         new
                         {
@@ -178,7 +178,7 @@ namespace TermometroDaSala.Api.Dados.Migrations
                             Id = "esp32-sala-04",
                             AmbienteId = "sala-04",
                             Ativo = true,
-                            Segredo = "segredo-de-teste-sala-03"
+                            Segredo = "segredo-de-teste-sala-04"
                         });
                 });
 

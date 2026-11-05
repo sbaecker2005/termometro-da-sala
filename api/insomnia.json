@@ -7,7 +7,7 @@
       "_id": "wrk_termometro",
       "_type": "workspace",
       "name": "Termômetro da Sala",
-      "description": "Execute o roteiro do README: leitura atual assinada, recusas separadas e foto encadeada.",
+      "description": "Execute o roteiro do README. Escrita da coordenação envia X-Chave-Coordenacao (preencha chave_coordenacao no ambiente; não grave a chave aqui). Escrita: 30 pedidos por minuto por IP; acima disso, 429.",
       "scope": "collection"
     },
     {
@@ -18,12 +18,14 @@
       "data": {
         "base_url": "http://localhost:5080",
         "dia": "2026-11-05",
+        "chave_coordenacao": "",
         "ocorrencia_id": "",
         "leitura_aceita": "{}"
       },
       "dataPropertyOrder": {
         "&": [
-          "base_url"
+          "base_url",
+          "chave_coordenacao"
         ]
       },
       "color": null,
@@ -207,12 +209,17 @@
       "_type": "request",
       "parentId": "wrk_termometro",
       "name": "POST /acoes",
+      "description": "Exige X-Chave-Coordenacao. Limite de escrita: 30 por minuto por IP (429).",
       "method": "POST",
       "url": "{{ _.base_url }}/acoes",
       "headers": [
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "X-Chave-Coordenacao",
+          "value": "{{ _.chave_coordenacao }}"
         }
       ],
       "parameters": [],
@@ -235,9 +242,15 @@
       "_type": "request",
       "parentId": "wrk_termometro",
       "name": "POST /dispositivos/{id}/revogar",
+      "description": "Exige X-Chave-Coordenacao. Limite de escrita: 30 por minuto por IP (429).",
       "method": "POST",
       "url": "{{ _.base_url }}/dispositivos/esp32-sala-01/revogar",
-      "headers": [],
+      "headers": [
+        {
+          "name": "X-Chave-Coordenacao",
+          "value": "{{ _.chave_coordenacao }}"
+        }
+      ],
       "parameters": [],
       "body": {},
       "authentication": {},
@@ -299,7 +312,7 @@
       "settingEncodeUrl": true,
       "settingRebuildPath": true,
       "settingFollowRedirects": "global",
-      "preRequestScript": "const CryptoJS = require('crypto-js');\nconst medidoEm = Math.floor(Date.now() / 1000);\nconst corpo = { ambienteId: 'sala-02', dispositivo: 'esp32-sala-02', temperaturaC: 33.4, umidadePct: 58, medidoEm };\nconst canonico = `${corpo.ambienteId}|${corpo.dispositivo}|${corpo.temperaturaC.toFixed(1)}|${corpo.umidadePct}|${medidoEm}`;\ncorpo.assinatura = CryptoJS.HmacSHA256(canonico, 'segredo-de-teste-sala-03').toString(CryptoJS.enc.Hex);\ncorpo.assinatura = '00';\ninsomnia.request.body.update({ mode: 'raw', raw: JSON.stringify(corpo) });"
+      "preRequestScript": "const CryptoJS = require('crypto-js');\nconst medidoEm = Math.floor(Date.now() / 1000);\nconst corpo = { ambienteId: 'sala-02', dispositivo: 'esp32-sala-02', temperaturaC: 33.4, umidadePct: 58, medidoEm };\nconst canonico = `${corpo.ambienteId}|${corpo.dispositivo}|${corpo.temperaturaC.toFixed(1)}|${corpo.umidadePct}|${medidoEm}`;\ncorpo.assinatura = CryptoJS.HmacSHA256(canonico, 'segredo-de-teste-sala-02').toString(CryptoJS.enc.Hex);\ncorpo.assinatura = '00';\ninsomnia.request.body.update({ mode: 'raw', raw: JSON.stringify(corpo) });"
     },
     {
       "_id": "req_reenvio",
@@ -358,7 +371,7 @@
       "settingEncodeUrl": true,
       "settingRebuildPath": true,
       "settingFollowRedirects": "global",
-      "preRequestScript": "const CryptoJS = require('crypto-js');\nconst medidoEm = Math.floor(Date.now() / 1000);\nconst corpo = { ambienteId: 'sala-01', dispositivo: 'esp32-sala-01', temperaturaC: 33.4, umidadePct: 58, medidoEm };\nconst canonico = `${corpo.ambienteId}|${corpo.dispositivo}|${corpo.temperaturaC.toFixed(1)}|${corpo.umidadePct}|${medidoEm}`;\ncorpo.assinatura = CryptoJS.HmacSHA256(canonico, 'segredo-de-teste-sala-03').toString(CryptoJS.enc.Hex);\n\ninsomnia.request.body.update({ mode: 'raw', raw: JSON.stringify(corpo) });"
+      "preRequestScript": "const CryptoJS = require('crypto-js');\nconst medidoEm = Math.floor(Date.now() / 1000);\nconst corpo = { ambienteId: 'sala-01', dispositivo: 'esp32-sala-01', temperaturaC: 33.4, umidadePct: 58, medidoEm };\nconst canonico = `${corpo.ambienteId}|${corpo.dispositivo}|${corpo.temperaturaC.toFixed(1)}|${corpo.umidadePct}|${medidoEm}`;\ncorpo.assinatura = CryptoJS.HmacSHA256(canonico, 'segredo-de-teste-sala-01').toString(CryptoJS.enc.Hex);\n\ninsomnia.request.body.update({ mode: 'raw', raw: JSON.stringify(corpo) });"
     },
     {
       "_id": "req_fora_faixa",
@@ -388,7 +401,7 @@
       "settingEncodeUrl": true,
       "settingRebuildPath": true,
       "settingFollowRedirects": "global",
-      "preRequestScript": "const CryptoJS = require('crypto-js');\nconst medidoEm = Math.floor(Date.now() / 1000);\nconst corpo = { ambienteId: 'sala-04', dispositivo: 'esp32-sala-04', temperaturaC: 70, umidadePct: 58, medidoEm };\nconst canonico = `${corpo.ambienteId}|${corpo.dispositivo}|${corpo.temperaturaC.toFixed(1)}|${corpo.umidadePct}|${medidoEm}`;\ncorpo.assinatura = CryptoJS.HmacSHA256(canonico, 'segredo-de-teste-sala-03').toString(CryptoJS.enc.Hex);\n\ninsomnia.request.body.update({ mode: 'raw', raw: JSON.stringify(corpo) });"
+      "preRequestScript": "const CryptoJS = require('crypto-js');\nconst medidoEm = Math.floor(Date.now() / 1000);\nconst corpo = { ambienteId: 'sala-04', dispositivo: 'esp32-sala-04', temperaturaC: 70, umidadePct: 58, medidoEm };\nconst canonico = `${corpo.ambienteId}|${corpo.dispositivo}|${corpo.temperaturaC.toFixed(1)}|${corpo.umidadePct}|${medidoEm}`;\ncorpo.assinatura = CryptoJS.HmacSHA256(canonico, 'segredo-de-teste-sala-04').toString(CryptoJS.enc.Hex);\n\ninsomnia.request.body.update({ mode: 'raw', raw: JSON.stringify(corpo) });"
     },
     {
       "_id": "req_get_acoes",
@@ -415,12 +428,17 @@
       "_type": "request",
       "parentId": "wrk_termometro",
       "name": "POST /ambientes",
+      "description": "Exige X-Chave-Coordenacao. Limite de escrita: 30 por minuto por IP (429).",
       "method": "POST",
       "url": "{{ _.base_url }}/ambientes",
       "headers": [
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "X-Chave-Coordenacao",
+          "value": "{{ _.chave_coordenacao }}"
         }
       ],
       "parameters": [],

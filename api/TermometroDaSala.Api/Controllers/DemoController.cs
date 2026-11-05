@@ -1,5 +1,6 @@
 using System.Globalization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using TermometroDaSala.Api.Dados;
 using TermometroDaSala.Api.Dominio;
@@ -10,12 +11,13 @@ using TermometroDaSala.Api.Servicos;
 namespace TermometroDaSala.Api.Controllers;
 
 [ApiController]
-public class DemoController(SalaDb _db, IHostEnvironment _ambiente) : ControllerBase
+public class DemoController(SalaDb _db, IHostEnvironment _ambiente, ILogger<DemoController> _log) : ControllerBase
 {
     [HttpPost("/demo/semear")]
+    [EnableRateLimiting("escrita")]
     public async Task<IActionResult> Semear([FromQuery] string ambienteId)
     {
-        if (!_ambiente.IsEnvironment("Demo")) return NotFound();
+        if (!_ambiente.IsEnvironment("Demo")) { _log.LogWarning("demo semear recusado: fora-do-ambiente"); return NotFound(); }
         if (!await _db.Ambientes.AnyAsync(a => a.Id == ambienteId)) return NotFound();
         var aoVivo = (await _db.Leituras.Where(l => l.AmbienteId == ambienteId && l.Origem == Origem.dispositivo).ToListAsync())
             .OrderBy(l => l.MedidoEm)

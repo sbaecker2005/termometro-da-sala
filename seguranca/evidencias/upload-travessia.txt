@@ -1,0 +1,14 @@
+comando: dotnet test (trecho de UploadRecusaOQueNaoEJpegENomeComDoisPontos, arquivo ../x.jpg)
+4108-          WHERE "a"."Id" = @__entrada_AmbienteId_0)
+4109-warn: TermometroDaSala.Api.Controllers.OcorrenciasController[0]
+4110:      ocorrencia recusada: nome-invalido
+4111-warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]
+4112-      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.
+--
+4120-          WHERE "a"."Id" = @__entrada_AmbienteId_0)
+4121-warn: TermometroDaSala.Api.Controllers.OcorrenciasController[0]
+4122:      ocorrencia recusada: nome-invalido
+4123-warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]
+4124-      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.
+
+4311:  Passed TermometroDaSala.Api.Tests.ApiTestes.UploadRecusaOQueNaoEJpegENomeComDoisPontos [207 ms]

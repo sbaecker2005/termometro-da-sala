@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using TermometroDaSala.Api.Dados;
 using TermometroDaSala.Api.Dominio.Entidades;
 using TermometroDaSala.Api.Contratos;
+using TermometroDaSala.Api.Filtros;
 using TermometroDaSala.Api.Servicos;
 
 namespace TermometroDaSala.Api.Controllers;
@@ -11,6 +13,8 @@ namespace TermometroDaSala.Api.Controllers;
 public class AmbientesController(SalaDb _db, ConsultaPrevisao _previsao) : ControllerBase
 {
     [HttpPost("/ambientes")]
+    [EnableRateLimiting("escrita")]
+    [ExigeChaveCoordenacao]
     public async Task<IActionResult> Cadastrar(AmbienteEntrada entrada)
     {
         if (string.IsNullOrWhiteSpace(entrada.Nome)) return BadRequest();

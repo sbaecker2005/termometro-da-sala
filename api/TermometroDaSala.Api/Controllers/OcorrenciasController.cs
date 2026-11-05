@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using TermometroDaSala.Api.Dados;
 using TermometroDaSala.Api.Dominio.Entidades;
@@ -7,9 +8,10 @@ using TermometroDaSala.Api.Contratos;
 namespace TermometroDaSala.Api.Controllers;
 
 [ApiController]
-public class OcorrenciasController(SalaDb _db, IHostEnvironment _ambiente, IConfiguration _config, TimeProvider _tempo) : ControllerBase
+public class OcorrenciasController(SalaDb _db, IHostEnvironment _ambiente, IConfiguration _config, TimeProvider _tempo, ILogger<OcorrenciasController> _log) : ControllerBase
 {
     [HttpPost("/ocorrencias")]
+    [EnableRateLimiting("escrita")]
     [RequestSizeLimit(6 * 1024 * 1024)]
     public async Task<IActionResult> Ocorrencia([FromForm] OcorrenciaEntrada entrada)
     {
@@ -18,14 +20,18 @@ public class OcorrenciasController(SalaDb _db, IHostEnvironment _ambiente, IConf
         if (texto.Length is < 10 or > 500) return BadRequest(new MotivoSaida("descricao"));
         if (entrada.Foto is null || entrada.Foto.Length is 0 or > 5 * 1024 * 1024) return BadRequest(new MotivoSaida("arquivo"));
         if (string.IsNullOrWhiteSpace(entrada.Foto.FileName) || entrada.Foto.FileName.Contains("..") || entrada.Foto.FileName.Contains('/') || entrada.Foto.FileName.Contains('\\'))
-            return BadRequest(new MotivoSaida("nome-invalido"));
+            return Recusar("nome-invalido");
         if (!await Jpeg(entrada.Foto)) return BadRequest(new MotivoSaida("nao-jpeg"));
+
+        await using var bruto = new MemoryStream();
+        await entrada.Foto.CopyToAsync(bruto);
+        var limpo = SemApp1(bruto.ToArray());
+        if (limpo.Length < 3 || limpo[0] != 0xFF || limpo[1] != 0xD8) return BadRequest(new MotivoSaida("nao-jpeg"));
 
         var nome = Guid.NewGuid().ToString("N") + ".jpg";
         var pasta = PastaFotos();
         Directory.CreateDirectory(pasta);
-        await using (var destino = System.IO.File.Create(Path.Combine(pasta, nome)))
-            await entrada.Foto.CopyToAsync(destino);
+        await System.IO.File.WriteAllBytesAsync(Path.Combine(pasta, nome), limpo);
 
         var id = Guid.NewGuid();
         _db.Ocorrencias.Add(new Ocorrencia { Id = id, AmbienteId = entrada.AmbienteId, Descricao = texto, CaminhoFoto = nome, CriadaEm = _tempo.GetUtcNow() });
@@ -56,4 +62,53 @@ public class OcorrenciasController(SalaDb _db, IHostEnvironment _ambiente, IConf
         await using var fluxo = foto.OpenReadStream();
         var lidos = await fluxo.ReadAsync(cabeca.AsMemory(0, 3));
         return lidos == 3 && cabeca[0] == 0xFF && cabeca[1] == 0xD8 && cabeca[2] == 0xFF;
-    }}
+    }
+
+    // shortcut: não junta 0xFF de preenchimento antes do marcador; reescrever se uma câmera gravar padding.
+    private static byte[] SemApp1(byte[] jpeg)
+    {
+        var entrada = new MemoryStream(jpeg);
+        var saida = new MemoryStream(jpeg.Length);
+        var marcador = new byte[2];
+        var tam = new byte[2];
+        if (entrada.Read(marcador, 0, 2) != 2 || marcador[0] != 0xFF || marcador[1] != 0xD8) return [];
+        saida.Write(marcador, 0, 2);
+        while (true)
+        {
+            if (entrada.Read(marcador, 0, 2) != 2 || marcador[0] != 0xFF) break;
+            var m = marcador[1];
+            if (m == 0xD9)
+            {
+                saida.Write(marcador, 0, 2);
+                break;
+            }
+            if (m == 0xDA)
+            {
+                saida.Write(marcador, 0, 2);
+                entrada.CopyTo(saida);
+                break;
+            }
+            if (m == 0x01 || m is >= 0xD0 and <= 0xD8)
+            {
+                saida.Write(marcador, 0, 2);
+                continue;
+            }
+            if (entrada.Read(tam, 0, 2) != 2) break;
+            var n = (tam[0] << 8) | tam[1];
+            if (n < 2 || entrada.Length - entrada.Position < n - 2) break;
+            var dados = new byte[n - 2];
+            if (entrada.Read(dados, 0, dados.Length) != dados.Length) break;
+            if (m == 0xE1) continue;
+            saida.Write(marcador, 0, 2);
+            saida.Write(tam, 0, 2);
+            saida.Write(dados, 0, dados.Length);
+        }
+        return saida.ToArray();
+    }
+
+    private BadRequestObjectResult Recusar(string motivo)
+    {
+        _log.LogWarning("ocorrencia recusada: {Motivo}", motivo);
+        return BadRequest(new MotivoSaida(motivo));
+    }
+}

@@ -1,0 +1,8 @@
+comando: dotnet test (trecho de DemoSemearForaDoAmbienteDemoResponde404)
+4465-      CREATE INDEX "IX_Previsoes_AmbienteId" ON "Previsoes" ("AmbienteId");
+4466-warn: TermometroDaSala.Api.Controllers.DemoController[0]
+4467:      demo semear recusado: fora-do-ambiente
+4468-info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+4469-      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+
+4755:  Passed TermometroDaSala.Api.Tests.ApiTestes.DemoSemearForaDoAmbienteDemoResponde404 [219 ms]

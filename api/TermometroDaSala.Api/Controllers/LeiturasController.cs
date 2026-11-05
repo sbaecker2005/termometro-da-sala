@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using TermometroDaSala.Api.Dados;
 using TermometroDaSala.Api.Contratos;
@@ -36,6 +37,7 @@ public class LeiturasController(SalaDb _db, ServicoLeituras _leituras) : Control
     }
 
     [HttpPost("/leituras")]
+    [EnableRateLimiting("escrita")]
     public async Task<IActionResult> PostLeitura(LeituraEntrada entrada)
     {
         var r = await _leituras.Receber(entrada);

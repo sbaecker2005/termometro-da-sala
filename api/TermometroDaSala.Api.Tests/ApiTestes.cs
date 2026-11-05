@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TermometroDaSala.Api.Dados;
 using TermometroDaSala.Api.Dominio;
+using TermometroDaSala.Api.Filtros;
 
 namespace TermometroDaSala.Api.Tests;
 
@@ -24,8 +25,6 @@ public class ApiCollection { }
 [Collection("api")]
 public class ApiTestes
 {
-    const string Segredo = "segredo-de-teste-sala-03";
-
     [Fact]
     public async Task RecusasELeituraAceita()
     {
@@ -146,6 +145,9 @@ public class ApiTestes
         var c = f.Cliente();
         Assert.Equal(HttpStatusCode.BadRequest, (await c.PostAsync("/ocorrencias", Form("sala-03", "Sala muito quente no fim da aula", "nota.txt", "text/plain", Encoding.UTF8.GetBytes("oi")))).StatusCode);
         Assert.Equal(HttpStatusCode.BadRequest, (await c.PostAsync("/ocorrencias", Form("sala-03", "Sala muito quente no fim da aula", "../foto.jpg", "image/jpeg", new byte[] { 0xFF, 0xD8, 0xFF, 0xD9 }))).StatusCode);
+        var travessia = await c.PostAsync("/ocorrencias", Form("sala-03", "Sala muito quente no fim da aula", "../x.jpg", "image/jpeg", new byte[] { 0xFF, 0xD8, 0xFF, 0xD9 }));
+        Assert.Equal(HttpStatusCode.BadRequest, travessia.StatusCode);
+        Assert.Contains("nome-invalido", await travessia.Content.ReadAsStringAsync());
 
         var ok = await c.PostAsync("/ocorrencias", Form("sala-03", "Sala muito quente no fim da aula", "foto.jpg", "image/jpeg", new byte[] { 0xFF, 0xD8, 0xFF, 0xD9 }));
         Assert.Equal(HttpStatusCode.Created, ok.StatusCode);
@@ -233,6 +235,110 @@ public class ApiTestes
     }
 
     [Fact]
+    public async Task SegredoDeOutraSalaNaoAssina()
+    {
+        using var f = new ApiFabrica();
+        var c = f.Cliente();
+        var agora = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        var alheio = Assinatura.Hex("segredo-de-teste-sala-03", "sala-01", "esp32-sala-01", 30, 40, agora);
+        Assert.Equal("assinatura-invalida", await Motivo(await c.PostAsync("/leituras", Corpo("sala-01", "esp32-sala-01", 30, 40, agora, alheio))));
+        Assert.Equal(HttpStatusCode.Created, (await c.PostAsync("/leituras", Corpo("sala-01", "esp32-sala-01", 30, 40, agora))).StatusCode);
+    }
+
+    [Fact]
+    public async Task CoordenacaoSemChaveNaoGravaELeituraContinuaComHmac()
+    {
+        using var f = new ApiFabrica();
+        var c = f.Cliente(false);
+        var agora = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        StringContent Acao() => new("""{"ambienteId":"sala-03","nivel":"cuidado","descricao":"pausa para água"}""", Encoding.UTF8, "application/json");
+        Assert.Equal(HttpStatusCode.Unauthorized, (await c.PostAsync("/acoes", Acao())).StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await c.PostAsJsonAsync("/ambientes", new { id = "sala-05", nome = "Sala 5", andar = 1, faceSol = "oeste", temVentilador = true })).StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await c.PostAsync("/dispositivos/esp32-sala-01/revogar", new StringContent(""))).StatusCode);
+        c.DefaultRequestHeaders.Add(ExigeChaveCoordenacaoAttribute.Cabecalho, "outra");
+        Assert.Equal(HttpStatusCode.Unauthorized, (await c.PostAsync("/acoes", Acao())).StatusCode);
+
+        Assert.Equal(HttpStatusCode.Created, (await c.PostAsync("/leituras", Corpo("sala-03", "esp32-sala-03", 30, 40, agora))).StatusCode);
+        Assert.Equal(HttpStatusCode.Created, (await c.PostAsync("/ocorrencias", Form("sala-03", "Sala muito quente no fim da aula", "foto.jpg", "image/jpeg", new byte[] { 0xFF, 0xD8, 0xFF, 0xD9 }))).StatusCode);
+
+        using var escopo = f.Services.CreateScope();
+        var db = escopo.ServiceProvider.GetRequiredService<SalaDb>();
+        Assert.Equal(0, db.Acoes.Count());
+        Assert.Equal(4, db.Ambientes.Count());
+        Assert.True(db.Dispositivos.Single(d => d.Id == "esp32-sala-01").Ativo);
+    }
+
+    [Fact]
+    public async Task EscritaAcimaDeTrintaPorMinutoResponde429()
+    {
+        using var f = new ApiFabrica();
+        var c = f.Cliente();
+        for (var i = 0; i < 40; i++)
+            Assert.Equal(HttpStatusCode.OK, (await c.GetAsync("/ambientes")).StatusCode);
+
+        HttpStatusCode primeiro = 0, ultimo = 0;
+        for (var i = 0; i < 31; i++)
+        {
+            ultimo = (await c.PostAsync("/leituras", new StringContent("", Encoding.UTF8, "application/json"))).StatusCode;
+            if (i == 0) primeiro = ultimo;
+        }
+        Assert.NotEqual(HttpStatusCode.TooManyRequests, primeiro);
+        Assert.Equal(HttpStatusCode.TooManyRequests, ultimo);
+    }
+
+    [Fact]
+    public async Task UploadRemoveSegmentoApp1()
+    {
+        var app1 = Encoding.ASCII.GetBytes("EXIF\0\0GPS-TESTE");
+        using var montagem = new MemoryStream();
+        montagem.Write(new byte[] { 0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x06, (byte)'J', (byte)'F', (byte)'I', (byte)'F' });
+        montagem.Write(new byte[] { 0xFF, 0xE1, (byte)((app1.Length + 2) >> 8), (byte)(app1.Length + 2) });
+        montagem.Write(app1);
+        montagem.Write(new byte[] { 0xFF, 0xDA, 0x00, 0x02, 0x01, 0xFF, 0xD9 });
+        var jpeg = montagem.ToArray();
+
+        using var f = new ApiFabrica();
+        var c = f.Cliente();
+        var ok = await c.PostAsync("/ocorrencias", Form("sala-03", "Sala muito quente no fim da aula", "foto.jpg", "image/jpeg", jpeg));
+        Assert.Equal(HttpStatusCode.Created, ok.StatusCode);
+        using var doc = JsonDocument.Parse(await ok.Content.ReadAsStringAsync());
+        var bytes = await (await c.GetAsync($"/ocorrencias/{doc.RootElement.GetProperty("id").GetString()}/foto")).Content.ReadAsByteArrayAsync();
+        Assert.Equal(0xFF, bytes[0]);
+        Assert.Equal(0xD8, bytes[1]);
+        Assert.Contains("JFIF", Encoding.ASCII.GetString(bytes));
+        Assert.DoesNotContain("GPS-TESTE", Encoding.ASCII.GetString(bytes));
+        Assert.False(Tem(bytes, [0xFF, 0xE1]));
+    }
+
+    [Fact]
+    public async Task ConsultaDeLeiturasParametrizada()
+    {
+        using var f = new ApiFabrica();
+        var c = f.Cliente();
+        var agora = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        Assert.Equal(HttpStatusCode.Created, (await c.PostAsync("/leituras", Corpo("sala-03", "esp32-sala-03", 30, 40, agora))).StatusCode);
+
+        using var escopo = f.Services.CreateScope();
+        var db = escopo.ServiceProvider.GetRequiredService<SalaDb>();
+        // variavel (como o id da rota no controller): o EF manda como parametro, nunca no texto do SQL
+        var injecao = "sala-03' OR 1=1 --";
+        var sql = db.Leituras.Where(l => l.AmbienteId == injecao).ToQueryString();
+        var where = sql.Split('\n').Last(l => l.Contains("AmbienteId", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains("@", where);
+        Assert.DoesNotContain("OR 1=1", where);
+
+        var opcoesSql = new DbContextOptionsBuilder<SalaDb>().UseSqlServer("Server=localhost;Database=TermometroDaSala").Options;
+        using var sqlServer = new SalaDb(opcoesSql);
+        var comando = sqlServer.Leituras.Where(l => l.AmbienteId == injecao).ToQueryString();
+        var whereSql = comando.Split('\n').Last(l => l.Contains("AmbienteId", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains("@", whereSql);
+        Assert.DoesNotContain("OR 1=1", whereSql);
+
+        Assert.Equal(HttpStatusCode.NotFound, (await c.GetAsync("/ambientes/" + Uri.EscapeDataString(injecao) + "/leituras")).StatusCode);
+        Assert.Equal(1, db.Leituras.Count(l => l.AmbienteId == "sala-03"));
+    }
+
+    [Fact]
     public void FactoryUsaConnectionStringDoAmbiente()
     {
         const string chave = "ConnectionStrings__Sala";
@@ -263,9 +369,18 @@ public class ApiTestes
         db.LeiturasRua.Add(new LeituraRua { MedidoEm = quando, TemperaturaC = rua, UmidadePct = 40, IndiceCalor = rua });
     }
 
+    static bool Tem(byte[] dados, byte[] trecho)
+    {
+        for (var i = 0; i <= dados.Length - trecho.Length; i++)
+            if (dados.AsSpan(i, trecho.Length).SequenceEqual(trecho)) return true;
+        return false;
+    }
+
+    static string SegredoDe(string dispositivo) => "segredo-de-teste-" + dispositivo["esp32-".Length..];
+
     static StringContent Corpo(string sala, string dispositivo, double temp, int umidade, long medidoEm, string? assinatura = null)
     {
-        assinatura ??= Assinatura.Hex(Segredo, sala, dispositivo, temp, umidade, medidoEm);
+        assinatura ??= Assinatura.Hex(SegredoDe(dispositivo), sala, dispositivo, temp, umidade, medidoEm);
         var json = JsonSerializer.Serialize(new
         {
             ambienteId = sala,
@@ -313,9 +428,11 @@ public class ApiFabrica : WebApplicationFactory<Program>
         _conexao.Open();
     }
 
-    public HttpClient Cliente()
+    public HttpClient Cliente(bool chave = true)
     {
         var cliente = CreateClient();
+        if (chave)
+            cliente.DefaultRequestHeaders.Add(ExigeChaveCoordenacaoAttribute.Cabecalho, "chave-teste");
         if (!_pronto)
         {
             using var escopo = Services.CreateScope();
@@ -332,6 +449,7 @@ public class ApiFabrica : WebApplicationFactory<Program>
         builder.UseSetting("Banco:Migrar", "false");
         builder.UseSetting("Mqtt:Desligado", "true");
         builder.UseSetting("Fotos:Pasta", _fotos);
+        builder.UseSetting("ChaveCoordenacao", "chave-teste");
         builder.ConfigureTestServices(services =>
         {
             services.Where(d => d.ServiceType == typeof(DbContextOptions<SalaDb>) || d.ServiceType == typeof(SalaDb)).ToList()

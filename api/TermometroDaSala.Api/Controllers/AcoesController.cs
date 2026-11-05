@@ -1,10 +1,12 @@
 using System.Globalization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using TermometroDaSala.Api.Dados;
 using TermometroDaSala.Api.Dominio;
 using TermometroDaSala.Api.Dominio.Entidades;
 using TermometroDaSala.Api.Contratos;
+using TermometroDaSala.Api.Filtros;
 
 namespace TermometroDaSala.Api.Controllers;
 
@@ -24,6 +26,8 @@ public class AcoesController(SalaDb _db, TimeProvider _tempo) : ControllerBase
     }
 
     [HttpPost("/acoes")]
+    [EnableRateLimiting("escrita")]
+    [ExigeChaveCoordenacao]
     public async Task<IActionResult> Acao([FromBody] AcaoEntrada entrada)
     {
         if (!await _db.Ambientes.AnyAsync(a => a.Id == entrada.AmbienteId)) return NotFound();

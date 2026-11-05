@@ -54,18 +54,17 @@ public class SalaDb : DbContext
             new NivelAcao { Nivel = Nivel.cuidado, IndiceMin = 32, Nome = "Cuidado extremo", AcaoSugerida = "pausa, troca de sala ou adiar a Educação Física" },
             new NivelAcao { Nivel = Nivel.perigo, IndiceMin = 41, Nome = "Perigo", AcaoSugerida = "tirar a turma da sala" });
 
-        // Segredo de demonstração do contrato, o mesmo nas quatro salas. Cada aparelho de verdade terá o seu.
-        const string segredo = "segredo-de-teste-sala-03";
+        // Segredo de demonstração por dispositivo. Não é chave de produção.
         model.Entity<Ambiente>().HasData(
             new Ambiente { Id = "sala-01", Nome = "Sala 1", Tipo = TipoAmbiente.sala, Andar = 0, FaceSol = FaceSol.leste, TemVentilador = true },
             new Ambiente { Id = "sala-02", Nome = "Sala 2", Tipo = TipoAmbiente.sala, Andar = 0, FaceSol = FaceSol.norte, TemVentilador = true },
             new Ambiente { Id = "sala-03", Nome = "Sala 3", Tipo = TipoAmbiente.sala, Andar = 1, FaceSol = FaceSol.oeste, TemVentilador = true },
             new Ambiente { Id = "sala-04", Nome = "Sala 4", Tipo = TipoAmbiente.sala, Andar = 2, FaceSol = FaceSol.sul, TemVentilador = false });
         model.Entity<Dispositivo>().HasData(
-            new Dispositivo { Id = "esp32-sala-01", AmbienteId = "sala-01", Segredo = segredo, Ativo = true },
-            new Dispositivo { Id = "esp32-sala-02", AmbienteId = "sala-02", Segredo = segredo, Ativo = true },
-            new Dispositivo { Id = "esp32-sala-03", AmbienteId = "sala-03", Segredo = segredo, Ativo = true },
-            new Dispositivo { Id = "esp32-sala-04", AmbienteId = "sala-04", Segredo = segredo, Ativo = true });
+            new Dispositivo { Id = "esp32-sala-01", AmbienteId = "sala-01", Segredo = "segredo-de-teste-sala-01", Ativo = true },
+            new Dispositivo { Id = "esp32-sala-02", AmbienteId = "sala-02", Segredo = "segredo-de-teste-sala-02", Ativo = true },
+            new Dispositivo { Id = "esp32-sala-03", AmbienteId = "sala-03", Segredo = "segredo-de-teste-sala-03", Ativo = true },
+            new Dispositivo { Id = "esp32-sala-04", AmbienteId = "sala-04", Segredo = "segredo-de-teste-sala-04", Ativo = true });
     }
 }
 

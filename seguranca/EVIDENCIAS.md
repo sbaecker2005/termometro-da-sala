@@ -1,8 +1,8 @@
 # Termômetro da Sala — roteiro de evidências de Cybersecurity
 
-Anexo de [RELATORIO-RISCOS.md](RELATORIO-RISCOS.md). **Estado: coleta pendente.** Os resultados descritos são critérios esperados, não testes já aprovados. Executar somente no laboratório da equipe; não fazer varredura nem inundação do broker público. Não mostrar chaves, senhas, tokens, strings de conexão ou pessoas nos prints.
+Anexo de [RELATORIO-RISCOS.md](RELATORIO-RISCOS.md). **Estado: parte local coletada em 05/11/2026; nmap, IIS, GPO e LED ficam para o Samuel na VM.** Não fazer varredura nem inundação do broker público. Não mostrar chaves, senhas, tokens, strings de conexão ou pessoas nos prints.
 
-As rotas `/leituras`, `/ambientes`, `/ocorrencias` e `/demo/semear` são previstas no plano e ainda não existem na API inspecionada. Rota de busca `GET /ocorrencias?busca=...`, download `GET /ocorrencias/{id}/foto`, consulta `GET /ambientes/{id}/leituras`, DTOs e códigos exatos de recusa: **a conferir na implementação**. Ajustar somente o comando afetado após confirmar o contrato; ausência de rota não vale como prova do controle.
+Rotas existentes: `POST /leituras`, `GET/POST /ambientes`, `GET /ambientes/{id}/leituras`, `POST /ocorrencias`, `GET /ocorrencias/{id}/foto`, `POST /acoes`, `POST /dispositivos/{id}/revogar`, `POST /demo/semear`. Não há `GET /ocorrencias?busca=`. O SQLi do roteiro usa `GET /ambientes/{id}/leituras`. Recusas de leitura: `assinatura-invalida`, `reenvio`, `dispositivo-revogado`, `atrasada`, `fora-da-faixa`. Saídas locais em [evidencias/](evidencias/). Em `dotnet-test.txt` o valor da semente de demonstração foi trocado por `[redigido]`.
 
 Cada print deve trazer ID da evidência, data/hora, ambiente, versão identificada pelo coordenador, comando e resultado; registrar também o arquivo/linha do controle. Anexar logs recortados e sem segredos. Os campos reservados abaixo são para prints, não para registrar aprovação antecipada.
 
@@ -38,7 +38,7 @@ Get-Content -LiteralPath $Fonte -Encoding UTF8 |
     ForEach-Object { $Linha++; '{0}: {1}' -f $Linha, $_ }
 ```
 
-Esperado: identificar a versão com o coordenador e registrar arquivo/linha de cada controle C1–C10. Abrir somente fonte revisado que não contenha segredo. Atualizar referências do relatório se as linhas mudarem. Atualmente Program.cs é inicial e não comprova os controles previstos.
+Esperado: arquivo e linha de C1–C10 estão na seção 5 do relatório. Abrir somente fonte que não contenha a chave da coordenação. Se uma linha mudar, atualizar o relatório. A suíte está em `evidencias/dotnet-test.txt`.
 
 **Print E01:** [inserir versão, ambiente e trechos numerados dos controles]
 
@@ -78,7 +78,7 @@ curl.exe -i -H 'Content-Type: application/json' --data-binary "@$Valida" "$Api/l
 curl.exe -i "$Api/ambientes/$AmbienteId/leituras"
 ```
 
-Esperado: resposta 2xx e uma gravação identificável pelo dispositivo/timestamp. Conferir no Serial do ESP32 e no teste da API o **mesmo vetor canônico do contrato**, incluindo formatação com ponto decimal e UTF-8; a autoverificação pública acima só comprova a ferramenta de coleta. O vetor compartilhado e seu arquivo de teste estão **a conferir na implementação**. Nunca imprimir `$Hmac.Key`.
+Esperado: resposta 2xx e uma gravação identificável pelo dispositivo/timestamp. O vetor público está em `api/TermometroDaSala.Api.Tests/VetoresTestes.cs` (`HmacDoContrato`) e em `CONTRATO.md`. Cada sala usa `segredo-de-teste-sala-0N`; o vetor da sala 03 não assina a sala 01 (`ApiTestes.SegredoDeOutraSalaNaoAssina`). Nunca imprimir a chave.
 
 **Print E02:** [inserir aceite, registro persistido, teste da API e Serial com vetor comum sem chave]
 
@@ -98,7 +98,7 @@ curl.exe -i "$Api/ambientes/$AmbienteId/leituras"
 
 Esperado: 4xx nos dois POSTs, log `assinatura-invalida` no primeiro e `reenvio` no segundo, sem novas linhas no banco. Confirmar também ingestão MQTT com a mesma mensagem na coleção/ferramenta já usada pela equipe; confirmar no código que ambos chamam o mesmo validador. Para MQTT a prova é log e ausência de gravação, não status HTTP. Não publicar em tópico de terceiros.
 
-Repetir o POST válido depois de reiniciar normalmente a API no laboratório e enviar duas cópias simultâneas de uma **nova** leitura válida pela ferramenta de teste da equipe. Esperado: estado antirreenvio preservado após reinício e uma única inserção na concorrência. Procedimento de inicialização/publicação MQTT: **a conferir na implementação**.
+Repetir o POST válido depois de reiniciar a API no laboratório e enviar duas cópias simultâneas de uma leitura nova. Esperado: o último `medidoEm` fica na coluna do dispositivo (`ServicoLeituras`), então o reenvio continua recusado depois do reinício. O assinante MQTT está em `api/TermometroDaSala.Api/Servicos/AssinanteMqtt.cs:63` e chama o mesmo `Receber`. A concorrência de duas gravações simultâneas não tem teste próprio nesta pasta.
 
 **Print E03:** [inserir recusas HTTP, logs HTTP/MQTT e contagem antes/depois/reinício/concorrência]
 
@@ -122,26 +122,26 @@ $Temporal = Join-Path $Evidencias 'leitura-temporal.json'
 curl.exe -i -H 'Content-Type: application/json' --data-binary "@$Temporal" "$Api/leituras"
 ```
 
-Esperado: 4xx e `atrasada` nos dois casos, sem gravação. Registrar relógio UTC do servidor; manter Wokwi ligado por 15 minutos e conferir ausência de `atrasada` nas leituras legítimas. Limites e ordem da validação: **a conferir na implementação**.
+Esperado: 4xx e `atrasada` nos dois casos, sem gravação. A ordem está em `ValidadorLeitura.Motivo` (`api/TermometroDaSala.Api/Dominio/Contrato.cs:98`): assinatura, revogação, reenvio, janela de -10 min a +1 min, faixa. Teste: `VetoresTestes.LimitesDaJanelaEDaFaixa` e `ApiTestes.RecusasELeituraAceita`. O relógio do Wokwi por 15 minutos fica para o laboratório.
 
 **Print E04:** [inserir revogação, recusas temporais e ensaio de sincronização]
 
 ### 5. E05 — SQLi na busca de ocorrências
 
-Pré-condição: busca de ocorrências implementada, com duas ocorrências artificiais conhecidas. Confirmar nome do parâmetro e rota (**a conferir na implementação**) antes de usar:
+Não há busca `GET /ocorrencias?busca=`. A consulta que recebe texto do cliente é `GET /ambientes/{id}/leituras` (`LeiturasController.cs:19`).
 
 ```powershell
-curl.exe -i --get --data-urlencode 'busca=ventilador' "$Api/ocorrencias"
-curl.exe -i --get --data-urlencode "busca=' OR 1=1--" "$Api/ocorrencias"
+curl.exe -i "$Api/ambientes/sala-03/leituras"
+curl.exe -i --path-as-is "$Api/ambientes/sala-03%27%20OR%201%3D1%20--/leituras"
 ```
 
-Esperado: entrada tratada como texto literal (resultado vazio/compatível com o texto) ou recusada por validação; nunca listagem ampliada nem erro SQL. Anexar código LINQ/EF e captura do comando SQL com parâmetros separados do texto, usando apenas banco de laboratório. Não habilitar log de dados sensíveis no servidor real. Resposta HTTP isolada não comprova parametrização.
+Esperado: a sala conhecida devolve só as leituras dela; o id com apóstrofo responde 404 e não lista as outras salas. O comando gerado pelo EF, no teste `ApiTestes.ConsultaDeLeiturasParametrizada`, é um literal com o apóstrofo dobrado (`sala-03'' OR 1=1`), não SQL concatenado. Não habilitar log de dados sensíveis no servidor real.
 
 **Print E05:** [inserir consulta com arquivo/linha, parâmetros e comparação de resultados]
 
 ### 6. E06 — foto legítima, GUID e LFI
 
-Criar no app uma ocorrência artificial com foto de equipamento e guardar o id devolvido pela API; não aceitar id gerado em modo simulado. Confirmar rota de download por id (**a conferir na implementação**).
+Criar no app uma ocorrência artificial com foto de equipamento e guardar o id devolvido pela API; não aceitar id gerado em modo simulado. O download é `GET /ocorrencias/{id}/foto` (`OcorrenciasController.cs:42`).
 
 ```powershell
 $OcorrenciaId = Read-Host 'Id da ocorrencia de teste persistida na API'
@@ -158,7 +158,7 @@ Esperado: foto legítima 200, nome GUID gerado no servidor; travessias 400/404, 
 
 ### 7. E07 — upload malicioso e tamanho
 
-Confirmar DTO multipart com `ambienteId`, `descricao`, `foto` (**a conferir na implementação**). Criar conteúdo inofensivo que não é imagem; não enviar malware real.
+O multipart usa `ambienteId`, `descricao` e `foto` (`OcorrenciaEntrada`). Criar conteúdo inofensivo que não é imagem; não enviar malware real.
 
 ```powershell
 $Falsa = Join-Path $Evidencias 'falsa.jpg'
@@ -169,11 +169,11 @@ curl.exe -i -F "ambienteId=$AmbienteId" -F 'descricao=Teste de nome invalido' -F
 
 Esperado: falso JPEG recusado com 4xx, sem arquivo/ocorrência parcial. Para separar nome de conteúdo, repetir o segundo comando usando uma foto JPEG válida e conferir que o servidor descarta o nome externo e gera GUID, ou recusa o nome sem escrever fora da pasta.
 
-O valor do limite de upload está **a conferir na implementação**. Ler a configuração, informar seu valor em bytes e gerar um arquivo um byte maior no diretório temporário:
+O arquivo da foto é recusado acima de 5 MB (5242880 bytes) em `OcorrenciasController.cs:21`. A requisição inteira tem teto de 6 MB em `:15`. Gere um arquivo um byte acima de 5 MB:
 
 ```powershell
-$LimiteBytes = [long](Read-Host 'Limite de upload em bytes confirmado na configuracao')
-if ($LimiteBytes -lt 1 -or $LimiteBytes -gt 20MB) { throw 'Revisar limite antes de gerar arquivo de teste' }
+$LimiteBytes = 5MB
+if ($LimiteBytes -ne 5242880) { throw 'O teto da foto em OcorrenciasController é 5 MB' }
 $Grande = Join-Path $Evidencias 'grande.jpg'
 $Arquivo = [System.IO.File]::Create($Grande)
 try { $Arquivo.SetLength($LimiteBytes + 1) } finally { $Arquivo.Dispose() }
@@ -197,7 +197,7 @@ curl.exe -i -F "ambienteId=$AmbienteId" -F 'descricao=Ventilador sem funcionar' 
 curl.exe -i -F 'ambienteId=sala-inexistente' -F 'descricao=Ventilador sem funcionar' -F "foto=@$FotoValida;type=image/jpeg" "$Api/ocorrencias"
 ```
 
-Esperado: 4xx, sem registros parciais. No app, fotografar erro com descrição de 9 e 501 caracteres e falta de foto, e sucesso com 10 e 500 caracteres e foto. Para temperatura -11/61 e umidade -1/101, repetir E02 com cada valor alterado **também no texto canônico e com nova assinatura válida**; alterar só JSON provaria HMAC, não faixa física. Esperado: `fora-da-faixa` e nenhuma inserção. Regras da API: **a conferir na implementação**.
+Esperado: 4xx, sem registros parciais. Descrição após trim: 10 a 500 caracteres (`OcorrenciasController.cs:20`). No app, fotografar erro com descrição de 9 e 501 caracteres e falta de foto, e sucesso com 10 e 500 caracteres e foto. Para temperatura -11/61 e umidade -1/101, repetir E02 com cada valor alterado também no texto canônico e com nova assinatura válida; alterar só JSON provaria HMAC, não faixa física. Esperado: `fora-da-faixa` (`Contrato.cs:106`) e nenhuma inserção. Testes: `VetoresTestes.LimitesDaJanelaEDaFaixa` e `ApiTestes.RecusasELeituraAceita`.
 
 **Print E08:** [inserir erros do servidor, casos de fronteira e validações do app]
 
@@ -260,7 +260,7 @@ Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4625,4663; StartTime=(Get
     Select-Object TimeCreated, Id, Message
 ```
 
-Esperado: GPO aplicada restringe logon RDP a grupo autorizado; senha/bloqueio e firewall configurados; NTFS permite escrita ao pool/administradores; política de auditoria e SACL de fotos ativas. Efetuar um logon RDP negado com conta de teste sem grupo, de uma estação que alcance a porta, e um acesso de teste à foto para gerar eventos. Correlacionar conta/horário/evento; 4625 genérico não prova restrição RDP. Anexar também regra de firewall com escopo de origem. GPO e auditoria: **a conferir na implementação**.
+Esperado: GPO aplicada restringe logon RDP a grupo autorizado; senha/bloqueio e firewall configurados; NTFS permite escrita ao pool/administradores; política de auditoria e SACL de fotos ativas. Efetuar um logon RDP negado com conta de teste sem grupo, de uma estação que alcance a porta, e um acesso de teste à foto para gerar eventos. Correlacionar conta/horário/evento; 4625 genérico não prova restrição RDP. Anexar também regra de firewall com escopo de origem. GPO e auditoria: pendente na VM do Samuel (`infra/06-gpo.ps1` é roteiro, não política aplicada).
 
 **Print E11:** [inserir resultado de GPO, permissões, SACL e eventos correlacionados]
 
@@ -274,7 +274,7 @@ Test-NetConnection -ComputerName $IpServidor -Port 3389
 Test-NetConnection -ComputerName $IpServidor -Port 1433
 ```
 
-Esperado: HTTPS acessível a usuários; HTTP somente se usado para redirecionar; RDP inacessível da rede comum e acessível apenas na rede administrativa; SQL sem exposição a clientes comuns; nenhum listener MQTT no Windows apenas para assinar tópico externo. Se a VM também for controlador de domínio/DNS, portas necessárias a AD/DNS existem: justificar por função e origem, sem afirmar que só 443 pode estar aberta. A lista efetiva é **a conferir na implementação**. TCP não cobre UDP: anexar regras de firewall/DNS para completar a análise, sem alegar varredura UDP executada.
+Esperado: HTTPS acessível a usuários; HTTP somente se usado para redirecionar; RDP inacessível da rede comum e acessível apenas na rede administrativa; SQL sem exposição a clientes comuns; nenhum listener MQTT no Windows apenas para assinar tópico externo. Se a VM também for controlador de domínio/DNS, portas necessárias a AD/DNS existem: justificar por função e origem, sem afirmar que só 443 pode estar aberta. A lista efetiva de portas fica para o Samuel na VM (nmap e IIS). Nesta pasta, HTTPS só redireciona em Production (`Program.cs:62`). TCP não cobre UDP: anexar regras de firewall/DNS para completar a análise, sem alegar varredura UDP executada.
 
 **Print E12:** [inserir saídas com origem identificada, portas justificadas e regras de firewall]
 
@@ -288,7 +288,7 @@ curl.exe -i "$Api/ambientes"
 curl.exe -i "$Api/ambientes/$AmbienteId/previsao"
 ```
 
-Esperado: LED continua reagindo à temperatura local sem internet; timestamp não avança com leitura inventada; após o limiar de desatualização confirmado no código, interface mostra falta de leitura recente. Reconectar e comprovar retomada; leituras velhas fora da janela não viram atuais. LED/limiar/recuperação: **a conferir na implementação**.
+Esperado: LED continua reagindo à temperatura local sem internet; timestamp não avança com leitura inventada; após o limiar de desatualização confirmado no código, interface mostra falta de leitura recente. Reconectar e comprovar retomada; leituras velhas fora da janela não viram atuais. LED, limiar de desatualização na interface e recuperação do broker: pendente na VM do Samuel. A API não fabrica leitura atual: sem pares, `semLeiturasRecentes` vem verdadeiro (`ApiTestes.DeltaSemTresParesENuloEComTresFechaOExemplo`).
 
 **Print E13:** [inserir LED offline, timestamp, aviso e retomada]
 
@@ -301,7 +301,7 @@ Select-String -LiteralPath 'app/app/salas/[id]/ocorrencia.tsx' -Pattern 'exif: f
 Start-Process -FilePath $FotoValida
 ```
 
-Esperado: orientação visível, nenhuma identificação nos arquivos e fotos ausentes do painel público. No Windows, abrir Propriedades → Detalhes tanto do original quanto da foto baixada e conferir GPS/autor/câmera; essa inspeção básica não é prova forense de remoção de todo metadado. `exif: false` evita pedir EXIF no retorno do seletor, sem garantir limpeza do arquivo transmitido. Remoção/revisão no servidor: **a conferir na implementação**.
+Esperado: orientação visível, nenhuma identificação nos arquivos e fotos ausentes do painel público. No Windows, abrir Propriedades → Detalhes tanto do original quanto da foto baixada e conferir GPS/autor/câmera; essa inspeção básica não é prova forense de remoção de todo metadado. `exif: false` evita pedir EXIF no retorno do seletor, sem garantir limpeza do arquivo transmitido. No servidor, `SemApp1` (`OcorrenciasController.cs:68`) regrava o JPEG sem APP1. Teste: `ApiTestes.UploadRemoveSegmentoApp1`. A revisão de rosto continua humana: tirar o EXIF não vê o conteúdo da foto.
 
 **Print E14:** [inserir avisos, foto artificial, detalhes e painel sem imagem de ocorrência]
 
