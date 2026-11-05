@@ -98,7 +98,7 @@ A previsão é sempre um apoio. O registro é o que permite medir o indicador de
 | Terminal da coordenação | Salas, registro de ação, cadastro e revogação de sensor | Windows Forms |
 | Painel web | Mural de só leitura para a TV da escola | Página estática no `wwwroot` da API |
 
-**Resultado do modelo.** Dados reais do INMET (A701), treino em 2022–2023, validação em 2024 e teste em 2025. No teste, o erro médio (MAE) foi de 1,052 °C contra 1,442 °C da regra "daqui a 2 h igual a agora", 27 % menor. O F1 macro dos níveis foi 0,745 contra 0,667. Detalhes em `ml/README.md`.
+**Resultado do modelo.** Dados reais do INMET (A701), treino em 2022–2023, validação em 2024 e teste em 2025. A árvore (profundidade 8, folha 30) foi a escolhida pelo menor MAE na validação. No teste, o MAE foi de 0,958 °C contra 1,442 °C da regra "daqui a 2 h igual a agora". O F1 macro dos níveis foi 0,660 contra 0,667 do baseline: o menor erro médio não melhorou o alerta de cuidado extremo. Detalhes em `ml/README.md`.
 
 **A previsão da sala** é a rua prevista somada ao delta da sala, que é a média da diferença entre sala e rua nas últimas 3 h, com no mínimo 3 leituras. Exemplo: rua prevista em 34 + delta 4 = 38, Cuidado extremo. **Limitação:** o delta assume que a diferença se mantém nas próximas 2 h, e no fim da tarde tende a superestimar.
 
@@ -117,15 +117,17 @@ A previsão é sempre um apoio. O registro é o que permite medir o indicador de
 
 ## 5. Estado da implementação
 
-Situação deste ramo em 04/11/2026. **Atualizar antes da entrega.**
+Situação deste ramo em 05/11/2026.
 
 | Parte | Situação |
 |---|---|
-| Modelo de ML | Pronto: notebook, dataset e `modelo.json` |
-| App do professor | Telas prontas, com modo simulado. Falta ligar na API real |
-| API | Projeto inicial, com EF Core, SQL Server e MQTTnet já referenciados. Rotas por fazer |
-| Terminal da coordenação | Projeto inicial |
-| ESP32, Windows Server, painel web | Planejados |
+| Modelo de ML | Notebook executado. Árvore (profundidade 8, folha 30) escolhida pelo MAE de validação. No teste de 2025, MAE 0,958 °C (`ml/modelo.json`) |
+| App do professor | Quatro telas em Expo. O modo simulado vem ligado; com `EXPO_PUBLIC_API_MOCK=0` o app chama a API |
+| API | Rotas de salas, leituras, previsão, ocorrências, ações, revogação e demonstração. Painel em `wwwroot`. 27 testes: 17 `[Fact]` e 10 casos `[InlineData]` |
+| Terminal da coordenação | Windows Forms: salas, ação, cadastro, revogação e CSV. Se a API cai, usa a reserva local |
+| ESP32 | `sketch.ino`, `diagram.json` e `libraries.txt` para o Wokwi. O `esp32/README.md` descreve a simulação e o vetor de HMAC |
+| Windows Server | Roteiro em `infra/README.md` e scripts `01-rede.ps1` a `09-teste-de-falha.ps1` |
+| Relatório de riscos | `seguranca/RELATORIO-RISCOS.md`. O trecho "estado observado" desse arquivo ainda descreve uma API anterior; o código de hoje é o desta tabela |
 
 O que é real: os dados do INMET e a pessoa entrevistada. O que é simulado: as leituras do sensor no Wokwi, as leituras semeadas no modo demonstração, as ocorrências e o dia reproduzido da rua. Na tela, a etiqueta DEMONSTRAÇÃO marca a previsão que usa leitura simulada.
 
@@ -133,7 +135,7 @@ O que é real: os dados do INMET e a pessoa entrevistada. O que é simulado: as 
 
 **Por que MQTT.** O ESP32 no Wokwi sai para a internet pública, mas não alcança uma VM local. Com um broker no meio, os dois lados só fazem conexão de saída, e o servidor não precisa de porta aberta. O tópico é público de propósito, porque a segurança vem da assinatura. O custo é depender de um broker externo. Por isso existe o `POST /leituras`, com a mesma checagem, e o LED da porta segue funcionando sem rede.
 
-**Por que o modelo em JSON.** Rodar Python dentro do IIS traria um segundo runtime só para uma conta. A regressão linear ganhou da árvore rasa na validação e no teste, e seu resultado cabe em oito números: intercepto e sete coeficientes. A API em C# faz a conta, e dá para auditar o modelo linha a linha. O custo é trocar o arquivo sempre que o modelo for treinado de novo.
+**Por que o modelo em JSON.** Rodar Python dentro do IIS traria um segundo runtime só para uma conta. O notebook exporta a árvore escolhida em `modelo.json` (`tipo: arvore`), e a API em C# percorre a árvore. Dá para auditar o arquivo sem o notebook. O custo é trocar o arquivo sempre que o modelo for treinado de novo.
 
 **Por que nenhum dado de aluno.** Os alunos são menores de idade, e dado que não existe não vaza. A unidade do sistema é a sala. O formulário pergunta "o que aconteceu", e não "com quem". A foto é da sala ou do equipamento, sem pessoas, e sai sem EXIF, para não levar localização. O painel público não mostra fotos. O custo é não acompanhar a saúde de cada aluno, o que nunca foi objetivo do sistema, e a identificação do professor fica só no aparelho dele.
 
@@ -147,23 +149,22 @@ O que é real: os dados do INMET e a pessoa entrevistada. O que é simulado: as 
 
 ### 7.1 Quantas pessoas o problema alcança
 
-| Letra | Dado | Valor | Situação | Onde confirmar |
+| Letra | Dado | Valor | Situação | Fonte |
 |---|---|---|---|---|
-| A | Alunos da rede estadual de SP | 3,5 milhões | [PREMISSA] [A CONFERIR] valor aproximado do plano do projeto | Seduc-SP e Censo Escolar do INEP (referências 1 a 3) |
-| B | Alunos por turma | 35 | [PREMISSA] [A CONFERIR] | INEP, indicador "média de alunos por turma" (referência 4) |
-| C | Parcela sem climatização | 50 %, 75 % ou 90 % | [PREMISSA] [A CONFERIR] cenários sem base medida | Censo Escolar, microdados (referência 3) |
+| A | Alunos da rede estadual de SP | cerca de 3,5 milhões | Valor aproximado publicado pela Seduc-SP. Não é a matrícula inteira do Censo | Referência 1. Acesso em 05/11/2026 |
+| A' | O mesmo contingente, noutra nota da Seduc | 3 milhões de estudantes | Frase lida na notícia de 20/12/2024. Arredondamento diferente do da página institucional | Referência 9. Acesso em 05/11/2026 |
+| B | Alunos por turma | 35 | **[PREMISSA]** O indicador do INEP existe; a planilha do ano não abriu nesta consulta | Referência 4. Acesso em 05/11/2026 |
+| C | Salas da rede estadual de SP sem climatização | 67.468 de 70.346 (95,91 %) | Tabulação dos microdados do Censo 2024. Não é um total publicado pelo Inep | Referências 10 e 11. Acesso em 05/11/2026 |
 
-A conta usa **turmas**, e não salas físicas, porque a mesma sala recebe mais de uma turma nos diferentes turnos. Contar por sala física com 35 alunos deixaria de fora quem estuda em outro turno.
+O item de climatização existe: o caderno de conceitos do Censo descreve sala climatizada como a que tem ar-condicionado, aquecedor ou climatizador em funcionamento (referência 11). O código da coluna no dicionário xlsx não foi reaberto nesta data. A Seduc, em notícia de 13/02/2025, informa 595 escolas com todas as salas climatizadas (referência 12). Isso é escola, não sala, e não entra no lugar de C.
 
-**Turmas da rede:** A ÷ B = 3.500.000 ÷ 35 = **100.000 turmas**.
+A conta de pessoas usa as matrículas e a parcela de salas. **[PREMISSA]** a parcela de salas vale para os alunos: o microdado não foi ponderado matrícula a matrícula. Com a base de 3.500.000:
 
-| Cenário | Turmas sem climatização | × alunos por turma | Alunos em sala sem climatização |
-|---|---|---|---|
-| Parcela de 50 % | 50.000 | 35 | **1.750.000** |
-| Parcela de 75 % | 75.000 | 35 | **2.625.000** |
-| Parcela de 90 % | 90.000 | 35 | **3.150.000** |
+3.500.000 × 67.468 / 70.346 = 3.356.807,8, isto é **3.356.808** alunos, cerca de **3,36 milhões**.
 
-**Como trocar a premissa pelo dado:** nos microdados do Censo Escolar mais recente, filtrar as escolas de SP da dependência estadual e somar as salas em uso e as salas climatizadas. C = 1 − (climatizadas ÷ em uso). Em versões recentes, esses campos devem aparecer como `QT_SALAS_UTILIZADAS` e `QT_SALAS_UTILIZA_CLIMATIZADAS` [A CONFERIR no dicionário de dados]. Se o item não existir, o valor de C continua sendo premissa e deve ser declarado assim.
+Com a base de 3 milhões da notícia de 20/12/2024, a mesma conta dá 2.877.263,8, isto é 2.877.264 alunos, cerca de 2,88 milhões. O pitch usa os 3,36 milhões e cita as duas bases.
+
+**Turmas**, só com a premissa B: 3.500.000 ÷ 35 = **100.000 turmas**. A mesma parcela dá cerca de 95.900 turmas sem climatização. Contar 67.468 salas × 35 deixaria de fora quem estuda noutro turno.
 
 **O piloto:** uma escola com [nº de salas da escola entrevistada] salas × 35 alunos × [nº de turnos] = [alunos por dia na escola].
 
@@ -186,7 +187,7 @@ Episódios de três dias seguidos ou mais a 34 °C: 11 a 15/11/2023, 24 a 26/09/
 Pelo índice de calor, a rua ficou em Normal por 30.792 horas, em Atenção por 3.745 e em Cuidado extremo por 249, ou 0,7 % das horas. Perigo nunca apareceu na rua. É exatamente aí que a sala importa: o que falta saber é quanto a sala passa da rua, e essa medida hoje não existe. O delta de +4 °C usado nos exemplos é **[PREMISSA]**, e não uma medição.
 
 **Limites desta contagem:**
-- 34 °C é um corte escolhido para este trabalho, e não a definição oficial de onda de calor. A definição do INMET, que compara com a média histórica, deve ser citada à parte, se usada **[A CONFERIR]** (referência 5).
+- 34 °C é um corte deste trabalho, e não a definição oficial de onda de calor. O INMET adota o critério da OMM: máximas diárias pelo menos 5 °C acima da média mensal, por no mínimo cinco dias consecutivos, numa área ampla (referência 5, acesso em 05/11/2026). Nesta consulta não apareceu uma série do INMET com a contagem anual de ondas só na capital em 2022–2025. Os 21 dias da tabela não são essa contagem. Aplicar a definição à série A701 exigiria a normal climatológica de 30 anos, que não foi usada aqui.
 - Os valores são os de cada hora cheia, e não a máxima do dia. O pico real pode ser maior.
 - 278 horas do período (0,8 %) não têm leitura válida.
 - A estação representa a capital, e não o estado. Por isso a frequência não foi multiplicada pelas turmas da rede.
@@ -196,14 +197,18 @@ Pelo índice de calor, a rua ficou em Normal por 30.792 horas, em Atenção por 
 
 | Nº | Fonte | Link | Situação |
 |---|---|---|---|
-| 1 | Seduc-SP, dados da rede | https://www.educacao.sp.gov.br/ | [A CONFERIR] Acesso em: [data] |
-| 2 | INEP, Censo Escolar | https://www.gov.br/inep/pt-br/areas-de-atuacao/pesquisas-estatisticas-e-indicadores/censo-escolar | [A CONFERIR] Acesso em: [data] |
-| 3 | INEP, microdados do Censo Escolar | https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-escolar | [A CONFERIR] Acesso em: [data] |
-| 4 | INEP, média de alunos por turma | https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/media-de-alunos-por-turma | [A CONFERIR] Acesso em: [data] |
-| 5 | INMET, avisos e definição de onda de calor | https://portal.inmet.gov.br/ | [A CONFERIR] Acesso em: [data] |
+| 1 | Seduc-SP, a secretaria: aproximadamente 3,5 milhões de alunos e 5,3 mil escolas | https://www.educacao.sp.gov.br/institucional/a-secretaria/ | Acesso em 05/11/2026. A página exigiu JavaScript; o número está no texto público indexado dessa URL |
+| 2 | INEP, Censo Escolar | https://www.gov.br/inep/pt-br/areas-de-atuacao/pesquisas-estatisticas-e-indicadores/censo-escolar | Acesso em 05/11/2026. Portal do levantamento; a matrícula inteira de SP não foi lida numa tabela do Inep |
+| 3 | INEP, microdados do Censo Escolar | https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-escolar | Acesso em 05/11/2026. Os arquivos não foram reprocessados neste repositório |
+| 4 | INEP, média de alunos por turma. Página atualizada em 03/07/2026 | https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/media-de-alunos-por-turma | Acesso em 05/11/2026. Planilha não aberta; B continua premissa |
+| 5 | INMET, definição de onda de calor (critério da OMM), notícia de 05/03/2025 | https://portal.inmet.gov.br/noticias/onda-de-calor-em-areas-do-centro-sul-do-pais-persiste-ate-sabado-8 | Acesso em 05/11/2026 |
 | 6 | INMET, dados históricos (A701, 2022–2025) | https://portal.inmet.gov.br/dadoshistoricos | Dados contidos no repositório. Contagem feita em 04/11/2026 |
 | 7 | ONU Brasil, texto das metas dos ODS | https://brasil.un.org/pt-br/sdgs | [A CONFERIR] Acesso em: [data] |
 | 8 | NOAA, índice de calor | https://www.wpc.ncep.noaa.gov/html/heatindex_equation.shtml | [A CONFERIR] Acesso em: [data] |
+| 9 | Seduc-SP, notícia de 20/12/2024: mais de 5 mil escolas e 3 milhões de estudantes | https://www.educacao.sp.gov.br/educacao-de-sao-paulo-anuncia-maior-investimento-da-historia-para-2025/ | Acesso em 05/11/2026. Frase lida no HTML da página |
+| 10 | CIEPP, Almada, J. *Saunas de aula*, 2. ed., dez/2025. Censo 2024: SP estadual, 70.346 salas e 2.878 climatizadas (4,09 %) | https://www.ciepp.org/_files/ugd/25b93e_3d80dd7bd40241f199473a55747e208c.pdf | Acesso em 05/11/2026 |
+| 11 | INEP, caderno de conceitos do Censo Escolar 2026: salas de aula climatizadas | https://download.inep.gov.br/publicacoes/institucionais/estatisticas_e_indicadores/cadernos_de_conceitos_2026.pdf | Acesso em 05/11/2026 |
+| 12 | Seduc-SP, notícia de 13/02/2025: 595 escolas estaduais climatizadas | https://www.educacao.sp.gov.br/em-dois-anos-governo-de-sp-aumenta-em-mais-de-60-vezes-o-numero-de-escolas-climatizadas/ | Acesso em 05/11/2026. Unidade é escola, não sala |
 
 ## 8. Riscos
 

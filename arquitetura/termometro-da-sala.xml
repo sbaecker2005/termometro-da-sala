@@ -21,6 +21,9 @@
     <element identifier="e-rq-previsao" xsi:type="Requirement"><name xml:lang="pt">Prever o nível da sala em 2 h</name></element>
     <element identifier="e-rq-leitura" xsi:type="Requirement"><name xml:lang="pt">Aceitar só leitura assinada</name></element>
     <element identifier="e-rq-dados" xsi:type="Requirement"><name xml:lang="pt">Nenhum dado de aluno</name></element>
+    <element identifier="e-stake" xsi:type="Stakeholder"><name xml:lang="pt">Turma sem climatização</name></element>
+    <element identifier="e-principio" xsi:type="Principle"><name xml:lang="pt">A decisão é humana</name></element>
+    <element identifier="e-restricao" xsi:type="Constraint"><name xml:lang="pt">Não acionar o ar nem guardar aluno</name></element>
 
     <!-- Negócio -->
     <element identifier="e-prof" xsi:type="BusinessActor"><name xml:lang="pt">Professor(a)</name></element>
@@ -35,6 +38,9 @@
     <element identifier="e-ocorrencia" xsi:type="BusinessObject"><name xml:lang="pt">Ocorrência da sala</name></element>
     <element identifier="e-protocolo" xsi:type="BusinessObject"><name xml:lang="pt">Protocolo de calor (ações por nível)</name></element>
     <element identifier="e-relatorio" xsi:type="BusinessObject"><name xml:lang="pt">Relatório por sala</name></element>
+    <element identifier="e-papel" xsi:type="BusinessRole"><name xml:lang="pt">Operador do protocolo</name></element>
+    <element identifier="e-servico-neg" xsi:type="BusinessService"><name xml:lang="pt">Alerta do nível da sala</name></element>
+    <element identifier="e-evento" xsi:type="BusinessEvent"><name xml:lang="pt">Sala entra em Perigo</name></element>
 
     <!-- Aplicação -->
     <element identifier="e-api" xsi:type="ApplicationComponent"><name xml:lang="pt">API Termômetro da Sala (ASP.NET Core 8)</name></element>
@@ -45,6 +51,8 @@
     <element identifier="e-desktop" xsi:type="ApplicationComponent"><name xml:lang="pt">Terminal da coordenação (Windows Forms)</name></element>
     <element identifier="e-leitura" xsi:type="DataObject"><name xml:lang="pt">Leitura assinada</name></element>
     <element identifier="e-previsao" xsi:type="DataObject"><name xml:lang="pt">Previsão da sala</name></element>
+    <element identifier="e-servico-app" xsi:type="ApplicationService"><name xml:lang="pt">Consulta de nível e previsão</name></element>
+    <element identifier="e-iface" xsi:type="ApplicationInterface"><name xml:lang="pt">Rotas HTTP da API</name></element>
 
     <!-- Tecnologia -->
     <element identifier="e-esp32" xsi:type="Device"><name xml:lang="pt">ESP32 + DHT22 + LEDs (Wokwi)</name></element>
@@ -56,6 +64,7 @@
     <element identifier="e-sql" xsi:type="SystemSoftware"><name xml:lang="pt">SQL Server</name></element>
     <element identifier="e-inmet" xsi:type="TechnologyService"><name xml:lang="pt">Dados horários do INMET (A701)</name></element>
     <element identifier="e-arquivo-modelo" xsi:type="Artifact"><name xml:lang="pt">modelo.json</name></element>
+    <element identifier="e-rede" xsi:type="CommunicationNetwork"><name xml:lang="pt">Internet pública</name></element>
   </elements>
 
   <relationships>
@@ -128,6 +137,22 @@
     <relationship identifier="r-58" xsi:type="Association" source="e-inmet" target="e-arquivo-modelo"><name xml:lang="pt">treina</name></relationship>
     <relationship identifier="r-59" xsi:type="Serving" source="e-inmet" target="e-api"/>
     <relationship identifier="r-60" xsi:type="Realization" source="e-arquivo-modelo" target="e-modelo"/>
+
+    <relationship identifier="r-61" xsi:type="Association" source="e-stake" target="e-salas"/>
+    <relationship identifier="r-62" xsi:type="Association" source="e-stake" target="e-meta"/>
+    <relationship identifier="r-63" xsi:type="Realization" source="e-agir" target="e-principio"/>
+    <relationship identifier="r-64" xsi:type="Realization" source="e-restricao" target="e-meta"/>
+    <relationship identifier="r-65" xsi:type="Realization" source="e-alertar" target="e-servico-neg"/>
+    <relationship identifier="r-66" xsi:type="Assignment" source="e-coord" target="e-papel"/>
+    <relationship identifier="r-67" xsi:type="Assignment" source="e-papel" target="e-agir"/>
+    <relationship identifier="r-68" xsi:type="Triggering" source="e-evento" target="e-alertar"/>
+    <relationship identifier="r-69" xsi:type="Realization" source="e-api" target="e-servico-app"/>
+    <relationship identifier="r-70" xsi:type="Serving" source="e-servico-app" target="e-prever"/>
+    <relationship identifier="r-71" xsi:type="Assignment" source="e-api" target="e-iface"/>
+    <relationship identifier="r-72" xsi:type="Serving" source="e-iface" target="e-app"/>
+    <relationship identifier="r-73" xsi:type="Serving" source="e-iface" target="e-desktop"/>
+    <relationship identifier="r-74" xsi:type="Assignment" source="e-esp32" target="e-rede"/>
+    <relationship identifier="r-75" xsi:type="Assignment" source="e-broker" target="e-rede"/>
   </relationships>
 
   <views>
@@ -136,10 +161,10 @@
         <name xml:lang="pt">Visão em quatro camadas</name>
 
         <!-- Faixas das camadas: vêm primeiro para ficarem atrás dos elementos -->
-        <node identifier="g-motivacao" xsi:type="Container" x="20" y="20" w="1270" h="265"><label xml:lang="pt">Motivação</label></node>
-        <node identifier="g-negocio" xsi:type="Container" x="20" y="300" w="1270" h="256"><label xml:lang="pt">Negócio</label></node>
-        <node identifier="g-aplicacao" xsi:type="Container" x="20" y="572" w="1270" h="193"><label xml:lang="pt">Aplicação</label></node>
-        <node identifier="g-tecnologia" xsi:type="Container" x="20" y="782" w="1270" h="193"><label xml:lang="pt">Tecnologia</label></node>
+        <node identifier="g-motivacao" xsi:type="Container" x="20" y="20" w="1560" h="265"><label xml:lang="pt">Motivação</label></node>
+        <node identifier="g-negocio" xsi:type="Container" x="20" y="300" w="1560" h="256"><label xml:lang="pt">Negócio</label></node>
+        <node identifier="g-aplicacao" xsi:type="Container" x="20" y="572" w="1560" h="193"><label xml:lang="pt">Aplicação</label></node>
+        <node identifier="g-tecnologia" xsi:type="Container" x="20" y="782" w="1560" h="193"><label xml:lang="pt">Tecnologia</label></node>
 
         <node identifier="n-ondas" elementRef="e-ondas" xsi:type="Element" x="40" y="50" w="160" h="56"/>
         <node identifier="n-salas" elementRef="e-salas" xsi:type="Element" x="40" y="130" w="160" h="56"/>
@@ -154,6 +179,9 @@
         <node identifier="n-rq-previsao" elementRef="e-rq-previsao" xsi:type="Element" x="230" y="210" w="160" h="56"/>
         <node identifier="n-rq-leitura" elementRef="e-rq-leitura" xsi:type="Element" x="420" y="210" w="160" h="56"/>
         <node identifier="n-rq-dados" elementRef="e-rq-dados" xsi:type="Element" x="610" y="210" w="160" h="56"/>
+        <node identifier="n-stake" elementRef="e-stake" xsi:type="Element" x="1320" y="50" w="180" h="56"/>
+        <node identifier="n-principio" elementRef="e-principio" xsi:type="Element" x="1320" y="130" w="180" h="56"/>
+        <node identifier="n-restricao" elementRef="e-restricao" xsi:type="Element" x="1320" y="210" w="180" h="56"/>
 
         <node identifier="n-prof" elementRef="e-prof" xsi:type="Element" x="420" y="330" w="160" h="56"/>
         <node identifier="n-turma" elementRef="e-turma" xsi:type="Element" x="610" y="330" w="160" h="56"/>
@@ -167,6 +195,9 @@
         <node identifier="n-ocorrencia" elementRef="e-ocorrencia" xsi:type="Element" x="990" y="410" w="160" h="56"/>
         <node identifier="n-protocolo" elementRef="e-protocolo" xsi:type="Element" x="602" y="490" w="160" h="56"/>
         <node identifier="n-relatorio" elementRef="e-relatorio" xsi:type="Element" x="990" y="490" w="160" h="56"/>
+        <node identifier="n-papel" elementRef="e-papel" xsi:type="Element" x="1320" y="330" w="180" h="56"/>
+        <node identifier="n-servico-neg" elementRef="e-servico-neg" xsi:type="Element" x="1320" y="410" w="180" h="56"/>
+        <node identifier="n-evento" elementRef="e-evento" xsi:type="Element" x="1320" y="490" w="180" h="56"/>
 
         <node identifier="n-modelo" elementRef="e-modelo" xsi:type="Element" x="230" y="605" w="160" h="56"/>
         <node identifier="n-app" elementRef="e-app" xsi:type="Element" x="420" y="605" w="160" h="56"/>
@@ -176,6 +207,8 @@
         <node identifier="n-mqtt" elementRef="e-mqtt" xsi:type="Element" x="230" y="685" w="160" h="56"/>
         <node identifier="n-api" elementRef="e-api" xsi:type="Element" x="420" y="685" w="160" h="56"/>
         <node identifier="n-previsao" elementRef="e-previsao" xsi:type="Element" x="740" y="685" w="160" h="56"/>
+        <node identifier="n-servico-app" elementRef="e-servico-app" xsi:type="Element" x="1320" y="605" w="180" h="56"/>
+        <node identifier="n-iface" elementRef="e-iface" xsi:type="Element" x="1320" y="685" w="180" h="56"/>
 
         <node identifier="n-esp32" elementRef="e-esp32" xsi:type="Element" x="40" y="825" w="160" h="56"/>
         <node identifier="n-broker" elementRef="e-broker" xsi:type="Element" x="230" y="825" w="160" h="56"/>
@@ -186,6 +219,7 @@
         <node identifier="n-arquivo-modelo" elementRef="e-arquivo-modelo" xsi:type="Element" x="230" y="905" w="160" h="56"/>
         <node identifier="n-ad" elementRef="e-ad" xsi:type="Element" x="420" y="905" w="160" h="56"/>
         <node identifier="n-servidor" elementRef="e-servidor" xsi:type="Element" x="610" y="905" w="160" h="56"/>
+        <node identifier="n-rede" elementRef="e-rede" xsi:type="Element" x="1320" y="825" w="180" h="56"/>
 
         <connection identifier="c-01" relationshipRef="r-01" xsi:type="Relationship" source="n-ondas" target="n-semmedida"/>
         <connection identifier="c-02" relationshipRef="r-02" xsi:type="Relationship" source="n-salas" target="n-semmedida"/>
@@ -265,6 +299,21 @@
         <connection identifier="c-60" relationshipRef="r-60" xsi:type="Relationship" source="n-arquivo-modelo" target="n-modelo">
           <bendpoint x="400" y="899"/><bendpoint x="400" y="640"/>
         </connection>
+        <connection identifier="c-61" relationshipRef="r-61" xsi:type="Relationship" source="n-stake" target="n-salas"/>
+        <connection identifier="c-62" relationshipRef="r-62" xsi:type="Relationship" source="n-stake" target="n-meta"/>
+        <connection identifier="c-63" relationshipRef="r-63" xsi:type="Relationship" source="n-agir" target="n-principio"/>
+        <connection identifier="c-64" relationshipRef="r-64" xsi:type="Relationship" source="n-restricao" target="n-meta"/>
+        <connection identifier="c-65" relationshipRef="r-65" xsi:type="Relationship" source="n-alertar" target="n-servico-neg"/>
+        <connection identifier="c-66" relationshipRef="r-66" xsi:type="Relationship" source="n-coord" target="n-papel"/>
+        <connection identifier="c-67" relationshipRef="r-67" xsi:type="Relationship" source="n-papel" target="n-agir"/>
+        <connection identifier="c-68" relationshipRef="r-68" xsi:type="Relationship" source="n-evento" target="n-alertar"/>
+        <connection identifier="c-69" relationshipRef="r-69" xsi:type="Relationship" source="n-api" target="n-servico-app"/>
+        <connection identifier="c-70" relationshipRef="r-70" xsi:type="Relationship" source="n-servico-app" target="n-prever"/>
+        <connection identifier="c-71" relationshipRef="r-71" xsi:type="Relationship" source="n-api" target="n-iface"/>
+        <connection identifier="c-72" relationshipRef="r-72" xsi:type="Relationship" source="n-iface" target="n-app"/>
+        <connection identifier="c-73" relationshipRef="r-73" xsi:type="Relationship" source="n-iface" target="n-desktop"/>
+        <connection identifier="c-74" relationshipRef="r-74" xsi:type="Relationship" source="n-esp32" target="n-rede"/>
+        <connection identifier="c-75" relationshipRef="r-75" xsi:type="Relationship" source="n-broker" target="n-rede"/>
       </view>
     </diagrams>
   </views>

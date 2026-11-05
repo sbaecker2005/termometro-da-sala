@@ -2,7 +2,7 @@
 
 Vídeo de até 4 minutos, enviado em Testing. Tempo total do roteiro: 3min55s.
 
-Antes de gravar: confira os números marcados com **[A CONFERIR]** na seção 7 do `DOCUMENTO.md`. Se um número mudar lá, ele muda aqui e no slide 6.
+Antes de gravar: os números do impacto estão na seção 7 do `DOCUMENTO.md`. Se um número mudar lá, ele muda aqui e no slide 6.
 
 | Tempo | Bloco | Slide |
 |---|---|---:|
@@ -34,7 +34,7 @@ Gravar entre 12h e 17h, com a API no ambiente `Demo`. Deixe o Wokwi publicando a
 |---|---|---|---|
 | 0:55 a 1:15 | Wokwi | O ESP32 na porta da sala, em 33 °C, com o LED vermelho e a publicação no Serial | "Este sensor fica na porta da sala. Ele mede o calor, acende a cor do nível mesmo sem internet e envia a leitura assinada." |
 | 1:15 a 1:35 | App, lista de salas | As salas com nível e índice, e a sala 3 em Cuidado extremo | "O professor vê as salas pelo app. As cores sempre vêm com o nome do nível." |
-| 1:35 a 2:00 | App, sala 3 | Nível de agora, previsão para 2 h, ação sugerida e a etiqueta DEMONSTRAÇÃO. Rua prevista 34 + delta 4 = 38 | "O modelo, treinado com dados reais do INMET, prevê a rua daqui a 2 horas. Somamos o quanto esta sala costuma passar da rua e temos a previsão da sala. O erro médio foi 27 % menor que supor que nada vai mudar. Esta etiqueta avisa que as leituras são de demonstração." |
+| 1:35 a 2:00 | App, sala 3 | Nível de agora, previsão para 2 h, ação sugerida e a etiqueta DEMONSTRAÇÃO. Rua prevista 34 + delta 4 = 38 | "O modelo, treinado com dados reais do INMET, prevê a rua daqui a 2 horas. Somamos o quanto esta sala costuma passar da rua e temos a previsão da sala. No teste, o erro médio foi 0,958 °C, contra 1,442 °C de supor que nada vai mudar. Esta etiqueta avisa que as leituras são de demonstração." |
 | 2:00 a 2:15 | Wokwi + terminal | Subir o slider em passos de até 4 °C, esperando 10 s entre eles, até a sala virar Perigo no terminal | "A sala esquentou. A coordenação vê isso em todas as salas ao mesmo tempo." |
 | 2:15 a 2:30 | Terminal da coordenação | Registrar a ação "tirar a turma da sala" | "Quem decide é a coordenação. A ação fica registrada, e é com esse registro que medimos o resultado." |
 | 2:30 a 2:45 | App, nova ocorrência | Descrição + foto da sala vazia pela câmera, e o painel web por 2 s | "O professor registra a ocorrência com foto da sala, sem pessoas. Nenhum dado de aluno entra no sistema." |
@@ -43,9 +43,9 @@ Com 55 % de umidade, a sala já vira Perigo no passo de 37 °C. Nesse caso, pare
 
 ## Impacto (2:45 a 3:30)
 
-> A rede estadual de São Paulo tem cerca de 3,5 milhões de alunos **[A CONFERIR]**. Com 35 alunos por turma, são 100 mil turmas. Se três em cada quatro estudam sem climatização, que é a nossa premissa, são 2,6 milhões de alunos **[A CONFERIR]**.
+> A Seduc-SP publica cerca de 3,5 milhões de alunos na rede estadual. No Censo de 2024, 67.468 de 70.346 salas estaduais não têm climatização, 95,9 %. Se essa parcela valer para as matrículas, são cerca de 3,36 milhões de alunos. Trinta e cinco por turma continua premissa.
 >
-> Nos dados do INMET para a capital, de 2022 a 2025, a rua chegou a 34 graus em 21 dias, e 2023 teve 10 deles. Isso é na rua. Dentro da sala, ninguém mede.
+> O INMET chama de onda de calor a máxima 5 graus acima da média do mês, por cinco dias, numa área ampla. Na capital, de 2022 a 2025, a rua chegou a 34 graus em 21 dias. Isso não é a contagem oficial de ondas, e é na rua. Dentro da sala, ninguém mede.
 >
 > Nosso indicador é simples: aulas em Perigo sem ação registrada. A meta é zero.
 
@@ -77,13 +77,13 @@ Com 55 % de umidade, a sala já vira Perigo no passo de 37 °C. Nesse caso, pare
 
 ### Slide 5: A previsão
 - Rua prevista 34 + delta da sala 4 = 38: Cuidado extremo
-- Erro médio de 1,05 °C, 27 % menor que "daqui a 2 h igual a agora"
+- Erro médio de 0,958 °C no teste (árvore), contra 1,442 °C de "daqui a 2 h igual a agora"
 - Nenhum dado de aluno
 
 ### Slide 6: O impacto
-- 3,5 milhões de alunos ÷ 35 = 100 mil turmas (premissa; Seduc-SP e INEP)
-- 75 % sem climatização (premissa) = 2,6 milhões de alunos
-- 21 dias a 34 °C ou mais na capital, 2022 a 2025 (INMET A701)
+- Cerca de 3,5 milhões de alunos na rede estadual (Seduc-SP). Notícia de 20/12/2024 fala em 3 milhões
+- 67.468 de 70.346 salas sem climatização, 95,91 % (Censo 2024, tabulação CIEPP) ≈ 3,36 milhões de alunos
+- 35 alunos por turma: premissa. Onda de calor (INMET/OMM): +5 °C por 5 dias. 21 dias a 34 °C na A701, 2022–2025, não são essa contagem
 
 ### Slide 7: A arquitetura
 - Motivação: nenhuma aula em Perigo sem ação (ODS 3.d, 4.a, 11.b, 13.1)

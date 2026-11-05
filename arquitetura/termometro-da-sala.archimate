@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <archimate:model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:archimate="http://www.archimatetool.com/archimate" name="Termômetro da Sala" id="id-modelo-termometro" version="5.0.0">
-  <folder name="Strategy" id="id-c39696e26eb64a8c9bc4cbc0fcee718f" type="strategy"/>
-  <folder name="Business" id="id-6d7f3b14210844319756e7e29d88fb59" type="business">
+  <folder name="Strategy" id="id-544333e0a91e4dc198cf490d132a3ab5" type="strategy"/>
+  <folder name="Business" id="id-cf61f69133a146fa8bebd37b64c0b0d9" type="business">
     <element xsi:type="archimate:BusinessActor" name="Professor(a)" id="e-prof"/>
     <element xsi:type="archimate:BusinessActor" name="Turma" id="e-turma"/>
     <element xsi:type="archimate:BusinessActor" name="Coordenação pedagógica" id="e-coord"/>
@@ -14,8 +14,11 @@
     <element xsi:type="archimate:BusinessObject" name="Ocorrência da sala" id="e-ocorrencia"/>
     <element xsi:type="archimate:BusinessObject" name="Protocolo de calor (ações por nível)" id="e-protocolo"/>
     <element xsi:type="archimate:BusinessObject" name="Relatório por sala" id="e-relatorio"/>
+    <element xsi:type="archimate:BusinessRole" name="Operador do protocolo" id="e-papel"/>
+    <element xsi:type="archimate:BusinessService" name="Alerta do nível da sala" id="e-servico-neg"/>
+    <element xsi:type="archimate:BusinessEvent" name="Sala entra em Perigo" id="e-evento"/>
   </folder>
-  <folder name="Application" id="id-9a376b77540f4bea8383cdd749245de0" type="application">
+  <folder name="Application" id="id-a018d8bf91b049c299fb23c43dddb830" type="application">
     <element xsi:type="archimate:ApplicationComponent" name="API Termômetro da Sala (ASP.NET Core 8)" id="e-api"/>
     <element xsi:type="archimate:ApplicationComponent" name="Assinante MQTT (MQTTnet)" id="e-mqtt"/>
     <element xsi:type="archimate:ApplicationComponent" name="Modelo de ML (regressão linear)" id="e-modelo"/>
@@ -24,8 +27,10 @@
     <element xsi:type="archimate:ApplicationComponent" name="Terminal da coordenação (Windows Forms)" id="e-desktop"/>
     <element xsi:type="archimate:DataObject" name="Leitura assinada" id="e-leitura"/>
     <element xsi:type="archimate:DataObject" name="Previsão da sala" id="e-previsao"/>
+    <element xsi:type="archimate:ApplicationService" name="Consulta de nível e previsão" id="e-servico-app"/>
+    <element xsi:type="archimate:ApplicationInterface" name="Rotas HTTP da API" id="e-iface"/>
   </folder>
-  <folder name="Technology &amp; Physical" id="id-431e5d80f42b4029a1e9dccda61d36c3" type="technology">
+  <folder name="Technology &amp; Physical" id="id-cb579f5600ae46a382d690fd71ab0189" type="technology">
     <element xsi:type="archimate:Device" name="ESP32 + DHT22 + LEDs (Wokwi)" id="e-esp32"/>
     <element xsi:type="archimate:SystemSoftware" name="Broker MQTT público" id="e-broker"/>
     <element xsi:type="archimate:Node" name="Windows Server (VM)" id="e-servidor"/>
@@ -35,8 +40,9 @@
     <element xsi:type="archimate:SystemSoftware" name="SQL Server" id="e-sql"/>
     <element xsi:type="archimate:TechnologyService" name="Dados horários do INMET (A701)" id="e-inmet"/>
     <element xsi:type="archimate:Artifact" name="modelo.json" id="e-arquivo-modelo"/>
+    <element xsi:type="archimate:CommunicationNetwork" name="Internet pública" id="e-rede"/>
   </folder>
-  <folder name="Motivation" id="id-ddbf71a41c9c4ff192b338774a913ecd" type="motivation">
+  <folder name="Motivation" id="id-823e24303766461c88d01c8775939090" type="motivation">
     <element xsi:type="archimate:Driver" name="Ondas de calor" id="e-ondas"/>
     <element xsi:type="archimate:Driver" name="Salas sem climatização" id="e-salas"/>
     <element xsi:type="archimate:Assessment" name="Ninguém mede o calor dentro da sala" id="e-semmedida"/>
@@ -50,10 +56,13 @@
     <element xsi:type="archimate:Requirement" name="Prever o nível da sala em 2 h" id="e-rq-previsao"/>
     <element xsi:type="archimate:Requirement" name="Aceitar só leitura assinada" id="e-rq-leitura"/>
     <element xsi:type="archimate:Requirement" name="Nenhum dado de aluno" id="e-rq-dados"/>
+    <element xsi:type="archimate:Stakeholder" name="Turma sem climatização" id="e-stake"/>
+    <element xsi:type="archimate:Principle" name="A decisão é humana" id="e-principio"/>
+    <element xsi:type="archimate:Constraint" name="Não acionar o ar nem guardar aluno" id="e-restricao"/>
   </folder>
-  <folder name="Implementation &amp; Migration" id="id-5ebf3aae912c4a13b88258a7f4a654aa" type="implementation_migration"/>
-  <folder name="Other" id="id-9412f3e7fd3e48c2a2b41b323f8e5728" type="other"/>
-  <folder name="Relations" id="id-b23d0c61f836456791c5451246d317b1" type="relations">
+  <folder name="Implementation &amp; Migration" id="id-e252e6f76d3b49828776fb95ed8daa54" type="implementation_migration"/>
+  <folder name="Other" id="id-1ac6ec600654409a8c06b953705dc025" type="other"/>
+  <folder name="Relations" id="id-2919463d75514745b524158b4455e3d3" type="relations">
     <element xsi:type="archimate:AssociationRelationship" id="r-01" source="e-ondas" target="e-semmedida"/>
     <element xsi:type="archimate:AssociationRelationship" id="r-02" source="e-salas" target="e-semmedida"/>
     <element xsi:type="archimate:InfluenceRelationship" id="r-03" source="e-semmedida" target="e-meta"/>
@@ -114,26 +123,41 @@
     <element xsi:type="archimate:AssociationRelationship" name="treina" id="r-58" source="e-inmet" target="e-arquivo-modelo"/>
     <element xsi:type="archimate:ServingRelationship" id="r-59" source="e-inmet" target="e-api"/>
     <element xsi:type="archimate:RealizationRelationship" id="r-60" source="e-arquivo-modelo" target="e-modelo"/>
+    <element xsi:type="archimate:AssociationRelationship" id="r-61" source="e-stake" target="e-salas"/>
+    <element xsi:type="archimate:AssociationRelationship" id="r-62" source="e-stake" target="e-meta"/>
+    <element xsi:type="archimate:RealizationRelationship" id="r-63" source="e-agir" target="e-principio"/>
+    <element xsi:type="archimate:RealizationRelationship" id="r-64" source="e-restricao" target="e-meta"/>
+    <element xsi:type="archimate:RealizationRelationship" id="r-65" source="e-alertar" target="e-servico-neg"/>
+    <element xsi:type="archimate:AssignmentRelationship" id="r-66" source="e-coord" target="e-papel"/>
+    <element xsi:type="archimate:AssignmentRelationship" id="r-67" source="e-papel" target="e-agir"/>
+    <element xsi:type="archimate:TriggeringRelationship" id="r-68" source="e-evento" target="e-alertar"/>
+    <element xsi:type="archimate:RealizationRelationship" id="r-69" source="e-api" target="e-servico-app"/>
+    <element xsi:type="archimate:ServingRelationship" id="r-70" source="e-servico-app" target="e-prever"/>
+    <element xsi:type="archimate:AssignmentRelationship" id="r-71" source="e-api" target="e-iface"/>
+    <element xsi:type="archimate:ServingRelationship" id="r-72" source="e-iface" target="e-app"/>
+    <element xsi:type="archimate:ServingRelationship" id="r-73" source="e-iface" target="e-desktop"/>
+    <element xsi:type="archimate:AssignmentRelationship" id="r-74" source="e-esp32" target="e-rede"/>
+    <element xsi:type="archimate:AssignmentRelationship" id="r-75" source="e-broker" target="e-rede"/>
   </folder>
-  <folder name="Views" id="id-84c365b34df54dbcb7cb7325b8dde53d" type="diagrams">
+  <folder name="Views" id="id-b8071520e6f1458cb666d5b6efb02a1b" type="diagrams">
     <element xsi:type="archimate:ArchimateDiagramModel" name="Visão em quatro camadas" id="v-camadas">
       <child xsi:type="archimate:Group" id="g-motivacao" name="Motivação" textAlignment="1">
-        <bounds x="20" y="20" width="1270" height="265"/>
+        <bounds x="20" y="20" width="1560" height="265"/>
       </child>
       <child xsi:type="archimate:Group" id="g-negocio" name="Negócio" textAlignment="1">
-        <bounds x="20" y="300" width="1270" height="256"/>
+        <bounds x="20" y="300" width="1560" height="256"/>
       </child>
       <child xsi:type="archimate:Group" id="g-aplicacao" name="Aplicação" textAlignment="1">
-        <bounds x="20" y="572" width="1270" height="193"/>
+        <bounds x="20" y="572" width="1560" height="193"/>
       </child>
       <child xsi:type="archimate:Group" id="g-tecnologia" name="Tecnologia" textAlignment="1">
-        <bounds x="20" y="782" width="1270" height="193"/>
+        <bounds x="20" y="782" width="1560" height="193"/>
       </child>
       <child xsi:type="archimate:DiagramObject" id="n-ondas" archimateElement="e-ondas">
         <bounds x="40" y="50" width="160" height="56"/>
         <sourceConnection xsi:type="archimate:Connection" id="c-01" source="n-ondas" target="n-semmedida" archimateRelationship="r-01"/>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="n-salas" archimateElement="e-salas">
+      <child xsi:type="archimate:DiagramObject" id="n-salas" targetConnections="c-61" archimateElement="e-salas">
         <bounds x="40" y="130" width="160" height="56"/>
         <sourceConnection xsi:type="archimate:Connection" id="c-02" source="n-salas" target="n-semmedida" archimateRelationship="r-02"/>
       </child>
@@ -141,7 +165,7 @@
         <bounds x="230" y="90" width="160" height="56"/>
         <sourceConnection xsi:type="archimate:Connection" id="c-03" source="n-semmedida" target="n-meta" archimateRelationship="r-03"/>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="n-meta" targetConnections="c-03 c-08 c-09 c-10 c-11" archimateElement="e-meta">
+      <child xsi:type="archimate:DiagramObject" id="n-meta" targetConnections="c-03 c-08 c-09 c-10 c-11 c-62 c-64" archimateElement="e-meta">
         <bounds x="420" y="90" width="160" height="56"/>
         <sourceConnection xsi:type="archimate:Connection" id="c-04" source="n-meta" target="n-ods3" archimateRelationship="r-04"/>
         <sourceConnection xsi:type="archimate:Connection" id="c-05" source="n-meta" target="n-ods13" archimateRelationship="r-05"/>
@@ -179,6 +203,18 @@
         <bounds x="610" y="210" width="160" height="56"/>
         <sourceConnection xsi:type="archimate:Connection" id="c-11" source="n-rq-dados" target="n-meta" archimateRelationship="r-11"/>
       </child>
+      <child xsi:type="archimate:DiagramObject" id="n-stake" archimateElement="e-stake">
+        <bounds x="1320" y="50" width="180" height="56"/>
+        <sourceConnection xsi:type="archimate:Connection" id="c-61" source="n-stake" target="n-salas" archimateRelationship="r-61"/>
+        <sourceConnection xsi:type="archimate:Connection" id="c-62" source="n-stake" target="n-meta" archimateRelationship="r-62"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="n-principio" targetConnections="c-63" archimateElement="e-principio">
+        <bounds x="1320" y="130" width="180" height="56"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="n-restricao" archimateElement="e-restricao">
+        <bounds x="1320" y="210" width="180" height="56"/>
+        <sourceConnection xsi:type="archimate:Connection" id="c-64" source="n-restricao" target="n-meta" archimateRelationship="r-64"/>
+      </child>
       <child xsi:type="archimate:DiagramObject" id="n-prof" targetConnections="c-19" archimateElement="e-prof">
         <bounds x="420" y="330" width="160" height="56"/>
         <sourceConnection xsi:type="archimate:Connection" id="c-16" source="n-prof" target="n-registrar" archimateRelationship="r-16">
@@ -193,6 +229,7 @@
         <bounds x="800" y="330" width="160" height="56"/>
         <sourceConnection xsi:type="archimate:Connection" id="c-17" source="n-coord" target="n-agir" archimateRelationship="r-17"/>
         <sourceConnection xsi:type="archimate:Connection" id="c-18" source="n-coord" target="n-registrar" archimateRelationship="r-18"/>
+        <sourceConnection xsi:type="archimate:Connection" id="c-66" source="n-coord" target="n-papel" archimateRelationship="r-66"/>
       </child>
       <child xsi:type="archimate:DiagramObject" id="n-diretoria" targetConnections="c-22" archimateElement="e-diretoria">
         <bounds x="990" y="330" width="160" height="56"/>
@@ -203,12 +240,12 @@
         <sourceConnection xsi:type="archimate:Connection" id="c-26" source="n-medir" target="n-rq-offline" archimateRelationship="r-26"/>
         <sourceConnection xsi:type="archimate:Connection" id="c-27" source="n-medir" target="n-rq-leitura" archimateRelationship="r-27"/>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="n-prever" targetConnections="c-12 c-40" archimateElement="e-prever">
+      <child xsi:type="archimate:DiagramObject" id="n-prever" targetConnections="c-12 c-40 c-70" archimateElement="e-prever">
         <bounds x="230" y="410" width="160" height="56"/>
         <sourceConnection xsi:type="archimate:Connection" id="c-13" source="n-prever" target="n-alertar" archimateRelationship="r-13"/>
         <sourceConnection xsi:type="archimate:Connection" id="c-28" source="n-prever" target="n-rq-previsao" archimateRelationship="r-28"/>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="n-alertar" targetConnections="c-13 c-41 c-42" archimateElement="e-alertar">
+      <child xsi:type="archimate:DiagramObject" id="n-alertar" targetConnections="c-13 c-41 c-42 c-68" archimateElement="e-alertar">
         <bounds x="420" y="410" width="160" height="56"/>
         <sourceConnection xsi:type="archimate:Connection" id="c-14" source="n-alertar" target="n-agir" archimateRelationship="r-14"/>
         <sourceConnection xsi:type="archimate:Connection" id="c-19" source="n-alertar" target="n-prof" archimateRelationship="r-19"/>
@@ -216,12 +253,14 @@
           <bendpoint startX="90" startY="-40" endX="-290" endY="40"/>
           <bendpoint startX="295" startY="-40" endX="-85" endY="40"/>
         </sourceConnection>
+        <sourceConnection xsi:type="archimate:Connection" id="c-65" source="n-alertar" target="n-servico-neg" archimateRelationship="r-65"/>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="n-agir" targetConnections="c-14 c-17 c-44" archimateElement="e-agir">
+      <child xsi:type="archimate:DiagramObject" id="n-agir" targetConnections="c-14 c-17 c-44 c-67" archimateElement="e-agir">
         <bounds x="610" y="410" width="160" height="56"/>
         <sourceConnection xsi:type="archimate:Connection" id="c-15" source="n-agir" target="n-registrar" archimateRelationship="r-15"/>
         <sourceConnection xsi:type="archimate:Connection" id="c-21" source="n-agir" target="n-turma" archimateRelationship="r-21"/>
         <sourceConnection xsi:type="archimate:Connection" id="c-23" source="n-agir" target="n-protocolo" archimateRelationship="r-23"/>
+        <sourceConnection xsi:type="archimate:Connection" id="c-63" source="n-agir" target="n-principio" archimateRelationship="r-63"/>
       </child>
       <child xsi:type="archimate:DiagramObject" id="n-registrar" targetConnections="c-15 c-16 c-18 c-43 c-45" archimateElement="e-registrar">
         <bounds x="800" y="410" width="160" height="56"/>
@@ -246,12 +285,23 @@
       <child xsi:type="archimate:DiagramObject" id="n-relatorio" targetConnections="c-25" archimateElement="e-relatorio">
         <bounds x="990" y="490" width="160" height="56"/>
       </child>
+      <child xsi:type="archimate:DiagramObject" id="n-papel" targetConnections="c-66" archimateElement="e-papel">
+        <bounds x="1320" y="330" width="180" height="56"/>
+        <sourceConnection xsi:type="archimate:Connection" id="c-67" source="n-papel" target="n-agir" archimateRelationship="r-67"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="n-servico-neg" targetConnections="c-65" archimateElement="e-servico-neg">
+        <bounds x="1320" y="410" width="180" height="56"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="n-evento" archimateElement="e-evento">
+        <bounds x="1320" y="490" width="180" height="56"/>
+        <sourceConnection xsi:type="archimate:Connection" id="c-68" source="n-evento" target="n-alertar" archimateRelationship="r-68"/>
+      </child>
       <child xsi:type="archimate:DiagramObject" id="n-modelo" targetConnections="c-60" archimateElement="e-modelo">
         <bounds x="230" y="605" width="160" height="56"/>
         <sourceConnection xsi:type="archimate:Connection" id="c-32" source="n-modelo" target="n-api" archimateRelationship="r-32"/>
         <sourceConnection xsi:type="archimate:Connection" id="c-40" source="n-modelo" target="n-prever" archimateRelationship="r-40"/>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="n-app" targetConnections="c-33" archimateElement="e-app">
+      <child xsi:type="archimate:DiagramObject" id="n-app" targetConnections="c-33 c-72" archimateElement="e-app">
         <bounds x="420" y="605" width="160" height="56"/>
         <sourceConnection xsi:type="archimate:Connection" id="c-41" source="n-app" target="n-alertar" archimateRelationship="r-41"/>
         <sourceConnection xsi:type="archimate:Connection" id="c-43" source="n-app" target="n-registrar" archimateRelationship="r-43">
@@ -263,7 +313,7 @@
         <bounds x="590" y="605" width="160" height="56"/>
         <sourceConnection xsi:type="archimate:Connection" id="c-42" source="n-painel" target="n-alertar" archimateRelationship="r-42"/>
       </child>
-      <child xsi:type="archimate:DiagramObject" id="n-desktop" targetConnections="c-35" archimateElement="e-desktop">
+      <child xsi:type="archimate:DiagramObject" id="n-desktop" targetConnections="c-35 c-73" archimateElement="e-desktop">
         <bounds x="900" y="605" width="160" height="56"/>
         <sourceConnection xsi:type="archimate:Connection" id="c-38" source="n-desktop" target="n-previsao" archimateRelationship="r-38"/>
         <sourceConnection xsi:type="archimate:Connection" id="c-44" source="n-desktop" target="n-agir" archimateRelationship="r-44"/>
@@ -287,9 +337,20 @@
         <sourceConnection xsi:type="archimate:Connection" id="c-34" source="n-api" target="n-painel" archimateRelationship="r-34"/>
         <sourceConnection xsi:type="archimate:Connection" id="c-35" source="n-api" target="n-desktop" archimateRelationship="r-35"/>
         <sourceConnection xsi:type="archimate:Connection" id="c-37" source="n-api" target="n-previsao" archimateRelationship="r-37"/>
+        <sourceConnection xsi:type="archimate:Connection" id="c-69" source="n-api" target="n-servico-app" archimateRelationship="r-69"/>
+        <sourceConnection xsi:type="archimate:Connection" id="c-71" source="n-api" target="n-iface" archimateRelationship="r-71"/>
       </child>
       <child xsi:type="archimate:DiagramObject" id="n-previsao" targetConnections="c-37 c-38" archimateElement="e-previsao">
         <bounds x="740" y="685" width="160" height="56"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="n-servico-app" targetConnections="c-69" archimateElement="e-servico-app">
+        <bounds x="1320" y="605" width="180" height="56"/>
+        <sourceConnection xsi:type="archimate:Connection" id="c-70" source="n-servico-app" target="n-prever" archimateRelationship="r-70"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="n-iface" targetConnections="c-71" archimateElement="e-iface">
+        <bounds x="1320" y="685" width="180" height="56"/>
+        <sourceConnection xsi:type="archimate:Connection" id="c-72" source="n-iface" target="n-app" archimateRelationship="r-72"/>
+        <sourceConnection xsi:type="archimate:Connection" id="c-73" source="n-iface" target="n-desktop" archimateRelationship="r-73"/>
       </child>
       <child xsi:type="archimate:DiagramObject" id="n-esp32" archimateElement="e-esp32">
         <bounds x="40" y="825" width="160" height="56"/>
@@ -298,10 +359,12 @@
           <bendpoint startX="-90" startY="-53" endX="-90" endY="362"/>
           <bendpoint startX="-90" startY="-373" endX="-90" endY="42"/>
         </sourceConnection>
+        <sourceConnection xsi:type="archimate:Connection" id="c-74" source="n-esp32" target="n-rede" archimateRelationship="r-74"/>
       </child>
       <child xsi:type="archimate:DiagramObject" id="n-broker" targetConnections="c-46" archimateElement="e-broker">
         <bounds x="230" y="825" width="160" height="56"/>
         <sourceConnection xsi:type="archimate:Connection" id="c-48" source="n-broker" target="n-mqtt" archimateRelationship="r-48"/>
+        <sourceConnection xsi:type="archimate:Connection" id="c-75" source="n-broker" target="n-rede" archimateRelationship="r-75"/>
       </child>
       <child xsi:type="archimate:DiagramObject" id="n-iis" targetConnections="c-52 c-54" archimateElement="e-iis">
         <bounds x="420" y="825" width="160" height="56"/>
@@ -342,6 +405,9 @@
         <sourceConnection xsi:type="archimate:Connection" id="c-55" source="n-servidor" target="n-dns" archimateRelationship="r-55"/>
         <sourceConnection xsi:type="archimate:Connection" id="c-56" source="n-servidor" target="n-sql" archimateRelationship="r-56"/>
         <sourceConnection xsi:type="archimate:Connection" id="c-57" source="n-servidor" target="n-ad" archimateRelationship="r-57"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="n-rede" targetConnections="c-74 c-75" archimateElement="e-rede">
+        <bounds x="1320" y="825" width="180" height="56"/>
       </child>
     </element>
   </folder>
