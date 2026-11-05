@@ -1,0 +1,72 @@
+Evidencia R6/R7/R10: exercicio de OSINT sobre o proprio projeto
+Data: 05/11/2026 (UTC-3)
+Ambiente: Windows 11, Git Bash, copia local do repositorio publico https://github.com/sbaecker2005/termometro-da-sala
+Pergunta: o que um terceiro descobre lendo so o que publicamos (repositorio, links de entrega)?
+Limite: busca feita nos arquivos da versao atual, sem rede. Pastas de dependencias e de compilacao
+(node_modules, bin, obj) ficaram de fora. A busca no historico do git esta no item 8 e ainda precisa ser executada.
+
+Filtro usado em todos os comandos: X="--exclude-dir=node_modules --exclude-dir=bin --exclude-dir=obj --exclude-dir=.git"
+
+1. Segredos HMAC de demonstracao
+   Comando: grep -rlI $X "segredo-de-teste-sala-0" .   e   grep -rI $X -o "segredo-de-teste-sala-0" . | wc -l
+   Obtido: 44 ocorrencias em 18 arquivos: SalaDb.cs:64-67, as migracoes e o snapshot, testes, insomnia.json,
+           esp32/secrets.exemplo.h, esp32/sketch.ino, ferramentas/vetor_hmac.py, CONTRATO.md e READMEs.
+           A migracao Inicial (20261105025544_Inicial.cs:212-215) grava o mesmo valor para os 4 dispositivos;
+           a migracao SegredosPorDispositivo separa um valor por sala.
+   Risco: quem le o repositorio assina leituras validas de esp32-sala-01..04 (R1, R7, R10; CWE-798).
+   Decisao: os quatro valores sao vetores de teste do contrato, publicos de proposito para a banca reproduzir o HMAC.
+           Valem so para os dispositivos semeados do laboratorio. Nunca sao chave de producao.
+           Ao fim da avaliacao (19/11/2026) a coordenacao revoga os quatro com POST /dispositivos/{id}/revogar
+           (DispositivosController.cs:13); depois disso a API responde dispositivo-revogado.
+           Um uso real cadastra dispositivos novos com segredo gerado fora do repositorio.
+
+2. Chave da coordenacao e string de conexao
+   Comando: grep -rnIi $X "password=\|pwd=\|User Id=" --include=*.json --include=*.cs --include=*.ps1 --include=*.ts --include=*.md .
+   Obtido: 1 linha, api/README.md:119, com Password=$env:MSSQL_SA_PASSWORD (variavel de ambiente, sem valor).
+           appsettings.json usa Trusted_Connection (sem senha). insomnia.json traz chave_coordenacao vazia.
+   Decisao: nada a remover. A chave da coordenacao so existe no pool do IIS (infra/04-iis.ps1:72-86).
+
+3. Arquivos de segredo locais
+   Comando: find . -path ./app/node_modules -prune -o -name ".env*" -print ; find ... -name "secrets.h" -print
+   Obtido: nenhum arquivo. .gitignore cobre secrets.h, *.env e .env* (ver git-check-ignore.txt).
+
+4. Infraestrutura publica
+   Comando: grep -rnI $X "broker.hivemq.com" .
+   Obtido: broker publico broker.hivemq.com:1883 e topico fiap-gs/termometro-da-sala/leituras em appsettings.json:6-8,
+           esp32/sketch.ino:124, CONTRATO.md:24 e READMEs.
+   Risco: qualquer pessoa assina o topico e le temperatura e umidade das salas (sem TLS, R13) ou publica nele (R1, R8).
+   Decisao: aceito so no laboratorio com dados simulados; a leitura e assinada (C1) e nao contem dado pessoal.
+
+5. Pessoas
+   Comando: grep -rlI $X "Samuel Baecker" .   e busca por e-mail e telefone com expressao regular
+   Obtido: nome do autor em 13 arquivos (integrantes, package.json, diagram.json, READMEs, documento e notebook),
+           que e exigencia das entregas. Nenhum e-mail pessoal, telefone ou RM numerico.
+           Nenhum nome de aluno ou de professor entrevistado.
+   Decisao: manter so nome e RM dos integrantes. Contato pessoal nao entra no repositorio.
+
+6. Escola e localizacao
+   Comando: grep -rnI $X "bairro\|escola entrevistada" .
+   Obtido: so marcadores [bairro da escola entrevistada] e [nome da escola]. Nenhuma escola identificada.
+   Decisao: ao preencher, citar escola e bairro, nunca turma, sala real ou horario de aula
+           (isso combinaria com a foto e localizaria criancas, LGPD art. 14).
+
+7. Imagens
+   Comando: find . -path ./app/node_modules -prune -o \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.heic" \) -print
+   Obtido: 6 icones do app (app/assets) e arquitetura/diagrama-archi.png. Nenhuma foto de sala ou de ocorrencia.
+           api/TermometroDaSala.Api/fotos/ esta no .gitignore.
+   Decisao: prints da entrega mostram so sala vazia ou equipamento; o upload ja remove APP1/EXIF (C9).
+
+8. Historico do git (A EXECUTAR pela equipe, na copia completa do repositorio)
+   git log --all --oneline -S "segredo-de-teste"
+   git log --all --oneline -- esp32/secrets.h
+   git log --all --oneline -G "ChaveCoordenacao\"?\s*[:=]\s*\"[^\"]+"
+   Esperado: so os vetores de teste do item 1; nenhum secrets.h commitado; nenhuma chave da coordenacao com valor.
+   Obtido: [preencher com a saida e a data]
+
+9. Link do Wokwi (A EXECUTAR depois de publicado)
+   Abrir o link em janela anonima e conferir que o unico segredo visivel e o de esp32-sala-03.
+   Obtido: [preencher]
+
+Conclusao: nenhuma credencial de producao nem dado de aluno no repositorio. A exposicao real sao os vetores
+de teste dos quatro dispositivos semeados e o topico MQTT publico, ambos aceitos so no laboratorio e com
+revogacao marcada para depois da avaliacao.

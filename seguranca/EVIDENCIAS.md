@@ -1,8 +1,8 @@
 # Termômetro da Sala — roteiro de evidências de Cybersecurity
 
-Anexo de [RELATORIO-RISCOS.md](RELATORIO-RISCOS.md). **Estado: parte local coletada em 05/11/2026; nmap, IIS, GPO e LED ficam para o Samuel na VM.** Não fazer varredura nem inundação do broker público. Não mostrar chaves, senhas, tokens, strings de conexão ou pessoas nos prints.
+Anexo de [RELATORIO-RISCOS.md](RELATORIO-RISCOS.md). **Estado: parte local coletada em 05/11/2026; nmap, IIS, GPO e LED são coletados no laboratório Windows Server.** Não fazer varredura nem inundação do broker público. Não mostrar chaves, senhas, tokens, strings de conexão ou pessoas nos prints.
 
-Rotas existentes: `POST /leituras`, `GET/POST /ambientes`, `GET /ambientes/{id}/leituras`, `POST /ocorrencias`, `GET /ocorrencias/{id}/foto`, `POST /acoes`, `POST /dispositivos/{id}/revogar`, `POST /demo/semear`. Não há `GET /ocorrencias?busca=`. O SQLi do roteiro usa `GET /ambientes/{id}/leituras`. Recusas de leitura: `assinatura-invalida`, `reenvio`, `dispositivo-revogado`, `atrasada`, `fora-da-faixa`. Saídas locais em [evidencias/](evidencias/). Em `dotnet-test.txt` o valor da semente de demonstração foi trocado por `[redigido]`.
+Rotas existentes: `POST /leituras`, `GET/POST /ambientes`, `GET /ambientes/{id}/leituras`, `POST /ocorrencias`, `GET /ocorrencias/{id}/foto`, `POST /acoes`, `POST /dispositivos/{id}/revogar`, `POST /demo/semear`. Não há `GET /ocorrencias?busca=`. O SQLi do roteiro usa `GET /ambientes/{id}/leituras`. Recusas de leitura: `assinatura-invalida`, `reenvio`, `dispositivo-revogado`, `atrasada`, `fora-da-faixa`. Saídas locais em [evidencias/](evidencias/). Cada arquivo traz só o trecho que prova cada controle, sem a semente de teste.
 
 Cada print deve trazer ID da evidência, data/hora, ambiente, versão identificada pelo coordenador, comando e resultado; registrar também o arquivo/linha do controle. Anexar logs recortados e sem segredos. Os campos reservados abaixo são para prints, não para registrar aprovação antecipada.
 
@@ -38,7 +38,7 @@ Get-Content -LiteralPath $Fonte -Encoding UTF8 |
     ForEach-Object { $Linha++; '{0}: {1}' -f $Linha, $_ }
 ```
 
-Esperado: arquivo e linha de C1–C10 estão na seção 5 do relatório. Abrir somente fonte que não contenha a chave da coordenação. Se uma linha mudar, atualizar o relatório. A suíte está em `evidencias/dotnet-test.txt`.
+Esperado: arquivo e linha de C1–C10 estão na seção 6 do relatório. Abrir somente fonte que não contenha a chave da coordenação. Se uma linha mudar, atualizar o relatório. A suíte está em `evidencias/dotnet-test-seguranca.txt` (32/32 no total; 16 testes de segurança listados).
 
 **Print E01:** [inserir versão, ambiente e trechos numerados dos controles]
 
@@ -260,7 +260,7 @@ Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4625,4663; StartTime=(Get
     Select-Object TimeCreated, Id, Message
 ```
 
-Esperado: GPO aplicada restringe logon RDP a grupo autorizado; senha/bloqueio e firewall configurados; NTFS permite escrita ao pool/administradores; política de auditoria e SACL de fotos ativas. Efetuar um logon RDP negado com conta de teste sem grupo, de uma estação que alcance a porta, e um acesso de teste à foto para gerar eventos. Correlacionar conta/horário/evento; 4625 genérico não prova restrição RDP. Anexar também regra de firewall com escopo de origem. GPO e auditoria: pendente na VM do Samuel (`infra/06-gpo.ps1` é roteiro, não política aplicada).
+Esperado: GPO aplicada restringe logon RDP a grupo autorizado; senha/bloqueio e firewall configurados; NTFS permite escrita ao pool/administradores; política de auditoria e SACL de fotos ativas. Efetuar um logon RDP negado com conta de teste sem grupo, de uma estação que alcance a porta, e um acesso de teste à foto para gerar eventos. Correlacionar conta/horário/evento; 4625 genérico não prova restrição RDP. Anexar também regra de firewall com escopo de origem. GPO e auditoria: a aplicar e coletar no laboratório Windows Server (`infra/06-gpo.ps1` é roteiro, não política aplicada).
 
 **Print E11:** [inserir resultado de GPO, permissões, SACL e eventos correlacionados]
 
@@ -274,7 +274,7 @@ Test-NetConnection -ComputerName $IpServidor -Port 3389
 Test-NetConnection -ComputerName $IpServidor -Port 1433
 ```
 
-Esperado: HTTPS acessível a usuários; HTTP somente se usado para redirecionar; RDP inacessível da rede comum e acessível apenas na rede administrativa; SQL sem exposição a clientes comuns; nenhum listener MQTT no Windows apenas para assinar tópico externo. Se a VM também for controlador de domínio/DNS, portas necessárias a AD/DNS existem: justificar por função e origem, sem afirmar que só 443 pode estar aberta. A lista efetiva de portas fica para o Samuel na VM (nmap e IIS). Nesta pasta, HTTPS só redireciona em Production (`Program.cs:62`). TCP não cobre UDP: anexar regras de firewall/DNS para completar a análise, sem alegar varredura UDP executada.
+Esperado: HTTPS acessível a usuários; HTTP somente se usado para redirecionar; RDP inacessível da rede comum e acessível apenas na rede administrativa; SQL sem exposição a clientes comuns; nenhum listener MQTT no Windows apenas para assinar tópico externo. Se a VM também for controlador de domínio/DNS, portas necessárias a AD/DNS existem: justificar por função e origem, sem afirmar que só 443 pode estar aberta. A lista efetiva de portas é coletada no laboratório Windows Server (nmap e IIS). Nesta pasta, HTTPS só redireciona em Production (`Program.cs:62`). TCP não cobre UDP: anexar regras de firewall/DNS para completar a análise, sem alegar varredura UDP executada.
 
 **Print E12:** [inserir saídas com origem identificada, portas justificadas e regras de firewall]
 
@@ -288,7 +288,7 @@ curl.exe -i "$Api/ambientes"
 curl.exe -i "$Api/ambientes/$AmbienteId/previsao"
 ```
 
-Esperado: LED continua reagindo à temperatura local sem internet; timestamp não avança com leitura inventada; após o limiar de desatualização confirmado no código, interface mostra falta de leitura recente. Reconectar e comprovar retomada; leituras velhas fora da janela não viram atuais. LED, limiar de desatualização na interface e recuperação do broker: pendente na VM do Samuel. A API não fabrica leitura atual: sem pares, `semLeiturasRecentes` vem verdadeiro (`ApiTestes.DeltaSemTresParesENuloEComTresFechaOExemplo`).
+Esperado: LED continua reagindo à temperatura local sem internet; timestamp não avança com leitura inventada; após o limiar de desatualização confirmado no código, interface mostra falta de leitura recente. Reconectar e comprovar retomada; leituras velhas fora da janela não viram atuais. LED, limiar de desatualização na interface e recuperação do broker: a coletar no laboratório Windows Server. A API não fabrica leitura atual: sem pares, `semLeiturasRecentes` vem verdadeiro (`ApiTestes.DeltaSemTresParesENuloEComTresFechaOExemplo`).
 
 **Print E13:** [inserir LED offline, timestamp, aviso e retomada]
 
