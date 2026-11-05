@@ -16,7 +16,34 @@
 
 Equipe (nome completo e RM de todos): [preencher].
 
-## Escopo e estado conferido
+## Item da pontuação → onde está
+
+| Item da pontuação (briefing p. 34) | Pontos | Configuração | Prova em [EVIDENCIAS.md](EVIDENCIAS.md) |
+|---|---:|---|---|
+| Rede e identidade: IP fixo, hostname, DNS e domínio no AD | 2 | Passos 1–3; `01-rede.ps1`, `02-ad-dns.ps1`, `03-usuarios-grupos.ps1` | E01–E03: `hostname`, `ipconfig /all`, `nslookup` (A e PTR), `Test-NetConnection` 80/443, `Get-ADDomain`, `Get-ADGroupMember` |
+| Aplicação no IIS: site, pool, dependências, pasta e NTFS | 2 | Passos 4, 5 e 8; `04-iis.ps1`, `05-sql.ps1`, `08-publicar-api.ps1`; HTTPS com certificado confiável na própria VM | E04–E06 |
+| Monitoramento: alertas de CPU, disco e memória no Monitor de Desempenho | 2 | Passo 7; `07-monitoramento.ps1`, coletor de histórico e ensaio | E09 |
+| Tolerância a falhas: recuperação do serviço e do pool, teste de falha | 1 | Passos 7 e 9; `07-monitoramento.ps1` (restart do W3SVC), pool sempre ligado, `09-teste-de-falha.ps1`, [TESTE-DE-FALHA.md](TESTE-DE-FALHA.md) | E10–E11 |
+| Logs de auditoria e acompanhamento: Visualizador de Eventos e logs do IIS | 1 | Passos 6 e 7a; `06-gpo.ps1` (auditoria e SACL), [visao-termometro.xml](visao-termometro.xml), `u_ex*.log` do IIS | E07, E12 |
+| Funcionamento completo da proposta | 2 | Passos 5 e 8; painel `/` e `GET /ambientes` servidos pelo IIS da VM, leitura nova por MQTT ou `POST /leituras` | E13 e vídeo ([ROTEIRO-VIDEO.md](ROTEIRO-VIDEO.md)) |
+| Serviços do conceito: GPO, File Server, RDS e DFS | — | Passos 4, 6 e 6a | E07–E08 |
+
+## Resumo do ambiente
+
+| Campo | Valor no roteiro |
+|---|---|
+| Servidor | Windows Server 2022 (avaliação, Desktop Experience), VM isolada em Hyper-V ou VirtualBox |
+| Hostname e IP fixo | `SRV-TERMOMETRO`, `192.168.56.10/24` (exemplo do roteiro; o IP real fica em E01) |
+| Domínio e DNS | Floresta `termometro.local`; registro A `api.termometro.local` apontando para a VM; zona reversa com PTR |
+| Grupos | `Coordenacao` (`coordenador`) e `AdminsTermometro` (`admin.termometro`, único grupo com RDP) |
+| IIS | Site `Termometro` em `C:\Sites\Termometro`, pool `TermometroPool` (No Managed Code, AlwaysRunning, idle 0, preload), Hosting Bundle .NET 8, HTTPS 443 em `https://api.termometro.local/` |
+| Pasta privada | `C:\Dados\Termometro\Fotos`: entre as identidades da aplicação, só o pool tem Modify; SACL de auditoria; foto sai só por `GET /ocorrencias/{id}/foto` |
+| Banco | SQL Server Express `.\SQLEXPRESS`, banco `Termometro`, login do pool só com `db_datareader` e `db_datawriter` |
+| Alertas (a cada 15 s) | CPU acima de 80%, disco C: abaixo de 15% livre, memória abaixo de 512 MB disponíveis (`Termometro-Alertas`) |
+| Recuperação | W3SVC: 3 reinícios com 5 s, contador zerado após 1 dia; pool: WAS sobe outro worker; Rapid-Fail Protection ligado |
+| Eventos acompanhados | WAS 5002/5009/5011, SCM 7031/7034/7036, AspNetCore Module V2, Diagnosis-PLA 2031, Security 4624/4625/4656/4663 |
+
+## Escopo
 
 Roteiro para laboratório isolado, baseado em `docs/PLANO.md` e no briefing, páginas 32–34. Os scripts preparam serviços; as etapas gráficas de GPO, DFS, certificados e coletores também são obrigatórias. Execute em Windows PowerShell 5.1 **como administrador dentro da VM**, na sequência abaixo. Nunca execute estes scripts no computador pessoal.
 
@@ -24,7 +51,7 @@ A API em `api/` grava pela connection string `ConnectionStrings:Sala` (variável
 
 O segredo HMAC da semente (`segredo-de-teste-sala-01` a `sala-04`) é só de demonstração. Ele já está nas migrações e não serve como segredo real. Para trocar: `POST /dispositivos/{id}/revogar` com a chave da coordenação e um dispositivo novo. A API não tem rota para cadastrar sensor; a linha nova em `Dispositivos` entra pelo administrador, com segredo que não volta para o git.
 
-Uma VM reúne AD, DNS, arquivos, IIS e SQL para reduzir o laboratório. Essa concentração é um ponto único de falha e não é uma arquitetura de produção. SQL no controlador de domínio tem restrições de contas de serviço e não é recomendado: use uma conta de domínio dedicada na instalação de laboratório; se o instalador recusar, use uma segunda VM membro para SQL e reveja a identidade do pool/acesso ao banco (o login virtual local do script 05 não serve para SQL remoto).
+Uma VM reúne AD, DNS, arquivos, IIS e SQL para caber no laboratório. As consequências disso estão em [Limitações](#limitações).
 
 ## 0. Criar a VM e preparar os arquivos
 
@@ -111,13 +138,24 @@ No IIS Manager, confirme `AlwaysRunning`, idle timeout `00:00:00`, preload `True
 
 ### HTTPS no laboratório
 
-A API atual chama `UseHttpsRedirection`. Configure HTTPS antes da prova final: IIS Manager → Server Certificates → Create Self-Signed Certificate, nome `api.termometro.local`; site → Bindings → HTTPS 443, hostname igual, SNI e certificado criado. No cliente de laboratório, exporte **somente a parte pública** e importe em Trusted Root Certification Authorities, conferindo nome/SAN e validade. Se o certificado criado pela interface não cobrir o DNS, crie no servidor:
+A API chama `UseHttpsRedirection`, então o HTTPS vem antes da prova final. Crie o certificado no servidor com o nome do site, exporte só a parte pública e importe essa parte em `Cert:\LocalMachine\Root` **da própria VM**:
 
 ```powershell
 $cert = New-SelfSignedCertificate -DnsName api.termometro.local -CertStoreLocation Cert:\LocalMachine\My
+Export-Certificate -Cert $cert -FilePath C:\GS\api-termometro.cer | Out-Null
+Import-Certificate -FilePath C:\GS\api-termometro.cer -CertStoreLocation Cert:\LocalMachine\Root | Out-Null
+Get-ChildItem Cert:\LocalMachine\Root | Where-Object Subject -eq 'CN=api.termometro.local' | Select-Object Subject,NotAfter,Thumbprint
 ```
 
-Selecione esse certificado no binding. O pool já recebe `ASPNETCORE_ENVIRONMENT=Production` e `ASPNETCORE_HTTPS_PORT=443` pelos scripts 04 e 08 (junto com a connection string, a pasta de fotos, a chave e `Banco__Migrar=false`). Não grave isso no `web.config` publicado: a próxima cópia apagaria, e a chave iria parar no backup. Não use Development nem Demo no servidor: Development abre o Swagger; Demo abre `POST /demo/semear`. Em Production essa rota responde 404.
+O `.cer` do `Export-Certificate` leva só a chave pública. Sem a importação em `Root`, o Windows não confia no certificado autoassinado e o `Invoke-WebRequest https://` dos scripts 08 e 09 para com erro de confiança antes de testar a aplicação. Na repetição, reutilize o certificado que já está em `Cert:\LocalMachine\My` em vez de criar outro. No cliente de laboratório, importe o mesmo `.cer` em Trusted Root Certification Authorities (`certlm.msc` ou o mesmo `Import-Certificate`) para o navegador abrir o painel sem aviso.
+
+No IIS Manager: site `Termometro` → Bindings → HTTPS 443, hostname `api.termometro.local`, SNI marcado e o certificado criado acima. Confira na VM, sem erro de certificado:
+
+```powershell
+(Invoke-WebRequest https://api.termometro.local/ambientes -UseBasicParsing).StatusCode
+```
+
+O pool já recebe `ASPNETCORE_ENVIRONMENT=Production` e `ASPNETCORE_HTTPS_PORT=443` pelos scripts 04 e 08 (junto com a connection string, a pasta de fotos, a chave e `Banco__Migrar=false`). Não grave isso no `web.config` publicado: a próxima cópia apagaria, e a chave iria parar no backup. Não use Development nem Demo no servidor: Development abre o Swagger; Demo abre `POST /demo/semear`. Em Production essa rota responde 404.
 
 ```powershell
 New-NetFirewallRule -Name TermometroHTTPS -DisplayName 'Termometro HTTPS laboratorio' -Direction Inbound -Action Allow -Protocol TCP -LocalPort 443 -Profile Domain,Private -RemoteAddress LocalSubnet
@@ -184,13 +222,11 @@ SACL (aba Security → Advanced → Auditing) não concede acesso: complementa a
 
 ## 6a. DFS e RDS: mínimo demonstrável
 
-O briefing cita DFS e RDS no conceito (p. 32), sem atribuir pontos separados a uma topologia específica nas pp. 33–34. **DFS entra neste roteiro**; **RDP administrativo é a opção mínima para acesso remoto**, sujeita à confirmação do professor quanto a RDS. Não apresente RDP administrativo como uma implantação de Remote Desktop Session Host.
+O briefing cita DFS e RDS no conceito (p. 32), sem pontos separados nas pp. 33–34. **DFS entra neste roteiro** com um namespace e um destino. O acesso remoto demonstrado é o **RDP administrativo restrito** do passo 6; o alcance de RDS está em [Limitações](#limitações).
 
 Para DFS, crie `C:\Dados\Termometro\Manuais` e coloque uma cópia pública deste roteiro, sem configurações privadas. Server Manager → File and Storage Services → Shares: compartilhe como `Manuais`, acesso de leitura para `TERMOMETRO\Coordenacao`, Full Control para Administrators; NTFS com os mesmos leitores, SYSTEM/Administrators FullControl. Nenhum acesso de usuário à pasta de fotos.
 
-DFS Management (`dfsmgmt.msc`) → Namespaces → New Namespace → servidor `SRV-TERMOMETRO` → nome `Escola` → namespace baseado em domínio. Dentro dele, New Folder `Manuais`, destino `\\SRV-TERMOMETRO\Manuais`. Use permissões de leitura para Coordenacao e administrativas para administradores também na raiz. No cliente, abra `\\termometro.local\Escola\Manuais` como coordenador e registre a leitura. Um namespace, um destino, sem replicação: não prometa disponibilidade entre servidores. Se solicitado DFS Replication, serão necessários segundo servidor/destino e grupo de replicação; esta entrega não simula replicação em uma VM.
-
-Para RDS completo, se exigido pelo professor: use **outra VM membro do domínio**, Server Manager → Add Roles and Features → Remote Desktop Services installation → Quick Start → Session-based desktop deployment; isso instala Connection Broker, Web Access e Session Host, com coleção de sessões. Restrinja a coleção a `AdminsTermometro`, configure certificados e licenciamento conforme as condições de avaliação da Microsoft, e registre conexão real pela coleção. Não instale Session Host no DC deste roteiro; sessões administrativas no DC não substituem coleção RDS nem suas licenças. Confirme esse alcance antes de aumentar o laboratório.
+DFS Management (`dfsmgmt.msc`) → Namespaces → New Namespace → servidor `SRV-TERMOMETRO` → nome `Escola` → namespace baseado em domínio. Dentro dele, New Folder `Manuais`, destino `\\SRV-TERMOMETRO\Manuais`. Use permissões de leitura para Coordenacao e administrativas para administradores também na raiz. No cliente, abra `\\termometro.local\Escola\Manuais` como coordenador e registre a leitura.
 
 ## 7. Monitoramento e recuperação do W3SVC
 
@@ -217,6 +253,20 @@ Para ter **histórico**, crie também um conjunto `Termometro-Recursos`, manual,
 
 Ensaio sem sobrecarregar o host: crie no perfmon um coletor separado `Termometro-Ensaio` com os mesmos contadores, limites temporários CPU > 0%, disco livre < 100%, memória disponível < total de RAM em MB. Inicie por 30–60 s e confirme eventos de limite nos logs Application e em Applications and Services Logs → Microsoft → Windows → Diagnosis-PLA (habilite canal Operational quando disponível). Registre evento/provedor, contador, valor e horário. Depois pare/remova apenas o coletor de ensaio e mostre os limites operacionais originais e `Termometro-Alertas` Running. Não encha disco nem force falta de memória para produzir print.
 
+## 7a. Acompanhamento pelo Visualizador de Eventos
+
+[visao-termometro.xml](visao-termometro.xml) é um modo de exibição personalizado que junta, numa tela só, o que a infraestrutura registra sobre a aplicação:
+
+| Origem | Eventos | O que mostra |
+|---|---|---|
+| System, `Microsoft-Windows-WAS` | 5009, 5011, 5002 | worker do pool terminou sem aviso, falha de comunicação, pool desligado pelo Rapid-Fail |
+| System, `Service Control Manager` | 7031, 7034, 7036 | W3SVC terminou sem aviso e voltou a Running |
+| Application, `IIS AspNetCore Module V2` | todos | erro na subida ou no processo da API |
+| Application e `Diagnosis-PLA/Operational` | 2031 | disparo dos alertas de CPU, disco e memória do passo 7 |
+| Security | 4624 (só RDP, tipo 10), 4625, 4656, 4663 | logon permitido e recusado, acesso à pasta de fotos (SACL do passo 6) |
+
+Na VM, como administrador: `eventvwr.msc` → Action → **Import Custom View** → `C:\GS\termometro\infra\visao-termometro.xml`. A visão aparece em Custom Views → **Termometro - acompanhamento**. O 7036 registra qualquer serviço; no teste de falha, procure a mensagem com o nome do W3SVC. Os logs do IIS ficam em `C:\inetpub\logs\LogFiles\W3SVC<ID>\u_ex*.log`, em UTC: compare `sc-status` e horário com os eventos da visão (E12).
+
 ## 8. Publicação da API e painel
 
 Na máquina de desenvolvimento com SDK .NET 8 (fora do servidor):
@@ -232,7 +282,7 @@ Transfira a pasta publicada inteira para `C:\GS\publish` da VM; não copie apena
 # Sem NAT de saida na porta 1883, acrescente -MqttDesligado (igual ao 04).
 ```
 
-O script reaplica as variáveis do pool (mesma regra do 04), exige `wwwroot\index.html`, para só o pool dedicado, salva backup, copia sem apagar arquivos e religa o pool em `finally`. Depois exige HTTP 200 em `/ambientes` e no painel `/`. Falha de HTTP é erro, não sucesso parcial. **Não há rollback automático**: se falhar, preserve logs, pare o pool e restaure o backup revisado; mova os binários novos para quarentena antes de restaurar, pois cópia simples não elimina arquivos adicionados. Não toque no banco nem nas fotos nesse rollback. Não há sincronização/exclusão automática: em mudanças com arquivos removidos, compare os dois diretórios e faça limpeza revisada com backup. O backup herda proteção administrativa; não o compartilhe.
+O script reaplica as variáveis do pool (mesma regra do 04), exige `wwwroot\index.html`, para só o pool dedicado, salva backup, copia sem apagar arquivos e religa o pool em `finally`. Depois exige HTTP 200 em `/ambientes` e no painel `/`. Falha de HTTP é erro, não sucesso parcial. A volta para a versão anterior é manual: ver [Limitações](#limitações). O backup herda proteção administrativa; não o compartilhe.
 
 ### MQTT ou Insomnia
 
@@ -247,19 +297,7 @@ Abra `/` e `/ambientes`. O fluxo da proposta é sala, leitura, previsão, ocorr�
 
 Siga [TESTE-DE-FALHA.md](TESTE-DE-FALHA.md): mate somente o worker do pool e depois o processo isolado do W3SVC. `Stop-Service` é parada planejada e **não comprova recuperação por falha**. Registre PIDs antes/depois, retorno HTTP e eventos sem reiniciar manualmente os serviços durante a medição.
 
-Preencha [EVIDENCIAS.md](EVIDENCIAS.md) e grave [ROTEIRO-VIDEO.md](ROTEIRO-VIDEO.md), até 7 minutos. Um integrante entrega o link do repositório no Teams até 19/11 às 23h55.
-
-## Item da pontuação → onde está
-
-| Item da pontuação (briefing p. 34) | Pontos | Configuração e prova |
-|---|---:|---|
-| Infraestrutura de rede e identidade: IP fixo, hostname, DNS, AD | 2 | Passos 1–3, scripts 01–03; evidências E01–E03 |
-| Aplicação IIS: site, pool, dependências, pasta, NTFS | 2 | Passos 4–5 e 8, scripts 04/05/08, variáveis do pool e NTFS da pasta de fotos; E04–E06 |
-| Alertas CPU, disco e memória no Monitor de Desempenho | 2 | Passo 7, script 07, coletores e ensaio; E09 |
-| Recuperação automática do serviço e pool, teste de falha | 1 | Passo 9, scripts 07/09 e TESTE-DE-FALHA: depois do PID novo, `/ambientes` e o painel `/`; E10–E11 |
-| Logs de auditoria e acompanhamento | 1 | Passos 6–7, GPO/SACL, Security/System/Application e IIS; E07/E09/E12 |
-| Funcionamento completo da proposta | 2 | Passos 5 e 8 e vídeo: painel `/`, `GET /ambientes`, migração aplicada, leitura por MQTT (NAT 1883) ou `POST /leituras`; E13 |
-| Serviços citados no conceito: GPO, File Server, RDS, DFS | — | Passos 4/6/6a; E07–E08. Confirmar RDS completo com professor |
+Preencha [EVIDENCIAS.md](EVIDENCIAS.md) e grave [ROTEIRO-VIDEO.md](ROTEIRO-VIDEO.md), até 7 minutos. A entrega é feita por formulário até 19/11 às 23h55, por um integrante: link do repositório, link do vídeo e os dados do [Resumo do ambiente](#resumo-do-ambiente).
 
 ## Conferência antes de executar
 
@@ -278,4 +316,14 @@ if ($errorsFound.Count) { $errorsFound; throw 'Erro de sintaxe' }
 '9 scripts: sintaxe valida'
 ```
 
-Parser aprovado não comprova disponibilidade dos cmdlets, limites de licenciamento, caminhos localizados, configuração efetiva de GPO nem recuperação real. Faça o ensaio na VM e mantenha evidências verdadeiras; nenhum print vem pronto com este roteiro.
+O parser confere a sintaxe. O funcionamento na VM é comprovado pelas saídas e prints de [EVIDENCIAS.md](EVIDENCIAS.md) e pelo vídeo.
+
+## Limitações
+
+- **Uma VM para tudo.** AD, DNS, arquivos, IIS e SQL ficam na mesma VM para caber no laboratório. É um ponto único de falha e não é arquitetura de produção. SQL no controlador de domínio tem restrições de conta de serviço: o roteiro usa a conta de domínio dedicada `svc.sql` (passo 5). Se o instalador recusar, o SQL vai para uma segunda VM membro, e a identidade do pool e o acesso ao banco precisam ser revistos (o login virtual local do 05 não serve para SQL remoto).
+- **Acesso remoto.** O demonstrado é RDP administrativo restrito a `AdminsTermometro`, que não é uma implantação de Remote Desktop Session Host. RDS completo, se o professor exigir, vai em **outra VM membro do domínio**: Server Manager → Add Roles and Features → Remote Desktop Services installation → Quick Start → Session-based desktop deployment (Connection Broker, Web Access e Session Host com coleção), coleção restrita a `AdminsTermometro`, certificados e licenciamento conforme a avaliação da Microsoft e uma conexão real pela coleção. Session Host não vai no DC.
+- **DFS sem replicação.** Um namespace e um destino; não há disponibilidade entre servidores. DFS Replication exigiria segundo servidor, segundo destino e grupo de replicação.
+- **Passos manuais.** Direitos de RDP e auditoria na GPMC, zona reversa e PTR, início do `Termometro-Alertas` no boot e o coletor de histórico `Termometro-Recursos` são feitos pela interface (passos 2, 6 e 7). Os nomes dos contadores mudam com o idioma da VM.
+- **Publicação sem rollback automático.** Se o 08 falhar: preserve os logs, pare o pool, mova os binários novos para quarentena (cópia simples não remove arquivos adicionados) e restaure o backup revisado, sem tocar no banco nem nas fotos. O 08 também não apaga arquivos que saíram da publicação: compare as pastas e limpe com backup.
+- **Certificado autoassinado.** Serve só para o laboratório; a chave privada nunca sai da VM nem entra em evidência.
+- **Recuperação sem promessa de zero perda.** Uma falha pode interromper requisições em andamento e perder a leitura MQTT em voo; depois da volta, a prova mostra uma leitura nova.
