@@ -7,6 +7,7 @@ const horaSp = new Intl.DateTimeFormat('pt-BR', {
 });
 
 export function horaSaoPaulo(isoUtc: string): string {
+  if (!isoUtc) return 'sem registro';
   const data = new Date(isoUtc);
   if (Number.isNaN(data.getTime())) return isoUtc;
   return horaSp.format(data);

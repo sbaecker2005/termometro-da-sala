@@ -39,8 +39,15 @@ export default function Identificacao() {
     const erro = validarProfessor(nome, escola);
     setErro(erro);
     if (erro) return;
-    await gravarProfessor({ nome: nome.trim(), escola: escola.trim() });
-    router.replace('/salas');
+    try {
+      await gravarProfessor({ nome: nome.trim(), escola: escola.trim() });
+    } catch {
+      setErro('Não foi possível guardar os dados neste aparelho. Tente de novo.');
+      return;
+    }
+    // Ao editar, a lista já está na pilha: voltar evita duas telas Salas empilhadas.
+    if (editar === '1' && router.canGoBack()) router.back();
+    else router.replace('/salas');
   }
 
   return (

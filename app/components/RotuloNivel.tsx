@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { apresentarNivel } from '../domain/nivel';
+import { apresentarNivel, type Nivel } from '../domain/nivel';
 
-export function RotuloNivel({ nivel }: { nivel: string }) {
+export function RotuloNivel({ nivel }: { nivel: Nivel }) {
   const info = apresentarNivel(nivel);
   return (
     <View style={[styles.selo, { backgroundColor: info.cor }]} accessibilityRole="text">
