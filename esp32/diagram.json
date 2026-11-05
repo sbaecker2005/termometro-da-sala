@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "author": "Samuel Baecker",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-esp32-devkit-v1", "id": "esp", "top": 0, "left": 0, "attrs": {} },
+    { "type": "wokwi-dht22", "id": "dht", "top": -100, "left": 180, "attrs": { "temperature": "33", "humidity": "55" } },
+    { "type": "wokwi-led", "id": "verde", "top": 30, "left": 200, "attrs": { "color": "green", "label": "Normal" } },
+    { "type": "wokwi-led", "id": "amarelo", "top": 100, "left": 200, "attrs": { "color": "yellow", "label": "Atencao" } },
+    { "type": "wokwi-led", "id": "vermelho", "top": 170, "left": 200, "attrs": { "color": "red", "label": "Cuidado / Perigo" } },
+    { "type": "wokwi-resistor", "id": "rv", "top": 40, "left": 130, "attrs": { "value": "220" } },
+    { "type": "wokwi-resistor", "id": "ra", "top": 110, "left": 130, "attrs": { "value": "220" } },
+    { "type": "wokwi-resistor", "id": "rr", "top": 180, "left": 130, "attrs": { "value": "220" } },
+    { "type": "wokwi-resistor", "id": "pullup", "top": -60, "left": 100, "attrs": { "value": "10000" } }
+  ],
+  "connections": [
+    [ "esp:TX0", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX0", "$serialMonitor:TX", "", [] ],
+    [ "esp:3V3", "dht:VCC", "red", [] ],
+    [ "esp:GND.1", "dht:GND", "black", [] ],
+    [ "esp:15", "dht:SDA", "green", [] ],
+    [ "esp:3V3", "pullup:1", "red", [] ],
+    [ "pullup:2", "dht:SDA", "green", [] ],
+    [ "esp:18", "rv:1", "green", [] ],
+    [ "rv:2", "verde:A", "green", [] ],
+    [ "verde:C", "esp:GND.1", "black", [] ],
+    [ "esp:19", "ra:1", "gold", [] ],
+    [ "ra:2", "amarelo:A", "gold", [] ],
+    [ "amarelo:C", "esp:GND.1", "black", [] ],
+    [ "esp:21", "rr:1", "red", [] ],
+    [ "rr:2", "vermelho:A", "red", [] ],
+    [ "vermelho:C", "esp:GND.1", "black", [] ]
+  ],
+  "dependencies": {}
+}
