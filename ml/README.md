@@ -1,5 +1,7 @@
 # Termômetro da Sala — Machine Learning
 
+[![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sbaecker2005/termometro-da-sala/blob/main/ml/termometro_da_sala.ipynb)
+
 ## Ficha da CitizenTech
 
 | Campo | Conteúdo |
@@ -20,7 +22,7 @@ Integrantes: Samuel Baecker — RM [preencher]
 
 | Arquivo | O que é |
 |---|---|
-| `termometro_da_sala.ipynb` | O notebook, já executado (dados, índice de calor, modelos, métricas, exportação) |
+| `termometro_da_sala.ipynb` | O notebook, já executado (dados, índice de calor, modelos, métricas, exportação, previsão em uso) |
 | `dados/inmet_a701.csv` | Dataset: INMET, estação automática A701 (São Paulo, Mirante de Santana), dados horários de 2022 a 2025, hora em UTC |
 | `extrair_a701.py` | Extrai a A701 dos zips anuais do INMET ([portal.inmet.gov.br/dadoshistoricos](https://portal.inmet.gov.br/dadoshistoricos)) |
 | `gerar_notebook.py` | Monta o notebook (as células ficam legíveis no git) |
@@ -36,7 +38,7 @@ Integrantes: Samuel Baecker — RM [preencher]
 - **Preparação e análise:** origem e colunas do INMET documentadas no notebook; calendário UTC com 0/212/19/47 horas ausentes ou descartadas em 2022/2023/2024/2025. São 92 buracos, o maior com 54 h. O CSV limpo não permite separar falta de registro de descarte. A montagem dos atributos/alvo remove 205 linhas sem vizinhos; outras 4 são excluídas nas fronteiras entre conjuntos. Há distribuição do alvo e dos níveis e matriz de correlação no treino.
 - **Divisão por tempo:** treino 2022–2023 (17.192 exemplos), validação 2024 (8.740), teste 2025 (8.645, usado só na avaliação final). O alvo +2 h não cruza as fronteiras.
 - **Busca:** `TimeSeriesSplit(n_splits=3, gap=2)` só no treino; seis combinações de profundidade (4, 6, 8) e folha mínima (30, 50), pelo MAE. Melhor árvore: profundidade 8 e folha 30 (MAE médio na CV 1,054 °C; linear 1,092 °C).
-- **Modelo:** árvore ajustada, escolhida pelo menor MAE em 2024 (0,981 °C contra 1,098 °C da linear). Não houve retreino. Exportada no formato existente `tipo: arvore`, `atributos` e `raiz` com nós `atributo`, `limite`, `menor_ou_igual`, `maior` ou folha `valor`. A integração paralela precisa suportar esse tipo, além da linear. O notebook compara a leitura do JSON com as previsões já calculadas em 200 exemplos (diferença máxima < 0,00005 °C).
+- **Modelo:** árvore ajustada, escolhida pelo menor MAE em 2024 (0,981 °C contra 1,098 °C da linear). Não houve retreino. Exportada no formato existente `tipo: arvore`, `atributos` e `raiz` com nós `atributo`, `limite`, `menor_ou_igual`, `maior` ou folha `valor`. A API em C# percorre esse JSON (árvore ou linear) sem Python em produção; o teste `PrevisorModeloTestes` confere três previsões. O notebook compara a leitura do JSON com as previsões já calculadas em 200 exemplos (diferença máxima < 0,00005 °C).
 - **Interpretação:** coeficientes da linear multiplicados pelo desvio padrão dos atributos e importância por redução de impureza da árvore; temperatura responde por cerca de 88,6% da importância da árvore. Associação não implica causalidade.
 
 ## Resultado no teste (2025)
@@ -51,11 +53,30 @@ O nível "perigo" (índice ≥ 41 °C) não aparece na rua da A701 entre 2022 e 
 
 **Limite crítico:** no treino, só 104 alvos são `cuidado` (0,605%) e nenhum é `perigo`. No teste, a árvore detecta 7 das 48 horas de `cuidado` (precisão 58,3%, recall 14,6%), enquanto o baseline detecta 18 (precisão 38,3%, recall 37,5%). A árvore classifica 39 dessas horas como atenção e 2 como normal. O menor MAE não garante melhor alerta; a escolha por MAE foi mantida sem ajustar o modelo ao teste. O notebook inclui `classification_report` e matriz de confusão; a macro do relatório inclui o nível sem suporte e difere da tabela acima.
 
+O notebook traz o gráfico de previsto contra real na semana mais quente de 2025 (árvore e baseline) e o histograma dos resíduos: erro médio de −0,012 °C, com 90% dos erros entre −2,16 e +2,18 °C.
+
+## Previsão em uso
+
+A seção 6 do notebook repete o vetor do teste da API e mostra a previsão do jeito que chega à coordenação:
+
+| Passo | Valor |
+|---|---|
+| Agora | 15/01/2026 às 17:00 UTC = 14h em São Paulo; rua a 30 °C, 50% de umidade, +1,5 °C na última hora |
+| Índice da rua agora | 31,0 °C (atenção) |
+| Rua prevista para +2 h (`modelo.json`) | 26,97 °C, o mesmo valor que a API calcula no teste |
+| Delta da sala 3 | +4 °C (valor de exemplo do modo demonstração, não medição) |
+| Sala prevista para +2 h | 30,97 °C, nível **atenção** |
+| Ação sugerida (`CONTRATO.md`) | liberar água, abrir janelas e ligar ventiladores |
+
+Em produção, o delta é a média da diferença sala − rua nas últimas 3 h, medida pelo ESP32.
+
 O aviso com 2 h de antecedência apoia a coordenação ao hidratar, ventilar ou realocar a turma, ligado ao **ODS 3.d** (alerta precoce e redução de riscos à saúde). O indicador de aulas em Perigo sem ação ainda não foi medido; faltam dados reais da sala e validação do delta. A previsão não substitui a leitura atual nem os procedimentos da escola.
 
 ## Como rodar
 
-Na pasta `ml`, com Python 3.11:
+**No Colab:** clique em "Abrir no Colab" no topo e use Ambiente de execução → Executar tudo. Não instale o `requirements.txt` no Colab: as versões fixadas (numpy 1.24.3, pandas 2.0.3, scikit-learn 1.3.0) são as da execução local em Python 3.11 e não têm pacote para o Python do Colab. As bibliotecas que já vêm no Colab bastam. Sem a pasta `ml` ao lado, o notebook lê o CSV de `https://raw.githubusercontent.com/sbaecker2005/termometro-da-sala/main/ml/dados/inmet_a701.csv`. O RMSE é calculado com `np.sqrt(mean_squared_error(...))`, que funciona nas versões antigas e novas do scikit-learn.
+
+**Localmente**, na pasta `ml`, com Python 3.11:
 
 ```powershell
 python -m pip install -r requirements.txt
@@ -63,4 +84,4 @@ python gerar_notebook.py
 python -c "from pathlib import Path; import nbformat; from nbclient import NotebookClient; p = Path('termometro_da_sala.ipynb'); nb = nbformat.read(p, as_version=4); NotebookClient(nb, timeout=600, kernel_name='python3').execute(); nbformat.write(nb, p)"
 ```
 
-No **Colab**, envie um ZIP da pasta `ml` pelo painel Arquivos, extraia em `/content`, execute `%cd /content/ml` e `%pip install -r requirements.txt`. Abra o `.ipynb` por Arquivo → Fazer upload de notebook e execute todas as células. Se o ambiente solicitar, reinicie a sessão após instalar as versões. O upload manual dispensa um link de repositório ainda não publicado. Esse fluxo não foi executado no Colab.
+O `gerar_notebook.py` monta as células e o comando seguinte executa todas, gravando as saídas no `.ipynb`. A execução regrava `modelo.json`; com os mesmos dados e versões ele sai idêntico ao copiado em `api/TermometroDaSala.Api/modelo/modelo.json`.

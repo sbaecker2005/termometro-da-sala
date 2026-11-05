@@ -7,6 +7,8 @@ md, code = nbf.v4.new_markdown_cell, nbf.v4.new_code_cell
 celulas = [
     md("""# Termômetro da Sala — previsão do índice de calor
 
+[![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sbaecker2005/termometro-da-sala/blob/main/ml/termometro_da_sala.ipynb)
+
 **Global Solution 2026.2 (CitizenTech) — Machine Learning**
 
 | Campo | Conteúdo |
@@ -35,10 +37,11 @@ temperatura ou umidade e valores vazios ou `-9999` nessas medições.
 O CSV já está limpo: as ausências abaixo incluem horas não registradas ou descartadas,
 sem permitir separar as causas. São Paulo é UTC−3 neste período.
 
-**Reprodução / Colab:** dependências fixadas em `requirements.txt`. No Colab, envie
-um ZIP da pasta `ml` pelo painel Arquivos, extraia em `/content` e execute
-`%cd /content/ml`, depois `%pip install -r requirements.txt`. Abra este notebook
-pelo menu Arquivo → Fazer upload de notebook e execute todas as células.
+**Reprodução / Colab:** abra pelo botão "Abrir no Colab" acima e use Ambiente de
+execução → Executar tudo. No Colab não instale o `requirements.txt`: as versões
+fixadas ali são as da execução local em Python 3.11 e não têm pacote para o Python
+do Colab; as bibliotecas que já vêm no Colab bastam. Sem a pasta `ml` ao lado, a
+célula abaixo lê o CSV direto do repositório público no GitHub.
 Localmente, execute a partir de `ml` ou da raiz do projeto."""),
     code("""import json, math
 import numpy as np
@@ -52,7 +55,12 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score, f
 from sklearn.model_selection import TimeSeriesSplit, GridSearchCV, cross_val_score
 
 PASTA = Path('ml') if Path('ml/dados/inmet_a701.csv').exists() else Path('.')
-df = pd.read_csv(PASTA / 'dados/inmet_a701.csv', parse_dates=['data_hora_utc'])
+CSV_GITHUB = 'https://raw.githubusercontent.com/sbaecker2005/termometro-da-sala/main/ml/dados/inmet_a701.csv'
+origem = PASTA / 'dados/inmet_a701.csv'
+if not origem.exists():  # Colab aberto pelo link: o CSV vem do repositório
+    origem = CSV_GITHUB
+print('lendo', origem)
+df = pd.read_csv(origem, parse_dates=['data_hora_utc'])
 df['data_hora_utc'] = pd.to_datetime(df['data_hora_utc'], utc=True)
 assert df[['temperatura_c', 'umidade_pct']].notna().all().all()
 assert df.temperatura_c.between(-90, 60).all() and df.umidade_pct.between(0, 100).all()
@@ -163,7 +171,7 @@ raros. O teste final serve para reportar esse limite, sem reajustar a escolha.""
     reais = [nivel(v) for v in real]
     presentes = [n for n in NIVEIS if n in reais]  # 'perigo' não aparece na A701 em 2022-2025: fica fora da média
     return {'modelo': nome, 'MAE (°C)': round(mean_absolute_error(real, previsto), 3),
-            'RMSE (°C)': round(mean_squared_error(real, previsto, squared=False), 3),
+            'RMSE (°C)': round(float(np.sqrt(mean_squared_error(real, previsto))), 3),
             'R²': round(r2_score(real, previsto), 3),
             'F1 macro (níveis)': round(f1_score(reais, [nivel(v) for v in previsto], average='macro', labels=presentes, zero_division=0), 3)}
 
@@ -260,7 +268,54 @@ referencia = pd.Series(prev, index=teste.index)
 diferenca = max(abs(prever_json(exportado, r) - referencia.loc[i]) for i, r in amostra.iterrows())
 assert diferenca < 0.01, diferenca
 print('diferença máxima JSON x scikit-learn:', round(diferenca, 5))"""),
-    md("""## 6. Conclusões e limitações
+    md("""## 6. Previsão em uso
+O mesmo vetor do teste da API (`PrevisorModeloTestes.cs`): 15/01/2026 às 17:00 UTC
+(14h em São Paulo), rua a 30 °C e 50% de umidade, 1,5 °C mais quente que uma hora antes.
+A previsão sai do `modelo.json` percorrido como a API faz. Depois soma-se o *delta*
+da sala: a diferença média sala − rua das últimas 3 h, medida pelo ESP32. Aqui o delta
+é o valor de exemplo da sala 3 no modo demonstração (+4 °C), não uma medição real.
+O nível e a ação sugerida seguem a tabela do `CONTRATO.md`."""),
+    code("""ACOES = {'normal': 'nenhuma',
+         'atencao': 'liberar água, abrir janelas e ligar ventiladores',
+         'cuidado': 'pausa, troca de sala ou adiar Educação Física',
+         'perigo': 'tirar a turma da sala'}
+agora_utc = pd.Timestamp('2026-01-15 17:00', tz='UTC')
+local = agora_utc.tz_convert('America/Sao_Paulo')
+entrada = {'temperatura_c': 30.0, 'umidade_pct': 50.0,
+           'hora_sen': np.sin(2 * np.pi * local.hour / 24), 'hora_cos': np.cos(2 * np.pi * local.hour / 24),
+           'mes_sen': np.sin(2 * np.pi * local.month / 12), 'mes_cos': np.cos(2 * np.pi * local.month / 12),
+           'variacao_1h': 1.5}
+rua_prevista = prever_json(exportado, entrada)
+assert round(rua_prevista, 2) == 26.97  # mesmo valor esperado no teste da API
+DELTA_SALA_3 = 4.0  # exemplo do modo demonstração, não medição
+sala_prevista = rua_prevista + DELTA_SALA_3
+display(pd.DataFrame({'valor': [f"{local:%d/%m/%Y %Hh} (São Paulo)", f"{indice_calor_c(30.0, 50)} °C ({nivel(indice_calor_c(30.0, 50))})",
+                                f"{rua_prevista:.2f} °C", f"+{DELTA_SALA_3:.0f} °C", f"{sala_prevista:.2f} °C",
+                                nivel(sala_prevista), ACOES[nivel(sala_prevista)]]},
+                     index=['agora', 'índice da rua agora', 'rua prevista para +2 h', 'delta da sala 3',
+                            'sala prevista para +2 h', 'nível previsto', 'ação sugerida']))"""),
+    md("""### Previsto contra real e resíduos (teste, 2025)
+A semana em torno da hora mais quente de 2025 mostra o modelo escolhido e o baseline
+contra o índice que de fato ocorreu 2 h depois. O histograma mostra a distribuição
+do erro (previsto − real) em todo o teste."""),
+    code("""pico = teste.alvo.idxmax()
+semana = teste.loc[pico - pd.Timedelta(days=3.5): pico + pd.Timedelta(days=3.5)]
+quando = (semana.index + duas_h).tz_convert('America/Sao_Paulo')
+fig, ax = plt.subplots(figsize=(11, 4))
+ax.plot(quando, semana.alvo, label='real', color='black', linewidth=1.5)
+ax.plot(quando, pd.Series(prev, index=teste.index).loc[semana.index], label=escolhido, linewidth=1.2)
+ax.plot(quando, semana.indice_agora, label='baseline (agora)', linestyle='--', linewidth=1, alpha=.7)
+for limite in (27, 32):
+    ax.axhline(limite, color='grey', linestyle=':', linewidth=.8)
+ax.set_title('Índice de calor da rua: previsto para +2 h contra real (semana mais quente do teste)')
+ax.set_ylabel('°C'); ax.set_xlabel('hora local prevista'); ax.legend(); ax.grid(alpha=.3)
+plt.tight_layout(); plt.show()
+residuos = pd.Series(prev - teste.alvo.to_numpy(), index=teste.index)
+residuos.plot.hist(bins=60, figsize=(8, 3), title=f'Resíduos no teste: previsto − real ({escolhido})')
+plt.axvline(0, color='black', linewidth=.8); plt.xlabel('°C'); plt.ylabel('horas'); plt.show()
+print('resíduo médio:', round(residuos.mean(), 3), '°C | 90% dos erros entre',
+      round(residuos.quantile(.05), 2), 'e', round(residuos.quantile(.95), 2), '°C')"""),
+    md("""## 7. Conclusões e limitações
 - O modelo é comparado com o baseline "daqui a 2 h = agora", que é o que uma pessoa faria olhando o termômetro. A tabela de teste mostra quanto ele ganha.
 - `Cuidado` é raro: o relatório mostra seu recall e a comparação com o baseline, pois o F1 macro não basta para avaliar a segurança. `Perigo` não aparece nesta base; suporte zero não comprova capacidade de previsão desse nível. Não há garantia de detectar todos os episódios críticos, nem validação da previsão dentro da sala.
 - Nesta execução, a árvore escolhida pelo MAE de validação atinge MAE de **0,958 °C**, RMSE de **1,364 °C** e R² de **0,924** em 2025. Porém reconhece só **7 de 48** horas de `cuidado` (recall **14,6%**), abaixo do baseline (**18 de 48**, **37,5%**); erra 39 como `atencao` e 2 como `normal`. A melhora média não demonstra melhora no alerta crítico. A linear tem F1 macro maior (0,745 contra 0,660 da árvore), mas não foi escolhida pelo critério definido. Uma futura revisão do critério deve usar treino/validação e um novo período de teste, sem escolher pelo resultado de 2025.
