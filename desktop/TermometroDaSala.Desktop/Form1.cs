@@ -137,11 +137,11 @@ public partial class Form1 : Form
             if (sala.SensorRevogado) aviso += " Sensor revogado";
             if (sala.UltimaLeituraEm is { } hora && DateTimeOffset.UtcNow - hora > TimeSpan.FromMinutes(10)) aviso += " Leitura antiga";
             var linha = salas.Rows[salas.Rows.Add(sala.Id, sala.Nome,
-                sala.NivelAtual is { } n ? Validacoes.Texto(n) : "Sem leitura",
+                sala.Leitura is { } atual ? Validacoes.Texto(atual.Nivel) : "Sem leitura",
                 sala.Leitura is { } l ? Validacoes.HoraEscola(l.MedidoEm).ToString("dd/MM HH:mm:ss") : "—",
                 previsao is null ? "Sem previsão" : $"{Validacoes.Texto(previsao.NivelPrevisto)} às {Validacoes.HoraEscola(previsao.PrevistoPara):HH:mm}", aviso)];
             linha.Tag = sala;
-            Cor(linha.Cells["Atual"], sala.NivelAtual);
+            Cor(linha.Cells["Atual"], sala.Leitura?.Nivel);
             Cor(linha.Cells["Previsto"], previsao?.NivelPrevisto);
             if (sala.Id == selecionada) salas.CurrentCell = linha.Cells[0];
         }

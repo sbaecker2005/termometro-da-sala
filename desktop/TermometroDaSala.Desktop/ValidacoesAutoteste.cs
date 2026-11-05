@@ -73,7 +73,9 @@ public static class ValidacoesAutoteste
             await servico.Revogar(sala);
             var reaberto = new ServicoSalasLocal(caminho);
             Exigir((await reaberto.Listar()).Single().SensorRevogado, "Revogação não persistiu.");
-            Exigir((await reaberto.AcoesDoDia(new DateOnly(2026, 1, 5))).Single().Descricao == "Abrir janelas", "Filtro do dia incorreto.");
+            Exigir((await reaberto.AcoesDoDia(new DateOnly(2026, 1, 5))).Single() is { Id: 1, Descricao: "Abrir janelas" }, "Filtro do dia incorreto.");
+            Exigir((await reaberto.AcoesDoDia(new DateOnly(2026, 1, 6))).Single().Id == 2, "Modo local não numerou as ações.");
+            Exigir((await reaberto.Listar()).Single().Leitura is null, "Modo local inventou leitura.");
             Exigir(await reaberto.Prever(sala.Id) is null, "Modo local inventou previsão.");
             File.WriteAllText(caminho, "arquivo corrompido");
             try { await reaberto.Cadastrar(new Sala { Id = "sala-04", Nome = "Sala 4" }); throw new InvalidOperationException("Arquivo corrompido aceito."); }
@@ -97,21 +99,31 @@ public static class ValidacoesAutoteste
                 Exigir(corpo.RootElement.GetProperty("ambienteId").GetString() == "sala-03", "Sala ausente na ação.");
                 Exigir(corpo.RootElement.GetProperty("registradoEm").GetString()!.EndsWith("+00:00"), "Gravação fora de UTC.");
             }
+            // Respostas copiadas da API: AmbienteSaida, AcaoSaida e PrevisaoSaida (api/TermometroDaSala.Api/Contratos/Saidas.cs)
+            // serializadas com as mesmas opções do ASP.NET Core (JsonSerializerDefaults.Web), inclusive o "\u002B" do fuso.
             var json = rota switch
             {
-                "/ambientes" when request.Method == HttpMethod.Get => """[{"id":"sala-03","nome":"Sala 3","andar":1,"faceSol":"oeste","nivelAtual":"cuidado","indiceAtual":34.2,"ultimaLeituraEm":"2026-11-06T17:10:00Z","dispositivoId":"esp32-sala-03"}]""",
-                "/ambientes/sala-03/previsao" => """{"ambienteId":"sala-03","previstoPara":"2026-11-06T19:10:00Z","indiceRuaPrevisto":34,"deltaSala":null,"indiceSalaPrevisto":null,"nivelPrevisto":"cuidado","semLeiturasRecentes":true,"demonstracao":true}""",
-                _ => "[]"
+                "/ambientes" when request.Method == HttpMethod.Get => """[{"id":"sala-03","nome":"Sala 3","andar":1,"faceSol":"oeste","nivelAtual":"cuidado","indiceAtual":34.2,"ultimaLeituraEm":"2026-11-06T17:10:00.0000000\u002B00:00","semLeitura":false,"temVentilador":true,"dispositivoId":"esp32-sala-03"},{"id":"sala-04","nome":"Sala 4","andar":2,"faceSol":"norte","nivelAtual":"normal","indiceAtual":0,"ultimaLeituraEm":"","semLeitura":true,"temVentilador":false,"dispositivoId":null}]""",
+                "/ambientes/sala-03/previsao" => """{"ambienteId":"sala-03","previstoPara":"2026-11-06T19:10:00+00:00","indiceRuaPrevisto":34,"deltaSala":null,"indiceSalaPrevisto":null,"nivelPrevisto":"cuidado","semLeiturasRecentes":true,"demonstracao":true}""",
+                "/acoes?dia=2026-11-06" => """[{"id":1,"ambienteId":"sala-03","nivel":"cuidado","descricao":"Abrir janelas","registradoEm":"2026-11-06T17:15:00+00:00"}]""",
+                "/acoes" => """{"id":1}""",
+                "/ambientes" => """{"id":"sala-03"}""",
+                _ => "{}"
             };
             return new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json") };
         })) { BaseAddress = new Uri("http://teste.local/") };
         var api = new ServicoSalasApi(http);
-        var sala = (await api.Listar()).Single();
-        Exigir(sala.Leitura?.Nivel == NivelCalor.cuidado, "Leitura da API não mapeada.");
+        var lista = await api.Listar();
+        var sala = lista[0];
+        Exigir(sala.Leitura?.Nivel == NivelCalor.cuidado && sala.Leitura.MedidoEm == DateTimeOffset.Parse("2026-11-06T17:10:00Z"),
+            "Leitura da API não mapeada.");
+        Exigir(lista[1] is { SemLeitura: true, UltimaLeituraEm: null, Leitura: null, DispositivoId: null },
+            "Sala sem leitura deveria aparecer como Sem leitura, não como Normal.");
         Exigir((await api.Prever(sala.Id))?.SemLeiturasRecentes == true, "Previsão sem delta recusada.");
         await api.Cadastrar(sala);
         await api.Registrar(new Acao { AmbienteId = sala.Id, Nivel = NivelCalor.cuidado, Descricao = "Abrir janelas" });
-        await api.AcoesDoDia(new DateOnly(2026, 11, 6));
+        var acao = (await api.AcoesDoDia(new DateOnly(2026, 11, 6))).Single();
+        Exigir(acao.Id == 1 && acao.Nivel == NivelCalor.cuidado, "Ação com id numérico da API não mapeada.");
         await api.Revogar(sala);
         Exigir(chamadas.Contains("POST /dispositivos/esp32-sala-03/revogar") &&
             chamadas.Contains("GET /acoes?dia=2026-11-06") && chamadas.Contains("POST /ambientes"), "Rotas incompatíveis.");
