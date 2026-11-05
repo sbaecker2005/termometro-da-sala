@@ -75,4 +75,4 @@ O intervalo NTP é 60 s, configurado antes de iniciar a sincronização.
 Entregar o link do projeto, vídeo integrado à solução (até 4 min) e
 `integrantes.txt`. Preencher o RM de Samuel Baecker, os demais integrantes,
 o bairro, a entrevista e o link do repositório antes do envio.
-Compilação e conectividade precisam de ensaio no Wokwi; não foram validadas localmente.
+O sketch compila com arduino-cli no fqbn `esp32:esp32:esp32` (core 3.3.12) e as bibliotecas de `libraries.txt`. Serial, LEDs e MQTT ainda dependem do ensaio no Wokwi.

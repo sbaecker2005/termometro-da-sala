@@ -3,7 +3,15 @@ import { useCallback, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { apresentarNivel } from '../../domain/nivel';
 import { RotuloNivel } from '../../components/RotuloNivel';
-import { listarAmbientes, obterPrevisao, type Ambiente, type Previsao } from '../../services/api';
+import type { RotaParams } from '../../rotas';
+import {
+  listarAmbientes,
+  listarOcorrencias,
+  obterPrevisao,
+  type Ambiente,
+  type Ocorrencia,
+  type Previsao,
+} from '../../services/api';
 import { horaSaoPaulo, indiceEmGraus } from '../../services/hora';
 
 function idParam(valor: string | string[] | undefined): string {
@@ -11,26 +19,29 @@ function idParam(valor: string | string[] | undefined): string {
 }
 
 export default function DetalheSala() {
-  const params = useLocalSearchParams<{ id: string }>();
+  const params = useLocalSearchParams<RotaParams['/salas/[id]']>();
   const id = idParam(params.id);
   const [sala, setSala] = useState<Ambiente | null>(null);
   const [previsao, setPrevisao] = useState<Previsao | null>(null);
+  const [ocorrencias, setOcorrencias] = useState<Ocorrencia[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
 
   const carregar = useCallback(() => {
     setCarregando(true);
     setErro(null);
-    Promise.all([listarAmbientes(), obterPrevisao(id)])
-      .then(([salas, prev]) => {
+    Promise.all([listarAmbientes(), obterPrevisao(id), listarOcorrencias(id)])
+      .then(([salas, prev, lista]) => {
         const encontrada = salas.find((item) => item.id === id);
         if (!encontrada) throw new Error('Sala não encontrada.');
         setSala(encontrada);
         setPrevisao(prev);
+        setOcorrencias(lista);
       })
       .catch((falha: unknown) => {
         setSala(null);
         setPrevisao(null);
+        setOcorrencias([]);
         setErro(falha instanceof Error ? falha.message : 'Não foi possível carregar a sala.');
       })
       .finally(() => setCarregando(false));
@@ -93,9 +104,26 @@ export default function DetalheSala() {
             </View>
           )}
 
+          <Text style={styles.secao}>Ocorrências</Text>
+          {ocorrencias.length === 0 ? (
+            <Text style={styles.meta}>Nenhuma ocorrência nesta sala.</Text>
+          ) : (
+            ocorrencias.map((item) => (
+              <View key={item.id} style={styles.bloco}>
+                <Text style={styles.acao}>{item.descricao}</Text>
+                <Text style={styles.meta}>{horaSaoPaulo(item.criadaEm)}</Text>
+              </View>
+            ))
+          )}
+
           <Pressable
             style={styles.botao}
-            onPress={() => router.push(`/salas/${sala.id}/ocorrencia`)}
+            onPress={() =>
+              router.push({
+                pathname: '/salas/[id]/ocorrencia',
+                params: { id: sala.id } satisfies RotaParams['/salas/[id]/ocorrencia'],
+              })
+            }
             accessibilityRole="button"
           >
             <Text style={styles.botaoTexto}>Registrar ocorrência</Text>

@@ -1,8 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import type { Professor } from '../domain/professor';
+
+export type { Professor };
 
 const CHAVE = 'professor';
-
-export type Professor = { nome: string; escola: string };
 
 export async function lerProfessor(): Promise<Professor | null> {
   const bruto = await AsyncStorage.getItem(CHAVE);

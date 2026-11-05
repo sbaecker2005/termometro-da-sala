@@ -12,6 +12,30 @@ export function validarOcorrencia(entrada: { descricao: string; temFoto: boolean
   return erros;
 }
 
+export type Ocorrencia = {
+  id: string;
+  ambienteId: string;
+  descricao: string;
+  criadaEm: string;
+};
+
+export function lerOcorrencias(valor: unknown): Ocorrencia[] {
+  if (!Array.isArray(valor)) throw new Error('resposta invalida');
+  return valor.map((item: unknown) => {
+    if (!item || typeof item !== 'object') throw new Error('resposta invalida');
+    const linha = item as Record<string, unknown>;
+    if (
+      typeof linha.id !== 'string' ||
+      typeof linha.ambienteId !== 'string' ||
+      typeof linha.descricao !== 'string' ||
+      typeof linha.criadaEm !== 'string'
+    ) {
+      throw new Error('resposta invalida');
+    }
+    return { id: linha.id, ambienteId: linha.ambienteId, descricao: linha.descricao, criadaEm: linha.criadaEm };
+  });
+}
+
 export function mensagemErroOcorrencia(erro: ErroOcorrencia): string {
   switch (erro) {
     case 'descricao-curta':

@@ -1,10 +1,12 @@
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { validarProfessor } from '../domain/professor';
+import type { RotaParams } from '../rotas';
 import { gravarProfessor, lerProfessor } from '../services/professor';
 
 export default function Identificacao() {
-  const { editar } = useLocalSearchParams<{ editar?: string }>();
+  const { editar } = useLocalSearchParams<RotaParams['/']>();
   const [nome, setNome] = useState('');
   const [escola, setEscola] = useState('');
   const [erro, setErro] = useState<string | null>(null);
@@ -34,12 +36,10 @@ export default function Identificacao() {
   }, [editar]);
 
   async function salvar() {
-    const professor = { nome: nome.trim(), escola: escola.trim() };
-    if (!professor.nome || !professor.escola) {
-      setErro('Informe o nome e a escola.');
-      return;
-    }
-    await gravarProfessor(professor);
+    const erro = validarProfessor(nome, escola);
+    setErro(erro);
+    if (erro) return;
+    await gravarProfessor({ nome: nome.trim(), escola: escola.trim() });
     router.replace('/salas');
   }
 

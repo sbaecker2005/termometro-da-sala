@@ -1,5 +1,8 @@
 import Constants from 'expo-constants';
+import { lerOcorrencias, type Ocorrencia } from '../domain/ocorrencia';
 import { ehNivel, type Nivel } from '../domain/nivel';
+
+export type { Ocorrencia };
 
 export type Ambiente = {
   id: string;
@@ -23,6 +26,15 @@ export type Previsao = {
 };
 
 export type FotoOcorrencia = { uri: string; nome: string; tipo: string };
+
+const ocorrenciasSimuladas: Ocorrencia[] = [];
+let sequenciaLocal = 0;
+
+// Hermes do Expo Go não implementa crypto.randomUUID.
+function idLocal(): string {
+  sequenciaLocal += 1;
+  return `${Date.now().toString(36)}-${sequenciaLocal}`;
+}
 
 const AMBIENTES: Ambiente[] = [
   {
@@ -218,13 +230,32 @@ export async function obterPrevisao(ambienteId: string): Promise<Previsao> {
   return lerPrevisao(await lerJson(resposta));
 }
 
+export async function listarOcorrencias(ambienteId: string): Promise<Ocorrencia[]> {
+  const { apiUrl, apiMock } = configuracao();
+  if (apiMock) return ocorrenciasSimuladas.filter((item) => item.ambienteId === ambienteId);
+  const resposta = await fetch(`${apiUrl}/ambientes/${encodeURIComponent(ambienteId)}/ocorrencias`);
+  // 404 é lista vazia: a rota pode ainda não existir e a sala pode não ter o recurso.
+  if (resposta.status === 404) return [];
+  if (!resposta.ok) throw new Error(`Não foi possível carregar as ocorrências (${resposta.status}).`);
+  return lerOcorrencias(await lerJson(resposta));
+}
+
 export async function registrarOcorrencia(entrada: {
   ambienteId: string;
   descricao: string;
   foto: FotoOcorrencia;
 }): Promise<{ id: string }> {
   const { apiUrl, apiMock } = configuracao();
-  if (apiMock) return { id: crypto.randomUUID() };
+  if (apiMock) {
+    const criada: Ocorrencia = {
+      id: idLocal(),
+      ambienteId: entrada.ambienteId,
+      descricao: entrada.descricao.trim(),
+      criadaEm: new Date().toISOString(),
+    };
+    ocorrenciasSimuladas.push(criada);
+    return { id: criada.id };
+  }
   const form = new FormData();
   form.append('ambienteId', entrada.ambienteId);
   form.append('descricao', entrada.descricao.trim());

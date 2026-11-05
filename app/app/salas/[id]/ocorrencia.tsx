@@ -3,6 +3,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
 import { Image, Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { mensagemErroOcorrencia, validarOcorrencia } from '../../../domain/ocorrencia';
+import type { RotaParams } from '../../../rotas';
 import { registrarOcorrencia, type FotoOcorrencia } from '../../../services/api';
 
 function idParam(valor: string | string[] | undefined): string {
@@ -10,7 +11,7 @@ function idParam(valor: string | string[] | undefined): string {
 }
 
 export default function NovaOcorrencia() {
-  const params = useLocalSearchParams<{ id: string }>();
+  const params = useLocalSearchParams<RotaParams['/salas/[id]/ocorrencia']>();
   const ambienteId = idParam(params.id);
   const [descricao, setDescricao] = useState('');
   const [foto, setFoto] = useState<FotoOcorrencia | null>(null);

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { validarOcorrencia } from './ocorrencia.ts';
+import { lerOcorrencias, validarOcorrencia } from './ocorrencia.ts';
 
 describe('validarOcorrencia', () => {
   it('aceita descrição no intervalo e com foto', () => {
@@ -16,5 +16,14 @@ describe('validarOcorrencia', () => {
 
   it('exige foto mesmo com texto válido', () => {
     assert.deepEqual(validarOcorrencia({ descricao: 'Janela emperrada', temFoto: false }), ['sem-foto']);
+  });
+});
+
+describe('lerOcorrencias', () => {
+  it('aceita a lista e recusa o que não tem os campos', () => {
+    const lista = [{ id: '1', ambienteId: 'sala-03', descricao: 'Ventilador parou', criadaEm: '2026-11-06T17:10:00Z' }];
+    assert.deepEqual(lerOcorrencias(lista), lista);
+    assert.throws(() => lerOcorrencias({}), /resposta invalida/);
+    assert.throws(() => lerOcorrencias([{ id: '1' }]), /resposta invalida/);
   });
 });

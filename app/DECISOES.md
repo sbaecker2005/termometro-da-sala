@@ -10,13 +10,13 @@ TypeScript fica com `"strict": true`. Os modelos da API, os níveis e as respost
 
 ## Identificação no aparelho
 
-O nome e a escola não são conta e não vão para a API. `AsyncStorage` guarda os dois e a tela inicial lê isso ao abrir. Se já existe, o app segue para as salas. O botão Professor reabre o formulário. É o menor persistência que sobrevive a fechar o Expo Go.
+O nome e a escola não são conta e não vão para a API. A regra (os dois preenchidos, já sem espaço nas pontas) fica em `domain/professor.ts`. `AsyncStorage` guarda os dois e a tela inicial lê isso ao abrir. Se já existe, o app segue para as salas. O botão Professor reabre o formulário. É o menor persistência que sobrevive a fechar o Expo Go.
 
 ## API e modo simulado
 
-A API ainda está sendo feita, então o app não pode depender dela para a demonstração. `app.config.ts` lê `EXPO_PUBLIC_API_URL` (padrão `http://localhost:5080`) e `EXPO_PUBLIC_API_MOCK` (padrão ligado). Com o mock desligado, `services/api.ts` chama `GET /ambientes`, `GET /ambientes/{id}/previsao` e `POST /ocorrencias` em multipart, nos formatos do contrato. A resposta é conferida campo a campo antes de entrar na tela: JSON inesperado vira erro com "tentar de novo", em vez de quebrar a lista.
+A API ainda está sendo feita, então o app não pode depender dela para a demonstração. `app.config.ts` lê `EXPO_PUBLIC_API_URL` (padrão `http://localhost:5080`) e `EXPO_PUBLIC_API_MOCK` (padrão ligado). Com o mock desligado, `services/api.ts` chama `GET /ambientes`, `GET /ambientes/{id}/previsao`, `GET /ambientes/{id}/ocorrencias` e `POST /ocorrencias` em multipart, nos formatos do contrato. A resposta é conferida campo a campo antes de entrar na tela: JSON inesperado vira erro com "tentar de novo", em vez de quebrar a lista. O `GET` de ocorrências trata 404 como lista vazia.
 
-O mock devolve cinco salas, uma de cada nível e uma sem leituras recentes. A sala 3 vem com `demonstracao: true`, no mesmo exemplo do contrato (rua 34, delta 4, sala 38). O `POST` simulado devolve um id e não guarda a foto.
+O mock devolve cinco salas, uma de cada nível e uma sem leituras recentes. A sala 3 vem com `demonstracao: true`, no mesmo exemplo do contrato (rua 34, delta 4, sala 38). O `POST` simulado devolve um id local (data e contador; o Hermes do Expo Go não tem `crypto.randomUUID`) e guarda descrição e horário em memória, para o detalhe da sala. A foto não fica guardada.
 
 ## Níveis
 
@@ -40,4 +40,4 @@ A validação e a conversão de nível rodam com `node --test` e a leitura de Ty
 
 ## O que ficou de fora
 
-Notificação quando a sala entra em cuidado extremo e a tela de leitura manual do termo-higrômetro estão na coluna "se sobrar tempo" do plano, não neste degrau. Rotas tipadas do Expo ficaram desligadas: elas geram arquivo na primeira execução do bundler e atrapalhariam o `tsc` limpo de quem só clonou o repositório.
+Notificação quando a sala entra em cuidado extremo e a tela de leitura manual do termo-higrômetro estão na coluna "se sobrar tempo" do plano, não neste degrau. Rotas tipadas do Expo ficaram desligadas: elas geram arquivo na primeira execução do bundler e atrapalhariam o `tsc` limpo de quem só clonou o repositório. Os parâmetros de `router.push` e `useLocalSearchParams` usam o tipo `RotaParams` em `rotas.ts`.

@@ -4,6 +4,7 @@ import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from '
 import { RotuloNivel } from '../../components/RotuloNivel';
 import { listarAmbientes, type Ambiente } from '../../services/api';
 import { horaSaoPaulo, indiceEmGraus } from '../../services/hora';
+import type { RotaParams } from '../../rotas';
 import { lerProfessor, type Professor } from '../../services/professor';
 
 export default function Salas() {
@@ -37,7 +38,10 @@ export default function Salas() {
         options={{
           title: 'Salas',
           headerRight: () => (
-            <Pressable onPress={() => router.push({ pathname: '/', params: { editar: '1' } })} accessibilityRole="button">
+            <Pressable
+              onPress={() => router.push({ pathname: '/', params: { editar: '1' } satisfies RotaParams['/'] })}
+              accessibilityRole="button"
+            >
               <Text style={styles.linkCabecalho}>Professor</Text>
             </Pressable>
           ),
@@ -69,7 +73,9 @@ export default function Salas() {
           renderItem={({ item }) => (
             <Pressable
               style={styles.cartao}
-              onPress={() => router.push(`/salas/${item.id}`)}
+              onPress={() =>
+                router.push({ pathname: '/salas/[id]', params: { id: item.id } satisfies RotaParams['/salas/[id]'] })
+              }
               accessibilityRole="button"
               accessibilityLabel={`${item.nome}, ${item.nivelAtual}, ${indiceEmGraus(item.indiceAtual)}`}
             >
