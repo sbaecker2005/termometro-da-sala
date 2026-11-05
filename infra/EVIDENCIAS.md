@@ -41,9 +41,10 @@ Get-ADUser coordenador -Properties Enabled,MemberOf | Select-Object SamAccountNa
 Get-ADUser admin.termometro -Properties Enabled,MemberOf | Select-Object SamAccountName,Enabled,MemberOf
 Get-ADGroupMember Coordenacao
 Get-ADGroupMember AdminsTermometro
+Get-ADGroupMember -Identity S-1-5-32-555
 ```
 
-Print/saída: [colar]. Esperado: termometro.local, contas habilitadas, associações corretas e cliente no domínio.
+Print/saída: [colar]. Esperado: termometro.local, contas habilitadas, associações corretas, `AdminsTermometro` (e não `Coordenacao`) em `Remote Desktop Users` e cliente no domínio.
 
 ## E04 — IIS e dependências (2 pontos com E05/E06)
 
@@ -108,7 +109,7 @@ Get-Acl C:\Dados\Termometro\Fotos -Audit | Select-Object -ExpandProperty Audit
 Get-NetFirewallRule -Name TermometroRDP | Get-NetFirewallAddressFilter
 ```
 
-Print/saída: [colar]. Print GPMC com link/escopo, direito RDP exclusivo para AdminsTermometro, NLA, inatividade 600 s e auditoria avançada sucesso/falha: [colar]. RDP autorizado e coordenador recusado; Security 4624/4625 e falha de acesso à foto 4656; sucesso de modificação real 4663: [colar]. Confirme ausência de outra regra de firewall que amplie RDP: [preencher].
+Print/saída: [colar]. Print GPMC com link/escopo, direito RDP exclusivo para AdminsTermometro (e, no `gpresult /h`, a GPO que venceu esse direito no DC), NLA, inatividade 600 s e auditoria avançada sucesso/falha: [colar]. RDP autorizado e coordenador recusado; Security 4624/4625 e falha de acesso à foto 4656; 4663 com `WriteData` no envio da foto pela API e com `ReadData` na leitura por `GET /ocorrencias/{id}/foto`: [colar]. Confirme ausência de outra regra de firewall que amplie RDP: [preencher].
 
 ## E08 — DFS e acesso remoto
 
@@ -166,4 +167,4 @@ Não marque E13 só com o processo no ar. As duas URLs, a migração e uma leitu
 - [ ] Sintaxe dos nove scripts aprovada e ensaio completo na VM.
 - [ ] RDS mínimo confirmado com professor, ou implantação completa evidenciada.
 - [ ] Vídeo acessível, duração até 7 min e fluxo real completo.
-- [ ] Um integrante enviou o link no Teams até 19/11 às 23h55.
+- [ ] Um integrante enviou o formulário de entrega (link do repositório e do vídeo) até 19/11 às 23h55.

@@ -12,15 +12,18 @@ if ((Get-Service 'MSSQL$SQLEXPRESS').Status -ne 'Running') { throw 'Instale e in
 $connection = [System.Data.SqlClient.SqlConnection]::new("Server=$Instance;Database=master;Integrated Security=True;Encrypt=True;TrustServerCertificate=True")
 try {
     $connection.Open()
+    # Dois lotes: USE no mesmo lote do CREATE DATABASE falha com o erro 911 (banco ainda nao existe na compilacao).
     $command = $connection.CreateCommand()
     $command.CommandText = @"
 IF DB_ID(N'$Database') IS NULL CREATE DATABASE [$Database];
 IF SUSER_ID(N'IIS APPPOOL\$Pool') IS NULL CREATE LOGIN [IIS APPPOOL\$Pool] FROM WINDOWS;
-USE [$Database];
+"@
+    [void]$command.ExecuteNonQuery()
+    $connection.ChangeDatabase($Database)
+    $command.CommandText = @"
 IF USER_ID(N'IIS APPPOOL\$Pool') IS NULL CREATE USER [IIS APPPOOL\$Pool] FOR LOGIN [IIS APPPOOL\$Pool];
 IF IS_ROLEMEMBER(N'db_datareader', N'IIS APPPOOL\$Pool') <> 1 ALTER ROLE db_datareader ADD MEMBER [IIS APPPOOL\$Pool];
 IF IS_ROLEMEMBER(N'db_datawriter', N'IIS APPPOOL\$Pool') <> 1 ALTER ROLE db_datawriter ADD MEMBER [IIS APPPOOL\$Pool];
-SELECT DB_NAME() AS Banco;
 "@
     [void]$command.ExecuteNonQuery()
     if ($MigrationScript) {
@@ -29,7 +32,6 @@ SELECT DB_NAME() AS Banco;
         if ([string]::IsNullOrWhiteSpace($sql)) { throw 'Script de migracao vazio.' }
         # shortcut: so reconhece GO sozinho na linha, gere de novo se o EF emitir GO com contagem.
         $lotes = [regex]::Split($sql, '(?m)^\s*GO\s*$')
-        $connection.ChangeDatabase($Database)
         $migracao = $connection.CreateCommand()
         $migracao.CommandTimeout = 180
         $n = 0
@@ -48,7 +50,7 @@ SELECT DB_NAME() AS Banco;
         $reader.Close()
         # shortcut: confere so Inicial, Enums e SegredosPorDispositivo, inclua o id quando houver outra migracao.
         foreach ($id in '20261105025544_Inicial','20261105033613_Enums','20261105050515_SegredosPorDispositivo') {
-            if ($ids -notcontains $id) { throw "Historico sem $id. Veja o erro 1785 no README da API." }
+            if ($ids -notcontains $id) { throw "Historico sem $id. Gere o script de novo a partir do ramo atual (README, passo 5)." }
         }
         Write-Host ("Migracoes: " + ($ids -join ', '))
     }

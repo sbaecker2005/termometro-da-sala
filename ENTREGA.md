@@ -43,7 +43,7 @@ Antes de enviar, abra o ZIP e confira que existem `app/assets/icon.png`, `app/ap
 README com execução, descrição e nomes: `api/README.md`.
 
 - [ ] Preencher o RM em `api/README.md`
-- [ ] Rodar a coleção do Insomnia e guardar os prints (a pasta `api/evidencias/` ainda não existe)
+- [ ] Rodar o banco e a coleção do Insomnia e colar cada print no campo dele em `api/evidencias/README.md` (a pasta já tem `dotnet-test.txt` e o script das migrações)
 - [ ] Enviar o link no Teams
 
 ## Cybersecurity
@@ -52,10 +52,10 @@ README com execução, descrição e nomes: `api/README.md`.
 
 | Item | Pontos | Onde |
 |---|---:|---|
-| Mapeamento de ativos e ameaças | 2,5 | `seguranca/RELATORIO-RISCOS.md`, seções 2 e 3 |
-| Análise de vulnerabilidades e riscos | 3,0 | seções 3 e 4 |
-| Definição de controles | 2,5 | seção 5 |
-| Evidências técnicas | 2,0 | seção 5, `seguranca/EVIDENCIAS.md` e `seguranca/evidencias/` |
+| Mapeamento de ativos e ameaças | 2,5 | `seguranca/RELATORIO-RISCOS.md`, seções 3 (ativos) e 4 (ameaças) |
+| Análise de vulnerabilidades e riscos | 3,0 | seções 4 (vulnerabilidades e OSINT) e 5 (matriz de risco) |
+| Definição de controles | 2,5 | seção 6 |
+| Evidências técnicas | 2,0 | seção 8, `seguranca/EVIDENCIAS.md` e `seguranca/evidencias/` |
 
 - [ ] Preencher o RM no relatório
 - [ ] Na VM: nmap, IIS, GPO e os prints que o roteiro marca como pendentes
@@ -97,7 +97,7 @@ Get-Content (Join-Path $teste 'desktop\integrantes.txt') -Encoding UTF8
 
 Se o build falhar, ou se o autoteste não devolver `0`, ou se o `integrantes.txt` ainda tiver o marcador de preenchimento, o ZIP não vai.
 
-## IA e Machine Learning
+## Inteligência Artificial & Machine Learning
 
 **Enviar:** o notebook `ml/termometro_da_sala.ipynb`, o link do vídeo de até 2 min e o link do repositório, na mesma tarefa. Roteiro: `ml/ROTEIRO-VIDEO.md`.
 
@@ -116,7 +116,7 @@ Pasta de ML (README, dataset INMET A701, modelo.json): https://github.com/sbaeck
 | Preparação e análise | 2,0 | seções 2 e 3 do notebook |
 | Modelo e treino | 3,0 | seção 4 do notebook e `ml/modelo.json` |
 | Avaliação com métrica | 2,0 | tabela de MAE e F1 no README e no notebook |
-| Integração na solução | 1,0 | `api/TermometroDaSala.Api/modelo/modelo.json`, previsão no app e no desktop |
+| Integração na solução | 1,0 | `api/TermometroDaSala.Api/modelo/modelo.json`, aplicado pela API e conferido no teste `PrevisorModeloTestes` (26,97 °C, igual à seção 6); previsão no app e no desktop |
 
 - [ ] Preencher o RM no README, no notebook e em `ml/gerar_notebook.py` (gerar o notebook de novo depois, para os dois não divergirem)
 - [ ] Gravar o vídeo e colar o link no texto acima
@@ -154,12 +154,12 @@ Pasta de ML (README, dataset INMET A701, modelo.json): https://github.com/sbaeck
 - [ ] Montar a VM e preencher `infra/EVIDENCIAS.md` (prints, PIDs, IP, data)
 - [ ] Preencher a equipe e os RMs no README e em `infra/EVIDENCIAS.md`
 - [ ] Gravar o vídeo de até 7 min e publicar o link com acesso liberado ao professor
-- [ ] Trocar os campos `[preencher]` do bloco abaixo pelos valores reais do `infra/EVIDENCIAS.md`
+- [ ] Trocar os campos com o marcador de preencher do bloco abaixo pelos valores reais do `infra/EVIDENCIAS.md`
 - [ ] Preencher e enviar o formulário, um integrante
 
 ### Respostas do formulário
 
-Os campos com valor fixo vêm dos scripts e do `infra/README.md`. Os que dependem da VM ou da equipe estão com `[preencher]` e saem do `infra/EVIDENCIAS.md` depois do ensaio. Se o formulário perguntar algo que não está aqui, a resposta vem do mesmo README, e nenhuma resposta leva senha, chave da coordenação, connection string ou segredo HMAC.
+Os campos com valor fixo vêm dos scripts e do `infra/README.md`. Os que dependem da VM ou da equipe estão com o marcador de preencher e saem do `infra/EVIDENCIAS.md` depois do ensaio. Se o formulário perguntar algo que não está aqui, a resposta vem do mesmo README, e nenhuma resposta leva senha, chave da coordenação, connection string ou segredo HMAC.
 
 | Campo | Resposta |
 |---|---|
@@ -216,10 +216,10 @@ Os campos com valor fixo vêm dos scripts e do `infra/README.md`. Os que depende
 
 ## Testing (TOGAF) e pitch
 
-**Enviar:** quatro coisas, na mesma tarefa do Teams. O pitch de até 4 min entra nesta disciplina. Roteiro do pitch: `arquitetura/PITCH.md`.
+**Enviar:** quatro coisas, na mesma tarefa do Teams. O pitch de até 4 min entra nesta disciplina. Roteiro do pitch, com 3min30s: `arquitetura/PITCH.md`.
 
-1. O modelo ArchiMate: `arquitetura/termometro-da-sala.archimate`, o arquivo que abre no Archi.
-2. Um PNG por visão (motivação, negócios, aplicação e tecnologia, e as demais visões que o modelo tiver), exportado do Archi pelo menu de exportar a visão como imagem. Hoje o repositório tem só `arquitetura/diagrama-archi.png`, com todas as camadas juntas.
+1. O modelo ArchiMate: `arquitetura/termometro-da-sala.archimate`, o arquivo que abre no Archi. Ele tem cinco visões: Motivação, Negócio, Aplicação, Tecnologia e "Visão em quatro camadas", que junta as quatro.
+2. Um PNG por visão, exportado no Archi com a visão aberta (**File > Export > View As Image**, formato PNG): `visao-motivacao.png`, `visao-negocio.png`, `visao-aplicacao.png` e `visao-tecnologia.png`, todos em `arquitetura/`. A visão em quatro camadas já está em `arquitetura/diagrama-archi.png`. Antes de exportar, abra cada visão e confira que nenhuma linha passa por cima do nome de um elemento; se passar, arraste o elemento, salve o modelo e exporte.
 3. O PDF do documento descritivo, exportado de `arquitetura/DOCUMENTO.md`, com capa (projeto, equipe com nome e RM, disciplina) e as imagens das visões em PNG. Imagem SVG costuma sumir na exportação; por isso o PDF usa os PNGs.
 4. O link do pitch no YouTube, como não listado, testado numa aba anônima.
 
@@ -227,99 +227,44 @@ Nenhum desses quatro pode ir com o marcador de preenchimento. O `.md` não subst
 
 | Item | Peso | Onde |
 |---|---:|---|
-| Visão da arquitetura (motivação) | 20% | `arquitetura/DOCUMENTO.md` seção 4.1; `arquitetura/diagrama.svg`; `termometro-da-sala.xml` |
-| Visão de negócios | 20% | seção 4.2 |
-| Visão de sistemas | 20% | seção 4.3 |
-| Visão de infraestrutura | 20% | seção 4.4 |
+| Visão da arquitetura (motivação) | 20% | visão "Motivação" no `.archimate` e `visao-motivacao.png`; `arquitetura/DOCUMENTO.md` seção 4.1 |
+| Visão de negócios | 20% | visão "Negócio" e `visao-negocio.png`; seção 4.2 |
+| Visão de sistemas | 20% | visão "Aplicação" e `visao-aplicacao.png`; seção 4.3, com a parte de dados |
+| Visão de infraestrutura | 20% | visão "Tecnologia" e `visao-tecnologia.png`; seção 4.4 |
 | Nome do projeto, equipe (nome e RM) e problema | 10% | abertura de `arquitetura/DOCUMENTO.md` e `arquitetura/PITCH.md` |
 | Público e estimativa de impacto, com fonte | 10% | seção 7 de `arquitetura/DOCUMENTO.md` |
 
 - [ ] Fazer a entrevista e colocar a fala no pitch e o piloto da escola na seção 7
 - [ ] Preencher os RMs em `arquitetura/DOCUMENTO.md` e `arquitetura/PITCH.md`
-- [ ] Exportar do Archi um PNG por visão
+- [ ] Abrir o `.archimate` no Archi e exportar os quatro PNGs das visões, com os nomes do item 2
+- [ ] Na "Visão em quatro camadas", afastar as linhas que cortam "Protocolo de calor" e "ODS 13.1" e exportar de novo o `diagrama-archi.png`
+- [ ] Trocar o marcador das imagens na seção 4 do `DOCUMENTO.md` pelas imagens exportadas
 - [ ] Exportar o PDF do documento com os PNGs
-- [ ] Gravar o pitch de até 4 min e publicar no YouTube como não listado
+- [ ] Cronometrar o ensaio do pitch (meta 3min30s; se passar de 3min40s, cortar na demonstração), gravar e publicar no YouTube como não listado
 - [ ] Enviar `.archimate`, PNGs, PDF e link do YouTube no Teams
 
 ## Campos ainda em branco
 
-O marcador de RM, link e ensaio é a palavra preencher entre colchetes. O de bairro, na ficha, é a expressão bairro da escola entrevistada entre colchetes. O de print no roteiro da VM é a palavra colar entre colchetes. Fora o texto da tarefa de ML e o bloco de respostas do formulário de OS, este arquivo só aponta a linha; não é um campo para preencher.
+Todo campo em aberto tem um marcador entre colchetes: a palavra preencher (RM, link, data, resultado), a palavra colar ou a palavra inserir (print), e os marcadores da entrevista (bairro da escola entrevistada, pessoa entrevistada, nome da escola, frase, nome, função, escola, número de salas e de turnos). Neste arquivo, só o texto da tarefa de ML e o bloco de respostas do formulário de OS são campos a preencher.
 
-### RM
+As linhas mudam a cada edição, por isso a tabela abaixo aponta o arquivo, e o comando dá a linha. Rode no Windows PowerShell, na raiz do repositório, antes de cada envio. Uma disciplina só é enviada quando o comando não devolve nenhuma linha dos arquivos dela.
 
-- `api/README.md:21`
-- `app/package.json:7`
-- `desktop/README.md:23` (também o espaço dos demais integrantes, se houver)
-- `desktop/integrantes.txt:2`
-- `esp32/integrantes.txt:1`
-- `ml/README.md:17`
-- `ml/gerar_notebook.py:20`
-- `ml/termometro_da_sala.ipynb:20`
-- `infra/README.md:17`
-- `infra/EVIDENCIAS.md:5`
-- `seguranca/RELATORIO-RISCOS.md:6`
-- `arquitetura/DOCUMENTO.md:5`
-- `arquitetura/PITCH.md:17` (também os demais integrantes)
-- `arquitetura/PITCH.md:61`
-- `arquitetura/PITCH.md:62` (demais integrantes e RM, sem a palavra preencher)
+```powershell
+Get-ChildItem -Recurse -File |
+  Where-Object { $_.FullName -notmatch '\\(node_modules|bin|obj|\.git|\.expo|dist)\\' -and $_.Extension -notin '.sql', '.png' } |
+  Select-String -CaseSensitive -Pattern '\[(preencher|colar|inserir|bairro|pessoa entrevistada|nome da escola|nº de|alunos por dia|Frase|Demais|Espaço|Nome\]|função\]|escola\])' |
+  ForEach-Object { '{0}:{1}  {2}' -f (Resolve-Path -Relative $_.Path), $_.LineNumber, $_.Line.Trim() }
+```
 
-### Bairro
-
-- `README.md:10`
-- `api/README.md:10`
-- `app/README.md:10`
-- `desktop/README.md:8`
-- `esp32/README.md:8`
-- `ml/README.md:8`
-- `infra/README.md:8`
-- `seguranca/README.md:8`
-- `arquitetura/README.md:8`
-- `arquitetura/DOCUMENTO.md:12`
-- `docs/PLANO.md:49`
-- `arquitetura/PITCH.md:23` e `arquitetura/PITCH.md:71` (bairro na fala e no slide, junto da pessoa)
-
-### Pessoa entrevistada
-
-- `desktop/README.md:21`
-- `arquitetura/PITCH.md:23`
-- `arquitetura/PITCH.md:70`
-- `arquitetura/PITCH.md:71`
-- `arquitetura/DOCUMENTO.md:169` (número de salas, turnos e alunos da escola)
-
-### Prints
-
-Marcador colar, o espaço do print em `infra/EVIDENCIAS.md`. Onde a linha tem mais de um, o arquivo entra uma vez:
-
-- `infra/EVIDENCIAS.md:23`
-- `infra/EVIDENCIAS.md:34`
-- `infra/EVIDENCIAS.md:46`
-- `infra/EVIDENCIAS.md:64`
-- `infra/EVIDENCIAS.md:74`
-- `infra/EVIDENCIAS.md:84`
-- `infra/EVIDENCIAS.md:98`
-- `infra/EVIDENCIAS.md:111`
-- `infra/EVIDENCIAS.md:121`
-- `infra/EVIDENCIAS.md:130`
-- `infra/EVIDENCIAS.md:134`
-- `infra/EVIDENCIAS.md:145`
-- `infra/EVIDENCIAS.md:154`
-- `infra/EVIDENCIAS.md:158`
-
-Marcador preencher no que o print precisa anotar, no mesmo arquivo:
-
-- `infra/EVIDENCIAS.md:74` (ACL dos filhos)
-- `infra/EVIDENCIAS.md:111` (firewall)
-- `infra/EVIDENCIAS.md:130` (limites restaurados)
-- `infra/EVIDENCIAS.md:134` (PIDs, horários, confirmação e Rapid-Fail)
-- `infra/EVIDENCIAS.md:145` (PID e o que fazer se a recuperação falhar)
-- `infra/EVIDENCIAS.md:158` (origem dos dados)
-
-### Link e ensaio que não são print
-
-- `desktop/integrantes.txt:3` (link)
-- `arquitetura/DOCUMENTO.md:16` (link)
-- `infra/EVIDENCIAS.md:6` (data do ensaio)
-- `infra/EVIDENCIAS.md:7` (versão do Windows e hipervisor)
-- `infra/EVIDENCIAS.md:8` (IP)
-- `infra/EVIDENCIAS.md:9` (link do repositório e do vídeo)
-- `infra/EVIDENCIAS.md:10` (se o professor exigiu RDS)
+| Disciplina | Arquivos | O que falta |
+|---|---|---|
+| Todas | `README.md` e o README de cada pasta | Bairro da escola entrevistada, na ficha |
+| SOA | `api/README.md`, `api/evidencias/README.md` | RM; prints do banco (B1 a B5), do Insomnia (1 a 10) e das telas (T1 e T2) |
+| Cybersecurity | `seguranca/RELATORIO-RISCOS.md`, `seguranca/EVIDENCIAS.md`, `seguranca/evidencias/osint.txt` | RMs dos integrantes; os 15 prints, de E01 a E15; a saída e a data da busca no histórico do repositório, em `osint.txt` |
+| C# Windows Forms | `desktop/README.md`, `desktop/integrantes.txt` | RM e demais integrantes; pessoa entrevistada e relato; prints das telas; link do pull request |
+| Machine Learning | `ml/README.md`, `ml/gerar_notebook.py`, `ml/termometro_da_sala.ipynb` e o texto da tarefa, acima | RM (gerar o notebook de novo depois); link do vídeo |
+| Mobile e IoT | `app/package.json`, `app/README.md` | RM e demais integrantes |
+| Operating Systems | `infra/README.md`, `infra/EVIDENCIAS.md` e o bloco do formulário, acima | Equipe e RMs; data do ensaio, versão do Windows, hipervisor, IP, links do repositório e do vídeo, exigência de RDS; os prints e o que cada um anota (ACL, firewall, limites restaurados, PIDs, horários, Rapid-Fail, origem dos dados) |
+| Physical Computing | `esp32/integrantes.txt`, `esp32/README.md` | Nomes completos e RMs; link do Wokwi e do vídeo; resultado de cada passo do roteiro de simulação |
+| Testing (TOGAF) e pitch | `arquitetura/DOCUMENTO.md`, `arquitetura/PITCH.md`, `arquitetura/README.md` | RMs; as quatro imagens das visões; salas, turnos e alunos por dia da escola do piloto; data de acesso das referências 7 e 8; fala, frase, nome, função e escola da pessoa entrevistada; demais integrantes no slide 1 |
+| Planejamento | `docs/PLANO.md` | Bairro da escola entrevistada |

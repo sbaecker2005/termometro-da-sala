@@ -42,7 +42,7 @@ ASPNETCORE_ENVIRONMENT=Demo dotnet run --project TermometroDaSala.Api --launch-p
 
 No PowerShell: `$env:ASPNETCORE_ENVIRONMENT="Demo"`.
 
-O assinante MQTT conecta em `broker.hivemq.com:1883`, tópico `fiap-gs/termometro-da-sala/leituras` (configurável em `Mqtt`). Para desligar: `Mqtt__Desligado=true`.
+O assinante MQTT conecta em `broker.hivemq.com:1883`, tópico `fiap-gs/termometro-da-sala/leituras` (configurável em `Mqtt`). Para desligar: `Mqtt__Desligado=true`. Mensagem acima de 1024 bytes é descartada antes de ler o JSON (uma leitura assinada tem cerca de 250 bytes).
 
 Semente: salas `sala-01` a `sala-04`, dispositivo `esp32-sala-0N` em cada uma, segredo de demonstração `segredo-de-teste-sala-0N` (a sala 03 continua com o vetor público do contrato). Cada um é revogável por `POST /dispositivos/{id}/revogar`. Não é segredo de produção.
 
@@ -57,9 +57,9 @@ As rotas de escrita (`POST /ambientes`, `/acoes`, `/leituras`, `/ocorrencias`, `
 | GET | `/ambientes` | Salas com nível e índice atuais, `temVentilador` e `dispositivoId` (null sem sensor) |
 | POST | `/ambientes` | Cadastra sala sem criar ou vincular um sensor. Exige `X-Chave-Coordenacao` |
 | GET | `/ambientes/{id}/leituras` | Leituras em JSON. `?formato=csv` devolve CSV |
-| GET | `/ambientes/{id}/previsao` | Rua daqui a 2 h, delta da sala e nível previsto |
+| GET | `/ambientes/{id}/previsao` | Rua daqui a 2 h, delta da sala e nível previsto. Sem rua, usa a última leitura válida da sala (`ruaDisponivel: false`); 503 sem rua e sem leitura válida recente |
 | POST | `/leituras` | Mesma leitura assinada do MQTT |
-| POST | `/ocorrencias` | Multipart: `ambienteId`, `descricao`, `foto` JPEG até 5 MB. A API regrava o JPEG sem o segmento APP1 (EXIF) |
+| POST | `/ocorrencias` | Multipart: `ambienteId`, `descricao`, `foto` JPEG até 5 MB. Exige a estrutura de um JPEG (quadro SOF com altura e largura e início da varredura SOS); os pixels não são decodificados. A API regrava o JPEG sem o segmento APP1 (EXIF) |
 | GET | `/ocorrencias/{id}/foto` | A foto da ocorrência, só pelo id |
 | GET | `/acoes?dia=AAAA-MM-DD` | Ações do dia civil de São Paulo; data ausente/inválida retorna 400 |
 | POST | `/acoes` | Ação tomada: `ambienteId`, `nivel`, `descricao`. Exige `X-Chave-Coordenacao` |
@@ -74,7 +74,7 @@ As rotas de escrita (`POST /ambientes`, `/acoes`, `/leituras`, `/ocorrencias`, `
   "assinatura": "2f7c847dc59835d4a9bacbf9f4b642af0cc563cbf1bf90efb91d127f38297ba0" }
 ```
 
-O `medidoEm` de uma leitura real precisa estar a no máximo 10 min do relógio do servidor. Recusa com `{ "motivo": "..." }`: `assinatura-invalida`, `reenvio`, `dispositivo-revogado`, `atrasada`, `fora-da-faixa`. Salto maior que 5 °C, ou sala mais de 8 °C abaixo da rua num dia acima de 30 °C, grava com `suspeita: true` e fica fora da previsão.
+O `medidoEm` de uma leitura real precisa estar a no máximo 10 min do relógio do servidor. Recusa com `{ "motivo": "..." }`: `assinatura-invalida`, `reenvio`, `dispositivo-revogado`, `atrasada`, `fora-da-faixa`. Salto maior que 5 °C, ou sala mais de 8 °C abaixo da rua num dia acima de 30 °C, grava com `suspeita: true` e fica fora da previsão. A regra da rua só vale com leitura da rua medida no mesmo instante: no Demo a rua é um dia de exemplo reproduzido e não marca o sensor ao vivo como suspeito.
 
 A coleção do Insomnia está em [insomnia.json](insomnia.json).
 
@@ -84,9 +84,11 @@ O índice de calor é o da NOAA (Rothfusz), em °C com 1 casa. Faixas: abaixo de
 
 O delta é a média de (índice da sala − índice da rua) nas últimas 3 h, com no mínimo 3 pares no mesmo instante UTC, sem as leituras suspeitas. A previsão da sala é o índice da rua daqui a 2 h mais o delta. Sem pares suficientes, `deltaSala` e `indiceSalaPrevisto` vêm `null` e `semLeiturasRecentes` vem `true`: mostra-se só a rua.
 
-A rua daqui a 2 h vem da árvore de regressão em `TermometroDaSala.Api/modelo/modelo.json` (cópia de `ml/modelo.json`, profundidade 8 e folha mínima 30, treinada no notebook com o horário do INMET, estação A701, 2022–2025). No teste de 2025 o MAE foi 0,958 °C, contra 1,442 °C do baseline "daqui a 2 h = agora". O recall do nível "cuidado" ainda é baixo; a análise está em `ml/README.md`. O caminho fica em `Modelo:Caminho`. Sem o arquivo, ou com JSON inválido, a API repete o índice da rua de agora e registra no log.
+Fora do Demo nenhuma rotina grava `LeiturasRua`, então pode não haver rua. Nesse caso a API não inventa a rua nem devolve "normal" por falta de dado: `ruaDisponivel` vem `false`, `indiceSalaPrevisto` é o índice da última leitura válida da sala nas últimas 3 h (a hipótese é que a sala se mantenha), `nivelPrevisto` é o nível desse índice, `deltaSala` vem `null`, `semLeiturasRecentes` vem `false` e `indiceRuaPrevisto` vem `0`, sem significado. Sem rua e sem leitura válida recente, a rota responde 503 `{"motivo":"sem-dados-para-prever"}`. Testes: `SemRuaForaDoDemoAPrevisaoSegueASalaENaoDizNormal` e `DemoComRuaQuenteNaoMarcaSalaFrescaComoSuspeita`.
 
-No ambiente Demo, a rua vem de `demo/rua-dia-quente.csv` (dia quente de exemplo) projetado na hora local de São Paulo. `POST /demo/semear` lê `demo/leituras-simuladas.csv` e desloca a curva para terminar na última leitura ao vivo (`origem = dispositivo`), gravando as 3 h anteriores com `origem = simulada`.
+Fora do Demo, com a rua gravada em `LeiturasRua`, a rua daqui a 2 h vem da árvore de regressão em `TermometroDaSala.Api/modelo/modelo.json` (cópia de `ml/modelo.json`, profundidade 8 e folha mínima 30, treinada no notebook com o horário do INMET, estação A701, 2022–2025). No teste de 2025 o MAE foi 0,958 °C, contra 1,442 °C do baseline "daqui a 2 h = agora". O recall do nível "cuidado" ainda é baixo; a análise está em `ml/README.md`. O caminho fica em `Modelo:Caminho`. Sem o arquivo, ou com JSON inválido, a API repete o índice da rua de agora e registra no log. Como hoje nada grava `LeiturasRua`, a prova de que a API aplica o modelo é o teste `PrevisorModeloTestes`, com o mesmo vetor da seção 6 do notebook (26,97 °C).
+
+No ambiente Demo, a rua vem de `demo/rua-dia-quente.csv` (dia quente de exemplo) projetado na hora local de São Paulo; a rua daqui a 2 h é a hora do CSV duas horas à frente, sem o modelo. `POST /demo/semear` lê `demo/leituras-simuladas.csv` e desloca a curva para terminar na última leitura ao vivo (`origem = dispositivo`), gravando as 3 h anteriores com `origem = simulada`.
 
 Limitação: o delta assume que a diferença das últimas 3 h se mantém nas próximas 2 h. No fim da tarde ele tende a superestimar.
 
@@ -301,8 +303,9 @@ pessoais ou credenciais.
 dotnet test
 ```
 
-São 36 testes xUnit: vetores do contrato (HMAC, índice de calor, relógio de São Paulo),
-leitura do modelo de previsão, rotas da API e o esquema do banco. Os testes de rota usam
+São 40 testes xUnit: vetores do contrato (HMAC, índice de calor, relógio de São Paulo),
+leitura do modelo de previsão, rotas da API, previsão sem rua, limite do MQTT, estrutura do
+JPEG e o esquema do banco. Os testes de rota usam
 SQLite em memória; `EsquemaTestes` monta o modelo com o provedor do SQL Server, sem
 conectar, e confere as FKs e o script das migrações. A saída da última execução está em
 [evidencias/dotnet-test.txt](evidencias/dotnet-test.txt).

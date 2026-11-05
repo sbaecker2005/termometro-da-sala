@@ -35,9 +35,9 @@ Equipe (nome completo e RM de todos): [preencher].
 | Servidor | Windows Server 2022 (avaliação, Desktop Experience), VM isolada em Hyper-V ou VirtualBox |
 | Hostname e IP fixo | `SRV-TERMOMETRO`, `192.168.56.10/24` (exemplo do roteiro; o IP real fica em E01) |
 | Domínio e DNS | Floresta `termometro.local`; registro A `api.termometro.local` apontando para a VM; zona reversa com PTR |
-| Grupos | `Coordenacao` (`coordenador`) e `AdminsTermometro` (`admin.termometro`, único grupo com RDP) |
+| Grupos | `Coordenacao` (`coordenador`) e `AdminsTermometro` (`admin.termometro`, único grupo com RDP: membro de `Remote Desktop Users` e dono do direito na GPO) |
 | IIS | Site `Termometro` em `C:\Sites\Termometro`, pool `TermometroPool` (No Managed Code, AlwaysRunning, idle 0, preload), Hosting Bundle .NET 8, HTTPS 443 em `https://api.termometro.local/` |
-| Pasta privada | `C:\Dados\Termometro\Fotos`: entre as identidades da aplicação, só o pool tem Modify; SACL de auditoria; foto sai só por `GET /ocorrencias/{id}/foto` |
+| Pasta privada | `C:\Dados\Termometro\Fotos`: entre as identidades da aplicação, só o pool tem Modify; SACL de auditoria (leitura e gravação); foto sai só por `GET /ocorrencias/{id}/foto` |
 | Banco | SQL Server Express `.\SQLEXPRESS`, banco `Termometro`, login do pool só com `db_datareader` e `db_datawriter` |
 | Alertas (a cada 15 s) | CPU acima de 80%, disco C: abaixo de 15% livre, memória abaixo de 512 MB disponíveis (`Termometro-Alertas`) |
 | Recuperação | W3SVC: 3 reinícios com 5 s, contador zerado após 1 dia; pool: WAS sobe outro worker; Rapid-Fail Protection ligado |
@@ -45,7 +45,7 @@ Equipe (nome completo e RM de todos): [preencher].
 
 ## Escopo
 
-Roteiro para laboratório isolado, baseado em `docs/PLANO.md` e no briefing, páginas 32–34. Os scripts preparam serviços; as etapas gráficas de GPO, DFS, certificados e coletores também são obrigatórias. Execute em Windows PowerShell 5.1 **como administrador dentro da VM**, na sequência abaixo. Nunca execute estes scripts no computador pessoal.
+Roteiro para laboratório isolado, baseado no briefing, páginas 32–34. Os scripts preparam serviços; as etapas gráficas de GPO, DFS, certificados e coletores também são obrigatórias. Execute em Windows PowerShell 5.1 **como administrador dentro da VM**, na sequência abaixo. Nunca execute estes scripts no computador pessoal.
 
 A API em `api/` grava pela connection string `ConnectionStrings:Sala` (variável `ConnectionStrings__Sala`) e guarda a foto em `Fotos:Pasta` (`Fotos__Pasta`). A coordenação envia `ChaveCoordenacao` no cabeçalho `X-Chave-Coordenacao`. O painel está em `wwwroot` e abre em `/`; `GET /ambientes` lista as salas. `Banco:Migrar` existe e o padrão é `true` (a API migraria sozinha na subida). Os scripts 04 e 08 gravam `Banco__Migrar=false` no pool: em produção quem migra é o administrador, no passo 5.
 
@@ -95,9 +95,10 @@ Na primeira passagem, informe a senha DSRM e promova a floresta `termometro.loca
 Get-ADUser coordenador -Properties Enabled,MemberOf
 Get-ADGroupMember Coordenacao
 Get-ADGroupMember AdminsTermometro
+Get-ADGroupMember -Identity S-1-5-32-555
 ```
 
-`Coordenacao` recebe `coordenador`; `AdminsTermometro` recebe `admin.termometro`. Ambos devem trocar a senha no primeiro logon. Faça essa troca no console/cliente antes do primeiro RDP com NLA. O grupo de RDP não é Domain Admins: para instalar serviços, use a conta administrativa separada. A conta da coordenação não ganha acesso direto às fotos; o acesso de usuário deve passar pela aplicação.
+`Coordenacao` recebe `coordenador`; `AdminsTermometro` recebe `admin.termometro`. Ambos devem trocar a senha no primeiro logon. Faça essa troca no console/cliente antes do primeiro RDP com NLA. O script também põe `AdminsTermometro` no grupo interno `Remote Desktop Users` (SID `S-1-5-32-555`, o mesmo em qualquer idioma), que dá a permissão de conexão no listener RDP; sem ele o RDP é recusado mesmo com o direito da GPO do passo 6. `coordenador` fica fora desse grupo. O grupo de RDP não é Domain Admins: para instalar serviços, use a conta administrativa separada. A conta da coordenação não ganha acesso direto às fotos; o acesso de usuário deve passar pela aplicação.
 
 ## 4. File Server, IIS, pool e Hosting Bundle
 
@@ -149,11 +150,7 @@ Get-ChildItem Cert:\LocalMachine\Root | Where-Object Subject -eq 'CN=api.termome
 
 O `.cer` do `Export-Certificate` leva só a chave pública. Sem a importação em `Root`, o Windows não confia no certificado autoassinado e o `Invoke-WebRequest https://` dos scripts 08 e 09 para com erro de confiança antes de testar a aplicação. Na repetição, reutilize o certificado que já está em `Cert:\LocalMachine\My` em vez de criar outro. No cliente de laboratório, importe o mesmo `.cer` em Trusted Root Certification Authorities (`certlm.msc` ou o mesmo `Import-Certificate`) para o navegador abrir o painel sem aviso.
 
-No IIS Manager: site `Termometro` → Bindings → HTTPS 443, hostname `api.termometro.local`, SNI marcado e o certificado criado acima. Confira na VM, sem erro de certificado:
-
-```powershell
-(Invoke-WebRequest https://api.termometro.local/ambientes -UseBasicParsing).StatusCode
-```
+No IIS Manager: site `Termometro` → Bindings → HTTPS 443, hostname `api.termometro.local`, SNI marcado e o certificado criado acima. A prova HTTPS em `/ambientes` só funciona depois do banco (passo 5) e da publicação (passo 8); ela está no passo 8.
 
 O pool já recebe `ASPNETCORE_ENVIRONMENT=Production` e `ASPNETCORE_HTTPS_PORT=443` pelos scripts 04 e 08 (junto com a connection string, a pasta de fotos, a chave e `Banco__Migrar=false`). Não grave isso no `web.config` publicado: a próxima cópia apagaria, e a chave iria parar no backup. Não use Development nem Demo no servidor: Development abre o Swagger; Demo abre `POST /demo/semear`. Em Production essa rota responde 404.
 
@@ -191,7 +188,7 @@ Copie o arquivo para a VM e não o versione: ele repete o segredo HMAC de demons
 .\05-sql.ps1 -MigrationScript $env:TEMP\termometro-migracao.sql
 ```
 
-O script separa os lotes no `GO` e aplica no banco `Termometro` com a conta da sessão, não com o pool. A saída deve listar `20261105025544_Inicial`, `20261105033613_Enums` e `20261105050515_SegredosPorDispositivo`. Pode rodar de novo: o SQL é idempotente. Se o SQL Server recusar a migração Inicial com o erro 1785 (dois caminhos de cascata até `Leituras`), pare e leia a limitação no README da API; este script não altera as chaves estrangeiras. Sem `-MigrationScript`, o 05 só cria o banco e o login.
+O script separa os lotes no `GO` e aplica no banco `Termometro` com a conta da sessão, não com o pool. A saída deve listar `20261105025544_Inicial`, `20261105033613_Enums` e `20261105050515_SegredosPorDispositivo`. Pode rodar de novo: o SQL é idempotente. O banco é criado num comando e o usuário do pool em outro, já conectado ao banco `Termometro` (`ChangeDatabase`): `USE` no mesmo lote do `CREATE DATABASE` falharia com o erro 911. Sem `-MigrationScript`, o 05 só cria o banco e o login.
 
 ## 6. GPO, RDP e auditoria
 
@@ -200,9 +197,9 @@ O script separa os lotes no `GO` e aplica no banco `Termometro` com a conta da s
 gpmc.msc
 ```
 
-O script cria/vincula `Termometro-Seguranca` à raiz do domínio isolado, configura bloqueio de tela em 600 s, NLA, RDP e preferência de auditoria avançada; aplica política de senha do domínio (12 caracteres, complexidade, histórico 24, expiração 90 dias, bloqueio após 5 erros por 15 min) e SACL de Modify na pasta de fotos para sucesso/falha. Antes de abrir o firewall, conclua na GPMC:
+O script cria/vincula `Termometro-Seguranca` à raiz do domínio isolado, configura bloqueio de tela em 600 s, NLA, RDP e preferência de auditoria avançada; aplica política de senha do domínio (12 caracteres, complexidade, histórico 24, expiração 90 dias, bloqueio após 5 erros por 15 min) e SACL de Modify na pasta de fotos para sucesso/falha (Modify inclui ReadData, então leitura, gravação e exclusão geram evento). Antes de abrir o firewall, conclua na GPMC:
 
-1. Edite `Termometro-Seguranca` → Computer Configuration → Policies → Windows Settings → Security Settings → Local Policies → User Rights Assignment. Em **Allow log on through Remote Desktop Services**, defina **somente** `TERMOMETRO\AdminsTermometro`. Em **Deny log on through Remote Desktop Services**, inclua Guests. Direitos de negação têm prioridade: verifique que nenhuma outra GPO nega o grupo permitido. Em um DC, o direito explícito na GPO é essencial; não dependa de grupo local.
+1. Edite `Termometro-Seguranca` → Computer Configuration → Policies → Windows Settings → Security Settings → Local Policies → User Rights Assignment. Em **Allow log on through Remote Desktop Services**, defina **somente** `TERMOMETRO\AdminsTermometro`. Em **Deny log on through Remote Desktop Services**, inclua Guests. Direitos de negação têm prioridade: verifique que nenhuma outra GPO nega o grupo permitido. Em um DC, o direito explícito na GPO é essencial. São duas peças: este direito e a permissão de conexão de `Remote Desktop Users`, onde o `03-usuarios-grupos.ps1` pôs `AdminsTermometro`. A VM é DC: a Default Domain Controllers Policy, vinculada à OU Domain Controllers, vence a GPO da raiz. Em `gpresult /scope computer /h C:\GS\gpresult.html`, confira que o direito vem de `Termometro-Seguranca`; se vier da Default Domain Controllers Policy, defina nela o mesmo valor.
 2. Na mesma GPO, Advanced Audit Policy Configuration → Audit Policies → Logon/Logoff → Audit Logon: Success e Failure. Object Access → Audit File System: Success e Failure. Security Options → Audit: Force audit policy subcategory settings…: Enabled. O script habilita as duas subcategorias localmente para o ensaio; a configuração na GPO é necessária para persistência após atualização.
 3. Confirme na política de domínio efetiva os valores de senha/bloqueio. Caso uma GPO existente os sobreponha, ajuste a política de senha na **Default Domain Policy** pelos mesmos valores; não duplique políticas conflitantes. O bloqueio de tela por inatividade também vale para sessões administrativas, mesmo sem proteção de tela do usuário.
 4. Windows Defender Firewall with Advanced Security → Inbound Rules: permita TCP 3389 somente do IP do cliente de laboratório, perfil Domain/Private. Não habilite um conjunto de regras amplo sem verificar escopo. Regra de exemplo abaixo; substitua o IP. Desative eventuais regras permissivas de RDP preexistentes pelo console e confira também regras UDP. Não desative o firewall.
@@ -212,13 +209,14 @@ New-NetFirewallRule -Name TermometroRDP -DisplayName 'Termometro RDP cliente lab
 gpupdate /force
 Get-GPO -All
 Get-ADDefaultDomainPasswordPolicy
+Get-ADGroupMember -Identity S-1-5-32-555
 gpresult /r
 auditpol /get /subcategory:*
 ```
 
-Faça logoff/logon para regras de usuário e grupos. Do cliente autorizado, `admin.termometro` deve entrar via RDP e `coordenador` deve ser recusado, mesmo com senha correta. Não provoque cinco erros na conta de administração. Teste senha inválida uma vez com usuário de laboratório e registre 4625; sucesso gera 4624 (logon remoto tipo 10).
+Faça logoff/logon para regras de usuário e grupos. Do cliente autorizado, `admin.termometro` deve entrar via RDP e `coordenador` deve ser recusado, mesmo com senha correta (não tem o direito nem está em `Remote Desktop Users`). Não provoque cinco erros na conta de administração. Teste senha inválida uma vez com usuário de laboratório e registre 4625; sucesso gera 4624 (logon remoto tipo 10).
 
-SACL (aba Security → Advanced → Auditing) não concede acesso: complementa a DACL do passo 4. Quando o upload real existir, crie/remova uma foto pela API como pool: Security deve mostrar 4663 e, conforme a operação, 4656/4660. Para negação, tente gravar um arquivo como `coordenador`: deve falhar e gerar falha de acesso a objeto (4656). Correlacione usuário, caminho, operação e horário. Não use foto de pessoa nem dado real.
+SACL (aba Security → Advanced → Auditing) não concede acesso: complementa a DACL do passo 4. Registre uma ocorrência com foto pela API e abra a foto por `GET /ocorrencias/{id}/foto`: o pool grava e lê o arquivo, e Security deve mostrar 4663 com `WriteData` na gravação e `ReadData` na leitura (e 4660 se a foto for apagada). Para negação, tente gravar um arquivo como `coordenador`: deve falhar e gerar falha de acesso a objeto (4656). Correlacione usuário, caminho, operação e horário. Não use foto de pessoa nem dado real.
 
 ## 6a. DFS e RDS: mínimo demonstrável
 
@@ -291,6 +289,13 @@ As duas formas de leitura valem; use uma na prova.
 1. **NAT de saída.** A VM alcança `broker.hivemq.com` na porta TCP 1883. Não abra essa porta para dentro e não publique o broker. O assinante sobe com o pool (`Mqtt__Desligado` ausente ou `false`). No vídeo, uma leitura nova aparece em `/` depois que o worker volta.
 2. **Sem internet.** `.\04-iis.ps1 -MqttDesligado` e o mesmo switch no 08 (`Mqtt__Desligado=true`). A leitura entra por `POST /leituras` no Insomnia (`api/insomnia.json`), com o HMAC de demonstração. Desligue o simulador para não disputar o relógio. O painel em `/` lê `GET /ambientes` do mesmo site.
 
+Confira também à mão, na VM e sem erro de certificado:
+
+```powershell
+(Invoke-WebRequest https://api.termometro.local/ambientes -UseBasicParsing).StatusCode
+(Invoke-WebRequest https://api.termometro.local/ -UseBasicParsing).StatusCode
+```
+
 Abra `/` e `/ambientes`. O fluxo da proposta é sala, leitura, previsão, ocorrência ou ação, e o dado continua depois de reciclar o pool. A foto só sai por `GET /ocorrencias/{id}/foto`; não há URL direta para `C:\Dados\Termometro\Fotos`.
 
 ## 9. Teste de falha e entrega
@@ -323,7 +328,7 @@ O parser confere a sintaxe. O funcionamento na VM é comprovado pelas saídas e 
 - **Uma VM para tudo.** AD, DNS, arquivos, IIS e SQL ficam na mesma VM para caber no laboratório. É um ponto único de falha e não é arquitetura de produção. SQL no controlador de domínio tem restrições de conta de serviço: o roteiro usa a conta de domínio dedicada `svc.sql` (passo 5). Se o instalador recusar, o SQL vai para uma segunda VM membro, e a identidade do pool e o acesso ao banco precisam ser revistos (o login virtual local do 05 não serve para SQL remoto).
 - **Acesso remoto.** O demonstrado é RDP administrativo restrito a `AdminsTermometro`, que não é uma implantação de Remote Desktop Session Host. RDS completo, se o professor exigir, vai em **outra VM membro do domínio**: Server Manager → Add Roles and Features → Remote Desktop Services installation → Quick Start → Session-based desktop deployment (Connection Broker, Web Access e Session Host com coleção), coleção restrita a `AdminsTermometro`, certificados e licenciamento conforme a avaliação da Microsoft e uma conexão real pela coleção. Session Host não vai no DC.
 - **DFS sem replicação.** Um namespace e um destino; não há disponibilidade entre servidores. DFS Replication exigiria segundo servidor, segundo destino e grupo de replicação.
-- **Passos manuais.** Direitos de RDP e auditoria na GPMC, zona reversa e PTR, início do `Termometro-Alertas` no boot e o coletor de histórico `Termometro-Recursos` são feitos pela interface (passos 2, 6 e 7). Os nomes dos contadores mudam com o idioma da VM.
+- **Passos manuais.** Direito de logon por RDP e auditoria na GPMC (a entrada em `Remote Desktop Users` é feita pelo 03), zona reversa e PTR, início do `Termometro-Alertas` no boot e o coletor de histórico `Termometro-Recursos` são feitos pela interface (passos 2, 6 e 7). Os nomes dos contadores mudam com o idioma da VM.
 - **Publicação sem rollback automático.** Se o 08 falhar: preserve os logs, pare o pool, mova os binários novos para quarentena (cópia simples não remove arquivos adicionados) e restaure o backup revisado, sem tocar no banco nem nas fotos. O 08 também não apaga arquivos que saíram da publicação: compare as pastas e limpe com backup.
 - **Certificado autoassinado.** Serve só para o laboratório; a chave privada nunca sai da VM nem entra em evidência.
 - **Recuperação sem promessa de zero perda.** Uma falha pode interromper requisições em andamento e perder a leitura MQTT em voo; depois da volta, a prova mostra uma leitura nova.

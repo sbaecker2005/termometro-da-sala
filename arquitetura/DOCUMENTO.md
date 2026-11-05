@@ -58,11 +58,25 @@ Os níveis usam o índice de calor nas faixas da NOAA: abaixo de 27 °C é Norma
 
 ## 4. Diagrama de Arquitetura de Soluções
 
+O modelo está em `termometro-da-sala.archimate`, o arquivo nativo do Archi (**File > Open**). O mesmo modelo está em `termometro-da-sala.xml`, no formato Open Exchange 3.1, para abrir em outra ferramenta ArchiMate (no Archi: **File > Import > Open Exchange XML Model**).
+
+O modelo tem cinco visões, todas sobre os mesmos elementos e relações:
+
+| Visão no Archi | Camada da rubrica | Fase do TOGAF | Seção | Imagem |
+|---|---|---|---|---|
+| Motivação | Visão da Arquitetura (Motivação) | A | 4.1 | `visao-motivacao.png` [preencher] |
+| Negócio | Visão de Negócios (Business) | B | 4.2 | `visao-negocio.png` [preencher] |
+| Aplicação | Visão de Sistemas (Aplicação e dados) | C | 4.3 | `visao-aplicacao.png` [preencher] |
+| Tecnologia | Visão de Infraestrutura (Tecnologia) | D | 4.4 | `visao-tecnologia.png` [preencher] |
+| Visão em quatro camadas | As quatro juntas, com as ligações entre camadas | A a D | 4 | `diagrama-archi.png` |
+
+Cada imagem é exportada no Archi com a visão aberta, em **File > Export > View As Image**, no formato PNG e com o nome da tabela, dentro de `arquitetura/`.
+
 ![Visão em quatro camadas, exportada do Archi](diagrama-archi.png)
 
-O modelo está em `termometro-da-sala.archimate`, o arquivo nativo do Archi (**File > Open**). O mesmo modelo está em `termometro-da-sala.xml`, no formato Open Exchange 3.1, para abrir em outra ferramenta ArchiMate (no Archi: **File > Import > Open Exchange XML Model**). A imagem acima é a visão "Visão em quatro camadas" exportada pelo Archi (**File > Export > View As Image**), em `diagrama-archi.png`.
+### 4.1 Motivação (Visão da Arquitetura, Fase A)
 
-### 4.1 Motivação
+Imagem da visão "Motivação": `visao-motivacao.png` [preencher].
 
 Dois direcionadores explicam o problema: **ondas de calor** e **salas sem climatização**. A avaliação que os liga é que **ninguém mede o calor dentro da sala**. Daí sai o objetivo **"nenhuma aula em Perigo sem ação"**, sustentado por quatro requisitos: LED sem internet, previsão em 2 h, leitura assinada e nenhum dado de aluno.
 
@@ -73,7 +87,11 @@ Dois direcionadores explicam o problema: **ondas de calor** e **salas sem climat
 | 4.a, ambientes de aprendizagem seguros | Mede sala por sala e mostra quais precisam de obra primeiro | Realizado pelo histórico por sala |
 | 11.b, planos de adaptação das cidades | O relatório dá à Diretoria de Ensino um dado que ela não tem hoje | Realizado pelo histórico por sala |
 
-### 4.2 Negócio
+A visão também traz a parte interessada "Turma sem climatização", o princípio "A decisão é humana" e a restrição "Não acionar o ar nem guardar aluno", que realiza o objetivo junto com os requisitos.
+
+### 4.2 Negócio (Visão de Negócios, Fase B)
+
+Imagem da visão "Negócio": `visao-negocio.png` [preencher].
 
 O processo tem cinco passos em sequência:
 
@@ -87,7 +105,11 @@ O processo tem cinco passos em sequência:
 
 A previsão é sempre um apoio. O registro é o que permite medir o indicador de impacto: aulas em Perigo sem ação e minutos entre o alerta e a ação.
 
-### 4.3 Aplicação
+Na visão, o evento "Sala entra em Perigo" dispara o Alertar, que realiza o serviço "Alerta do nível da sala". A coordenação assume o papel "Operador do protocolo" para Agir, consultando o "Protocolo de calor", e o Registrar grava a "Ocorrência da sala" e o "Relatório por sala".
+
+### 4.3 Aplicação (Visão de Sistemas, Fase C)
+
+Imagem da visão "Aplicação": `visao-aplicacao.png` [preencher]. A visão mostra os processos de negócio no alto e, abaixo, qual componente serve cada um.
 
 | Componente | Responsabilidade | Tecnologia |
 |---|---|---|
@@ -95,14 +117,20 @@ A previsão é sempre um apoio. O registro é o que permite medir o indicador de
 | Assinante MQTT | Parte da API. Recebe as leituras do broker e aplica a mesma checagem do `POST /leituras` | MQTTnet |
 | Modelo de ML | Prevê o índice de calor da rua em 2 h | Árvore de decisão treinada em Python (MAE 0,958 °C no teste 2025), aplicada pela API em C# a partir do modelo.json |
 | App do professor | Salas, detalhe com previsão e ocorrência com foto | Expo + TypeScript |
-| Terminal da coordenação | Salas, registro de ação, cadastro e revogação de sensor | Windows Forms |
+| Terminal da coordenação | Salas, registro de ação, cadastro de sala e revogação de sensor | Windows Forms |
 | Painel web | Mural de só leitura para a TV da escola | Página estática no `wwwroot` da API |
+
+A API oferece o serviço de aplicação "Consulta de nível e previsão" e expõe as "Rotas HTTP da API", usadas pelo app e pelo terminal.
+
+**Dados (parte da Fase C).** No modelo, os objetos de dados são a "Leitura assinada", gravada pelo assinante MQTT, e a "Previsão da sala", calculada pela API a cada consulta e lida pelo app e pelo terminal (a tabela `Previsoes` fica reservada; nada grava nela hoje). No banco, as tabelas são `Ambientes` (salas), `Dispositivos`, `Leituras`, `LeiturasRua`, `Previsoes`, `Ocorrencias`, `Acoes` e `NiveisAcao` (`api/TermometroDaSala.Api/Dados/SalaDb.cs`). Nenhuma tabela tem campo de aluno.
 
 **Resultado do modelo.** Dados reais do INMET (A701), treino em 2022–2023, validação em 2024 e teste em 2025. A árvore (profundidade 8, folha 30) foi a escolhida pelo menor MAE na validação. No teste, o MAE foi de 0,958 °C contra 1,442 °C da regra "daqui a 2 h igual a agora". O F1 macro dos níveis foi 0,660 contra 0,667 do baseline: o menor erro médio não melhorou o alerta de cuidado extremo. Detalhes em `ml/README.md`.
 
 **A previsão da sala** é a rua prevista somada ao delta da sala, que é a média da diferença entre sala e rua nas últimas 3 h, com no mínimo 3 leituras. Exemplo: rua prevista em 34 + delta 4 = 38, Cuidado extremo. **Limitação:** o delta assume que a diferença se mantém nas próximas 2 h, e no fim da tarde tende a superestimar.
 
-### 4.4 Tecnologia
+### 4.4 Tecnologia (Visão de Infraestrutura, Fase D)
+
+Imagem da visão "Tecnologia": `visao-tecnologia.png` [preencher]. A visão mostra, no alto, os componentes de aplicação que cada elemento de tecnologia serve.
 
 | Elemento | Papel |
 |---|---|
@@ -123,7 +151,7 @@ Situação desta versão em 05/11/2026.
 |---|---|
 | Modelo de ML | Notebook executado. Árvore (profundidade 8, folha 30) escolhida pelo MAE de validação. No teste de 2025, MAE 0,958 °C (`ml/modelo.json`) |
 | App do professor | Quatro telas em Expo. O modo simulado vem ligado; com `EXPO_PUBLIC_API_MOCK=0` o app chama a API |
-| API | Rotas de salas, leituras, previsão, ocorrências, ações, revogação e demonstração. Painel em `wwwroot`. 32 testes automatizados, todos passando no `dotnet test`: 22 `[Fact]` e 10 casos `[InlineData]` em 2 `[Theory]` |
+| API | Rotas de salas, leituras, previsão, ocorrências, ações, revogação e demonstração. Painel em `wwwroot`. 40 testes automatizados, todos passando no `dotnet test`: 30 `[Fact]` e 10 casos `[InlineData]` em 2 `[Theory]` (`api/evidencias/dotnet-test.txt`) |
 | Terminal da coordenação | Windows Forms: salas, ação, cadastro, revogação e CSV. Se a API cai, usa a reserva local |
 | ESP32 | `sketch.ino`, `diagram.json` e `libraries.txt` para o Wokwi. O `esp32/README.md` descreve a simulação e o vetor de HMAC |
 | Windows Server | Roteiro em `infra/README.md` e scripts `01-rede.ps1` a `09-teste-de-falha.ps1` |
@@ -229,7 +257,7 @@ Pelo índice de calor, a rua ficou em Normal por 30.792 horas, em Atenção por 
 | Sensor na porta não representar o meio da sala | Médio | Calibrar com termo-higrômetro no piloto |
 | O modelo não prevê acima do que viu: a rua nunca passou de Cuidado extremo nos dados | Médio | O Perigo da sala vem da medição e do delta. Treinar de novo a cada ano com dados novos |
 | Foto de ocorrência com rosto de aluno | Alto | Aviso na tela, sem EXIF, foto fora do painel e acesso por id, nunca por caminho |
-| Assinante MQTT parar com o pool ocioso | Alto | Pool sempre ligado e recuperação automática, testados em Operating Systems |
+| Assinante MQTT parar com o pool ocioso | Alto | Pool sempre ligado e recuperação automática, configurados pelo roteiro de Operating Systems. O teste de falha está em `infra/TESTE-DE-FALHA.md`, e o resultado na VM vai para `infra/EVIDENCIAS.md` |
 | Coordenação sem tempo de olhar o terminal | Médio | Indicador de minutos entre alerta e ação, para mostrar o gargalo. Notificação como evolução |
 
 ## 9. Evolução

@@ -50,6 +50,8 @@ public sealed class Previsao
     public required NivelCalor NivelPrevisto { get; set; }
     public required bool SemLeiturasRecentes { get; set; }
     public required bool Demonstracao { get; set; }
+    // false: sem previsão da rua, a API repete o índice da última leitura válida da sala e manda IndiceRuaPrevisto 0.
+    public required bool RuaDisponivel { get; set; }
 }
 
 public sealed class Acao

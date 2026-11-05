@@ -25,4 +25,7 @@ foreach ($name in @($Coordenador,$Administrador)) {
 }
 Add-ADGroupMember -Identity Coordenacao -Members $Coordenador
 Add-ADGroupMember -Identity AdminsTermometro -Members $Administrador
-Write-Host 'AdminsTermometro autoriza RDP; nao concede administracao do dominio. Use conta administrativa separada para instalar.'
+# Permissao no listener RDP: grupo interno Remote Desktop Users (SID fixo, independe do idioma). O direito de logon vem da GPO (passo 6).
+Add-ADGroupMember -Identity 'S-1-5-32-555' -Members AdminsTermometro
+Get-ADGroupMember -Identity 'S-1-5-32-555' | Select-Object Name,SamAccountName
+Write-Host 'AdminsTermometro entrou em Remote Desktop Users; o RDP so libera depois do direito na GPO (passo 6). Nao concede administracao do dominio. Use conta administrativa separada para instalar.'

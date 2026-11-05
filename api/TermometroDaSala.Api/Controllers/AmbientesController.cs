@@ -62,8 +62,9 @@ public class AmbientesController(SalaDb _db, ConsultaPrevisao _previsao) : Contr
     [HttpGet("/ambientes/{id}/previsao")]
     public async Task<IActionResult> Previsao(string id)
     {
+        if (!await _db.Ambientes.AnyAsync(a => a.Id == id)) return NotFound();
         var corpo = await _previsao.Montar(id);
-        return corpo is null ? NotFound() : Ok(corpo);
+        return corpo is null ? StatusCode(StatusCodes.Status503ServiceUnavailable, new MotivoSaida("sem-dados-para-prever")) : Ok(corpo);
     }
 
 }

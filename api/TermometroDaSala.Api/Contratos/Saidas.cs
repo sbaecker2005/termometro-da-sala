@@ -34,4 +34,4 @@ public sealed record DispositivoSaida(string Id, bool Ativo);
 public sealed record DemoSaida(int Inseridas);
 public sealed record AcaoSaida(long Id, string AmbienteId, string Nivel, string Descricao, DateTimeOffset RegistradoEm);
 public sealed record PrevisaoSaida(string AmbienteId, DateTimeOffset PrevistoPara, double IndiceRuaPrevisto,
-    double? DeltaSala, double? IndiceSalaPrevisto, string NivelPrevisto, bool SemLeiturasRecentes, bool Demonstracao);
+    double? DeltaSala, double? IndiceSalaPrevisto, string NivelPrevisto, bool SemLeiturasRecentes, bool Demonstracao, bool RuaDisponivel);

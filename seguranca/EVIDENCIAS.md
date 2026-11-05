@@ -2,13 +2,13 @@
 
 Anexo de [RELATORIO-RISCOS.md](RELATORIO-RISCOS.md). **Estado: parte local coletada em 05/11/2026; nmap, IIS, GPO e LED são coletados no laboratório Windows Server.** Não fazer varredura nem inundação do broker público. Não mostrar chaves, senhas, tokens, strings de conexão ou pessoas nos prints.
 
-Rotas existentes: `POST /leituras`, `GET/POST /ambientes`, `GET /ambientes/{id}/leituras`, `POST /ocorrencias`, `GET /ocorrencias/{id}/foto`, `POST /acoes`, `POST /dispositivos/{id}/revogar`, `POST /demo/semear`. Não há `GET /ocorrencias?busca=`. O SQLi do roteiro usa `GET /ambientes/{id}/leituras`. Recusas de leitura: `assinatura-invalida`, `reenvio`, `dispositivo-revogado`, `atrasada`, `fora-da-faixa`. Saídas locais em [evidencias/](evidencias/). Cada arquivo traz só o trecho que prova cada controle, sem a semente de teste.
+Rotas existentes: `POST /leituras`, `GET/POST /ambientes`, `GET /ambientes/{id}/leituras`, `GET /ambientes/{id}/previsao`, `POST /ocorrencias`, `GET /ocorrencias/{id}/foto`, `GET/POST /acoes`, `POST /dispositivos/{id}/revogar`, `POST /demo/semear`. Não há `GET /ocorrencias?busca=`, rota de cadastro de dispositivo nem de reativação. O SQLi do roteiro usa `GET /ambientes/{id}/leituras`. Recusas de leitura: `assinatura-invalida`, `reenvio`, `dispositivo-revogado`, `atrasada`, `fora-da-faixa`. Saídas locais em [evidencias/](evidencias/). Cada arquivo traz só o trecho que prova cada controle, sem a semente de teste.
 
 Cada print deve trazer ID da evidência, data/hora, ambiente, versão identificada pelo coordenador, comando e resultado; registrar também o arquivo/linha do controle. Anexar logs recortados e sem segredos. Os campos reservados abaixo são para prints, não para registrar aprovação antecipada.
 
 ## Preparação local
 
-Abrir PowerShell na raiz do projeto. Comandos de rede abaixo são apenas para execução posterior pelo responsável. `curl.exe` evita o alias de PowerShell. Não instalar ferramentas para este roteiro: usar as já disponíveis; se `nmap` não estiver disponível, a evidência E12 permanece pendente.
+Abrir PowerShell na raiz do projeto. Os comandos de rede abaixo são executados pelo responsável no laboratório. `curl.exe` evita o alias de PowerShell. Não instalar ferramentas para este roteiro: usar as já disponíveis; se `nmap` não estiver disponível, a evidência E12 permanece pendente.
 
 ```powershell
 Get-Date -Format o
@@ -21,7 +21,7 @@ New-Item -ItemType Directory -Path $Evidencias | Out-Null
 curl.exe -i "$Api/ambientes"
 ```
 
-Esperado: API de negócio responde com salas reais de teste. Na execução do app, configurar `EXPO_PUBLIC_API_MOCK=0` antes de iniciá-lo; `app/app.config.ts:4` habilita simulação por padrão. Sem esse cuidado, protocolo gerado no cliente não prova persistência ou validação da API. Usar base descartável, conta de teste e imagem de equipamento sem pessoas. Se as rotas exigirem autenticação, fazer a coleta autenticada pelo cliente oficial/Insomnia e não copiar credenciais para os prints; E15 cobre as requisições anônimas.
+Esperado: API de negócio responde com salas reais de teste. Na execução do app, configurar `EXPO_PUBLIC_API_MOCK=0` antes de iniciá-lo; `app/app.config.ts:5` habilita simulação por padrão. Sem esse cuidado, protocolo gerado no cliente não prova persistência ou validação da API. Usar base descartável, conta de teste e imagem de equipamento sem pessoas. Se as rotas exigirem autenticação, fazer a coleta autenticada pelo cliente oficial/Insomnia e não copiar credenciais para os prints; E15 cobre as requisições anônimas.
 
 ## Coleta numerada
 
@@ -38,13 +38,13 @@ Get-Content -LiteralPath $Fonte -Encoding UTF8 |
     ForEach-Object { $Linha++; '{0}: {1}' -f $Linha, $_ }
 ```
 
-Esperado: arquivo e linha de C1–C10 estão na seção 6 do relatório. Abrir somente fonte que não contenha a chave da coordenação. Se uma linha mudar, atualizar o relatório. A suíte está em `evidencias/dotnet-test-seguranca.txt` (32/32 no total; 16 testes de segurança listados).
+Esperado: arquivo e linha de C1–C12 estão na seção 6 do relatório. Abrir somente fonte que não contenha a chave da coordenação. Se uma linha mudar, atualizar o relatório. A suíte está em `evidencias/dotnet-test-seguranca.txt` (40/40 no total; 18 testes de segurança listados).
 
 **Print E01:** [inserir versão, ambiente e trechos numerados dos controles]
 
 ### 2. E02 — vetor HMAC e leitura legítima
 
-Pré-condição: dispositivo de teste cadastrado, ativo e vinculado a sala-03. Backend e ESP32 implementados. Usar chave **exclusivamente de demonstração**, provisionada pelo responsável; nunca usar chave de produção nem exibir seu valor. O teste abaixo faz uma autoverificação HMAC com vetor público antes de produzir a mensagem atual.
+Pré-condição: dispositivo semeado `esp32-sala-03`, ativo e vinculado a sala-03. Usar chave **exclusivamente de demonstração**, provisionada pelo responsável; nunca usar chave de produção nem exibir seu valor. O teste abaixo faz uma autoverificação HMAC com vetor público antes de produzir a mensagem atual.
 
 ```powershell
 $Utf8 = [System.Text.Encoding]::UTF8
@@ -98,15 +98,17 @@ curl.exe -i "$Api/ambientes/$AmbienteId/leituras"
 
 Esperado: 4xx nos dois POSTs, log `assinatura-invalida` no primeiro e `reenvio` no segundo, sem novas linhas no banco. Confirmar também ingestão MQTT com a mesma mensagem na coleção/ferramenta já usada pela equipe; confirmar no código que ambos chamam o mesmo validador. Para MQTT a prova é log e ausência de gravação, não status HTTP. Não publicar em tópico de terceiros.
 
-Repetir o POST válido depois de reiniciar a API no laboratório e enviar duas cópias simultâneas de uma leitura nova. Esperado: o último `medidoEm` fica na coluna do dispositivo (`ServicoLeituras`), então o reenvio continua recusado depois do reinício. O assinante MQTT está em `api/TermometroDaSala.Api/Servicos/AssinanteMqtt.cs:63` e chama o mesmo `Receber`. A concorrência de duas gravações simultâneas não tem teste próprio nesta pasta.
+Repetir o POST válido depois de reiniciar a API no laboratório. Esperado: o último `medidoEm` fica na coluna do dispositivo (`ServicoLeituras.cs:68`), então o reenvio continua recusado depois do reinício. O assinante MQTT está em `api/TermometroDaSala.Api/Servicos/AssinanteMqtt.cs:70` e chama o mesmo `Receber`.
+
+Duas cópias simultâneas de uma leitura nova: o código lê o dispositivo e grava em dois passos, sem token de concorrência (`ServicoLeituras.cs:28` e `:67-69`; C1 parcial no relatório). Se as duas forem gravadas, registrar a contagem como a lacuna declarada, não como aprovação. Não há teste automatizado de concorrência.
 
 **Print E03:** [inserir recusas HTTP, logs HTTP/MQTT e contagem antes/depois/reinício/concorrência]
 
 ### 4. E04 — revogação e janela temporal
 
-No desktop, revogar apenas o dispositivo de teste. Com ele revogado, gerar outra mensagem atual executando E02 a partir de `$MedidoEm = ...` e enviar. Esperado: 4xx e `dispositivo-revogado`, sem inserção. Reativar somente no laboratório para o teste temporal.
+A API não tem rota para reativar nem para cadastrar dispositivo: a revogação é definitiva no banco descartável. Por isso a revogação usa `esp32-sala-04`, que não é o dispositivo do Wokwi. No desktop, com a chave da coordenação, revogar apenas `esp32-sala-04`. Depois executar E02 a partir de `$SegredoProtegido = ...` com `$AmbienteId = 'sala-04'`, `$Dispositivo = 'esp32-sala-04'` e a chave de teste desse dispositivo, e enviar. Esperado: 4xx e `dispositivo-revogado`, sem inserção. Para voltar ao estado inicial, recriar o banco descartável do laboratório.
 
-Para testar atraso sem confundir com reenvio, usar dispositivo de teste recém-cadastrado, ativo, **sem leitura anterior**; atualizar `$Dispositivo` e sua chave pelo início de E02. Executar o trecho abaixo para atraso e repetir com a alternativa de futuro. Ambos precisam ser assinados corretamente.
+Para testar atraso sem confundir com reenvio, usar outro dispositivo semeado, ativo e **sem leitura anterior**: `esp32-sala-02` (conferir antes que `GET /ambientes/sala-02/leituras` volta vazio). Executar E02 a partir de `$SegredoProtegido = ...` com `$AmbienteId = 'sala-02'`, `$Dispositivo = 'esp32-sala-02'` e a chave de teste desse dispositivo, sem enviar o POST. Depois executar o trecho abaixo para atraso e repetir com a alternativa de futuro. Ambos precisam ser assinados corretamente.
 
 ```powershell
 $MedidoEm = [DateTimeOffset]::UtcNow.AddMinutes(-11).ToUnixTimeSeconds()
@@ -126,7 +128,7 @@ Esperado: 4xx e `atrasada` nos dois casos, sem gravação. A ordem está em `Val
 
 **Print E04:** [inserir revogação, recusas temporais e ensaio de sincronização]
 
-### 5. E05 — SQLi na busca de ocorrências
+### 5. E05 — SQLi na consulta de leituras
 
 Não há busca `GET /ocorrencias?busca=`. A consulta que recebe texto do cliente é `GET /ambientes/{id}/leituras` (`LeiturasController.cs:19`).
 
@@ -135,7 +137,7 @@ curl.exe -i "$Api/ambientes/sala-03/leituras"
 curl.exe -i --path-as-is "$Api/ambientes/sala-03%27%20OR%201%3D1%20--/leituras"
 ```
 
-Esperado: a sala conhecida devolve só as leituras dela; o id com apóstrofo responde 404 e não lista as outras salas. O comando gerado pelo EF, no teste `ApiTestes.ConsultaDeLeiturasParametrizada`, é um literal com o apóstrofo dobrado (`sala-03'' OR 1=1`), não SQL concatenado. Não habilitar log de dados sensíveis no servidor real.
+Esperado: a sala conhecida devolve só as leituras dela; o id com apóstrofo responde 404 e não lista as outras salas. No teste `ApiTestes.ConsultaDeLeiturasParametrizada`, o comando gerado pelo EF compara o `Id` com o parâmetro `@__id_0` (tamanho 18); o texto `OR 1=1` não entra no SQL (`evidencias/consulta-parametrizada.txt`). Não habilitar log de dados sensíveis no servidor real.
 
 **Print E05:** [inserir consulta com arquivo/linha, parâmetros e comparação de resultados]
 
@@ -180,7 +182,7 @@ try { $Arquivo.SetLength($LimiteBytes + 1) } finally { $Arquivo.Dispose() }
 curl.exe -i -F "ambienteId=$AmbienteId" -F 'descricao=Teste de limite de tamanho' -F "foto=@$Grande;type=image/jpeg" "$Api/ocorrencias"
 ```
 
-Esperado: 413 ou recusa de limite identificável da aplicação/IIS, sem persistência parcial. O arquivo grande também não é imagem; capturar motivo de limite nos logs/configuração para não atribuir à extensão uma recusa de tamanho. O teto de 20 MB acima protege apenas a máquina de coleta, não define o limite do produto.
+Esperado: 400 com corpo `{"motivo":"arquivo"}` (`OcorrenciasController.cs:21`), sem arquivo nem ocorrência gravados. A requisição fica abaixo do teto de 6 MB, então a resposta vem da regra de 5 MB da ação. O arquivo grande também não é imagem, mas a regra de tamanho roda antes da de conteúdo (`:24`): o motivo `arquivo`, e não `nao-jpeg`, mostra que a recusa foi por tamanho.
 
 **Print E07:** [inserir recusas por conteúdo/tamanho, configuração de limite e ausência de gravação]
 
@@ -201,9 +203,9 @@ Esperado: 4xx, sem registros parciais. Descrição após trim: 10 a 500 caracter
 
 **Print E08:** [inserir erros do servidor, casos de fronteira e validações do app]
 
-### 9. E09 — /demo/semear indisponível em Production
+### 9. E09 — /demo/semear recusado fora de Demo
 
-Somente após a rota existir. Usar banco descartável; semear escreve dados. Em Demo, ligar sensor e confirmar leitura ao vivo antes de semear. Executar em terminais separados, encerrando a API antes de mudar ambiente:
+A rota existe em todos os ambientes; fora de Demo a ação responde 404 sem gravar (`DemoController.cs:20`). Usar banco descartável; semear escreve dados. Em Demo, ligar sensor e confirmar leitura ao vivo antes de semear. Executar em terminais separados, encerrando a API antes de mudar ambiente:
 
 ```powershell
 $env:ASPNETCORE_ENVIRONMENT = 'Demo'
@@ -225,9 +227,9 @@ dotnet run --no-launch-profile --project api/TermometroDaSala.Api --urls http://
 curl.exe -i -X POST 'http://localhost:5080/demo/semear?ambienteId=sala-03'
 ```
 
-Esperado em Production: **404** e banco inalterado. Registrar log de ambiente e código que só registra a rota em Demo. Se houver redirecionamento HTTPS, repetir na URL HTTPS efetiva com certificado válido; 307 não é prova de 404. A rota ausente no exemplo inicial responde 404 nos dois ambientes e não atende ao teste.
+Esperado em Production: **404**, log `demo semear recusado: fora-do-ambiente` e banco inalterado. O log separa essa recusa de um 404 de rota inexistente; registrar também a linha do código que confere o ambiente. Se houver redirecionamento HTTPS, repetir na URL HTTPS efetiva com certificado válido; 307 não é prova de 404.
 
-**Print E09:** [inserir ambiente, Demo funcional, Production 404 e condição no código]
+**Print E09:** [inserir ambiente, Demo funcional, Production 404 com o log `fora-do-ambiente` e condição no código]
 
 ### 10. E10 — segredo fora do repositório
 
@@ -260,7 +262,7 @@ Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4625,4663; StartTime=(Get
     Select-Object TimeCreated, Id, Message
 ```
 
-Esperado: GPO aplicada restringe logon RDP a grupo autorizado; senha/bloqueio e firewall configurados; NTFS permite escrita ao pool/administradores; política de auditoria e SACL de fotos ativas. Efetuar um logon RDP negado com conta de teste sem grupo, de uma estação que alcance a porta, e um acesso de teste à foto para gerar eventos. Correlacionar conta/horário/evento; 4625 genérico não prova restrição RDP. Anexar também regra de firewall com escopo de origem. GPO e auditoria: a aplicar e coletar no laboratório Windows Server (`infra/06-gpo.ps1` é roteiro, não política aplicada).
+Esperado: GPO aplicada restringe logon RDP a grupo autorizado; senha/bloqueio e firewall configurados; NTFS permite escrita ao pool/administradores; política de auditoria e SACL de fotos ativas. A SACL do roteiro usa o direito `Modify` (`infra/06-gpo.ps1:32`), que inclui leitura de dados (`ReadData`), gravação e exclusão: baixar uma foto pela API gera 4663 com a conta do pool, e gravar ou apagar também. Efetuar um logon RDP negado com conta de teste sem grupo, de uma estação que alcance a porta, e um download de teste de foto (E06) para gerar os eventos. Correlacionar conta/horário/evento; 4625 genérico não prova restrição RDP. Anexar também regra de firewall com escopo de origem. GPO e auditoria: a aplicar e coletar no laboratório Windows Server (`infra/06-gpo.ps1` é roteiro, não política aplicada).
 
 **Print E11:** [inserir resultado de GPO, permissões, SACL e eventos correlacionados]
 
@@ -274,7 +276,7 @@ Test-NetConnection -ComputerName $IpServidor -Port 3389
 Test-NetConnection -ComputerName $IpServidor -Port 1433
 ```
 
-Esperado: HTTPS acessível a usuários; HTTP somente se usado para redirecionar; RDP inacessível da rede comum e acessível apenas na rede administrativa; SQL sem exposição a clientes comuns; nenhum listener MQTT no Windows apenas para assinar tópico externo. Se a VM também for controlador de domínio/DNS, portas necessárias a AD/DNS existem: justificar por função e origem, sem afirmar que só 443 pode estar aberta. A lista efetiva de portas é coletada no laboratório Windows Server (nmap e IIS). Nesta pasta, HTTPS só redireciona em Production (`Program.cs:62`). TCP não cobre UDP: anexar regras de firewall/DNS para completar a análise, sem alegar varredura UDP executada.
+Esperado: HTTPS acessível a usuários; HTTP somente se usado para redirecionar; RDP inacessível da rede comum e acessível apenas na rede administrativa; SQL sem exposição a clientes comuns; nenhum listener MQTT no Windows apenas para assinar tópico externo. Se a VM também for controlador de domínio/DNS, portas necessárias a AD/DNS existem: justificar por função e origem, sem afirmar que só 443 pode estar aberta. A lista efetiva de portas é coletada no laboratório Windows Server (nmap e IIS). A API só redireciona para HTTPS em Production (`Program.cs:62`); o binding 443 e a regra de firewall `TermometroHTTPS` (só sub-rede local) estão no `infra/README.md`, seção "HTTPS no laboratório". Esperado no nmap: 443 com o certificado `api.termometro.local` e 80 só redirecionando. TCP não cobre UDP: anexar regras de firewall/DNS para completar a análise, sem alegar varredura UDP executada.
 
 **Print E12:** [inserir saídas com origem identificada, portas justificadas e regras de firewall]
 
@@ -307,14 +309,15 @@ Esperado: orientação visível, nenhuma identificação nos arquivos e fotos au
 
 ### 15. E15 — acesso indevido e encerramento da coleta
 
-Confirmar com implementação a rota e o método de revogação; registrar pelo desktop um caso autorizado e outro com conta sem permissão, sem imprimir sessão/token. Para acesso anônimo às operações e imagens:
+O controle da API é a chave `X-Chave-Coordenacao` (`ExigeChaveCoordenacaoAttribute.cs:20`), não uma conta. Ela protege `POST /ambientes`, `POST /acoes` e `POST /dispositivos/{id}/revogar`. Registrar pelo desktop uma revogação com a chave correta (a de E04) e outra tentativa sem a chave ou com chave errada, sem imprimir o valor. Para acesso anônimo às operações e imagens:
 
 ```powershell
 curl.exe -i "$Api/ocorrencias/$OcorrenciaId/foto"
 curl.exe -i -X POST "$Api/acoes" -H 'Content-Type: application/json' --data-binary '{}'
+curl.exe -i -X POST "$Api/dispositivos/esp32-sala-01/revogar"
 ```
 
-Esperado: 401/403 antes de executar operação ou entregar foto. Um 400 por DTO incompleto não comprova autorização; repetir com corpo válido do contrato pela ferramenta da equipe. Na revogação, conta sem permissão não altera estado e conta autorizada consegue revogar apenas o dispositivo de teste. Se autenticação não existir, documentar a falha e isolamento do laboratório, sem registrar aprovação de C10.
+Esperado: `POST /acoes` e a revogação sem chave respondem 401 `chave-invalida` antes de validar o corpo (o filtro é de autorização) e nada é gravado; `esp32-sala-01` continua ativo. A foto responde **200** sem chave: é a lacuna declarada em R12/C10 do relatório. Registrar esse 200 como falha conhecida, não como aprovação de C10.
 
 Ao concluir, restaurar estado dos dispositivos de laboratório, revogar a chave de demonstração ao final da avaliação, fechar o processo de coleta e descartar seu estado criptográfico:
 

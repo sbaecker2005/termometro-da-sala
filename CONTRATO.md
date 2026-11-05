@@ -62,7 +62,7 @@ ligar; a API deve conferir o mesmo caso em teste unitário.
 | Dispositivo com `ativo = false` | recusar | `dispositivo-revogado` |
 | Mais de 600 s atrás ou 60 s à frente do servidor | recusar | `atrasada` |
 | Fora de −10 a 60 °C ou 0 a 100%, inclusive não finitos | recusar | `fora-da-faixa` |
-| Salto >5 °C ou sala >8 °C abaixo da rua quando rua >30 °C | gravar suspeita, excluir da previsão e destacar no desktop | `suspeita` |
+| Salto >5 °C ou sala >8 °C abaixo da rua quando rua >30 °C (a regra da rua só vale com leitura da rua medida no mesmo instante; hoje não se aplica: no Demo a rua é um dia reproduzido e fora dele nada grava a rua) | gravar suspeita, excluir da previsão e destacar no desktop | `suspeita` |
 
 Plausibilidade é para equipes de 4–5; nas de 2–3 fica para depois. A ordem
 estrita por dispositivo impede replay; a janela de tempo sozinha não impede.
@@ -123,9 +123,13 @@ médico nem medição IBUTG.
 
 ## 4. Previsão da sala
 
-Rua atual: dia quente do CSV INMET reproduzido. Rua daqui a 2 h: modelo
-treinado com dados reais, aplicado pela API com atributos do mesmo boletim e
-hora local. Busca ao vivo A701 e reserva Open-Meteo são evolução opcional.
+Rua atual: dia quente do CSV INMET reproduzido. Rua daqui a 2 h: fora do Demo,
+modelo treinado com dados reais, aplicado pela API com atributos do mesmo
+boletim e hora local sobre a rua gravada em `LeiturasRua`; no Demo, a hora do
+CSV duas horas à frente, sem o modelo. Como hoje nada grava a rua fora do Demo,
+a aplicação do modelo pela API é conferida no teste `PrevisorModeloTestes`, com
+o mesmo vetor da seção 6 do notebook. Busca ao vivo A701 e reserva Open-Meteo
+são evolução opcional.
 
 Delta = média de (índice da sala − índice da rua), comparados no mesmo instante
 UTC, nas últimas 3 h, com pelo menos 3 leituras válidas. Exemplo: sala
@@ -134,6 +138,25 @@ UTC, nas últimas 3 h, com pelo menos 3 leituras válidas. Exemplo: sala
 Com menos de 3 leituras recentes, mostrar só a rua e “sala sem leituras recentes”.
 Não inventar delta. A hipótese é que a diferença das últimas 3 h se mantenha
 nas próximas 2 h; no fim da tarde pode superestimar.
+
+`GET /ambientes/{id}/previsao` responde:
+
+- 200 com a previsão (exemplo abaixo);
+- 404 quando o ambiente não existe;
+- 503 com `{"motivo":"sem-dados-para-prever"}` quando não há previsão da rua
+  nem leitura válida da sala nas últimas 3 h. Não é queda da API: app e desktop
+  mostram “sem dados para prever” no lugar da previsão, sem tela de erro.
+
+```json
+{"ambienteId":"sala-03","previstoPara":"2026-11-06T19:10:00+00:00","indiceRuaPrevisto":34,"deltaSala":4,"indiceSalaPrevisto":38,"nivelPrevisto":"cuidado","semLeiturasRecentes":false,"demonstracao":false,"ruaDisponivel":true}
+```
+
+Sem previsão da rua (fora do Demo nada grava a rua), `ruaDisponivel` vem
+`false`: a sala fica no índice da última leitura válida das últimas 3 h,
+`indiceSalaPrevisto` é esse índice, `deltaSala` é `null` e `indiceRuaPrevisto`
+é `0`, que não vai para a tela. App, desktop e painel avisam que a previsão
+usa a última leitura válida da sala porque a previsão da rua não está disponível.
+Uma leitura suspeita aparece em “agora”, mas não entra na previsão.
 
 ## 5. Demonstração
 

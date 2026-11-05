@@ -8,6 +8,8 @@ namespace TermometroDaSala.Api.Servicos;
 
 public class AssinanteMqtt : BackgroundService
 {
+    // uma leitura assinada tem cerca de 250 bytes; acima disso a mensagem é descartada antes do JSON
+    public const int MaximoBytes = 1024;
     private readonly IServiceScopeFactory _escopos;
     private readonly IConfiguration _config;
     private readonly ILogger<AssinanteMqtt> _log;
@@ -26,7 +28,7 @@ public class AssinanteMqtt : BackgroundService
         var topico = _config["Mqtt:Topico"] ?? "fiap-gs/termometro-da-sala/leituras";
         var fabrica = new MqttFactory();
         using var cliente = fabrica.CreateMqttClient();
-        cliente.ApplicationMessageReceivedAsync += e => Tratar(e.ApplicationMessage.ConvertPayloadToString());
+        cliente.ApplicationMessageReceivedAsync += e => Tratar(e.ApplicationMessage.PayloadSegment);
         var opcoes = new MqttClientOptionsBuilder()
             .WithTcpServer(broker, porta)
             .WithClientId("tds-" + Guid.NewGuid().ToString("N")[..12])
@@ -53,11 +55,16 @@ public class AssinanteMqtt : BackgroundService
         }
     }
 
-    private async Task Tratar(string json)
+    public async Task Tratar(ArraySegment<byte> carga)
     {
+        if (carga.Count > MaximoBytes)
+        {
+            _log.LogWarning("leitura mqtt ignorada: {Mensagem}", "acima-do-limite");
+            return;
+        }
         try
         {
-            var entrada = JsonSerializer.Deserialize<LeituraEntrada>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            var entrada = JsonSerializer.Deserialize<LeituraEntrada>(carga.AsSpan(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             if (entrada is null) return;
             using var escopo = _escopos.CreateScope();
             await escopo.ServiceProvider.GetRequiredService<ServicoLeituras>().Receber(entrada);

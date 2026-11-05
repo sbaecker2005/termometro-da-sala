@@ -27,6 +27,7 @@ foreach ($subcategory in '{0CCE9215-69AE-11D9-BED3-505054503030}','{0CCE921D-69A
     & auditpol.exe /set "/subcategory:$subcategory" /success:enable /failure:enable
     if ($LASTEXITCODE -ne 0) { throw 'Falha ao habilitar auditoria.' }
 }
+# Modify inclui ReadData: leitura da foto pela API tambem gera 4663, alem de gravar e apagar.
 $acl = Get-Acl -LiteralPath $PhotosPath -Audit
 $rule = [System.Security.AccessControl.FileSystemAuditRule]::new([System.Security.Principal.SecurityIdentifier]::new('S-1-1-0'),'Modify','ContainerInherit,ObjectInherit','None','Success,Failure')
 $acl.SetAuditRule($rule)

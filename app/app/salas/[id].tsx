@@ -2,6 +2,7 @@ import { Stack, router, useFocusEffect, useLocalSearchParams } from 'expo-router
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { apresentarNivel } from '../../domain/nivel';
+import { RUA_INDISPONIVEL, SEM_DADOS_PARA_PREVER } from '../../domain/previsao';
 import { RotuloNivel } from '../../components/RotuloNivel';
 import type { RotaParams } from '../../rotas';
 import {
@@ -64,7 +65,7 @@ export default function DetalheSala() {
           <ActivityIndicator color="#14532D" />
           <Text>Carregando sala</Text>
         </View>
-      ) : erro || !sala || !previsao || !agora ? (
+      ) : erro || !sala || !agora ? (
         <View style={styles.centro}>
           <Text style={styles.erro}>{erro ?? 'Sala não encontrada.'}</Text>
           <Pressable style={styles.botao} onPress={carregar} accessibilityRole="button">
@@ -76,9 +77,9 @@ export default function DetalheSala() {
           <Text style={styles.meta}>
             {sala.andar}º andar · face {sala.faceSol}
           </Text>
-          {previsao.demonstracao ? <Text style={styles.etiqueta}>DEMONSTRAÇÃO</Text> : null}
+          {previsao?.demonstracao ? <Text style={styles.etiqueta}>DEMONSTRAÇÃO</Text> : null}
 
-          {previsao.semLeiturasRecentes ? (
+          {previsao?.semLeiturasRecentes ? (
             <View style={styles.bloco}>
               <Text style={styles.aviso}>sala sem leituras recentes</Text>
               <Text style={styles.secao}>Previsão da rua, daqui a 2 h</Text>
@@ -100,13 +101,23 @@ export default function DetalheSala() {
                 </>
               )}
               <Text style={styles.secao}>Daqui a 2 h</Text>
-              <RotuloNivel nivel={previsao.nivelPrevisto} />
-              <Text style={styles.indice}>
-                {previsao.indiceSalaPrevisto === null ? 'Sem índice da sala' : indiceEmGraus(previsao.indiceSalaPrevisto)}
-              </Text>
-              <Text style={styles.meta}>Rua {indiceEmGraus(previsao.indiceRuaPrevisto)}</Text>
-              <Text style={styles.meta}>{horaSaoPaulo(previsao.previstoPara)}</Text>
-              <Text style={styles.acao}>Ação: {previsto?.acao}</Text>
+              {previsao === null ? (
+                <Text style={styles.aviso}>{SEM_DADOS_PARA_PREVER}</Text>
+              ) : (
+                <>
+                  {previsao.ruaDisponivel ? null : <Text style={styles.aviso}>{RUA_INDISPONIVEL}</Text>}
+                  <RotuloNivel nivel={previsao.nivelPrevisto} />
+                  <Text style={styles.indice}>
+                    {previsao.indiceSalaPrevisto === null ? 'Sem índice da sala' : indiceEmGraus(previsao.indiceSalaPrevisto)}
+                  </Text>
+                  {/* Sem a rua, indiceRuaPrevisto vem 0 e não pode ir para a tela. */}
+                  {previsao.ruaDisponivel ? (
+                    <Text style={styles.meta}>Rua {indiceEmGraus(previsao.indiceRuaPrevisto)}</Text>
+                  ) : null}
+                  <Text style={styles.meta}>{horaSaoPaulo(previsao.previstoPara)}</Text>
+                  <Text style={styles.acao}>Ação: {previsto?.acao}</Text>
+                </>
+              )}
             </View>
           )}
 

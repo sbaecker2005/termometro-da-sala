@@ -14,4 +14,4 @@
 | Indicador de impacto | Aulas no nível "Perigo" sem ação registrada (meta: zero) e minutos entre o alerta e a ação |
 | ODS conectados | 3 (meta 3.d), 4 (meta 4.a), 11 (meta 11.b) e 13 (meta 13.1) |
 
-O documento descritivo está em [DOCUMENTO.md](DOCUMENTO.md). O modelo ArchiMate está em `termometro-da-sala.archimate` (Archi) e em `termometro-da-sala.xml` (Open Exchange 3.1). A visão exportada do Archi está em `diagrama-archi.png`. O pitch está em [PITCH.md](PITCH.md).
+O documento descritivo está em [DOCUMENTO.md](DOCUMENTO.md). O modelo ArchiMate está em `termometro-da-sala.archimate` (Archi) e em `termometro-da-sala.xml` (Open Exchange 3.1). Ele tem cinco visões: Motivação, Negócio, Aplicação, Tecnologia e "Visão em quatro camadas", que junta as quatro. A visão em quatro camadas exportada do Archi está em `diagrama-archi.png`; as outras quatro viram `visao-motivacao.png`, `visao-negocio.png`, `visao-aplicacao.png` e `visao-tecnologia.png` [preencher: exportar no Archi, em **File > Export > View As Image**]. O pitch está em [PITCH.md](PITCH.md).

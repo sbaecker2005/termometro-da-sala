@@ -43,16 +43,29 @@ public sealed class ServicoSalasApi(HttpClient http) : IServicoSalas
         return salas;
     }
 
+    // null: a API respondeu 503 "sem-dados-para-prever" (sem rua e sem leitura válida recente da sala). 404 sai como HttpRequestException.
     public async Task<Previsao?> Prever(string id)
     {
-        var previsao = await Obter<Previsao>($"ambientes/{Uri.EscapeDataString(id)}/previsao");
+        using var resposta = await http.GetAsync($"ambientes/{Uri.EscapeDataString(id)}/previsao");
+        if (resposta.StatusCode == HttpStatusCode.ServiceUnavailable && await SemDadosParaPrever(resposta)) return null;
+        Conferir(resposta);
+        var previsao = await resposta.Content.ReadFromJsonAsync<Previsao>(Json) ?? throw new JsonException("Resposta vazia da API.");
         if (previsao.AmbienteId != id || !Enum.IsDefined(previsao.NivelPrevisto) ||
             !double.IsFinite(previsao.IndiceRuaPrevisto) ||
             previsao.DeltaSala is { } d && !double.IsFinite(d) ||
             previsao.IndiceSalaPrevisto is { } i && !double.IsFinite(i) ||
-            !previsao.SemLeiturasRecentes && (previsao.DeltaSala is null || previsao.IndiceSalaPrevisto is null))
+            (previsao.RuaDisponivel
+                ? !previsao.SemLeiturasRecentes && (previsao.DeltaSala is null || previsao.IndiceSalaPrevisto is null)
+                : previsao.IndiceSalaPrevisto is null))
             throw new JsonException("Previsão inválida recebida da API.");
         return previsao;
+    }
+
+    // Outro 503 (proxy, API fora) continua sendo indisponibilidade.
+    private static async Task<bool> SemDadosParaPrever(HttpResponseMessage resposta)
+    {
+        try { return (await resposta.Content.ReadFromJsonAsync<JsonObject>(Json))?["motivo"]?.GetValue<string>() == "sem-dados-para-prever"; }
+        catch (Exception ex) when (ex is JsonException or InvalidOperationException or NotSupportedException) { return false; }
     }
 
     private async Task Enviar(string rota, object entrada)

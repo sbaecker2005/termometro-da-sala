@@ -62,7 +62,7 @@ No PowerShell: `$env:EXPO_PUBLIC_API_MOCK='vazio'; npx expo start --clear`. Para
 
 1. **Identificação.** Nome do professor e escola. Fica gravado no aparelho e volta ao reabrir. Pelo botão Professor, na lista, dá para alterar.
 2. **Salas.** Nível (nome e cor), índice de calor e hora da última leitura, no horário de São Paulo. Mostra carregando, erro com "Tentar de novo" e a mensagem de lista vazia. Sala que ainda não recebeu leitura aparece como "Sem leitura".
-3. **Sala.** Nível de agora e o previsto para daqui a 2 h, com a ação sugerida. Se a sala está sem leituras recentes, entra só a previsão da rua e o aviso. Se a previsão é do modo demonstração, aparece a etiqueta DEMONSTRAÇÃO. Abaixo, as ocorrências da sala (no modo simulado, as registradas nesta sessão; na API, `GET /ambientes/{id}/ocorrencias`, e 404 vira lista vazia).
+3. **Sala.** Nível de agora e o previsto para daqui a 2 h, com a ação sugerida. Se a sala está sem leituras recentes, entra só a previsão da rua e o aviso. Se a previsão da rua não está disponível (`ruaDisponivel: false`), o aviso diz que a previsão usa a última leitura válida da sala. Se a API responde 503 `sem-dados-para-prever`, a sala aparece normalmente e o lugar da previsão explica que ainda não há dados para prever; 404 é sala não encontrada. Se a previsão é do modo demonstração, aparece a etiqueta DEMONSTRAÇÃO. Abaixo, as ocorrências da sala (no modo simulado, as registradas nesta sessão; na API, `GET /ambientes/{id}/ocorrencias`, e 404 vira lista vazia).
 4. **Nova ocorrência.** O que aconteceu (10 a 500 caracteres) e uma foto pela câmera. O aviso pede para fotografar a sala ou o equipamento, sem pessoas. Se a permissão for negada, a tela explica e oferece tentar de novo.
 
 ## Testes

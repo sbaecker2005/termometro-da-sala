@@ -1,8 +1,9 @@
 import Constants from 'expo-constants';
 import { lerOcorrencias, RESPOSTA_INESPERADA, type Ocorrencia } from '../domain/ocorrencia';
 import { ehNivel, type Nivel } from '../domain/nivel';
+import { lerPrevisao, semDadosParaPrever, type Previsao } from '../domain/previsao';
 
-export type { Ocorrencia };
+export type { Ocorrencia, Previsao };
 
 export type Ambiente = {
   id: string;
@@ -13,17 +14,6 @@ export type Ambiente = {
   indiceAtual: number;
   ultimaLeituraEm: string;
   semLeitura: boolean;
-};
-
-export type Previsao = {
-  ambienteId: string;
-  previstoPara: string;
-  indiceRuaPrevisto: number;
-  deltaSala: number | null;
-  indiceSalaPrevisto: number | null;
-  nivelPrevisto: Nivel;
-  semLeiturasRecentes: boolean;
-  demonstracao: boolean;
 };
 
 export type FotoOcorrencia = { uri: string; nome: string; tipo: string };
@@ -69,6 +59,7 @@ const PREVISOES: Record<string, PrevisaoBase> = {
     nivelPrevisto: 'cuidado',
     semLeiturasRecentes: false,
     demonstracao: true,
+    ruaDisponivel: true,
   },
   'sala-01': {
     indiceRuaPrevisto: 34,
@@ -77,6 +68,7 @@ const PREVISOES: Record<string, PrevisaoBase> = {
     nivelPrevisto: 'normal',
     semLeiturasRecentes: false,
     demonstracao: false,
+    ruaDisponivel: true,
   },
   'sala-12': {
     indiceRuaPrevisto: 34,
@@ -85,6 +77,7 @@ const PREVISOES: Record<string, PrevisaoBase> = {
     nivelPrevisto: 'atencao',
     semLeiturasRecentes: false,
     demonstracao: false,
+    ruaDisponivel: true,
   },
   'sala-07': {
     indiceRuaPrevisto: 36,
@@ -93,6 +86,7 @@ const PREVISOES: Record<string, PrevisaoBase> = {
     nivelPrevisto: 'perigo',
     semLeiturasRecentes: false,
     demonstracao: false,
+    ruaDisponivel: true,
   },
   'sala-09': {
     indiceRuaPrevisto: 36,
@@ -101,6 +95,7 @@ const PREVISOES: Record<string, PrevisaoBase> = {
     nivelPrevisto: 'cuidado',
     semLeiturasRecentes: true,
     demonstracao: false,
+    ruaDisponivel: true,
   },
 };
 
@@ -138,10 +133,6 @@ function configuracao(): { apiUrl: string; modo: ModoSimulado } {
   return { apiUrl: apiUrl.replace(/\/$/, ''), modo: lerModo(extra.apiMock) };
 }
 
-function numeroOuNulo(valor: unknown): valor is number | null {
-  return valor === null || typeof valor === 'number';
-}
-
 function lerAmbiente(valor: unknown): Ambiente {
   if (!valor || typeof valor !== 'object') throw new Error(RESPOSTA_INESPERADA);
   const item = valor as Record<string, unknown>;
@@ -171,34 +162,6 @@ function lerAmbiente(valor: unknown): Ambiente {
   };
 }
 
-function lerPrevisao(valor: unknown): Previsao {
-  if (!valor || typeof valor !== 'object') throw new Error(RESPOSTA_INESPERADA);
-  const item = valor as Record<string, unknown>;
-  if (
-    typeof item.ambienteId !== 'string' ||
-    typeof item.previstoPara !== 'string' ||
-    typeof item.indiceRuaPrevisto !== 'number' ||
-    !numeroOuNulo(item.deltaSala) ||
-    !numeroOuNulo(item.indiceSalaPrevisto) ||
-    typeof item.nivelPrevisto !== 'string' ||
-    !ehNivel(item.nivelPrevisto) ||
-    typeof item.semLeiturasRecentes !== 'boolean' ||
-    typeof item.demonstracao !== 'boolean'
-  ) {
-    throw new Error(RESPOSTA_INESPERADA);
-  }
-  return {
-    ambienteId: item.ambienteId,
-    previstoPara: item.previstoPara,
-    indiceRuaPrevisto: item.indiceRuaPrevisto,
-    deltaSala: item.deltaSala,
-    indiceSalaPrevisto: item.indiceSalaPrevisto,
-    nivelPrevisto: item.nivelPrevisto,
-    semLeiturasRecentes: item.semLeiturasRecentes,
-    demonstracao: item.demonstracao,
-  };
-}
-
 async function lerJson(resposta: Response): Promise<unknown> {
   try {
     return (await resposta.json()) as unknown;
@@ -217,7 +180,8 @@ export async function listarAmbientes(): Promise<Ambiente[]> {
   return dados.map(lerAmbiente);
 }
 
-export async function obterPrevisao(ambienteId: string): Promise<Previsao> {
+// null: a API respondeu 503 "sem-dados-para-prever" (sem rua e sem leitura válida recente da sala); a tela avisa sem tratar como erro.
+export async function obterPrevisao(ambienteId: string): Promise<Previsao | null> {
   const { apiUrl, modo } = configuracao();
   if (modo !== 'desligado') {
     return simular(modo, () => {
@@ -228,6 +192,7 @@ export async function obterPrevisao(ambienteId: string): Promise<Previsao> {
   }
   const resposta = await buscar(`${apiUrl}/ambientes/${encodeURIComponent(ambienteId)}/previsao`);
   if (resposta.status === 404) throw new Error('Sala não encontrada.');
+  if (resposta.status === 503 && semDadosParaPrever(await resposta.json().catch(() => null))) return null;
   if (!resposta.ok) throw new Error(`Não foi possível carregar a previsão (${resposta.status}).`);
   return lerPrevisao(await lerJson(resposta));
 }

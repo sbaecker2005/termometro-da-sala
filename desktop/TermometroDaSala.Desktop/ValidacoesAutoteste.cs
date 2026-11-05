@@ -114,13 +114,22 @@ public static class ValidacoesAutoteste
             var json = rota switch
             {
                 "/ambientes" when request.Method == HttpMethod.Get => """[{"id":"sala-03","nome":"Sala 3","andar":1,"faceSol":"oeste","nivelAtual":"cuidado","indiceAtual":34.2,"ultimaLeituraEm":"2026-11-06T17:10:00.0000000\u002B00:00","semLeitura":false,"temVentilador":true,"dispositivoId":"esp32-sala-03"},{"id":"sala-04","nome":"Sala 4","andar":2,"faceSol":"norte","nivelAtual":"normal","indiceAtual":0,"ultimaLeituraEm":"","semLeitura":true,"temVentilador":false,"dispositivoId":null}]""",
-                "/ambientes/sala-03/previsao" => """{"ambienteId":"sala-03","previstoPara":"2026-11-06T19:10:00+00:00","indiceRuaPrevisto":34,"deltaSala":null,"indiceSalaPrevisto":null,"nivelPrevisto":"cuidado","semLeiturasRecentes":true,"demonstracao":true}""",
+                "/ambientes/sala-03/previsao" => """{"ambienteId":"sala-03","previstoPara":"2026-11-06T19:10:00+00:00","indiceRuaPrevisto":34,"deltaSala":null,"indiceSalaPrevisto":null,"nivelPrevisto":"cuidado","semLeiturasRecentes":true,"demonstracao":true,"ruaDisponivel":true}""",
+                "/ambientes/sala-04/previsao" => """{"ambienteId":"sala-04","previstoPara":"2026-11-06T19:10:00+00:00","indiceRuaPrevisto":0,"deltaSala":null,"indiceSalaPrevisto":31.5,"nivelPrevisto":"atencao","semLeiturasRecentes":false,"demonstracao":false,"ruaDisponivel":false}""",
+                "/ambientes/sala-sem-dados/previsao" => """{"motivo":"sem-dados-para-prever"}""",
+                "/ambientes/sala-proxy/previsao" => "<html>503</html>",
                 "/acoes?dia=2026-11-06" => """[{"id":1,"ambienteId":"sala-03","nivel":"cuidado","descricao":"Abrir janelas","registradoEm":"2026-11-06T17:15:00+00:00"}]""",
                 "/acoes" => """{"id":1}""",
                 "/ambientes" => """{"id":"sala-03"}""",
                 _ => "{}"
             };
-            return new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json") };
+            var codigo = rota switch
+            {
+                "/ambientes/sala-sem-dados/previsao" or "/ambientes/sala-proxy/previsao" => HttpStatusCode.ServiceUnavailable,
+                "/ambientes/sala-99/previsao" => HttpStatusCode.NotFound,
+                _ => HttpStatusCode.OK
+            };
+            return new HttpResponseMessage(codigo) { Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json") };
         })) { BaseAddress = new Uri("http://teste.local/") };
         var api = new ServicoSalasApi(http);
         var lista = await api.Listar();
@@ -130,6 +139,13 @@ public static class ValidacoesAutoteste
         Exigir(lista[1] is { SemLeitura: true, UltimaLeituraEm: null, Leitura: null, DispositivoId: null },
             "Sala sem leitura deveria aparecer como Sem leitura, não como Normal.");
         Exigir((await api.Prever(sala.Id))?.SemLeiturasRecentes == true, "Previsão sem delta recusada.");
+        Exigir(await api.Prever("sala-04") is { RuaDisponivel: false, IndiceSalaPrevisto: 31.5, NivelPrevisto: NivelCalor.atencao },
+            "Previsão sem a rua (última leitura válida da sala) recusada.");
+        Exigir(await api.Prever("sala-sem-dados") is null, "503 sem-dados-para-prever deveria virar 'sem previsão', não erro.");
+        try { await api.Prever("sala-proxy"); throw new InvalidOperationException("503 sem motivo tratado como falta de dados."); }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.ServiceUnavailable) { }
+        try { await api.Prever("sala-99"); throw new InvalidOperationException("Previsão de sala inexistente aceita."); }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound) { }
         await api.Cadastrar(sala);
         await api.Registrar(new Acao { AmbienteId = sala.Id, Nivel = NivelCalor.cuidado, Descricao = "Abrir janelas" });
         var acao = (await api.AcoesDoDia(new DateOnly(2026, 11, 6))).Single();

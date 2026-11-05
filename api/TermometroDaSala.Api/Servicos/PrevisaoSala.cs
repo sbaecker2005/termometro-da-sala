@@ -159,8 +159,8 @@ public class PrevisorRuaDemo : IPrevisorRua
     public double? IndiceNoInstante(DateTimeOffset utc) =>
         _horas.TryGetValue(Relogio.HoraLocal(utc).Hour, out var h) ? h.Indice : null;
 
-    public double? TemperaturaNoInstante(DateTimeOffset utc) =>
-        _horas.TryGetValue(Relogio.HoraLocal(utc).Hour, out var h) ? h.Temp : null;
+    // o CSV é um dia de exemplo, não a rua medida agora: não serve para marcar o sensor ao vivo como suspeito (regra dos 8 °C)
+    public double? TemperaturaNoInstante(DateTimeOffset utc) => null;
 
     public double? PreverDaquiA2h(DateTimeOffset utc) => IndiceNoInstante(utc.AddHours(2));
 }
@@ -209,17 +209,28 @@ public class ConsultaPrevisao
         return pares.Count < 3 ? null : Math.Round(pares.Average(), 1);
     }
 
+    // null: sem rua e sem leitura válida da sala nas últimas 3 h, não há o que prever sem inventar
     public async Task<PrevisaoSaida?> Montar(string ambienteId)
     {
-        if (!await _db.Ambientes.AnyAsync(a => a.Id == ambienteId)) return null;
         var agora = _tempo.GetUtcNow();
-        var rua = _rua.PreverDaquiA2h(agora);
-        var delta = await Delta(ambienteId, agora);
-        double? sala = delta is null || rua is null ? null : Math.Round(rua.Value + delta.Value, 1);
         var desde = agora.AddHours(-3);
         var demonstracao = _ambiente.IsEnvironment("Demo")
             || (await _db.Leituras.Where(l => l.AmbienteId == ambienteId && l.Origem == Origem.simulada).ToListAsync()).Any(l => l.MedidoEm >= desde);
-        return new PrevisaoSaida(ambienteId, agora.AddHours(2), Math.Round(rua ?? 0, 1),
-            delta, sala, IndiceCalor.Nivel(sala ?? rua ?? 0), delta is null, demonstracao);
+        var rua = _rua.PreverDaquiA2h(agora);
+        if (rua is not null)
+        {
+            var delta = await Delta(ambienteId, agora);
+            double? sala = delta is null ? null : Math.Round(rua.Value + delta.Value, 1);
+            return new PrevisaoSaida(ambienteId, agora.AddHours(2), Math.Round(rua.Value, 1),
+                delta, sala, IndiceCalor.Nivel(sala ?? rua.Value), delta is null, demonstracao, true);
+        }
+
+        // Sem rua (fora do Demo nada grava LeiturasRua): a sala se mantém no índice da última leitura válida.
+        var ultima = (await _db.Leituras.Where(l => l.AmbienteId == ambienteId && !l.Suspeita).ToListAsync())
+            .Where(l => l.MedidoEm >= desde && l.MedidoEm <= agora)
+            .MaxBy(l => l.MedidoEm);
+        if (ultima is null) return null;
+        return new PrevisaoSaida(ambienteId, agora.AddHours(2), 0,
+            null, ultima.IndiceCalor, IndiceCalor.Nivel(ultima.IndiceCalor), false, demonstracao, false);
     }
 }

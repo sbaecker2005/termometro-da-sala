@@ -1,8 +1,8 @@
 Evidencia C2: SQL Injection no id de GET /ambientes/{id}/leituras
 Ambiente: Windows 11, .NET SDK 8.0.427, banco SQLite em memoria dos testes (nenhum banco real)
-Data: 05/11/2026 08:59 (UTC-3)
-Origem: trecho do log da execucao do Comando 2 de dotnet-test-seguranca.txt (16 testes de seguranca, 16 aprovados)
-Teste: ApiTestes.ConsultaDeLeiturasParametrizada (api/TermometroDaSala.Api.Tests/ApiTestes.cs:314-339)
+Data: 05/11/2026 09:28 (UTC-3)
+Origem: trecho do log da execucao do Comando 2 de dotnet-test-seguranca.txt (18 testes de seguranca, 18 aprovados)
+Teste: ApiTestes.ConsultaDeLeiturasParametrizada (api/TermometroDaSala.Api.Tests/ApiTestes.cs:317-342)
 Entrada: id = sala-03' OR 1=1 --   (18 caracteres)
 Comando SQL registrado pelo EF Core ao atender o GET (LeiturasController.cs:18-19):
   Executed DbCommand (0ms) [Parameters=[@__id_0='?' (Size = 18)], CommandType='Text', CommandTimeout='30']

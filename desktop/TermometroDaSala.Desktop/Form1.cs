@@ -129,11 +129,18 @@ public partial class Form1 : Form
         {
             Previsao? previsao = null;
             string aviso = servico == local ? "Sem dados do sensor" : "";
-            try { previsao = await servico.Prever(sala.Id); }
+            try
+            {
+                previsao = await servico.Prever(sala.Id);
+                if (previsao is null && servico != local) aviso = "Sem dados para prever: sem previsão da rua e sem leitura válida recente da sala";
+            }
+            catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            { aviso = "Sala não encontrada na API"; }
             catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or System.Text.Json.JsonException)
             { aviso = "Previsão indisponível"; }
             if (previsao?.Demonstracao == true) aviso += " DEMONSTRAÇÃO";
-            if (previsao?.SemLeiturasRecentes == true) aviso += " Sala sem leituras recentes; previsão da rua";
+            if (previsao?.RuaDisponivel == false) aviso += " Previsão da rua indisponível; previsão usa a última leitura válida da sala";
+            else if (previsao?.SemLeiturasRecentes == true) aviso += " Sala sem leituras recentes; previsão da rua";
             if (sala.SensorRevogado) aviso += " Sensor revogado";
             if (sala.UltimaLeituraEm is { } hora && DateTimeOffset.UtcNow - hora > TimeSpan.FromMinutes(10)) aviso += " Leitura antiga";
             var linha = salas.Rows[salas.Rows.Add(sala.Id, sala.Nome,

@@ -8,7 +8,7 @@ dados de alunos. Os passos seguem o roteiro do Insomnia em [../README.md](../REA
 
 | Arquivo | Comando (a partir de `api/`) | O que mostra |
 |---|---|---|
-| [dotnet-test.txt](dotnet-test.txt) | `dotnet test` | 36 testes aprovados, incluindo `EsquemaTestes` |
+| [dotnet-test.txt](dotnet-test.txt) | `dotnet test` | 40 testes aprovados, incluindo `EsquemaTestes` |
 | [migracoes-idempotente.sql](migracoes-idempotente.sql) | `dotnet ef migrations script --idempotent --project TermometroDaSala.Api -o evidencias/migracoes-idempotente.sql` | SQL das 3 migrações. Em `CREATE TABLE [Leituras]`, só a FK para `Ambientes` tem `ON DELETE CASCADE`; a FK para `Dispositivos` fica sem ação |
 
 `dotnet ef migrations has-pending-model-changes --project TermometroDaSala.Api` responde
@@ -45,7 +45,7 @@ migrações estão alinhados.
 | 9a | `GET /ambientes` | 200 com nível e índice de cada sala | [preencher] |
 | 9b | `GET /ambientes/{id}/leituras` | 200 em JSON | [preencher] |
 | 9c | `GET /ambientes/{id}/leituras?formato=csv` | 200 `text/csv` | [preencher] |
-| 9d | `GET /ambientes/{id}/previsao` | 200 com rua daqui a 2 h, delta e nível previsto | [preencher] |
+| 9d | `GET /ambientes/{id}/previsao` | 200 com nível previsto. Sem rua carregada (fora do Demo): `ruaDisponivel: false` e o índice da última leitura válida da sala; sem rua e sem leitura válida recente: 503 | [preencher] |
 | 9e | `POST /demo/semear` fora do ambiente Demo | 404 | [preencher] |
 | 9f | `POST /demo/semear` em Demo, sem leitura ao vivo | 409 | [preencher] |
 | 9g | `POST /demo/semear` em Demo, depois de uma leitura | 201 com `inseridas` | [preencher] |

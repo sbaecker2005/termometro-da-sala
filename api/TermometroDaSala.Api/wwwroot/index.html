@@ -67,7 +67,8 @@
           let previsto = "sem previsão";
           if (prev) {
             previsto = nome(prev.nivelPrevisto);
-            if (prev.semLeiturasRecentes) previsto += " (só a rua, sala sem leituras recentes)";
+            if (!prev.ruaDisponivel) previsto += " (sem dado da rua: mantém a última leitura válida da sala)";
+            else if (prev.semLeiturasRecentes) previsto += " (só a rua, sala sem leituras recentes)";
             if (prev.demonstracao) previsto += " — demonstração";
           }
           const tr = document.createElement("tr");

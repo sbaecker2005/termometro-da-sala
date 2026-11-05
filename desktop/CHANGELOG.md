@@ -6,6 +6,12 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não publicado]
 
+### Adicionado
+
+- Campo `ruaDisponivel` na previsão. Quando é falso, o aviso da linha diz que a previsão usa a última leitura válida da sala.
+- Previsão com 503 `sem-dados-para-prever` aparece como "Sem dados para prever", sem tratar como falha; 404 aparece como sala não encontrada.
+- Casos de teste de contrato para previsão sem a rua, 503 com e sem o motivo e 404.
+
 ## [0.2.0] - 2026-11-05
 
 ### Adicionado
