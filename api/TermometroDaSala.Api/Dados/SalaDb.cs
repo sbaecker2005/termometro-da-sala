@@ -62,10 +62,10 @@ public class SalaDb : DbContext
             new Ambiente { Id = "sala-03", Nome = "Sala 3", Tipo = TipoAmbiente.sala, Andar = 1, FaceSol = FaceSol.oeste, TemVentilador = true },
             new Ambiente { Id = "sala-04", Nome = "Sala 4", Tipo = TipoAmbiente.sala, Andar = 2, FaceSol = FaceSol.sul, TemVentilador = false });
         model.Entity<Dispositivo>().HasData(
-            new Dispositivo { Id = "esp32-sala-01", AmbienteId = "sala-01", Segredo = "segredo-de-teste-sala-01", Ativo = true },
-            new Dispositivo { Id = "esp32-sala-02", AmbienteId = "sala-02", Segredo = "segredo-de-teste-sala-02", Ativo = true },
-            new Dispositivo { Id = "esp32-sala-03", AmbienteId = "sala-03", Segredo = "segredo-de-teste-sala-03", Ativo = true },
-            new Dispositivo { Id = "esp32-sala-04", AmbienteId = "sala-04", Segredo = "segredo-de-teste-sala-04", Ativo = true });
+            new Dispositivo { Id = "esp32-sala-01", AmbienteId = "sala-01", Segredo = "segredo-de-teste-sala-01" },
+            new Dispositivo { Id = "esp32-sala-02", AmbienteId = "sala-02", Segredo = "segredo-de-teste-sala-02" },
+            new Dispositivo { Id = "esp32-sala-03", AmbienteId = "sala-03", Segredo = "segredo-de-teste-sala-03" },
+            new Dispositivo { Id = "esp32-sala-04", AmbienteId = "sala-04", Segredo = "segredo-de-teste-sala-04" });
     }
 }
 

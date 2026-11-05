@@ -19,9 +19,9 @@ public class DemoController(SalaDb _db, IHostEnvironment _ambiente, ILogger<Demo
     {
         if (!_ambiente.IsEnvironment("Demo")) { _log.LogWarning("demo semear recusado: fora-do-ambiente"); return NotFound(); }
         if (!await _db.Ambientes.AnyAsync(a => a.Id == ambienteId)) return NotFound();
-        var aoVivo = (await _db.Leituras.Where(l => l.AmbienteId == ambienteId && l.Origem == Origem.dispositivo).ToListAsync())
+        var aoVivo = await _db.Leituras.Where(l => l.AmbienteId == ambienteId && l.Origem == Origem.dispositivo)
             .OrderBy(l => l.MedidoEm)
-            .ToList();
+            .ToListAsync();
         if (aoVivo.Count == 0) return Conflict(new MotivoSaida("ligue o sensor primeiro"));
 
         var dispositivo = await _db.Dispositivos.FirstAsync(d => d.AmbienteId == ambienteId);
@@ -59,7 +59,7 @@ public class DemoController(SalaDb _db, IHostEnvironment _ambiente, ILogger<Demo
                 TemperaturaC = temp,
                 UmidadePct = umid,
                 IndiceCalor = indice,
-                Nivel = Enum.Parse<Nivel>(IndiceCalor.Nivel(indice)),
+                Nivel = IndiceCalor.Nivel(indice),
                 MedidoEm = primeira.AddMinutes(-linha.Minutos),
                 Origem = Origem.simulada,
             });

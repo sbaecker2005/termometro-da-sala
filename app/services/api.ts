@@ -203,7 +203,7 @@ export async function listarOcorrencias(ambienteId: string): Promise<Ocorrencia[
     return simular(modo, () => ocorrenciasSimuladas.filter((item) => item.ambienteId === ambienteId));
   }
   const resposta = await buscar(`${apiUrl}/ambientes/${encodeURIComponent(ambienteId)}/ocorrencias`);
-  // 404 é lista vazia: a sala ainda não tem o recurso.
+  // 404 é sala inexistente; a tela já mostra "Sala não encontrada" pela lista de salas.
   if (resposta.status === 404) return [];
   if (!resposta.ok) throw new Error(`Não foi possível carregar as ocorrências (${resposta.status}).`);
   return lerOcorrencias(await lerJson(resposta));

@@ -28,15 +28,16 @@ var cs = builder.Configuration.GetConnectionString("Sala")
 builder.Services.AddDbContext<SalaDb>(o => o.UseSqlServer(cs));
 builder.Services.AddSingleton(TimeProvider.System);
 
+string CaminhoModelo(IServiceProvider sp) =>
+    Path.GetFullPath(builder.Configuration["Modelo:Caminho"] ?? Path.Combine("modelo", "modelo.json"),
+        sp.GetRequiredService<IHostEnvironment>().ContentRootPath);
+
 if (builder.Environment.IsEnvironment("Demo"))
-    builder.Services.AddScoped<IPrevisorRua>(sp => new PrevisorRuaDemo(sp.GetRequiredService<IHostEnvironment>().ContentRootPath));
+    builder.Services.AddScoped<IPrevisorRua>(sp => new PrevisorRuaDemo(sp.GetRequiredService<IHostEnvironment>().ContentRootPath,
+        CaminhoModelo(sp), sp.GetRequiredService<ILogger<PrevisorRuaDemo>>()));
 else
     builder.Services.AddScoped<IPrevisorRua>(sp =>
-    {
-        var raiz = sp.GetRequiredService<IHostEnvironment>().ContentRootPath;
-        var caminho = Path.GetFullPath(builder.Configuration["Modelo:Caminho"] ?? Path.Combine("modelo", "modelo.json"), raiz);
-        return new PrevisorRuaModelo(sp.GetRequiredService<SalaDb>(), sp.GetRequiredService<ILogger<PrevisorRuaModelo>>(), caminho);
-    });
+        new PrevisorRuaModelo(sp.GetRequiredService<SalaDb>(), sp.GetRequiredService<ILogger<PrevisorRuaModelo>>(), CaminhoModelo(sp)));
 
 builder.Services.AddScoped<ServicoLeituras>();
 builder.Services.AddScoped<ConsultaPrevisao>();
@@ -59,7 +60,16 @@ if (!app.Environment.IsProduction())
 }
 
 if (app.Environment.IsProduction())
+{
+    app.UseHsts();
     app.UseHttpsRedirection();
+}
+
+app.Use((contexto, proximo) =>
+{
+    contexto.Response.Headers.XContentTypeOptions = "nosniff";
+    return proximo(contexto);
+});
 
 app.UseDefaultFiles();
 app.UseStaticFiles();

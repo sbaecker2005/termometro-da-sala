@@ -54,6 +54,38 @@ public class PrevisorModeloTestes
     }
 
     [Fact]
+    public void DemoAplicaOModeloAoDiaDoCsvEDaOMesmoValor()
+    {
+        // O mesmo vetor do teste acima (26,97 °C), agora como horas do CSV do Demo: 13 h a 28,5 °C e 14 h a 30 °C, 50%.
+        var pasta = Path.Combine(Path.GetTempPath(), "demo-modelo-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(Path.Combine(pasta, "demo"));
+        File.WriteAllText(Path.Combine(pasta, "demo", "rua-dia-quente.csv"), "horaLocal,temperaturaC,umidadePct\n13,28.5,50\n14,30,50\n16,33.6,40\n");
+        try
+        {
+            var utc = new DateTimeOffset(2026, 1, 15, 17, 0, 0, TimeSpan.Zero);
+            var demo = new PrevisorRuaDemo(pasta, AcharModelo(), NullLogger.Instance).PreverDaquiA2h(utc)!.Value;
+
+            using var banco = new BancoRua();
+            banco.Db.LeiturasRua.Add(Leitura(utc, 30, 50));
+            banco.Db.LeiturasRua.Add(Leitura(utc.AddHours(-1), 28.5, 50));
+            banco.Db.SaveChanges();
+            var modelo = new PrevisorRuaModelo(banco.Db, NullLogger<PrevisorRuaModelo>.Instance, AcharModelo()).PreverDaquiA2h(utc)!.Value;
+
+            Assert.Equal(modelo, demo);
+            Assert.Equal("26.97", Math.Round(demo, 2).ToString("0.00", CultureInfo.InvariantCulture));
+            // sem o modelo, o Demo volta à hora do CSV duas horas à frente (16 h)
+            var ausente = Path.Combine(pasta, "nao-existe.json");
+            Assert.Equal(IndiceCalor.Calcular(33.6, 40), new PrevisorRuaDemo(pasta, ausente, NullLogger.Instance).PreverDaquiA2h(utc));
+            // hora fora do CSV: sem rua, nada é inventado
+            Assert.Null(new PrevisorRuaDemo(pasta, AcharModelo(), NullLogger.Instance).PreverDaquiA2h(utc.AddHours(5)));
+        }
+        finally
+        {
+            Directory.Delete(pasta, true);
+        }
+    }
+
+    [Fact]
     public void ArquivoAusenteOuInvalidoCaiNoProvisorio()
     {
         using var banco = new BancoRua();
@@ -76,7 +108,7 @@ public class PrevisorModeloTestes
         }
     }
 
-    static double Formula(JsonElement modelo, double temp, int umid, int hora, int mes, double variacao)
+    internal static double Formula(JsonElement modelo, double temp, int umid, int hora, int mes, double variacao)
     {
         var atributos = new Dictionary<string, double>
         {
@@ -106,7 +138,7 @@ public class PrevisorModeloTestes
     static LeituraRua Leitura(DateTimeOffset quando, double temp, int umid) =>
         new() { MedidoEm = quando, TemperaturaC = temp, UmidadePct = umid, IndiceCalor = 0 };
 
-    static string AcharModelo()
+    internal static string AcharModelo()
     {
         for (var dir = new DirectoryInfo(AppContext.BaseDirectory); dir is not null; dir = dir.Parent)
         {
@@ -124,7 +156,9 @@ public class PrevisorModeloTestes
         public BancoRua()
         {
             _conexao.Open();
-            Db = new SalaDb(new DbContextOptionsBuilder<SalaDb>().UseSqlite(_conexao).Options);
+            var opcoes = new DbContextOptionsBuilder<SalaDb>();
+            SqliteDeTeste.Usar(opcoes, _conexao);
+            Db = new SalaDb(opcoes.Options);
             Db.Database.EnsureCreated();
         }
 

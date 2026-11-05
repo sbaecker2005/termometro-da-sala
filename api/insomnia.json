@@ -1,13 +1,13 @@
 {
   "__export_format": 4,
-  "__export_date": "2026-11-04T00:00:00.000Z",
+  "__export_date": "2026-11-05T00:00:00.000Z",
   "__export_source": "insomnia.desktop.app",
   "resources": [
     {
       "_id": "wrk_termometro",
       "_type": "workspace",
       "name": "Termômetro da Sala",
-      "description": "Execute o roteiro do README. Escrita da coordenação envia X-Chave-Coordenacao (preencha chave_coordenacao no ambiente; não grave a chave aqui). Escrita: 30 pedidos por minuto por IP; acima disso, 429.",
+      "description": "Execute na ordem dos números (roteiro do README). Cada requisição confere o status esperado na aba de testes. Escrita da coordenação envia X-Chave-Coordenacao (preencha chave_coordenacao no ambiente; não grave a chave aqui). Escrita: 30 pedidos por minuto por IP; acima disso, 429.",
       "scope": "collection"
     },
     {
@@ -33,90 +33,70 @@
       "metaSortKey": 1000
     },
     {
-      "_id": "req_ambientes",
-      "_type": "request",
+      "_id": "fld_leituras",
+      "_type": "request_group",
       "parentId": "wrk_termometro",
-      "name": "GET /ambientes",
-      "method": "GET",
-      "url": "{{ _.base_url }}/ambientes",
-      "headers": [],
-      "parameters": [],
-      "body": {},
-      "authentication": {},
-      "metaSortKey": -1000,
-      "isPrivate": false,
-      "settingStoreCookies": true,
-      "settingSendCookies": true,
-      "settingDisableRenderRequestBody": false,
-      "settingEncodeUrl": true,
-      "settingRebuildPath": true,
-      "settingFollowRedirects": "global"
+      "name": "Leituras",
+      "description": "Leitura assinada (HMAC), recusas, consulta em JSON e CSV.",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -1000
     },
     {
-      "_id": "req_leituras",
-      "_type": "request",
+      "_id": "fld_dispositivos",
+      "_type": "request_group",
       "parentId": "wrk_termometro",
-      "name": "GET /ambientes/{id}/leituras",
-      "method": "GET",
-      "url": "{{ _.base_url }}/ambientes/sala-03/leituras",
-      "headers": [],
-      "parameters": [],
-      "body": {},
-      "authentication": {},
-      "metaSortKey": -900,
-      "isPrivate": false,
-      "settingStoreCookies": true,
-      "settingSendCookies": true,
-      "settingDisableRenderRequestBody": false,
-      "settingEncodeUrl": true,
-      "settingRebuildPath": true,
-      "settingFollowRedirects": "global"
+      "name": "Dispositivos",
+      "description": "Revogação do sensor (exige a chave da coordenação).",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -900
     },
     {
-      "_id": "req_leituras_csv",
-      "_type": "request",
+      "_id": "fld_ambientes",
+      "_type": "request_group",
       "parentId": "wrk_termometro",
-      "name": "GET /ambientes/{id}/leituras?formato=csv",
-      "method": "GET",
-      "url": "{{ _.base_url }}/ambientes/sala-03/leituras?formato=csv",
-      "headers": [],
-      "parameters": [],
-      "body": {},
-      "authentication": {},
-      "metaSortKey": -800,
-      "isPrivate": false,
-      "settingStoreCookies": true,
-      "settingSendCookies": true,
-      "settingDisableRenderRequestBody": false,
-      "settingEncodeUrl": true,
-      "settingRebuildPath": true,
-      "settingFollowRedirects": "global"
+      "name": "Ambientes",
+      "description": "Salas: cadastro, consulta, alteração, exclusão e previsão.",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -800
     },
     {
-      "_id": "req_previsao",
-      "_type": "request",
+      "_id": "fld_acoes",
+      "_type": "request_group",
       "parentId": "wrk_termometro",
-      "name": "GET /ambientes/{id}/previsao",
-      "method": "GET",
-      "url": "{{ _.base_url }}/ambientes/sala-03/previsao",
-      "headers": [],
-      "parameters": [],
-      "body": {},
-      "authentication": {},
-      "metaSortKey": -700,
-      "isPrivate": false,
-      "settingStoreCookies": true,
-      "settingSendCookies": true,
-      "settingDisableRenderRequestBody": false,
-      "settingEncodeUrl": true,
-      "settingRebuildPath": true,
-      "settingFollowRedirects": "global"
+      "name": "Ações e níveis",
+      "description": "Ação tomada pela coordenação e as faixas de nível com a ação sugerida.",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -700
+    },
+    {
+      "_id": "fld_ocorrencias",
+      "_type": "request_group",
+      "parentId": "wrk_termometro",
+      "name": "Ocorrências",
+      "description": "Ocorrência com foto do app e a lista da sala. A foto só abre com a chave.",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -600
+    },
+    {
+      "_id": "fld_demo",
+      "_type": "request_group",
+      "parentId": "wrk_termometro",
+      "name": "Demonstração",
+      "description": "Só no ambiente Demo.",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -500
     },
     {
       "_id": "req_post_leituras",
       "_type": "request",
-      "parentId": "wrk_termometro",
-      "name": "POST /leituras - sucesso",
+      "parentId": "fld_leituras",
+      "name": "01 POST /leituras - sucesso",
       "description": "Gera instante atual e HMAC com a chave pública de teste. Esperado 201; repetir após ao menos 1 segundo.",
       "method": "POST",
       "url": "{{ _.base_url }}/leituras",
@@ -132,7 +112,7 @@
         "text": "{}"
       },
       "authentication": {},
-      "metaSortKey": -600,
+      "metaSortKey": 1,
       "isPrivate": false,
       "settingStoreCookies": true,
       "settingSendCookies": true,
@@ -140,13 +120,428 @@
       "settingEncodeUrl": true,
       "settingRebuildPath": true,
       "settingFollowRedirects": "global",
-      "preRequestScript": "const CryptoJS = require('crypto-js');\nconst medidoEm = Math.floor(Date.now() / 1000);\nconst corpo = { ambienteId: 'sala-03', dispositivo: 'esp32-sala-03', temperaturaC: 33.4, umidadePct: 58, medidoEm };\nconst canonico = `${corpo.ambienteId}|${corpo.dispositivo}|${corpo.temperaturaC.toFixed(1)}|${corpo.umidadePct}|${medidoEm}`;\ncorpo.assinatura = CryptoJS.HmacSHA256(canonico, 'segredo-de-teste-sala-03').toString(CryptoJS.enc.Hex);\ninsomnia.environment.set('leitura_aceita', JSON.stringify(corpo));\ninsomnia.request.body.update({ mode: 'raw', raw: JSON.stringify(corpo) });"
+      "preRequestScript": "const CryptoJS = require('crypto-js');\nconst medidoEm = Math.floor(Date.now() / 1000);\nconst corpo = { ambienteId: 'sala-03', dispositivo: 'esp32-sala-03', temperaturaC: 33.4, umidadePct: 58, medidoEm };\nconst canonico = `${corpo.ambienteId}|${corpo.dispositivo}|${corpo.temperaturaC.toFixed(1)}|${corpo.umidadePct}|${medidoEm}`;\ncorpo.assinatura = CryptoJS.HmacSHA256(canonico, 'segredo-de-teste-sala-03').toString(CryptoJS.enc.Hex);\ninsomnia.environment.set('leitura_aceita', JSON.stringify(corpo));\ninsomnia.request.body.update({ mode: 'raw', raw: JSON.stringify(corpo) });",
+      "afterResponseScript": "insomnia.test('Status 201', () => {\n  insomnia.expect(insomnia.response.code).to.equal(201);\n});"
+    },
+    {
+      "_id": "req_reenvio",
+      "_type": "request",
+      "parentId": "fld_leituras",
+      "name": "02 POST /leituras - reenvio",
+      "description": "Esperado 400 com motivo reenvio. Siga a ordem no README.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/leituras",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "parameters": [],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{{ _.leitura_aceita }}"
+      },
+      "authentication": {},
+      "metaSortKey": 2,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "afterResponseScript": "insomnia.test('Status 400', () => {\n  insomnia.expect(insomnia.response.code).to.equal(400);\n});"
+    },
+    {
+      "_id": "req_assinatura_invalida",
+      "_type": "request",
+      "parentId": "fld_leituras",
+      "name": "03 POST /leituras - assinatura-invalida",
+      "description": "Esperado 400 com motivo assinatura-invalida. Siga a ordem no README.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/leituras",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "parameters": [],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "authentication": {},
+      "metaSortKey": 3,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "preRequestScript": "const CryptoJS = require('crypto-js');\nconst medidoEm = Math.floor(Date.now() / 1000);\nconst corpo = { ambienteId: 'sala-02', dispositivo: 'esp32-sala-02', temperaturaC: 33.4, umidadePct: 58, medidoEm };\nconst canonico = `${corpo.ambienteId}|${corpo.dispositivo}|${corpo.temperaturaC.toFixed(1)}|${corpo.umidadePct}|${medidoEm}`;\ncorpo.assinatura = CryptoJS.HmacSHA256(canonico, 'segredo-de-teste-sala-02').toString(CryptoJS.enc.Hex);\ncorpo.assinatura = '00';\ninsomnia.request.body.update({ mode: 'raw', raw: JSON.stringify(corpo) });",
+      "afterResponseScript": "insomnia.test('Status 400', () => {\n  insomnia.expect(insomnia.response.code).to.equal(400);\n});"
+    },
+    {
+      "_id": "req_fora_faixa",
+      "_type": "request",
+      "parentId": "fld_leituras",
+      "name": "04 POST /leituras - fora-da-faixa",
+      "description": "Esperado 400 com motivo fora-da-faixa. Siga a ordem no README.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/leituras",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "parameters": [],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "authentication": {},
+      "metaSortKey": 4,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "preRequestScript": "const CryptoJS = require('crypto-js');\nconst medidoEm = Math.floor(Date.now() / 1000);\nconst corpo = { ambienteId: 'sala-04', dispositivo: 'esp32-sala-04', temperaturaC: 70, umidadePct: 58, medidoEm };\nconst canonico = `${corpo.ambienteId}|${corpo.dispositivo}|${corpo.temperaturaC.toFixed(1)}|${corpo.umidadePct}|${medidoEm}`;\ncorpo.assinatura = CryptoJS.HmacSHA256(canonico, 'segredo-de-teste-sala-04').toString(CryptoJS.enc.Hex);\n\ninsomnia.request.body.update({ mode: 'raw', raw: JSON.stringify(corpo) });",
+      "afterResponseScript": "insomnia.test('Status 400', () => {\n  insomnia.expect(insomnia.response.code).to.equal(400);\n});"
+    },
+    {
+      "_id": "req_revogar",
+      "_type": "request",
+      "parentId": "fld_dispositivos",
+      "name": "05 POST /dispositivos/{id}/revogar",
+      "description": "Exige X-Chave-Coordenacao. Limite de escrita: 30 por minuto por IP (429).",
+      "method": "POST",
+      "url": "{{ _.base_url }}/dispositivos/esp32-sala-01/revogar",
+      "headers": [
+        {
+          "name": "X-Chave-Coordenacao",
+          "value": "{{ _.chave_coordenacao }}"
+        }
+      ],
+      "parameters": [],
+      "body": {},
+      "authentication": {},
+      "metaSortKey": 5,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "afterResponseScript": "insomnia.test('Status 200', () => {\n  insomnia.expect(insomnia.response.code).to.equal(200);\n});"
+    },
+    {
+      "_id": "req_revogado",
+      "_type": "request",
+      "parentId": "fld_leituras",
+      "name": "06 POST /leituras - dispositivo-revogado",
+      "description": "Esperado 400 com motivo dispositivo-revogado. Siga a ordem no README.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/leituras",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "parameters": [],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "authentication": {},
+      "metaSortKey": 6,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "preRequestScript": "const CryptoJS = require('crypto-js');\nconst medidoEm = Math.floor(Date.now() / 1000);\nconst corpo = { ambienteId: 'sala-01', dispositivo: 'esp32-sala-01', temperaturaC: 33.4, umidadePct: 58, medidoEm };\nconst canonico = `${corpo.ambienteId}|${corpo.dispositivo}|${corpo.temperaturaC.toFixed(1)}|${corpo.umidadePct}|${medidoEm}`;\ncorpo.assinatura = CryptoJS.HmacSHA256(canonico, 'segredo-de-teste-sala-01').toString(CryptoJS.enc.Hex);\n\ninsomnia.request.body.update({ mode: 'raw', raw: JSON.stringify(corpo) });",
+      "afterResponseScript": "insomnia.test('Status 400', () => {\n  insomnia.expect(insomnia.response.code).to.equal(400);\n});"
+    },
+    {
+      "_id": "req_post_ambientes",
+      "_type": "request",
+      "parentId": "fld_ambientes",
+      "name": "07 POST /ambientes",
+      "description": "Exige X-Chave-Coordenacao. 201 com Location /ambientes/sala-05. O passo 13 apaga a sala, então o roteiro pode ser repetido.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/ambientes",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "X-Chave-Coordenacao",
+          "value": "{{ _.chave_coordenacao }}"
+        }
+      ],
+      "parameters": [],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"sala-05\",\n  \"nome\": \"Sala 5\",\n  \"andar\": 1,\n  \"faceSol\": \"oeste\",\n  \"temVentilador\": true\n}"
+      },
+      "authentication": {},
+      "metaSortKey": 7,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "afterResponseScript": "insomnia.test('Status 201', () => {\n  insomnia.expect(insomnia.response.code).to.equal(201);\n});"
+    },
+    {
+      "_id": "req_post_ambientes_repetido",
+      "_type": "request",
+      "parentId": "fld_ambientes",
+      "name": "08 POST /ambientes - repetido",
+      "method": "POST",
+      "url": "{{ _.base_url }}/ambientes",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "X-Chave-Coordenacao",
+          "value": "{{ _.chave_coordenacao }}"
+        }
+      ],
+      "parameters": [],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"sala-05\",\n  \"nome\": \"Sala 5\",\n  \"andar\": 1,\n  \"faceSol\": \"oeste\",\n  \"temVentilador\": true\n}"
+      },
+      "authentication": {},
+      "metaSortKey": 8,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "description": "Mesmo corpo do passo 07. Esperado 409 com motivo ambiente-existente.",
+      "afterResponseScript": "insomnia.test('Status 409', () => {\n  insomnia.expect(insomnia.response.code).to.equal(409);\n});"
+    },
+    {
+      "_id": "req_post_ambientes_sem_chave",
+      "_type": "request",
+      "parentId": "fld_ambientes",
+      "name": "09 POST /ambientes - sem chave",
+      "method": "POST",
+      "url": "{{ _.base_url }}/ambientes",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "parameters": [],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"sala-06\",\n  \"nome\": \"Sala 6\",\n  \"andar\": 0,\n  \"faceSol\": \"leste\",\n  \"temVentilador\": false\n}"
+      },
+      "authentication": {},
+      "metaSortKey": 9,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "description": "Sem X-Chave-Coordenacao. Esperado 401 e nada gravado (GET /ambientes não mostra a sala-06).",
+      "afterResponseScript": "insomnia.test('Status 401', () => {\n  insomnia.expect(insomnia.response.code).to.equal(401);\n});"
+    },
+    {
+      "_id": "req_get_ambiente",
+      "_type": "request",
+      "parentId": "fld_ambientes",
+      "name": "10 GET /ambientes/{id}",
+      "method": "GET",
+      "url": "{{ _.base_url }}/ambientes/sala-05",
+      "headers": [],
+      "parameters": [],
+      "body": {},
+      "authentication": {},
+      "metaSortKey": 10,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "afterResponseScript": "insomnia.test('Status 200', () => {\n  insomnia.expect(insomnia.response.code).to.equal(200);\n});"
+    },
+    {
+      "_id": "req_put_ambiente",
+      "_type": "request",
+      "parentId": "fld_ambientes",
+      "name": "11 PUT /ambientes/{id}",
+      "method": "PUT",
+      "url": "{{ _.base_url }}/ambientes/sala-05",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "X-Chave-Coordenacao",
+          "value": "{{ _.chave_coordenacao }}"
+        }
+      ],
+      "parameters": [],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"sala-05\",\n  \"nome\": \"Sala 5 (reformada)\",\n  \"andar\": 1,\n  \"faceSol\": \"oeste\",\n  \"temVentilador\": false\n}"
+      },
+      "authentication": {},
+      "metaSortKey": 11,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "description": "Exige X-Chave-Coordenacao. O id do corpo precisa ser o da rota (senão 400 id-divergente).",
+      "afterResponseScript": "insomnia.test('Status 200', () => {\n  insomnia.expect(insomnia.response.code).to.equal(200);\n});"
+    },
+    {
+      "_id": "req_delete_ambiente_com_leituras",
+      "_type": "request",
+      "parentId": "fld_ambientes",
+      "name": "12 DELETE /ambientes/{id} - com leituras",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/ambientes/sala-03",
+      "headers": [
+        {
+          "name": "X-Chave-Coordenacao",
+          "value": "{{ _.chave_coordenacao }}"
+        }
+      ],
+      "parameters": [],
+      "body": {},
+      "authentication": {},
+      "metaSortKey": 12,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "description": "A sala 3 tem leituras (passo 01): esperado 409 ambiente-com-leituras, nada apagado. Rode depois do 01: sem leitura, o DELETE apagaria a sala 3 e o sensor dela.",
+      "afterResponseScript": "insomnia.test('Status 409', () => {\n  insomnia.expect(insomnia.response.code).to.equal(409);\n});",
+      "preRequestScript": "if (insomnia.environment.get('leitura_aceita') === '{}') {\n  throw new Error('Rode o 01 antes: sem leitura, este DELETE apagaria a sala 3.');\n}"
+    },
+    {
+      "_id": "req_delete_ambiente",
+      "_type": "request",
+      "parentId": "fld_ambientes",
+      "name": "13 DELETE /ambientes/{id}",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/ambientes/sala-05",
+      "headers": [
+        {
+          "name": "X-Chave-Coordenacao",
+          "value": "{{ _.chave_coordenacao }}"
+        }
+      ],
+      "parameters": [],
+      "body": {},
+      "authentication": {},
+      "metaSortKey": 13,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "description": "Exige X-Chave-Coordenacao. Esperado 204; depois GET /ambientes/sala-05 responde 404.",
+      "afterResponseScript": "insomnia.test('Status 204', () => {\n  insomnia.expect(insomnia.response.code).to.equal(204);\n});"
+    },
+    {
+      "_id": "req_acoes",
+      "_type": "request",
+      "parentId": "fld_acoes",
+      "name": "14 POST /acoes",
+      "description": "Exige X-Chave-Coordenacao. Limite de escrita: 30 por minuto por IP (429).",
+      "method": "POST",
+      "url": "{{ _.base_url }}/acoes",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "X-Chave-Coordenacao",
+          "value": "{{ _.chave_coordenacao }}"
+        }
+      ],
+      "parameters": [],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"ambienteId\": \"sala-03\",\n  \"nivel\": \"cuidado\",\n  \"descricao\": \"pausa para água\"\n}"
+      },
+      "authentication": {},
+      "metaSortKey": 14,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "afterResponseScript": "insomnia.test('Status 201', () => {\n  insomnia.expect(insomnia.response.code).to.equal(201);\n});"
+    },
+    {
+      "_id": "req_get_acoes",
+      "_type": "request",
+      "parentId": "fld_acoes",
+      "name": "15 GET /acoes?dia=AAAA-MM-DD",
+      "method": "GET",
+      "url": "{{ _.base_url }}/acoes?dia={{ _.dia }}",
+      "headers": [],
+      "parameters": [],
+      "body": {},
+      "authentication": {},
+      "metaSortKey": 15,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "description": "Ajuste dia no ambiente para hoje em São Paulo.",
+      "afterResponseScript": "insomnia.test('Status 200', () => {\n  insomnia.expect(insomnia.response.code).to.equal(200);\n});"
     },
     {
       "_id": "req_ocorrencias",
       "_type": "request",
-      "parentId": "wrk_termometro",
-      "name": "POST /ocorrencias",
+      "parentId": "fld_ocorrencias",
+      "name": "16 POST /ocorrencias",
       "method": "POST",
       "url": "{{ _.base_url }}/ocorrencias",
       "headers": [],
@@ -173,7 +568,7 @@
         ]
       },
       "authentication": {},
-      "metaSortKey": -500,
+      "metaSortKey": 16,
       "isPrivate": false,
       "settingStoreCookies": true,
       "settingSendCookies": true,
@@ -182,69 +577,59 @@
       "settingRebuildPath": true,
       "settingFollowRedirects": "global",
       "description": "Selecione um JPEG real sem alunos ou dados pessoais no campo foto. O script salva o id recebido para o GET da foto.",
-      "afterResponseScript": "if (insomnia.response.code === 201) {\n  insomnia.environment.set('ocorrencia_id', insomnia.response.json().id);\n}"
+      "afterResponseScript": "if (insomnia.response.code === 201) {\n  insomnia.environment.set('ocorrencia_id', insomnia.response.json().id);\n}\ninsomnia.test('Status 201', () => {\n  insomnia.expect(insomnia.response.code).to.equal(201);\n});"
     },
     {
-      "_id": "req_foto",
+      "_id": "req_get_ocorrencias",
       "_type": "request",
-      "parentId": "wrk_termometro",
-      "name": "GET /ocorrencias/{id}/foto",
+      "parentId": "fld_ocorrencias",
+      "name": "17 GET /ambientes/{id}/ocorrencias",
+      "method": "GET",
+      "url": "{{ _.base_url }}/ambientes/sala-03/ocorrencias",
+      "headers": [],
+      "parameters": [],
+      "body": {},
+      "authentication": {},
+      "metaSortKey": 17,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "description": "A ocorrência do passo 16 aparece no topo, sem a foto.",
+      "afterResponseScript": "insomnia.test('Status 200', () => {\n  insomnia.expect(insomnia.response.code).to.equal(200);\n});"
+    },
+    {
+      "_id": "req_foto_sem_chave",
+      "_type": "request",
+      "parentId": "fld_ocorrencias",
+      "name": "18 GET /ocorrencias/{id}/foto - sem chave",
       "method": "GET",
       "url": "{{ _.base_url }}/ocorrencias/{{ _.ocorrencia_id }}/foto",
       "headers": [],
       "parameters": [],
       "body": {},
       "authentication": {},
-      "metaSortKey": -400,
+      "metaSortKey": 18,
       "isPrivate": false,
       "settingStoreCookies": true,
       "settingSendCookies": true,
       "settingDisableRenderRequestBody": false,
       "settingEncodeUrl": true,
       "settingRebuildPath": true,
-      "settingFollowRedirects": "global"
+      "settingFollowRedirects": "global",
+      "description": "Sem X-Chave-Coordenacao: esperado 401. A foto não abre só com o id.",
+      "afterResponseScript": "insomnia.test('Status 401', () => {\n  insomnia.expect(insomnia.response.code).to.equal(401);\n});"
     },
     {
-      "_id": "req_acoes",
+      "_id": "req_foto",
       "_type": "request",
-      "parentId": "wrk_termometro",
-      "name": "POST /acoes",
-      "description": "Exige X-Chave-Coordenacao. Limite de escrita: 30 por minuto por IP (429).",
-      "method": "POST",
-      "url": "{{ _.base_url }}/acoes",
-      "headers": [
-        {
-          "name": "Content-Type",
-          "value": "application/json"
-        },
-        {
-          "name": "X-Chave-Coordenacao",
-          "value": "{{ _.chave_coordenacao }}"
-        }
-      ],
-      "parameters": [],
-      "body": {
-        "mimeType": "application/json",
-        "text": "{\n  \"ambienteId\": \"sala-03\",\n  \"nivel\": \"cuidado\",\n  \"descricao\": \"pausa para água\"\n}"
-      },
-      "authentication": {},
-      "metaSortKey": -300,
-      "isPrivate": false,
-      "settingStoreCookies": true,
-      "settingSendCookies": true,
-      "settingDisableRenderRequestBody": false,
-      "settingEncodeUrl": true,
-      "settingRebuildPath": true,
-      "settingFollowRedirects": "global"
-    },
-    {
-      "_id": "req_revogar",
-      "_type": "request",
-      "parentId": "wrk_termometro",
-      "name": "POST /dispositivos/{id}/revogar",
-      "description": "Exige X-Chave-Coordenacao. Limite de escrita: 30 por minuto por IP (429).",
-      "method": "POST",
-      "url": "{{ _.base_url }}/dispositivos/esp32-sala-01/revogar",
+      "parentId": "fld_ocorrencias",
+      "name": "19 GET /ocorrencias/{id}/foto",
+      "method": "GET",
+      "url": "{{ _.base_url }}/ocorrencias/{{ _.ocorrencia_id }}/foto",
       "headers": [
         {
           "name": "X-Chave-Coordenacao",
@@ -254,57 +639,137 @@
       "parameters": [],
       "body": {},
       "authentication": {},
-      "metaSortKey": -200,
+      "metaSortKey": 19,
       "isPrivate": false,
       "settingStoreCookies": true,
       "settingSendCookies": true,
       "settingDisableRenderRequestBody": false,
       "settingEncodeUrl": true,
       "settingRebuildPath": true,
-      "settingFollowRedirects": "global"
+      "settingFollowRedirects": "global",
+      "description": "Com X-Chave-Coordenacao: 200 image/jpeg, sem EXIF.",
+      "afterResponseScript": "insomnia.test('Status 200', () => {\n  insomnia.expect(insomnia.response.code).to.equal(200);\n});"
+    },
+    {
+      "_id": "req_ambientes",
+      "_type": "request",
+      "parentId": "fld_ambientes",
+      "name": "20 GET /ambientes",
+      "method": "GET",
+      "url": "{{ _.base_url }}/ambientes",
+      "headers": [],
+      "parameters": [],
+      "body": {},
+      "authentication": {},
+      "metaSortKey": 20,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "afterResponseScript": "insomnia.test('Status 200', () => {\n  insomnia.expect(insomnia.response.code).to.equal(200);\n});"
+    },
+    {
+      "_id": "req_leituras",
+      "_type": "request",
+      "parentId": "fld_leituras",
+      "name": "21 GET /ambientes/{id}/leituras",
+      "method": "GET",
+      "url": "{{ _.base_url }}/ambientes/sala-03/leituras",
+      "headers": [],
+      "parameters": [],
+      "body": {},
+      "authentication": {},
+      "metaSortKey": 21,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "afterResponseScript": "insomnia.test('Status 200', () => {\n  insomnia.expect(insomnia.response.code).to.equal(200);\n});"
+    },
+    {
+      "_id": "req_leituras_csv",
+      "_type": "request",
+      "parentId": "fld_leituras",
+      "name": "22 GET /ambientes/{id}/leituras?formato=csv",
+      "method": "GET",
+      "url": "{{ _.base_url }}/ambientes/sala-03/leituras?formato=csv",
+      "headers": [],
+      "parameters": [],
+      "body": {},
+      "authentication": {},
+      "metaSortKey": 22,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "afterResponseScript": "insomnia.test('Status 200', () => {\n  insomnia.expect(insomnia.response.code).to.equal(200);\n});"
+    },
+    {
+      "_id": "req_previsao",
+      "_type": "request",
+      "parentId": "fld_ambientes",
+      "name": "23 GET /ambientes/{id}/previsao",
+      "method": "GET",
+      "url": "{{ _.base_url }}/ambientes/sala-03/previsao",
+      "headers": [],
+      "parameters": [],
+      "body": {},
+      "authentication": {},
+      "metaSortKey": 23,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "description": "200 com a previsão (no Demo, indiceRuaPrevisto vem do modelo). 503 sem-dados-para-prever sem rua e sem leitura válida nas últimas 3 h.",
+      "afterResponseScript": "insomnia.test('Status 200 ou 503', () => {\n  insomnia.expect(insomnia.response.code).to.be.oneOf([200, 503]);\n});"
+    },
+    {
+      "_id": "req_niveis",
+      "_type": "request",
+      "parentId": "fld_acoes",
+      "name": "24 GET /niveis",
+      "method": "GET",
+      "url": "{{ _.base_url }}/niveis",
+      "headers": [],
+      "parameters": [],
+      "body": {},
+      "authentication": {},
+      "metaSortKey": 24,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "description": "As 4 faixas da tabela NiveisAcao com a ação sugerida.",
+      "afterResponseScript": "insomnia.test('Status 200', () => {\n  insomnia.expect(insomnia.response.code).to.equal(200);\n});"
     },
     {
       "_id": "req_semear",
       "_type": "request",
-      "parentId": "wrk_termometro",
-      "name": "POST /demo/semear",
-      "description": "Só responde diferente de 404 com ASPNETCORE_ENVIRONMENT=Demo. Sem leitura ao vivo, 409.",
+      "parentId": "fld_demo",
+      "name": "25 POST /demo/semear",
+      "description": "404 fora do ambiente Demo; 409 em Demo sem leitura ao vivo; 201 em Demo depois de uma leitura.",
       "method": "POST",
       "url": "{{ _.base_url }}/demo/semear?ambienteId=sala-03",
       "headers": [],
       "parameters": [],
       "body": {},
       "authentication": {},
-      "metaSortKey": -100,
-      "isPrivate": false,
-      "settingStoreCookies": true,
-      "settingSendCookies": true,
-      "settingDisableRenderRequestBody": false,
-      "settingEncodeUrl": true,
-      "settingRebuildPath": true,
-      "settingFollowRedirects": "global"
-    },
-    {
-      "_id": "req_assinatura_invalida",
-      "_type": "request",
-      "parentId": "wrk_termometro",
-      "name": "POST /leituras - assinatura-invalida",
-      "description": "Esperado 400 com motivo assinatura-invalida. Siga a ordem no README.",
-      "method": "POST",
-      "url": "{{ _.base_url }}/leituras",
-      "headers": [
-        {
-          "name": "Content-Type",
-          "value": "application/json"
-        }
-      ],
-      "parameters": [],
-      "body": {
-        "mimeType": "application/json",
-        "text": "{}"
-      },
-      "authentication": {},
-      "metaSortKey": -578,
+      "metaSortKey": 25,
       "isPrivate": false,
       "settingStoreCookies": true,
       "settingSendCookies": true,
@@ -312,149 +777,7 @@
       "settingEncodeUrl": true,
       "settingRebuildPath": true,
       "settingFollowRedirects": "global",
-      "preRequestScript": "const CryptoJS = require('crypto-js');\nconst medidoEm = Math.floor(Date.now() / 1000);\nconst corpo = { ambienteId: 'sala-02', dispositivo: 'esp32-sala-02', temperaturaC: 33.4, umidadePct: 58, medidoEm };\nconst canonico = `${corpo.ambienteId}|${corpo.dispositivo}|${corpo.temperaturaC.toFixed(1)}|${corpo.umidadePct}|${medidoEm}`;\ncorpo.assinatura = CryptoJS.HmacSHA256(canonico, 'segredo-de-teste-sala-02').toString(CryptoJS.enc.Hex);\ncorpo.assinatura = '00';\ninsomnia.request.body.update({ mode: 'raw', raw: JSON.stringify(corpo) });"
-    },
-    {
-      "_id": "req_reenvio",
-      "_type": "request",
-      "parentId": "wrk_termometro",
-      "name": "POST /leituras - reenvio",
-      "description": "Esperado 400 com motivo reenvio. Siga a ordem no README.",
-      "method": "POST",
-      "url": "{{ _.base_url }}/leituras",
-      "headers": [
-        {
-          "name": "Content-Type",
-          "value": "application/json"
-        }
-      ],
-      "parameters": [],
-      "body": {
-        "mimeType": "application/json",
-        "text": "{{ _.leitura_aceita }}"
-      },
-      "authentication": {},
-      "metaSortKey": -577,
-      "isPrivate": false,
-      "settingStoreCookies": true,
-      "settingSendCookies": true,
-      "settingDisableRenderRequestBody": false,
-      "settingEncodeUrl": true,
-      "settingRebuildPath": true,
-      "settingFollowRedirects": "global"
-    },
-    {
-      "_id": "req_revogado",
-      "_type": "request",
-      "parentId": "wrk_termometro",
-      "name": "POST /leituras - dispositivo-revogado",
-      "description": "Esperado 400 com motivo dispositivo-revogado. Siga a ordem no README.",
-      "method": "POST",
-      "url": "{{ _.base_url }}/leituras",
-      "headers": [
-        {
-          "name": "Content-Type",
-          "value": "application/json"
-        }
-      ],
-      "parameters": [],
-      "body": {
-        "mimeType": "application/json",
-        "text": "{}"
-      },
-      "authentication": {},
-      "metaSortKey": -576,
-      "isPrivate": false,
-      "settingStoreCookies": true,
-      "settingSendCookies": true,
-      "settingDisableRenderRequestBody": false,
-      "settingEncodeUrl": true,
-      "settingRebuildPath": true,
-      "settingFollowRedirects": "global",
-      "preRequestScript": "const CryptoJS = require('crypto-js');\nconst medidoEm = Math.floor(Date.now() / 1000);\nconst corpo = { ambienteId: 'sala-01', dispositivo: 'esp32-sala-01', temperaturaC: 33.4, umidadePct: 58, medidoEm };\nconst canonico = `${corpo.ambienteId}|${corpo.dispositivo}|${corpo.temperaturaC.toFixed(1)}|${corpo.umidadePct}|${medidoEm}`;\ncorpo.assinatura = CryptoJS.HmacSHA256(canonico, 'segredo-de-teste-sala-01').toString(CryptoJS.enc.Hex);\n\ninsomnia.request.body.update({ mode: 'raw', raw: JSON.stringify(corpo) });"
-    },
-    {
-      "_id": "req_fora_faixa",
-      "_type": "request",
-      "parentId": "wrk_termometro",
-      "name": "POST /leituras - fora-da-faixa",
-      "description": "Esperado 400 com motivo fora-da-faixa. Siga a ordem no README.",
-      "method": "POST",
-      "url": "{{ _.base_url }}/leituras",
-      "headers": [
-        {
-          "name": "Content-Type",
-          "value": "application/json"
-        }
-      ],
-      "parameters": [],
-      "body": {
-        "mimeType": "application/json",
-        "text": "{}"
-      },
-      "authentication": {},
-      "metaSortKey": -575,
-      "isPrivate": false,
-      "settingStoreCookies": true,
-      "settingSendCookies": true,
-      "settingDisableRenderRequestBody": false,
-      "settingEncodeUrl": true,
-      "settingRebuildPath": true,
-      "settingFollowRedirects": "global",
-      "preRequestScript": "const CryptoJS = require('crypto-js');\nconst medidoEm = Math.floor(Date.now() / 1000);\nconst corpo = { ambienteId: 'sala-04', dispositivo: 'esp32-sala-04', temperaturaC: 70, umidadePct: 58, medidoEm };\nconst canonico = `${corpo.ambienteId}|${corpo.dispositivo}|${corpo.temperaturaC.toFixed(1)}|${corpo.umidadePct}|${medidoEm}`;\ncorpo.assinatura = CryptoJS.HmacSHA256(canonico, 'segredo-de-teste-sala-04').toString(CryptoJS.enc.Hex);\n\ninsomnia.request.body.update({ mode: 'raw', raw: JSON.stringify(corpo) });"
-    },
-    {
-      "_id": "req_get_acoes",
-      "_type": "request",
-      "parentId": "wrk_termometro",
-      "name": "GET /acoes?dia=AAAA-MM-DD",
-      "method": "GET",
-      "url": "{{ _.base_url }}/acoes?dia={{ _.dia }}",
-      "headers": [],
-      "parameters": [],
-      "body": {},
-      "authentication": {},
-      "metaSortKey": -300,
-      "isPrivate": false,
-      "settingStoreCookies": true,
-      "settingSendCookies": true,
-      "settingDisableRenderRequestBody": false,
-      "settingEncodeUrl": true,
-      "settingRebuildPath": true,
-      "settingFollowRedirects": "global"
-    },
-    {
-      "_id": "req_post_ambientes",
-      "_type": "request",
-      "parentId": "wrk_termometro",
-      "name": "POST /ambientes",
-      "description": "Exige X-Chave-Coordenacao. Limite de escrita: 30 por minuto por IP (429).",
-      "method": "POST",
-      "url": "{{ _.base_url }}/ambientes",
-      "headers": [
-        {
-          "name": "Content-Type",
-          "value": "application/json"
-        },
-        {
-          "name": "X-Chave-Coordenacao",
-          "value": "{{ _.chave_coordenacao }}"
-        }
-      ],
-      "parameters": [],
-      "body": {
-        "mimeType": "application/json",
-        "text": "{\n  \"id\": \"sala-05\",\n  \"nome\": \"Sala 5\",\n  \"andar\": 1,\n  \"faceSol\": \"oeste\",\n  \"temVentilador\": true\n}"
-      },
-      "authentication": {},
-      "metaSortKey": -300,
-      "isPrivate": false,
-      "settingStoreCookies": true,
-      "settingSendCookies": true,
-      "settingDisableRenderRequestBody": false,
-      "settingEncodeUrl": true,
-      "settingRebuildPath": true,
-      "settingFollowRedirects": "global"
+      "afterResponseScript": "insomnia.test('Status 201 ou 404 ou 409', () => {\n  insomnia.expect(insomnia.response.code).to.be.oneOf([201, 404, 409]);\n});"
     }
   ]
 }

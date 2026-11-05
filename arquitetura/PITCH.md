@@ -37,14 +37,14 @@ Gravar entre 12h e 17h, com a API no ambiente `Demo`. Deixe o Wokwi publicando a
 |---|---|---|---|
 | 0:45 a 1:00 | Wokwi | O ESP32 na porta da sala, em 33 °C, com o LED vermelho e a publicação no Serial | "Este sensor fica na porta da sala. Mede o calor, acende a cor do nível mesmo sem internet e envia a leitura assinada." |
 | 1:00 a 1:10 | App, lista de salas | As salas com nível e índice, e a sala 3 em Cuidado extremo | "O professor vê as salas pelo app, sempre com a cor e o nome do nível." |
-| 1:10 a 1:35 | App, sala 3 | Nível de agora, previsão para 2 h, ação sugerida e a etiqueta DEMONSTRAÇÃO. A conta rua prevista + delta da sala, com os números que a tela mostrar | "A rua daqui a 2 horas vem de um dia quente real do INMET, e somamos quanto esta sala costuma passar da rua. O modelo treinado com esses dados errou em média 0,96 grau no teste, contra 1,44 de supor que nada muda. A etiqueta avisa que as leituras são de demonstração." |
+| 1:10 a 1:35 | App, sala 3 | Nível de agora, previsão para 2 h, ação sugerida e a etiqueta DEMONSTRAÇÃO. A conta rua prevista + delta da sala, com os números que a tela mostrar: o número da rua é a saída do modelo, calculada pela API naquele instante | "A rua de agora vem de um dia quente real do INMET. O modelo treinado com dados do INMET prevê a rua daqui a 2 horas, e somamos quanto esta sala costuma passar da rua. O modelo errou em média 0,96 grau no teste, contra 1,44 de supor que nada muda. A etiqueta avisa que as leituras são de demonstração." |
 | 1:35 a 1:50 | Wokwi + terminal | Subir o slider em passos de até 4 °C, esperando 10 s entre eles, até a sala virar Perigo no terminal | "A sala esquentou, e a coordenação vê isso em todas as salas ao mesmo tempo." |
 | 1:50 a 2:05 | Terminal da coordenação | Registrar a ação "tirar a turma da sala" | "Quem decide é a coordenação. A ação fica registrada, e é com esse registro que medimos o resultado." |
 | 2:05 a 2:15 | App, nova ocorrência | Descrição + foto da sala vazia, e o painel web por 2 s | "O professor registra a ocorrência com foto da sala, sem pessoas. Nenhum dado de aluno entra no sistema." |
 
 Com 55 % de umidade, a sala já vira Perigo no passo de 37 °C. Nesse caso, pare o slider ali. Arrastar 12 °C de uma vez gera uma leitura suspeita e atrapalha a cena.
 
-A fala da sala 3 não cita a conta: ela depende da hora da gravação. Os números da tela são os que valem, e o slide 5 traz o exemplo 34 + 4 = 38.
+A fala da sala 3 não cita a conta: ela depende da hora da gravação. Os números da tela são os que valem, e o slide 5 traz o exemplo 34 + 4 = 38. Em novembro, entre 12h e 17h, a rua prevista pelo modelo fica entre 28 e 34 °C (a tabela por hora está em `ml/ROTEIRO-VIDEO.md`).
 
 ## Entregas (2:15 a 2:30)
 
@@ -54,10 +54,10 @@ Cortes rápidos de 3 s cada, gravados antes, com o nome da disciplina na tela.
 |---|---|
 | Archi com a "Visão em quatro camadas" aberta e as visões Motivação, Negócio, Aplicação, Tecnologia e Implementação e migração na árvore do modelo (`arquitetura/termometro-da-sala.archimate`) | Arquitetura (TOGAF) |
 | Notebook do modelo com a tabela de MAE de validação e teste | Machine Learning |
-| Saída do `dotnet test` com os 40 testes passando | SOA e Testing |
+| Saída do `dotnet test` com os 47 testes passando | SOA e Testing |
 | Windows Server com o IIS e o pool da API | Operating Systems |
 
-> Por trás disso: o modelo ArchiMate com uma visão por camada, o notebook com dados reais do INMET, a API com 40 testes passando e o servidor Windows que publica tudo.
+> Por trás disso: o modelo ArchiMate com uma visão por camada, o notebook com dados reais do INMET, a API com 47 testes passando e o servidor Windows que publica tudo.
 
 ## Impacto (2:30 a 3:10)
 

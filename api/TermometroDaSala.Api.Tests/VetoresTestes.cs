@@ -1,4 +1,5 @@
 using System.Globalization;
+using Microsoft.Extensions.Logging.Abstractions;
 using TermometroDaSala.Api.Dominio;
 using TermometroDaSala.Api.Servicos;
 
@@ -47,7 +48,7 @@ public class VetoresTestes
     {
         var indice = IndiceCalor.Calcular(temp, umidade);
         Assert.Equal(esperado, indice);
-        Assert.Equal(nivel, IndiceCalor.Nivel(indice));
+        Assert.Equal(nivel, IndiceCalor.Nivel(indice).ToString());
     }
 
     [Fact]
@@ -82,7 +83,9 @@ public class VetoresTestes
     [Fact]
     public void DiaQuenteProjetadoNaHoraLocal()
     {
-        var previsor = new PrevisorRuaDemo(AppContext.BaseDirectory);
+        // sem modelo.json, a rua daqui a 2 h é a hora do CSV duas horas à frente (com o modelo: PrevisorModeloTestes)
+        var semModelo = Path.Combine(Path.GetTempPath(), "modelo-ausente-" + Guid.NewGuid().ToString("N") + ".json");
+        var previsor = new PrevisorRuaDemo(AppContext.BaseDirectory, semModelo, NullLogger.Instance);
         var utc = DateTimeOffset.FromUnixTimeSeconds(1768496400);
         Assert.Equal(IndiceCalor.Calcular(33.8, 40), previsor.IndiceNoInstante(utc));
         Assert.Equal(IndiceCalor.Calcular(33.6, 40), previsor.PreverDaquiA2h(utc));

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using TermometroDaSala.Api.Dados;
 using TermometroDaSala.Api.Dominio.Entidades;
 using TermometroDaSala.Api.Contratos;
+using TermometroDaSala.Api.Filtros;
 
 namespace TermometroDaSala.Api.Controllers;
 
@@ -39,7 +40,9 @@ public class OcorrenciasController(SalaDb _db, IHostEnvironment _ambiente, IConf
         return Created($"/ocorrencias/{id}/foto", new IdSaida(id.ToString()));
     }
 
+    // A foto pode mostrar pessoas: só a coordenação abre (R12). A lista da sala não leva a foto.
     [HttpGet("/ocorrencias/{id:guid}/foto")]
+    [ExigeChaveCoordenacao]
     public async Task<IActionResult> Foto(Guid id)
     {
         var ocorrencia = await _db.Ocorrencias.FindAsync(id);
@@ -50,10 +53,12 @@ public class OcorrenciasController(SalaDb _db, IHostEnvironment _ambiente, IConf
         return PhysicalFile(caminho, "image/jpeg");
     }
 
-    private string PastaFotos() =>
-        Path.IsPathRooted(_config["Fotos:Pasta"] ?? "")
-            ? _config["Fotos:Pasta"]!
-            : Path.Combine(_ambiente.ContentRootPath, _config["Fotos:Pasta"] ?? "fotos");
+    private string PastaFotos() => PastaFotos(_config, _ambiente);
+
+    internal static string PastaFotos(IConfiguration config, IHostEnvironment ambiente) =>
+        Path.IsPathRooted(config["Fotos:Pasta"] ?? "")
+            ? config["Fotos:Pasta"]!
+            : Path.Combine(ambiente.ContentRootPath, config["Fotos:Pasta"] ?? "fotos");
 
     private static async Task<bool> Jpeg(IFormFile foto)
     {

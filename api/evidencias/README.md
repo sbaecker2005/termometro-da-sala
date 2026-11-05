@@ -8,7 +8,7 @@ dados de alunos. Os passos seguem o roteiro do Insomnia em [../README.md](../REA
 
 | Arquivo | Comando (a partir de `api/`) | O que mostra |
 |---|---|---|
-| [dotnet-test.txt](dotnet-test.txt) | `dotnet test` | 40 testes aprovados, incluindo `EsquemaTestes` |
+| [dotnet-test.txt](dotnet-test.txt) | `dotnet test --logger "console;verbosity=normal"` (só as linhas de resultado) | 47 testes aprovados, incluindo `EsquemaTestes` e `DemoAplicaOModeloAoDiaDoCsvEDaOMesmoValor` |
 | [migracoes-idempotente.sql](migracoes-idempotente.sql) | `dotnet ef migrations script --idempotent --project TermometroDaSala.Api -o evidencias/migracoes-idempotente.sql` | SQL das 3 migrações. Em `CREATE TABLE [Leituras]`, só a FK para `Ambientes` tem `ON DELETE CASCADE`; a FK para `Dispositivos` fica sem ação |
 
 `dotnet ef migrations has-pending-model-changes --project TermometroDaSala.Api` responde
@@ -27,29 +27,39 @@ migrações estão alinhados.
 
 ## Roteiro do Insomnia
 
+A numeração é a dos nomes na coleção. A aba de testes de cada requisição mostra se o status bateu.
+
 | # | Requisição | Status esperado | Print |
 |---|---|---|---|
-| 1 | `POST /leituras - sucesso` | 201 com `id`, `indiceCalor` e `nivel` | [preencher] |
-| 2 | `POST /leituras - reenvio` | 400 `{"motivo":"reenvio"}` | [preencher] |
-| 3 | `POST /leituras - assinatura-invalida` | 400 `{"motivo":"assinatura-invalida"}` | [preencher] |
-| 4 | `POST /leituras - fora-da-faixa` | 400 `{"motivo":"fora-da-faixa"}` | [preencher] |
-| 5a | `POST /dispositivos/{id}/revogar` (sala 01) | 200 com `ativo: false` | [preencher] |
-| 5b | `POST /leituras - dispositivo-revogado` | 400 `{"motivo":"dispositivo-revogado"}` | [preencher] |
-| 6a | `POST /ambientes` (primeira vez) | 201 `{"id":"sala-05"}` | [preencher] |
-| 6b | `POST /ambientes` (repetido) | 409 | [preencher] |
-| 6c | `POST /ambientes` sem `X-Chave-Coordenacao` | 401 e nada gravado | [preencher] |
-| 7a | `POST /acoes` | 201 com `id` | [preencher] |
-| 7b | `GET /acoes?dia=AAAA-MM-DD` | 200 com a ação registrada | [preencher] |
-| 8a | `POST /ocorrencias` (JPEG de sala vazia) | 201 com `id` | [preencher] |
-| 8b | `GET /ocorrencias/{id}/foto` | 200 `image/jpeg` | [preencher] |
-| 9a | `GET /ambientes` | 200 com nível e índice de cada sala | [preencher] |
-| 9b | `GET /ambientes/{id}/leituras` | 200 em JSON | [preencher] |
-| 9c | `GET /ambientes/{id}/leituras?formato=csv` | 200 `text/csv` | [preencher] |
-| 9d | `GET /ambientes/{id}/previsao` | 200 com nível previsto. Sem rua carregada (fora do Demo): `ruaDisponivel: false` e o índice da última leitura válida da sala; sem rua e sem leitura válida recente: 503 | [preencher] |
-| 9e | `POST /demo/semear` fora do ambiente Demo | 404 | [preencher] |
-| 9f | `POST /demo/semear` em Demo, sem leitura ao vivo | 409 | [preencher] |
-| 9g | `POST /demo/semear` em Demo, depois de uma leitura | 201 com `inseridas` | [preencher] |
-| 10 | Mais de 30 escritas em um minuto | 429 | [preencher] |
+| 01 | `POST /leituras - sucesso` | 201 com `id`, `indiceCalor` e `nivel` | [preencher] |
+| 02 | `POST /leituras - reenvio` | 400 `{"motivo":"reenvio"}` | [preencher] |
+| 03 | `POST /leituras - assinatura-invalida` | 400 `{"motivo":"assinatura-invalida"}` | [preencher] |
+| 04 | `POST /leituras - fora-da-faixa` | 400 `{"motivo":"fora-da-faixa"}` | [preencher] |
+| 05 | `POST /dispositivos/{id}/revogar` (sala 01) | 200 com `ativo: false` | [preencher] |
+| 06 | `POST /leituras - dispositivo-revogado` | 400 `{"motivo":"dispositivo-revogado"}` | [preencher] |
+| 07 | `POST /ambientes` | 201 `{"id":"sala-05"}` e `Location: /ambientes/sala-05` | [preencher] |
+| 08 | `POST /ambientes - repetido` | 409 `{"motivo":"ambiente-existente"}` | [preencher] |
+| 09 | `POST /ambientes - sem chave` | 401 e nada gravado | [preencher] |
+| 10 | `GET /ambientes/{id}` (sala 05) | 200 com a sala | [preencher] |
+| 11 | `PUT /ambientes/{id}` (sala 05) | 200; o GET seguinte mostra o nome novo | [preencher] |
+| 12 | `DELETE /ambientes/{id} - com leituras` (sala 03) | 409 `{"motivo":"ambiente-com-leituras"}` | [preencher] |
+| 13 | `DELETE /ambientes/{id}` (sala 05) | 204; o GET seguinte responde 404 | [preencher] |
+| 14 | `POST /acoes` | 201 com `id` e `Location: /acoes?dia=` | [preencher] |
+| 15 | `GET /acoes?dia=AAAA-MM-DD` | 200 com a ação registrada | [preencher] |
+| 16 | `POST /ocorrencias` (JPEG de sala vazia) | 201 com `id` | [preencher] |
+| 17 | `GET /ambientes/{id}/ocorrencias` | 200 com a ocorrência no topo, sem foto | [preencher] |
+| 18 | `GET /ocorrencias/{id}/foto - sem chave` | 401 | [preencher] |
+| 19 | `GET /ocorrencias/{id}/foto` | 200 `image/jpeg` | [preencher] |
+| 20 | `GET /ambientes` | 200 com nível e índice de cada sala | [preencher] |
+| 21 | `GET /ambientes/{id}/leituras` | 200 em JSON | [preencher] |
+| 22 | `GET /ambientes/{id}/leituras?formato=csv` | 200 `text/csv` | [preencher] |
+| 23 | `GET /ambientes/{id}/previsao` | 200 com nível previsto. No Demo, `indiceRuaPrevisto` vem do modelo. Sem rua carregada (fora do Demo): `ruaDisponivel: false` e o índice da última leitura válida da sala; sem rua e sem leitura válida recente: 503 | [preencher] |
+| 24 | `GET /niveis` | 200 com as 4 faixas e a ação sugerida | [preencher] |
+| 25a | `POST /demo/semear` fora do ambiente Demo | 404 | [preencher] |
+| 25b | `POST /demo/semear` em Demo, sem leitura ao vivo | 409 | [preencher] |
+| 25c | `POST /demo/semear` em Demo, depois de uma leitura | 201 com `inseridas` | [preencher] |
+| 26 | Mais de 30 escritas em um minuto | 429 | [preencher] |
+| 27 | Cabeçalhos de qualquer resposta (aba Headers) | `X-Content-Type-Options: nosniff`; no IIS com HTTPS, também `Strict-Transport-Security` | [preencher] |
 
 ## Telas
 
