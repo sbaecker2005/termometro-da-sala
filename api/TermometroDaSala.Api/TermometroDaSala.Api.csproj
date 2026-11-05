@@ -9,6 +9,7 @@
   <ItemGroup>
     <Content Include="..\..\demo\leituras-simuladas.csv" Link="demo\leituras-simuladas.csv" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="..\..\demo\rua-dia-quente.csv" Link="demo\rua-dia-quente.csv" CopyToOutputDirectory="PreserveNewest" />
+    <Content Update="modelo\modelo.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

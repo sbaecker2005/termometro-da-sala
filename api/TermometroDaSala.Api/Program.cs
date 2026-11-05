@@ -16,7 +16,12 @@ builder.Services.AddSingleton(TimeProvider.System);
 if (builder.Environment.IsEnvironment("Demo"))
     builder.Services.AddScoped<IPrevisorRua>(sp => new PrevisorRuaDemo(sp.GetRequiredService<IHostEnvironment>().ContentRootPath));
 else
-    builder.Services.AddScoped<IPrevisorRua, PrevisorRuaBaseline>();
+    builder.Services.AddScoped<IPrevisorRua>(sp =>
+    {
+        var raiz = sp.GetRequiredService<IHostEnvironment>().ContentRootPath;
+        var caminho = Path.GetFullPath(builder.Configuration["Modelo:Caminho"] ?? Path.Combine("modelo", "modelo.json"), raiz);
+        return new PrevisorRuaModelo(sp.GetRequiredService<SalaDb>(), sp.GetRequiredService<ILogger<PrevisorRuaModelo>>(), caminho);
+    });
 
 builder.Services.AddScoped<ServicoLeituras>();
 builder.Services.AddScoped<ConsultaPrevisao>();

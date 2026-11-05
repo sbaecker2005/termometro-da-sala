@@ -78,7 +78,9 @@ O índice de calor é o da NOAA (Rothfusz), em °C com 1 casa. Faixas: abaixo de
 
 O delta é a média de (índice da sala − índice da rua) nas últimas 3 h, com no mínimo 3 pares no mesmo instante UTC, sem as leituras suspeitas. A previsão da sala é o índice da rua daqui a 2 h mais o delta. Sem pares suficientes, `deltaSala` e `indiceSalaPrevisto` vêm `null` e `semLeiturasRecentes` vem `true`: mostra-se só a rua.
 
-Enquanto não há `modelo.json`, a implementação provisória repete o índice da rua de agora como "daqui a 2 h". No ambiente Demo, a rua vem de `demo/rua-dia-quente.csv` (dia quente de exemplo) projetado na hora local de São Paulo. `POST /demo/semear` lê `demo/leituras-simuladas.csv` e desloca a curva para terminar na última leitura ao vivo (`origem = dispositivo`), gravando as 3 h anteriores com `origem = simulada`.
+A rua daqui a 2 h vem do modelo linear em `TermometroDaSala.Api/modelo/modelo.json` (cópia de `ml/modelo.json`, regressão treinada no notebook com o horário do INMET, estação A701, 2022–2025). No teste de 2025 o MAE foi 1,05 °C, contra 1,44 °C do baseline "daqui a 2 h = agora". O caminho fica em `Modelo:Caminho`. Sem o arquivo, ou com JSON inválido, a API repete o índice da rua de agora e registra no log.
+
+No ambiente Demo, a rua vem de `demo/rua-dia-quente.csv` (dia quente de exemplo) projetado na hora local de São Paulo. `POST /demo/semear` lê `demo/leituras-simuladas.csv` e desloca a curva para terminar na última leitura ao vivo (`origem = dispositivo`), gravando as 3 h anteriores com `origem = simulada`.
 
 Limitação: o delta assume que a diferença das últimas 3 h se mantém nas próximas 2 h. No fim da tarde ele tende a superestimar.
 

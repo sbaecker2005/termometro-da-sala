@@ -1,0 +1,34 @@
+{
+ "versao": 1,
+ "alvo": "indice_calor_c em 2 h",
+ "horizonte_horas": 2,
+ "atributos": [
+  "temperatura_c",
+  "umidade_pct",
+  "hora_sen",
+  "hora_cos",
+  "mes_sen",
+  "mes_cos",
+  "variacao_1h"
+ ],
+ "fonte": "INMET A701, horário, 2022-2025 (treino 2022-2023, validação 2024, teste 2025)",
+ "metricas_teste": {
+  "MAE (°C)": 1.052,
+  "F1 macro (níveis)": 0.745
+ },
+ "baseline_teste": {
+  "MAE (°C)": 1.442,
+  "F1 macro (níveis)": 0.667
+ },
+ "tipo": "linear",
+ "intercepto": -4.032482,
+ "coeficientes": {
+  "temperatura_c": 1.026225,
+  "umidade_pct": 0.049129,
+  "hora_sen": 1.03887,
+  "hora_cos": -0.78972,
+  "mes_sen": 0.074286,
+  "mes_cos": 0.128616,
+  "variacao_1h": 0.444931
+ }
+}
