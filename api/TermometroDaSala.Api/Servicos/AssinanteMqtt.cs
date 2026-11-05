@@ -1,3 +1,5 @@
+using TermometroDaSala.Api.Dominio.Entidades;
+using TermometroDaSala.Api.Contratos;
 using System.Text.Json;
 using MQTTnet;
 using MQTTnet.Client;

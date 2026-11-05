@@ -50,12 +50,14 @@ Semente: salas `sala-01` a `sala-04`, dispositivo `esp32-sala-0N` em cada uma, s
 
 | Método | Rota | O que faz |
 |---|---|---|
-| GET | `/ambientes` | Salas com nível e índice atuais |
+| GET | `/ambientes` | Salas com nível e índice atuais, `temVentilador` e `dispositivoId` (null sem sensor) |
+| POST | `/ambientes` | Cadastra sala sem criar ou vincular um sensor |
 | GET | `/ambientes/{id}/leituras` | Leituras em JSON. `?formato=csv` devolve CSV |
 | GET | `/ambientes/{id}/previsao` | Rua daqui a 2 h, delta da sala e nível previsto |
 | POST | `/leituras` | Mesma leitura assinada do MQTT |
 | POST | `/ocorrencias` | Multipart: `ambienteId`, `descricao`, `foto` JPEG até 5 MB |
 | GET | `/ocorrencias/{id}/foto` | A foto da ocorrência, só pelo id |
+| GET | `/acoes?dia=AAAA-MM-DD` | Ações do dia civil de São Paulo; data ausente/inválida retorna 400 |
 | POST | `/acoes` | Ação tomada: `ambienteId`, `nivel`, `descricao` |
 | POST | `/dispositivos/{id}/revogar` | Marca o dispositivo como inativo |
 | POST | `/demo/semear?ambienteId=` | Só com `ASPNETCORE_ENVIRONMENT=Demo`. 409 sem leitura ao vivo |
@@ -87,3 +89,120 @@ Limitação: o delta assume que a diferença das últimas 3 h se mantém nas pr�
 ## Dados
 
 As leituras do sensor no Wokwi, as leituras do modo demonstração e as ocorrências são simuladas. Os dados meteorológicos de exemplo em `demo/` não substituem a série real do INMET. Nenhum dado de aluno é coletado. A foto é salva com nome GUID na pasta `Fotos:Pasta` e só é servida pelo id da ocorrência.
+
+## Configuração do banco e migrações
+
+A aplicação e `SalaDbFactory` carregam `appsettings.json`, a configuração do ambiente e
+`ConnectionStrings__Sala`; a variável prevalece sobre o arquivo. A factory usa os arquivos
+copiados para a saída do build: recompile depois de mudar um appsettings.
+Exemplos em PowerShell, a partir de `api/`:
+
+```powershell
+# LocalDB (Windows, instalado separadamente)
+$env:ConnectionStrings__Sala='Server=(localdb)\MSSQLLocalDB;Database=TermometroDaSala;Integrated Security=True;TrustServerCertificate=True'
+dotnet build --no-restore
+dotnet ef migrations list --project TermometroDaSala.Api --no-build
+dotnet ef database update --project TermometroDaSala.Api --no-build
+dotnet run --no-build --project TermometroDaSala.Api --launch-profile http
+```
+
+Alternativa: SQL Server 2022 em Docker. Defina `MSSQL_SA_PASSWORD` no ambiente local
+com uma senha forte, sem registrá-la em arquivos, histórico ou capturas. O comando abaixo
+usa essa variável existente, preserva o banco num volume e publica somente no localhost:
+
+```powershell
+docker run --name termometro-sql --env ACCEPT_EULA=Y --env MSSQL_SA_PASSWORD -p 127.0.0.1:14333:1433 -v termometro-sql:/var/opt/mssql -d mcr.microsoft.com/mssql/server:2022-latest
+$env:ConnectionStrings__Sala="Server=localhost,14333;Database=TermometroDaSala;User Id=sa;Password=$env:MSSQL_SA_PASSWORD;TrustServerCertificate=True"
+# Aguarde o SQL Server ficar pronto; depois execute build, migrations list e database update acima.
+```
+
+Histórico esperado: `20261105025544_Inicial` e `20261105033613_Enums`.
+A segunda mantém os valores textuais e reduz o tamanho de Tipo (4), FaceSol (5),
+Nivel/NivelPrevisto (7) e Origem (11) ao tamanho dos enums. Não remove tabelas ou linhas.
+Em banco existente, confira antes se há valores fora do domínio ou maiores que esses
+limites; corrija-os com revisão antes de aplicar. Faça backup antes de migrar dados que
+precisem ser preservados. Os testes usam SQLite em memória e não comprovam a aplicação
+no SQL Server.
+
+## Cadastro e ações do desktop
+
+`POST /ambientes` recebe:
+
+```json
+{"id":"sala-05","nome":"Sala 5","andar":1,"faceSol":"oeste","temVentilador":true}
+```
+
+Retorna 201 com `{"id":"sala-05"}`. ID no formato `sala-NN`, nome de 1 a 80 caracteres
+(não só espaços), andar de 0 a 20 e face `leste`, `norte`, `oeste` ou `sul`.
+Entrada inválida retorna 400; ID existente retorna 409. O tipo é `sala`.
+O cadastro não provisiona credenciais de sensor: `dispositivoId` fica null até haver
+um dispositivo vinculado. Os sensores da semente continuam disponíveis no GET.
+
+`GET /acoes?dia=2026-11-05` devolve um array, do registro mais recente ao mais antigo,
+com `id`, `ambienteId`, `nivel`, `descricao` e `registradoEm` (instante com offset).
+O filtro usa a data civil de São Paulo, incluindo meia-noite e excluindo a meia-noite
+do dia seguinte. Um dia sem ações retorna `[]`.
+
+## Roteiro do Insomnia
+
+Importe `insomnia.json` numa versão do Insomnia com scripts de requisição e resposta e
+`require('crypto-js')`. Ajuste `base_url` e `dia` no ambiente Base. Use um banco de
+**demonstração**, pois a revogação persiste; para repetir os testes de leitura, o
+`esp32-sala-01` precisa estar ativo no início. Desligue MQTT (`Mqtt__Desligado=true`)
+e o simulador durante o roteiro para não disputar os timestamps.
+
+1. Execute `POST /leituras - sucesso`: o pre-request script gera `medidoEm` atual,
+   assina o texto canônico com a chave pública de teste e guarda o corpo em
+   `leitura_aceita`. Espere 201. Para outra leitura nova, aguarde ao menos um segundo.
+2. Execute `POST /leituras - reenvio`: reutiliza exatamente o corpo anterior;
+   espere 400 com `motivo: reenvio`.
+3. Execute `POST /leituras - assinatura-invalida`: espere 400 com esse motivo.
+4. Execute `POST /leituras - fora-da-faixa`: assina 70 °C para o sensor da sala 04;
+   espere 400 com esse motivo.
+5. Execute `POST /dispositivos/{id}/revogar` (sala 01): espere 200. Depois execute
+   `POST /leituras - dispositivo-revogado`: espere 400 com esse motivo.
+6. Execute `POST /ambientes`: espere 201 na primeira vez e 409 se repetir.
+7. Execute `POST /acoes` e `GET /acoes?dia=AAAA-MM-DD`, ajustando `dia` para hoje em
+   São Paulo: espere 201 e 200 com a ação registrada.
+8. No multipart de `POST /ocorrencias`, selecione um JPEG real de uma sala vazia,
+   sem alunos ou dados pessoais (até 5 MB; nome simples, por exemplo `sala.jpg`).
+   Espere 201. O after-response script guarda `id` em `ocorrencia_id`;
+   `GET /ocorrencias/{id}/foto` usa essa variável e deve retornar 200, `image/jpeg`.
+9. Confira também GET ambientes, leituras, CSV e previsão. `/demo/semear` exige
+   ambiente Demo e uma leitura ao vivo: 404 fora de Demo, 409 sem leitura, 201 após ela.
+
+As fotos locais ficam em `TermometroDaSala.Api/fotos/`, ignorada pelo repositório.
+Salve as capturas manuais em `api/evidencias/`, sem dados pessoais ou credenciais.
+A aplicação de migrações no SQL Server e as capturas de cada resposta ainda precisam
+ser executadas no ambiente de apresentação.
+
+## Verificação local
+
+```powershell
+dotnet build --no-restore
+dotnet test --no-restore
+```
+
+Nesta execução local, o MSBuild padrão da solução retornou código 1 sem diagnóstico
+(zero erros reportados). A execução serial concluiu com zero avisos e 25 testes aprovados:
+
+```powershell
+dotnet build --no-restore -m:1
+dotnet test --no-restore -m:1
+```
+
+Caso esta worktree não tenha `obj/project.assets.json`, gere os assets sem rede,
+utilizando somente pacotes já presentes no cache (não baixa dependências):
+
+```powershell
+dotnet restore TermometroDaSala.Api/TermometroDaSala.Api.csproj --source "$env:USERPROFILE/.nuget/packages" -p:NuGetAudit=false
+dotnet restore TermometroDaSala.Api.Tests/TermometroDaSala.Api.Tests.csproj --source "$env:USERPROFILE/.nuget/packages" -p:NuGetAudit=false --disable-parallel
+```
+
+### Limitação preexistente a conferir no SQL Server
+
+A migração Inicial define exclusão em cascata pelos dois caminhos
+`Ambientes -> Leituras` e `Ambientes -> Dispositivos -> Leituras`.
+O SQL Server pode recusar a criação dessas FKs com erro 1785 (múltiplos caminhos
+de cascata). A migração Enums não altera essas FKs; valide o histórico num banco
+de apresentação antes de afirmar que o provisionamento completo funciona.

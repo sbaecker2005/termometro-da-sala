@@ -22,7 +22,7 @@ namespace TermometroDaSala.Api.Dados.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("TermometroDaSala.Api.Dados.Acao", b =>
+            modelBuilder.Entity("TermometroDaSala.Api.Dominio.Entidades.Acao", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -41,8 +41,8 @@ namespace TermometroDaSala.Api.Dados.Migrations
 
                     b.Property<string>("Nivel")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(7)
+                        .HasColumnType("nvarchar(7)");
 
                     b.Property<DateTimeOffset>("RegistradaEm")
                         .HasColumnType("datetimeoffset");
@@ -54,7 +54,7 @@ namespace TermometroDaSala.Api.Dados.Migrations
                     b.ToTable("Acoes");
                 });
 
-            modelBuilder.Entity("TermometroDaSala.Api.Dados.Ambiente", b =>
+            modelBuilder.Entity("TermometroDaSala.Api.Dominio.Entidades.Ambiente", b =>
                 {
                     b.Property<string>("Id")
                         .HasMaxLength(32)
@@ -65,8 +65,8 @@ namespace TermometroDaSala.Api.Dados.Migrations
 
                     b.Property<string>("FaceSol")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)");
 
                     b.Property<string>("Nome")
                         .IsRequired()
@@ -78,8 +78,8 @@ namespace TermometroDaSala.Api.Dados.Migrations
 
                     b.Property<string>("Tipo")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(4)
+                        .HasColumnType("nvarchar(4)");
 
                     b.HasKey("Id");
 
@@ -124,7 +124,7 @@ namespace TermometroDaSala.Api.Dados.Migrations
                         });
                 });
 
-            modelBuilder.Entity("TermometroDaSala.Api.Dados.Dispositivo", b =>
+            modelBuilder.Entity("TermometroDaSala.Api.Dominio.Entidades.Dispositivo", b =>
                 {
                     b.Property<string>("Id")
                         .HasMaxLength(64)
@@ -182,7 +182,7 @@ namespace TermometroDaSala.Api.Dados.Migrations
                         });
                 });
 
-            modelBuilder.Entity("TermometroDaSala.Api.Dados.Leitura", b =>
+            modelBuilder.Entity("TermometroDaSala.Api.Dominio.Entidades.Leitura", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -206,13 +206,13 @@ namespace TermometroDaSala.Api.Dados.Migrations
 
                     b.Property<string>("Nivel")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(7)
+                        .HasColumnType("nvarchar(7)");
 
                     b.Property<string>("Origem")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(11)
+                        .HasColumnType("nvarchar(11)");
 
                     b.Property<bool>("Suspeita")
                         .HasColumnType("bit");
@@ -232,7 +232,7 @@ namespace TermometroDaSala.Api.Dados.Migrations
                     b.ToTable("Leituras");
                 });
 
-            modelBuilder.Entity("TermometroDaSala.Api.Dados.LeituraRua", b =>
+            modelBuilder.Entity("TermometroDaSala.Api.Dominio.Entidades.LeituraRua", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -259,11 +259,11 @@ namespace TermometroDaSala.Api.Dados.Migrations
                     b.ToTable("LeiturasRua");
                 });
 
-            modelBuilder.Entity("TermometroDaSala.Api.Dados.NivelAcao", b =>
+            modelBuilder.Entity("TermometroDaSala.Api.Dominio.Entidades.NivelAcao", b =>
                 {
                     b.Property<string>("Nivel")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(7)
+                        .HasColumnType("nvarchar(7)");
 
                     b.Property<string>("AcaoSugerida")
                         .IsRequired()
@@ -311,7 +311,7 @@ namespace TermometroDaSala.Api.Dados.Migrations
                         });
                 });
 
-            modelBuilder.Entity("TermometroDaSala.Api.Dados.Ocorrencia", b =>
+            modelBuilder.Entity("TermometroDaSala.Api.Dominio.Entidades.Ocorrencia", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -341,7 +341,7 @@ namespace TermometroDaSala.Api.Dados.Migrations
                     b.ToTable("Ocorrencias");
                 });
 
-            modelBuilder.Entity("TermometroDaSala.Api.Dados.Previsao", b =>
+            modelBuilder.Entity("TermometroDaSala.Api.Dominio.Entidades.Previsao", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -367,8 +367,8 @@ namespace TermometroDaSala.Api.Dados.Migrations
 
                     b.Property<string>("NivelPrevisto")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(7)
+                        .HasColumnType("nvarchar(7)");
 
                     b.Property<DateTimeOffset>("PrevistoPara")
                         .HasColumnType("datetimeoffset");
@@ -383,55 +383,85 @@ namespace TermometroDaSala.Api.Dados.Migrations
                     b.ToTable("Previsoes");
                 });
 
-            modelBuilder.Entity("TermometroDaSala.Api.Dados.Acao", b =>
+            modelBuilder.Entity("TermometroDaSala.Api.Dominio.Entidades.Acao", b =>
                 {
-                    b.HasOne("TermometroDaSala.Api.Dados.Ambiente", null)
-                        .WithMany()
+                    b.HasOne("TermometroDaSala.Api.Dominio.Entidades.Ambiente", "Ambiente")
+                        .WithMany("Acoes")
                         .HasForeignKey("AmbienteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Ambiente");
                 });
 
-            modelBuilder.Entity("TermometroDaSala.Api.Dados.Dispositivo", b =>
+            modelBuilder.Entity("TermometroDaSala.Api.Dominio.Entidades.Dispositivo", b =>
                 {
-                    b.HasOne("TermometroDaSala.Api.Dados.Ambiente", null)
-                        .WithMany()
+                    b.HasOne("TermometroDaSala.Api.Dominio.Entidades.Ambiente", "Ambiente")
+                        .WithMany("Dispositivos")
                         .HasForeignKey("AmbienteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Ambiente");
                 });
 
-            modelBuilder.Entity("TermometroDaSala.Api.Dados.Leitura", b =>
+            modelBuilder.Entity("TermometroDaSala.Api.Dominio.Entidades.Leitura", b =>
                 {
-                    b.HasOne("TermometroDaSala.Api.Dados.Ambiente", null)
-                        .WithMany()
+                    b.HasOne("TermometroDaSala.Api.Dominio.Entidades.Ambiente", "Ambiente")
+                        .WithMany("Leituras")
                         .HasForeignKey("AmbienteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TermometroDaSala.Api.Dados.Dispositivo", null)
-                        .WithMany()
+                    b.HasOne("TermometroDaSala.Api.Dominio.Entidades.Dispositivo", "Dispositivo")
+                        .WithMany("Leituras")
                         .HasForeignKey("DispositivoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Ambiente");
+
+                    b.Navigation("Dispositivo");
                 });
 
-            modelBuilder.Entity("TermometroDaSala.Api.Dados.Ocorrencia", b =>
+            modelBuilder.Entity("TermometroDaSala.Api.Dominio.Entidades.Ocorrencia", b =>
                 {
-                    b.HasOne("TermometroDaSala.Api.Dados.Ambiente", null)
-                        .WithMany()
+                    b.HasOne("TermometroDaSala.Api.Dominio.Entidades.Ambiente", "Ambiente")
+                        .WithMany("Ocorrencias")
                         .HasForeignKey("AmbienteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Ambiente");
                 });
 
-            modelBuilder.Entity("TermometroDaSala.Api.Dados.Previsao", b =>
+            modelBuilder.Entity("TermometroDaSala.Api.Dominio.Entidades.Previsao", b =>
                 {
-                    b.HasOne("TermometroDaSala.Api.Dados.Ambiente", null)
-                        .WithMany()
+                    b.HasOne("TermometroDaSala.Api.Dominio.Entidades.Ambiente", "Ambiente")
+                        .WithMany("Previsoes")
                         .HasForeignKey("AmbienteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Ambiente");
+                });
+
+            modelBuilder.Entity("TermometroDaSala.Api.Dominio.Entidades.Ambiente", b =>
+                {
+                    b.Navigation("Acoes");
+
+                    b.Navigation("Dispositivos");
+
+                    b.Navigation("Leituras");
+
+                    b.Navigation("Ocorrencias");
+
+                    b.Navigation("Previsoes");
+                });
+
+            modelBuilder.Entity("TermometroDaSala.Api.Dominio.Entidades.Dispositivo", b =>
+                {
+                    b.Navigation("Leituras");
                 });
 #pragma warning restore 612, 618
         }

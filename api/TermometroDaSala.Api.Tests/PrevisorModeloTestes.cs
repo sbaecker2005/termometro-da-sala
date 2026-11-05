@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using TermometroDaSala.Api.Dados;
 using TermometroDaSala.Api.Dominio;
+using TermometroDaSala.Api.Dominio.Entidades;
 using TermometroDaSala.Api.Servicos;
 
 namespace TermometroDaSala.Api.Tests;

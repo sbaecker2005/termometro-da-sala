@@ -1,3 +1,5 @@
+using TermometroDaSala.Api.Dominio.Entidades;
+using TermometroDaSala.Api.Contratos;
 using System.Globalization;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
@@ -180,7 +182,7 @@ public class ConsultaPrevisao
         return pares.Count < 3 ? null : Math.Round(pares.Average(), 1);
     }
 
-    public async Task<object?> Montar(string ambienteId)
+    public async Task<PrevisaoSaida?> Montar(string ambienteId)
     {
         if (!await _db.Ambientes.AnyAsync(a => a.Id == ambienteId)) return null;
         var agora = _tempo.GetUtcNow();
@@ -189,17 +191,8 @@ public class ConsultaPrevisao
         double? sala = delta is null || rua is null ? null : Math.Round(rua.Value + delta.Value, 1);
         var desde = agora.AddHours(-3);
         var demonstracao = _ambiente.IsEnvironment("Demo")
-            || (await _db.Leituras.Where(l => l.AmbienteId == ambienteId && l.Origem == "simulada").ToListAsync()).Any(l => l.MedidoEm >= desde);
-        return new
-        {
-            ambienteId,
-            previstoPara = agora.AddHours(2),
-            indiceRuaPrevisto = Math.Round(rua ?? 0, 1),
-            deltaSala = delta,
-            indiceSalaPrevisto = sala,
-            nivelPrevisto = IndiceCalor.Nivel(sala ?? rua ?? 0),
-            semLeiturasRecentes = delta is null,
-            demonstracao,
-        };
+            || (await _db.Leituras.Where(l => l.AmbienteId == ambienteId && l.Origem == Origem.simulada).ToListAsync()).Any(l => l.MedidoEm >= desde);
+        return new PrevisaoSaida(ambienteId, agora.AddHours(2), Math.Round(rua ?? 0, 1),
+            delta, sala, IndiceCalor.Nivel(sala ?? rua ?? 0), delta is null, demonstracao);
     }
 }

@@ -24,3 +24,6 @@ secrets.h
 .DS_Store
 Thumbs.db
 docs/briefing-fiap.txt
+
+# Fotos de ocorrencias
+api/TermometroDaSala.Api/fotos/

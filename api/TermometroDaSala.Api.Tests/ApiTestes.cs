@@ -1,5 +1,8 @@
+using TermometroDaSala.Api.Dominio.Entidades;
+using TermometroDaSala.Api.Contratos;
 using System.Globalization;
 using System.Net;
+using System.Net.Http.Json;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -9,6 +12,7 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using TermometroDaSala.Api.Dados;
 using TermometroDaSala.Api.Dominio;
 
@@ -119,15 +123,15 @@ public class ApiTestes
             TemperaturaC = 33.4,
             UmidadePct = 58,
             IndiceCalor = IndiceCalor.Calcular(33.4, 58),
-            Nivel = "cuidado",
+            Nivel = Nivel.cuidado,
             MedidoEm = quando,
-            Origem = "dispositivo",
+            Origem = Origem.dispositivo,
         });
         db.SaveChanges();
 
         var semeou = await c.PostAsync("/demo/semear?ambienteId=sala-03", new StringContent(""));
         Assert.Equal(HttpStatusCode.Created, semeou.StatusCode);
-        var simuladas = db.Leituras.Where(l => l.Origem == "simulada").ToList();
+        var simuladas = db.Leituras.Where(l => l.Origem == Origem.simulada).ToList();
         Assert.Equal(18, simuladas.Count); // demo/leituras-simuladas.csv: 3 h a cada 10 min (gerador.py)
         var ancora = simuladas.OrderBy(l => l.MedidoEm).Last();
         Assert.Equal(33.4, ancora.TemperaturaC, 1);
@@ -163,6 +167,86 @@ public class ApiTestes
         Assert.Equal(HttpStatusCode.Created, (await c.PostAsync("/acoes", corpo)).StatusCode);
     }
 
+    [Fact]
+    public async Task CadastraSalaSemCriarSensorERecusaDuplicata()
+    {
+        using var f = new ApiFabrica();
+        var c = f.Cliente();
+        var entrada = new { id = "sala-05", nome = " Sala 5 ", andar = 2, faceSol = "sul", temVentilador = false };
+        var resposta = await c.PostAsJsonAsync("/ambientes", entrada);
+        Assert.Equal(HttpStatusCode.Created, resposta.StatusCode);
+        using var criado = JsonDocument.Parse(await resposta.Content.ReadAsStringAsync());
+        Assert.Equal("sala-05", criado.RootElement.GetProperty("id").GetString());
+        Assert.Equal(HttpStatusCode.Conflict, (await c.PostAsJsonAsync("/ambientes", entrada)).StatusCode);
+
+        using var salas = JsonDocument.Parse(await c.GetStringAsync("/ambientes"));
+        var nova = salas.RootElement.EnumerateArray().Single(s => s.GetProperty("id").GetString() == "sala-05");
+        Assert.Equal("Sala 5", nova.GetProperty("nome").GetString());
+        Assert.Equal(2, nova.GetProperty("andar").GetInt32());
+        Assert.Equal("sul", nova.GetProperty("faceSol").GetString());
+        Assert.False(nova.GetProperty("temVentilador").GetBoolean());
+        Assert.True(nova.GetProperty("semLeitura").GetBoolean());
+        Assert.Equal(JsonValueKind.Null, nova.GetProperty("dispositivoId").ValueKind);
+        var existente = salas.RootElement.EnumerateArray().Single(s => s.GetProperty("id").GetString() == "sala-03");
+        Assert.True(existente.GetProperty("temVentilador").GetBoolean());
+        Assert.Equal("esp32-sala-03", existente.GetProperty("dispositivoId").GetString());
+        Assert.DoesNotContain("segredo", salas.RootElement.GetRawText(), StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Theory]
+    [InlineData("invalido", "Sala", 0, "leste")]
+    [InlineData("sala-05", " ", 0, "leste")]
+    [InlineData("sala-05", "Sala", -1, "leste")]
+    [InlineData("sala-05", "Sala", 21, "leste")]
+    [InlineData("sala-05", "Sala", 0, "0")]
+    [InlineData("sala-05", "Sala", 0, "desconhecida")]
+    public async Task CadastroRecusaEntradaInvalida(string id, string nome, int andar, string faceSol)
+    {
+        using var f = new ApiFabrica();
+        var c = f.Cliente();
+        Assert.Equal(HttpStatusCode.BadRequest, (await c.PostAsJsonAsync("/ambientes", new { id, nome, andar, faceSol })).StatusCode);
+        using var escopo = f.Services.CreateScope();
+        Assert.Equal(4, escopo.ServiceProvider.GetRequiredService<SalaDb>().Ambientes.Count());
+    }
+
+    [Fact]
+    public async Task AcoesDoDiaUsamLimitesDeSaoPauloEContratoDoDesktop()
+    {
+        using var f = new ApiFabrica();
+        var c = f.Cliente();
+        using var escopo = f.Services.CreateScope();
+        var db = escopo.ServiceProvider.GetRequiredService<SalaDb>();
+        var inicio = new DateTimeOffset(2026, 11, 5, 3, 0, 0, TimeSpan.Zero);
+        foreach (var instante in new[] { inicio.AddTicks(-1), inicio, inicio.AddDays(1).AddTicks(-1), inicio.AddDays(1) })
+            db.Acoes.Add(new Acao { AmbienteId = "sala-03", Nivel = Nivel.cuidado, Descricao = "pausa para água", RegistradaEm = instante });
+        await db.SaveChangesAsync();
+
+        var acoes = (await c.GetFromJsonAsync<AcaoSaida[]>("/acoes?dia=2026-11-05"))!;
+        Assert.Equal(2, acoes.Length);
+        Assert.Equal(inicio.AddDays(1).AddTicks(-1), acoes[0].RegistradoEm);
+        Assert.Equal(inicio, acoes[1].RegistradoEm);
+        Assert.All(acoes, a => { Assert.Equal("cuidado", a.Nivel); Assert.Equal("sala-03", a.AmbienteId); });
+        Assert.Empty((await c.GetFromJsonAsync<AcaoSaida[]>("/acoes?dia=2026-11-10"))!);
+        Assert.Equal(HttpStatusCode.BadRequest, (await c.GetAsync("/acoes?dia=2026-02-30")).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, (await c.GetAsync("/acoes?dia=05-11-2026")).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, (await c.GetAsync("/acoes")).StatusCode);
+    }
+
+    [Fact]
+    public void FactoryUsaConnectionStringDoAmbiente()
+    {
+        const string chave = "ConnectionStrings__Sala";
+        const string conexao = "Server=(localdb)\\MSSQLLocalDB;Database=FactoryConfigTest;Integrated Security=True";
+        var anterior = Environment.GetEnvironmentVariable(chave);
+        try
+        {
+            Environment.SetEnvironmentVariable(chave, conexao);
+            using var db = new SalaDbFactory().CreateDbContext(Array.Empty<string>());
+            Assert.Equal(conexao, db.Database.GetConnectionString());
+        }
+        finally { Environment.SetEnvironmentVariable(chave, anterior); }
+    }
+
     static void InserirPar(SalaDb db, DateTimeOffset quando, double sala, double rua)
     {
         db.Leituras.Add(new Leitura
@@ -172,9 +256,9 @@ public class ApiTestes
             TemperaturaC = 30,
             UmidadePct = 50,
             IndiceCalor = sala,
-            Nivel = IndiceCalor.Nivel(sala),
+            Nivel = Enum.Parse<Nivel>(IndiceCalor.Nivel(sala)),
             MedidoEm = quando,
-            Origem = "manual",
+            Origem = Origem.manual,
         });
         db.LeiturasRua.Add(new LeituraRua { MedidoEm = quando, TemperaturaC = rua, UmidadePct = 40, IndiceCalor = rua });
     }
@@ -243,6 +327,7 @@ public class ApiFabrica : WebApplicationFactory<Program>
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        builder.ConfigureLogging(logging => logging.ClearProviders().AddConsole());
         builder.UseEnvironment(_ambiente);
         builder.UseSetting("Banco:Migrar", "false");
         builder.UseSetting("Mqtt:Desligado", "true");

@@ -1,18 +1,10 @@
+using TermometroDaSala.Api.Dominio.Entidades;
+using TermometroDaSala.Api.Contratos;
 using Microsoft.EntityFrameworkCore;
 using TermometroDaSala.Api.Dados;
 using TermometroDaSala.Api.Dominio;
 
 namespace TermometroDaSala.Api.Servicos;
-
-public class LeituraEntrada
-{
-    public string AmbienteId { get; set; } = "";
-    public string Dispositivo { get; set; } = "";
-    public double TemperaturaC { get; set; }
-    public int UmidadePct { get; set; }
-    public long MedidoEm { get; set; }
-    public string Assinatura { get; set; } = "";
-}
 
 public sealed record ResultadoLeitura(int Status, string? Motivo, long? Id, bool Suspeita, double Indice, string Nivel);
 
@@ -31,7 +23,7 @@ public class ServicoLeituras
         _log = log;
     }
 
-    public async Task<ResultadoLeitura> Receber(LeituraEntrada entrada, string origem = "dispositivo")
+    public async Task<ResultadoLeitura> Receber(LeituraEntrada entrada, Origem origem = Origem.dispositivo)
     {
         var dispositivo = await _db.Dispositivos.FindAsync(entrada.Dispositivo);
         var motivo = ValidadorLeitura.Motivo(
@@ -67,7 +59,7 @@ public class ServicoLeituras
             TemperaturaC = entrada.TemperaturaC,
             UmidadePct = entrada.UmidadePct,
             IndiceCalor = indice,
-            Nivel = IndiceCalor.Nivel(indice),
+            Nivel = Enum.Parse<Nivel>(IndiceCalor.Nivel(indice)),
             MedidoEm = quando,
             Origem = origem,
             Suspeita = suspeita,
@@ -76,6 +68,6 @@ public class ServicoLeituras
         dispositivo!.UltimoMedidoEm = quando;
         await _db.SaveChangesAsync();
         _log.LogInformation("leitura aceita {Ambiente} {Nivel}", entrada.AmbienteId, leitura.Nivel);
-        return new ResultadoLeitura(201, null, leitura.Id, suspeita, indice, leitura.Nivel);
+        return new ResultadoLeitura(201, null, leitura.Id, suspeita, indice, leitura.Nivel.ToString());
     }
 }

@@ -9,7 +9,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var cs = builder.Configuration.GetConnectionString("Sala")
-    ?? "Server=localhost;Database=TermometroDaSala;Trusted_Connection=True;TrustServerCertificate=True";
+    ?? throw new InvalidOperationException("Configure ConnectionStrings:Sala.");
 builder.Services.AddDbContext<SalaDb>(o => o.UseSqlServer(cs));
 builder.Services.AddSingleton(TimeProvider.System);
 
