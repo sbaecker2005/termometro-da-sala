@@ -18,9 +18,24 @@ public sealed class Sala
     public bool SensorRevogado { get; set; }
     public NivelCalor? NivelAtual { get; set; }
     public double? IndiceAtual { get; set; }
-    public DateTimeOffset? UltimaLeituraEm { get; set; }
-    [JsonIgnore] public Leitura? Leitura => UltimaLeituraEm is { } hora && NivelAtual is { } nivel && IndiceAtual is { } indice
+    [JsonConverter(typeof(DataOuVazio))] public DateTimeOffset? UltimaLeituraEm { get; set; }
+    // A API manda semLeitura=true com nivelAtual "normal" e indiceAtual 0 quando a sala nunca foi medida.
+    public bool SemLeitura { get; set; }
+    [JsonIgnore] public Leitura? Leitura => !SemLeitura && UltimaLeituraEm is { } hora && NivelAtual is { } nivel && IndiceAtual is { } indice
         ? new Leitura(indice, nivel, hora) : null;
+}
+
+/// <summary>A API devolve ultimaLeituraEm como "" para sala sem leitura; aqui isso vira null.</summary>
+public sealed class DataOuVazio : JsonConverter<DateTimeOffset?>
+{
+    public override DateTimeOffset? Read(ref Utf8JsonReader leitor, Type tipo, JsonSerializerOptions opcoes) =>
+        leitor.TokenType == JsonTokenType.String && leitor.GetString() == "" ? null : leitor.GetDateTimeOffset();
+
+    public override void Write(Utf8JsonWriter escritor, DateTimeOffset? valor, JsonSerializerOptions opcoes)
+    {
+        if (valor is { } data) escritor.WriteStringValue(data);
+        else escritor.WriteNullValue();
+    }
 }
 
 public sealed record Leitura(double IndiceCalor, NivelCalor Nivel, DateTimeOffset MedidoEm);
@@ -39,7 +54,8 @@ public sealed class Previsao
 
 public sealed class Acao
 {
-    public string Id { get; set; } = Guid.NewGuid().ToString();
+    // A API gera o id (long). No modo local, o serviço numera em sequência.
+    public long Id { get; set; }
     public string AmbienteId { get; set; } = "";
     public NivelCalor Nivel { get; set; }
     public string Descricao { get; set; } = "";
