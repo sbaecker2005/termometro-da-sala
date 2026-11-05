@@ -29,6 +29,16 @@ O Termômetro da Sala mede cada sala, prevê o nível dela para daqui a 2 horas 
 
 **Fora do escopo:** controlar ventiladores ou ar-condicionado, guardar dado de aluno e substituir a decisão da coordenação. O sistema informa e registra, e quem decide é uma pessoa.
 
+**Princípios de arquitetura.** Cada princípio está no modelo como elemento Principle, realizado por um requisito, pela restrição ou por um processo.
+
+| Princípio | Enunciado | Justificativa | Implicações |
+|---|---|---|---|
+| A decisão é humana | O sistema informa e registra; quem decide a ação é a coordenação | A previsão erra, e a escola responde pela turma | Nenhuma ação automática; o processo Agir é sempre de uma pessoa, e o registro mostra a ação e o horário |
+| A sala é a unidade, não o aluno | Nenhum dado de aluno entra no sistema | Os alunos são menores de idade, e dado que não existe não vaza | Ocorrência por sala, foto da sala sem pessoas e sem EXIF, nenhum cadastro de aluno (R7) |
+| Nunca inventar dado | Sem leitura recente, o sistema diz isso em vez de supor um valor | Um nível inventado tira a confiança no alerta verdadeiro | Previsão sem leitura válida responde `sem-dados-para-prever`; a etiqueta DEMONSTRAÇÃO marca dado simulado (R8) |
+| A porta funciona sem rede | O alerta mais próximo da turma não depende de internet | A rede da escola cai, e o calor não espera | O ESP32 calcula o nível e acende o LED sozinho; a API recalcula e o valor dela é o oficial (R2) |
+| Confiança pela assinatura, não pelo canal | Vale só a leitura assinada pelo dispositivo | O broker é público e qualquer um assina o tópico | HMAC-SHA256 com segredo por dispositivo, ordem estrita do `medidoEm` e revogação pelo terminal (R6) |
+
 ## 2. Público-alvo e partes interessadas
 
 | Parte interessada | Papel | O que ganha |
@@ -39,6 +49,16 @@ O Termômetro da Sala mede cada sala, prevê o nível dela para daqui a 2 horas 
 | Famílias e comunidade escolar | Veem o painel web, só de leitura | Transparência sobre o nível das salas |
 | Diretoria de Ensino / Seduc-SP | Recebe o relatório por sala | Dado para decidir onde climatizar primeiro |
 | INMET | Fornece dados públicos | Não se aplica: é fonte de dados |
+
+**Matriz de partes interessadas.** As cinco primeiras estão no modelo como Stakeholder, ligadas à preocupação (Assessment ou Goal) que a arquitetura precisa responder.
+
+| Parte interessada | Preocupação no modelo | Visão que responde |
+|---|---|---|
+| Turma sem climatização | Salas sem climatização; nenhuma aula em Perigo sem ação | Motivação e Negócio (serviço "Resposta ao calor pelo protocolo") |
+| Professor(a) | Ninguém mede o calor dentro da sala | Negócio (canal "App no celular do professor") e Aplicação |
+| Coordenação pedagógica | A escola só reage quando alguém passa mal | Negócio (papel "Operador do protocolo") e Aplicação |
+| Famílias e comunidade escolar | Comunidade vê o nível das salas | Negócio (canal "Mural na TV da escola") e Tecnologia |
+| Diretoria de Ensino / Seduc-SP | Não há dado por sala para priorizar obras; histórico por sala | Negócio (serviço "Registro e relatório por sala") e Implementação e migração |
 
 ## 3. Requisitos
 
@@ -60,25 +80,39 @@ Os níveis usam o índice de calor nas faixas da NOAA: abaixo de 27 °C é Norma
 
 O modelo está em `termometro-da-sala.archimate`, o arquivo nativo do Archi (**File > Open**). O mesmo modelo está em `termometro-da-sala.xml`, no formato Open Exchange 3.1, para abrir em outra ferramenta ArchiMate (no Archi: **File > Import > Open Exchange XML Model**).
 
-O modelo tem cinco visões, todas sobre os mesmos elementos e relações:
+O modelo tem 106 elementos, 178 relações e seis visões, todas sobre os mesmos elementos e relações. Todo elemento tem uma documentação de uma frase, que o Archi mostra na aba **Properties**.
 
 | Visão no Archi | Camada da rubrica | Fase do TOGAF | Seção | Imagem |
 |---|---|---|---|---|
-| Motivação | Visão da Arquitetura (Motivação) | A | 4.1 | `visao-motivacao.png` [preencher] |
-| Negócio | Visão de Negócios (Business) | B | 4.2 | `visao-negocio.png` [preencher] |
-| Aplicação | Visão de Sistemas (Aplicação e dados) | C | 4.3 | `visao-aplicacao.png` [preencher] |
-| Tecnologia | Visão de Infraestrutura (Tecnologia) | D | 4.4 | `visao-tecnologia.png` [preencher] |
-| Visão em quatro camadas | As quatro juntas, com as ligações entre camadas | A a D | 4 | `diagrama-archi.png` |
+| Motivação | Visão da Arquitetura (Motivação) | A | 4.1 | `visao-motivacao.png` |
+| Negócio | Visão de Negócios (Business) | B | 4.2 | `visao-negocio.png` |
+| Aplicação | Visão de Sistemas (Aplicação e dados) | C | 4.3 | `visao-aplicacao.png` |
+| Tecnologia | Visão de Infraestrutura (Tecnologia) | D | 4.4 | `visao-tecnologia.png` |
+| Implementação e migração | Evolução da solução | E e F | 9 | `visao-implementacao.png` |
+| Visão em quatro camadas | Resumo das quatro, com as ligações entre camadas | A a D | 4 | `diagrama-archi.png` |
 
-Cada imagem é exportada no Archi com a visão aberta, em **File > Export > View As Image**, no formato PNG e com o nome da tabela, dentro de `arquitetura/`.
+As imagens foram geradas pelo próprio Archi a partir do modelo (relatório HTML da linha de comando do Archi 5.10). Para gerar de novo pela interface: abrir a visão e usar **File > Export > View As Image**, em PNG, com o nome da tabela.
+
+A visão em quatro camadas é um resumo: mostra os elementos principais de cada camada e as ligações entre elas. Cada visão de camada traz o detalhe, e nela algumas ligações de atalho da visão geral passam pelo serviço correspondente (por exemplo, o IIS realiza "Hospedagem web", que serve a API).
+
+**Conferência do modelo.** `python arquitetura/conferir_modelo.py` confere os dois arquivos: XML bem formado, ids únicos, toda relação com origem e destino existentes, toda visão apontando para elementos e relações existentes, todo elemento com documentação, os dois arquivos com o mesmo conteúdo e, com o Archi instalado, cada relação permitida pela tabela de relações do ArchiMate que vem com a ferramenta. O Archi também valida o `.xml` contra o XSD do Open Exchange ao importar.
 
 ![Visão em quatro camadas, exportada do Archi](diagrama-archi.png)
 
+**Situação atual, situação alvo e lacuna por camada**
+
+| Camada | Situação atual (escola hoje) | Situação alvo (esta arquitetura) | Lacuna e como é fechada |
+|---|---|---|---|
+| Motivação | Calor tratado como assunto da cidade; nenhuma meta para a sala | Objetivo "nenhuma aula em Perigo sem ação", com indicador medido pelo próprio sistema | Medir o indicador: minutos entre alerta e ação e aulas em Perigo sem ação (seção 7.1) |
+| Negócio | A escola reage quando alguém passa mal; nada fica registrado | Medir, Prever, Alertar, Agir e Registrar, com protocolo de calor e papel de operador | Protocolo por nível e registro da ação no terminal |
+| Aplicação e dados | Nenhum sistema; no máximo um termômetro de parede | API com serviços de leitura, consulta, ação, ocorrência e cadastro; app, terminal e painel | Construída nesta versão; a notificação no app fica para a evolução |
+| Tecnologia | Sem sensor e sem servidor | ESP32 por sala, broker MQTT, Windows Server com IIS, SQL Server e AD | Sensor físico e segredo na memória do ESP32 no piloto; broker próprio com TLS na expansão |
+
 ### 4.1 Motivação (Visão da Arquitetura, Fase A)
 
-Imagem da visão "Motivação": `visao-motivacao.png` [preencher].
+![Visão Motivação, exportada do Archi](visao-motivacao.png)
 
-Dois direcionadores explicam o problema: **ondas de calor** e **salas sem climatização**. A avaliação que os liga é que **ninguém mede o calor dentro da sala**. Daí sai o objetivo **"nenhuma aula em Perigo sem ação"**, sustentado por quatro requisitos: LED sem internet, previsão em 2 h, leitura assinada e nenhum dado de aluno.
+Dois direcionadores explicam o problema: **ondas de calor** e **salas sem climatização**. A avaliação que os liga é que **ninguém mede o calor dentro da sala**. Daí sai o objetivo **"nenhuma aula em Perigo sem ação"**, sustentado por oito dos nove requisitos (R1 a R7 e R9) e pela restrição "Não acionar o ar nem guardar aluno", todos realizando o objetivo no modelo. O R8, "Sem leitura recente, não inventar o nível", realiza o princípio "Nunca inventar dado".
 
 | ODS e meta | Contribuição | Ligação no modelo |
 |---|---|---|
@@ -87,11 +121,11 @@ Dois direcionadores explicam o problema: **ondas de calor** e **salas sem climat
 | 4.a, ambientes de aprendizagem seguros | Mede sala por sala e mostra quais precisam de obra primeiro | Realizado pelo histórico por sala |
 | 11.b, planos de adaptação das cidades | O relatório dá à Diretoria de Ensino um dado que ela não tem hoje | Realizado pelo histórico por sala |
 
-A visão também traz a parte interessada "Turma sem climatização", o princípio "A decisão é humana" e a restrição "Não acionar o ar nem guardar aluno", que realiza o objetivo junto com os requisitos.
+A visão também traz as cinco partes interessadas ligadas às suas preocupações (matriz da seção 2), os nove requisitos da seção 3 (R1 a R9), a restrição "Não acionar o ar nem guardar aluno" e os cinco princípios da Fase A, cada um realizado pelo que o põe em prática: quatro por um requisito e "A decisão é humana" pela restrição (no modelo, também pelo processo Agir). Dois requisitos são realizados fora do negócio: "Recuperar sozinho de falha do serviço" pelo IIS, na camada de Tecnologia, e "Sem leitura recente, não inventar o nível" pela API.
 
 ### 4.2 Negócio (Visão de Negócios, Fase B)
 
-Imagem da visão "Negócio": `visao-negocio.png` [preencher].
+![Visão Negócio, exportada do Archi](visao-negocio.png)
 
 O processo tem cinco passos em sequência:
 
@@ -105,11 +139,21 @@ O processo tem cinco passos em sequência:
 
 A previsão é sempre um apoio. O registro é o que permite medir o indicador de impacto: aulas em Perigo sem ação e minutos entre o alerta e a ação.
 
-Na visão, o evento "Sala entra em Perigo" dispara o Alertar, que realiza o serviço "Alerta do nível da sala". A coordenação assume o papel "Operador do protocolo" para Agir, consultando o "Protocolo de calor", e o Registrar grava a "Ocorrência da sala" e o "Relatório por sala".
+Na visão, o evento "Sala entra em Perigo" dispara o Alertar. Cada processo que entrega algo a alguém realiza um serviço de negócio:
+
+| Serviço de negócio | Realizado por | Serve | Canal (Business Interface) |
+|---|---|---|---|
+| Alerta do nível da sala | Alertar | Professor(a), coordenação e famílias | App no celular do professor, terminal da coordenação, mural na TV da escola e LED na porta da sala |
+| Resposta ao calor pelo protocolo | Agir | Turma | Não se aplica: a coordenação presta o serviço pessoalmente, no papel "Operador do protocolo" |
+| Registro e relatório por sala | Registrar | Diretoria de Ensino | Terminal (ação) e app (ocorrência) |
+
+A coordenação assume o papel "Operador do protocolo" para Agir, consultando o "Protocolo de calor". Agir e Registrar gravam a "Ação registrada"; o Registrar grava também a "Ocorrência da sala" e o "Relatório por sala". As famílias aparecem como ator, servidas pelo alerta no mural.
 
 ### 4.3 Aplicação (Visão de Sistemas, Fase C)
 
-Imagem da visão "Aplicação": `visao-aplicacao.png` [preencher]. A visão mostra os processos de negócio no alto e, abaixo, qual componente serve cada um.
+![Visão Aplicação, exportada do Archi](visao-aplicacao.png)
+
+A Fase C junta aplicação e dados. A visão mostra os processos de negócio no alto, os serviços de aplicação que os servem, a API (com o assinante MQTT e as rotas HTTP dentro dela), os clientes à direita e os objetos de dados embaixo.
 
 | Componente | Responsabilidade | Tecnologia |
 |---|---|---|
@@ -120,9 +164,17 @@ Imagem da visão "Aplicação": `visao-aplicacao.png` [preencher]. A visão most
 | Terminal da coordenação | Salas, registro de ação, cadastro de sala e revogação de sensor | Windows Forms |
 | Painel web | Mural de só leitura para a TV da escola | Página estática no `wwwroot` da API |
 
-A API oferece o serviço de aplicação "Consulta de nível e previsão" e expõe as "Rotas HTTP da API", usadas pelo app e pelo terminal.
+A API realiza cinco serviços de aplicação e expõe as "Rotas HTTP da API", usadas pelo app e pelo terminal:
 
-**Dados (parte da Fase C).** No modelo, os objetos de dados são a "Leitura assinada", gravada pelo assinante MQTT, e a "Previsão da sala", calculada pela API a cada consulta e lida pelo app e pelo terminal (a tabela `Previsoes` fica reservada; nada grava nela hoje). No banco, as tabelas são `Ambientes` (salas), `Dispositivos`, `Leituras`, `LeiturasRua`, `Previsoes`, `Ocorrencias`, `Acoes` e `NiveisAcao` (`api/TermometroDaSala.Api/Dados/SalaDb.cs`). Nenhuma tabela tem campo de aluno.
+| Serviço de aplicação | Rotas | Serve |
+|---|---|---|
+| Recebimento de leitura assinada | `POST /leituras` e assinatura do tópico MQTT | Medir |
+| Consulta de nível e previsão | `GET /ambientes` e `GET /ambientes/{id}/previsao` | Prever e Alertar |
+| Registro de ação | `GET` e `POST /acoes` (escrita com a chave da coordenação) | Agir e Registrar |
+| Registro de ocorrência | `POST /ocorrencias`; a foto sai por `GET /ocorrencias/{id}/foto` | Registrar |
+| Cadastro de sala e revogação de sensor | `POST /ambientes` e `POST /dispositivos/{id}/revogar` (com a chave da coordenação) | Terminal da coordenação |
+
+**Dados (parte da Fase C).** No modelo, os objetos de dados são a "Leitura assinada", a "Previsão da sala" (calculada pela API a cada consulta; a tabela `Previsoes` fica reservada e nada grava nela hoje), "Ambiente (sala)", "Dispositivo (sensor)", "Ocorrência", "Ação" e "Nível e ação sugerida". Os três últimos realizam os objetos de negócio "Ocorrência da sala", "Ação registrada" e "Protocolo de calor". No banco, as tabelas são `Ambientes` (salas), `Dispositivos`, `Leituras`, `LeiturasRua`, `Previsoes`, `Ocorrencias`, `Acoes` e `NiveisAcao` (`api/TermometroDaSala.Api/Dados/SalaDb.cs`). Nenhuma tabela tem campo de aluno.
 
 **Resultado do modelo.** Dados reais do INMET (A701), treino em 2022–2023, validação em 2024 e teste em 2025. A árvore (profundidade 8, folha 30) foi a escolhida pelo menor MAE na validação. No teste, o MAE foi de 0,958 °C contra 1,442 °C da regra "daqui a 2 h igual a agora". O F1 macro dos níveis foi 0,660 contra 0,667 do baseline: o menor erro médio não melhorou o alerta de cuidado extremo. Detalhes em `ml/README.md`.
 
@@ -130,7 +182,9 @@ A API oferece o serviço de aplicação "Consulta de nível e previsão" e expõ
 
 ### 4.4 Tecnologia (Visão de Infraestrutura, Fase D)
 
-Imagem da visão "Tecnologia": `visao-tecnologia.png` [preencher]. A visão mostra, no alto, os componentes de aplicação que cada elemento de tecnologia serve.
+![Visão Tecnologia, exportada do Archi](visao-tecnologia.png)
+
+A visão mostra, no alto, os componentes de aplicação; no meio, os serviços de tecnologia e os aparelhos onde os clientes rodam; embaixo, o Windows Server com o que roda nele, o ESP32 com o firmware e a internet pública.
 
 | Elemento | Papel |
 |---|---|
@@ -140,8 +194,12 @@ Imagem da visão "Tecnologia": `visao-tecnologia.png` [preencher]. A visão most
 | IIS | Publica a API e o painel, com pool sempre ligado |
 | Active Directory e DNS | Domínio `termometro.local`, GPO e auditoria. O AD depende do DNS |
 | SQL Server | Guarda salas, dispositivos, leituras, previsões, ocorrências e ações |
-| INMET (A701) | Dados horários públicos: treinam o modelo e, no modo demonstração, reproduzem a rua de um dia quente |
-| `modelo.json` | Artefato com a árvore de decisão (nós, atributos e limites de corte), carregado e percorrido pela API |
+| `inmet_a701.csv` (INMET, A701) | Artefato de dados: série horária pública de 2022 a 2025 que treina e testa o modelo. A API não consulta o INMET ao vivo (isso é evolução, seção 9); no ambiente Demo, a rua vem de `demo/rua-dia-quente.csv`, um dia quente de exemplo |
+| `modelo.json` | Artefato com a árvore de decisão (nós, atributos e limites de corte), parte da API publicada, carregado e percorrido pela API |
+| API publicada e Banco SalaDb | Artefatos implantados no Windows Server: o site no IIS (com o painel e o `modelo.json`) realiza a API e o painel; o banco no SQL Server realiza os objetos de dados |
+| Hospedagem web, Banco de dados relacional e Mensageria MQTT | Serviços de tecnologia realizados pelo IIS, pelo SQL Server e pelo broker, que servem a API, o painel, o assinante e o ESP32 |
+| Celular do professor, PC da coordenação e TV da escola | Aparelhos onde rodam o app, o terminal e o painel |
+| Internet pública | Rede associada ao ESP32, ao broker, à VM e aos aparelhos |
 
 ## 5. Estado da implementação
 
@@ -260,12 +318,18 @@ Pelo índice de calor, a rua ficou em Normal por 30.792 horas, em Atenção por 
 | Assinante MQTT parar com o pool ocioso | Alto | Pool sempre ligado e recuperação automática, configurados pelo roteiro de Operating Systems. O teste de falha está em `infra/TESTE-DE-FALHA.md`, e o resultado na VM vai para `infra/EVIDENCIAS.md` |
 | Coordenação sem tempo de olhar o terminal | Médio | Indicador de minutos entre alerta e ação, para mostrar o gargalo. Notificação como evolução |
 
-## 9. Evolução
+## 9. Evolução (Fases E e F do TOGAF)
 
-| Horizonte | O que muda |
-|---|---|
-| Piloto em uma escola | Termo-higrômetro por uma semana, medindo o delta real. Sensor físico. Segredo gravado na memória do ESP32 |
-| Mais de uma escola | Broker próprio com usuário, senha e TLS. Busca do INMET ao vivo. Notificação no app. Login do terminal com o AD |
-| Rede de ensino | Relatório consolidado para a Diretoria de Ensino decidir onde climatizar primeiro. Novo treino anual do modelo. Modelo por sala, depois de haver histórico real |
+A Fase E (oportunidades e soluções) agrupa as lacunas em pacotes de trabalho, e a Fase F (planejamento da migração) ordena os patamares. No modelo, isso está na visão "Implementação e migração": cada horizonte é um Plateau, ligado ao seguinte por Triggering; cada pacote de trabalho (Work Package) realiza um patamar; e as lacunas (Gap) ficam entre os patamares que separam. O piloto realiza o objetivo "nenhuma aula em Perigo sem ação", e a rede de ensino realiza o "histórico por sala para priorizar obras".
+
+![Visão Implementação e migração, exportada do Archi](visao-implementacao.png)
+
+| Patamar | Lacuna até ele | Pacote de trabalho: o que muda |
+|---|---|---|
+| Escola hoje: sem medição na sala | Não se aplica | Ponto de partida |
+| Protótipo desta versão (Wokwi e VM) | Medir a sala e registrar a ação | Construção do protótipo: o que este repositório entrega (seção 5) |
+| Piloto em uma escola | Dado real de campo | Termo-higrômetro por uma semana, medindo o delta real. Sensor físico. Segredo gravado na memória do ESP32 |
+| Mais de uma escola | Infraestrutura própria e segura | Broker próprio com usuário, senha e TLS. Busca do INMET ao vivo. Notificação no app. Login do terminal com o AD |
+| Rede de ensino | Visão consolidada da rede | Relatório consolidado para a Diretoria de Ensino decidir onde climatizar primeiro. Novo treino anual do modelo. Modelo por sala, depois de haver histórico real |
 
 Como o código usa a entidade neutra `Ambiente`, a mesma solução pode atender outros lugares quentes trocando dados, e não código.
