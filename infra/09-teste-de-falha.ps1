@@ -9,7 +9,16 @@ param(
 $ErrorActionPreference = 'Stop'
 if (-not $LaboratorioConfirmado) { throw 'Leia TESTE-DE-FALHA.md e use somente na VM isolada com snapshot.' }
 Import-Module WebAdministration
-if ((Invoke-WebRequest -Uri $ProbeUri -UseBasicParsing -TimeoutSec 15).StatusCode -ne 200) { throw 'Aplicacao precisa funcionar antes da falha.' }
+$alvos = @($ProbeUri.AbsoluteUri)
+$raiz = '{0}://{1}/' -f $ProbeUri.Scheme, $ProbeUri.Authority
+if ($raiz -ne $ProbeUri.AbsoluteUri) { $alvos += $raiz }
+function Test-Alvos([int]$TimeoutSec, [string]$Quando) {
+    foreach ($uri in $alvos) {
+        $resposta = Invoke-WebRequest -Uri $uri -UseBasicParsing -TimeoutSec $TimeoutSec
+        if ($resposta.StatusCode -ne 200) { throw "$Quando sem HTTP 200: $uri" }
+    }
+}
+Test-Alvos 15 'Antes da falha'
 if ($Parte -eq 'Pool') {
     $workers = @(Get-CimInstance Win32_Process -Filter "Name='w3wp.exe'" | Where-Object { $_.CommandLine -match ('-ap\s+"' + [regex]::Escape($Pool) + '"') })
     if ($workers.Count -ne 1) { throw 'Esperado um unico worker do pool; confira appcmd list wp.' }
@@ -38,7 +47,6 @@ do {
 # A primeira verificacao de PID ocorre SEM requisicao para provar a recuperacao automatica.
 if (-not $recovered) { throw 'Nao recuperou automaticamente em 90 s. Guardar eventos antes de intervir.' }
 Write-Host "PID anterior: $oldId; novo: $newId"
-$response = Invoke-WebRequest -Uri $ProbeUri -UseBasicParsing -TimeoutSec 30
-if ($response.StatusCode -ne 200) { throw 'Processo voltou, mas a aplicacao nao respondeu HTTP 200.' }
+Test-Alvos 30 'Depois da recuperacao'
 Get-WebAppPoolState -Name $Pool
 Get-Service W3SVC,WAS

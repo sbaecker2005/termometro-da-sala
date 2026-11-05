@@ -2,7 +2,7 @@
 
 ## Preparação
 
-Use somente a VM isolada e com checkpoint. Termine o README, publique a aplicação e tenha uma rota GET que retorna 200 via HTTPS com certificado confiável. No template atual, use `/ambientes`; isso prova apenas hospedagem. Para entrega final, use o painel/rota real. Feche o navegador, monitor HTTP e auto-refresh antes de matar processos: uma requisição externa poderia iniciar o worker e invalidar a prova de inicialização automática.
+Use somente a VM isolada e com checkpoint. Termine o README, publique a aplicação e confira HTTPS com certificado confiável. A prova pede as duas URLs: `GET /ambientes` e o painel em `/` (`wwwroot`). O script 09, com `-ProbeUri` em `/ambientes`, chama as duas antes da falha e de novo só depois do PID novo. Feche o navegador, monitor HTTP e auto-refresh antes de matar processos: uma requisição externa poderia iniciar o worker e invalidar a prova de inicialização automática.
 
 No PowerShell elevado da VM:
 
@@ -26,7 +26,7 @@ Confirme AlwaysRunning, preload, idle timeout zero, Application Initialization e
 .\09-teste-de-falha.ps1 -Parte Pool -ProbeUri https://api.termometro.local/ambientes -LaboratorioConfirmado
 ```
 
-3. O script localiza apenas o worker cujo `-ap` corresponde a `TermometroPool`, mata esse PID e espera até 90 s por **outro PID sem enviar requisição durante a espera**. Só depois verifica HTTP 200. Não use `Stop-Process -Name w3wp`: atingiria outros sites.
+3. O script localiza apenas o worker cujo `-ap` corresponde a `TermometroPool`, mata esse PID e espera até 90 s por **outro PID sem enviar requisição durante a espera**. Só depois verifica HTTP 200 em `/ambientes` e em `/`. Não use `Stop-Process -Name w3wp`: atingiria outros sites.
 4. Guarde PID anterior/novo, estado Started, hora e resposta HTTP. Abra System no Visualizador de Eventos: filtre provedores WAS/W3SVC/W3SVC-WP conforme disponíveis, procurando término inesperado e reinicialização (por exemplo, WAS 5009). ID exato pode variar: registre o evento real com mensagem, provedor e horário. Confirme requisição posterior no log do IIS e valide novamente a aplicação.
 
 **Rapid-Fail Protection:** mantenha habilitado. O padrão desabilita o pool ao atingir cinco falhas em cinco minutos; confira o valor efetivo. Não faça cinco tentativas para gravar o vídeo: um crash basta. Se repetir ensaio, espere mais que o intervalo configurado. Se o pool desligar, preserve eventos, corrija a causa e só então inicie manualmente; essa intervenção não conta como recuperação automática.
@@ -63,7 +63,7 @@ Execute uma vez:
 .\09-teste-de-falha.ps1 -Parte Servico -ProbeUri https://api.termometro.local/ambientes -LaboratorioConfirmado
 ```
 
-O script mata somente o PID isolado, espera o SCM devolver W3SVC a Running com PID novo e depois exige HTTP 200. Não use Start-Service nem reabra o site durante a espera. No log **System**, filtre **Service Control Manager**, normalmente eventos 7031/7034 (falha) e 7036 (mudança de estado), registrando mensagem e horário reais. Mostre a ação de reinício de 5000 ms; o tempo de recuperação completo pode superar 5 s.
+O script mata somente o PID isolado, espera o SCM devolver W3SVC a Running com PID novo e depois exige HTTP 200 em `/ambientes` e em `/`. Não use Start-Service nem reabra o site durante a espera. No log **System**, filtre **Service Control Manager**, normalmente eventos 7031/7034 (falha) e 7036 (mudança de estado), registrando mensagem e horário reais. Mostre a ação de reinício de 5000 ms; o tempo de recuperação completo pode superar 5 s.
 
 Depois da gravação, pode manter o isolamento na VM de laboratório. Para reverter, fora do ensaio: `sc.exe config W3SVC type= share` e reinicie a VM. Não remova a política de recuperação.
 
@@ -76,10 +76,10 @@ Depois da gravação, pode manter o isolamento na VM de laboratório. Para rever
 | Configuração | IIS Manager e `sc.exe qfailure`, incluindo AlwaysRunning/preload/idle/recuperação |
 | Falha e recuperação | Visualizador de Eventos → Windows Logs → System; horário e mensagem reais |
 | Erro da aplicação | Windows Logs → Application, provedor IIS AspNetCore Module V2/.NET Runtime se houver |
-| HTTP após a falha | `C:\inetpub\logs\LogFiles\W3SVC<ID>\u_ex*.log`, ID obtido por `Get-Website`, URL e sc-status 200 |
-| Auditoria de usuário/foto | Security: 4624/4625 e acesso a objeto 4663/4656, quando a API implementar fotos |
-| Integridade funcional | Painel e dado persistido continuam disponíveis; nenhuma foto/banco foi apagado |
+| HTTP após a falha | Saída do 09 e `C:\inetpub\logs\LogFiles\W3SVC<ID>\u_ex*.log`: `/ambientes` e `/`, sc-status 200 |
+| Auditoria de usuário/foto | Security: 4624/4625 e acesso a objeto 4663/4656 na pasta de fotos |
+| Integridade funcional | O painel em `/` e o dado em `/ambientes` continuam; nenhuma foto ou banco foi apagado |
 
-Logs W3C usam UTC; correlacione com a hora exibida pelo Event Viewer e fuso da VM. Desabilite stdout detalhado do ANCM após diagnóstico; se habilitado temporariamente, use pasta dedicada protegida e não exponha conteúdo sensível em evidências. Uma falha pode interromper requisições em andamento e perder mensagens MQTT conforme QoS; recuperação não promete zero perda. Evidencie também retomada de leituras com horário novo quando o assinante existir.
+Logs W3C usam UTC; correlacione com a hora exibida pelo Event Viewer e fuso da VM. Desabilite stdout detalhado do ANCM após diagnóstico; se habilitado temporariamente, use pasta dedicada protegida e não exponha conteúdo sensível em evidências. Uma falha pode interromper requisições em andamento e perder a leitura MQTT que ainda não chegou; recuperação não promete zero perda. Com o assinante ligado, mostre uma leitura com horário novo depois da volta.
 
-Se não recuperar, o 09 termina com erro; guarde a saída, o log e a configuração antes de corrigir. Novo PID sem HTTP 200, início manual ou evidência só do template não aprovam a proposta completa.
+Se não recuperar, o 09 termina com erro; guarde a saída, o log e a configuração antes de corrigir. Novo PID sem HTTP 200 nas duas URLs, ou início manual, não aprovam a recuperação. Uma falha pode perder a leitura MQTT que estava em voo; com o assinante desligado, repita o `POST /leituras` depois que `/` voltar.

@@ -58,9 +58,10 @@ Get-WebAppPoolState TermometroPool
 Get-Item IIS:\AppPools\TermometroPool | Select-Object Name,startMode,managedRuntimeVersion
 Get-ItemProperty IIS:\AppPools\TermometroPool -Name processModel
 Get-WebConfigurationProperty -PSPath MACHINE/WEBROOT/APPHOST -Filter "system.applicationHost/sites/site[@name='Termometro']/application[@path='/']" -Name preloadEnabled
+(Get-WebConfigurationProperty -PSPath MACHINE/WEBROOT/APPHOST -Filter "system.applicationHost/applicationPools/add[@name='TermometroPool']" -Name environmentVariables).Collection.name
 ```
 
-Print/saída: [colar]. Esperado: ANCM V2, Microsoft.AspNetCore.App 8.x, binding, ApplicationPoolIdentity, Started/AlwaysRunning, idle 0 e preload True. Print de Application Initialization e Rapid-Fail Protection: [colar].
+Print/saída: [colar]. Esperado: ANCM V2, Microsoft.AspNetCore.App 8.x, binding, ApplicationPoolIdentity, Started/AlwaysRunning, idle 0 e preload True. Nomes no pool: `ConnectionStrings__Sala`, `Fotos__Pasta`, `ChaveCoordenacao`, `ASPNETCORE_ENVIRONMENT`, `ASPNETCORE_HTTPS_PORT`, `Banco__Migrar` (e `Mqtt__Desligado` se tiver sido gravado). Não capture valores. Print de Application Initialization e Rapid-Fail Protection: [colar].
 
 ## E05 — pastas e NTFS
 
@@ -76,10 +77,11 @@ Print/saída: [colar]. Esperado: pool RX no site e M em fotos; SYSTEM/Administra
 
 ```powershell
 Get-Service 'MSSQL$SQLEXPRESS'
+Invoke-WebRequest https://api.termometro.local/ -UseBasicParsing | Select-Object StatusCode
 Invoke-WebRequest https://api.termometro.local/ambientes -UseBasicParsing | Select-Object StatusCode
 ```
 
-Print/saída: [colar]. `/ambientes` é só ensaio do template. Para versão final, substitua por rota real; registre versão publicada e prova de registro persistido no banco. Via ferramenta SQL com autenticação integrada administrativa, sem exibir string privada:
+Print/saída: [colar]. As duas URLs precisam de HTTP 200: o painel em `/` e a lista em `/ambientes`. Registre a versão publicada e um registro que continua no banco depois de reciclar o pool. Via ferramenta SQL com autenticação integrada administrativa, sem exibir string privada nem a coluna Segredo:
 
 ```sql
 SELECT name, state_desc FROM sys.databases WHERE name = N'Termometro';
@@ -90,9 +92,10 @@ FROM sys.database_role_members m
 JOIN sys.database_principals r ON r.principal_id = m.role_principal_id
 JOIN sys.database_principals u ON u.principal_id = m.member_principal_id
 WHERE u.name = N'IIS APPPOOL\TermometroPool';
+SELECT MigrationId FROM __EFMigrationsHistory ORDER BY MigrationId;
 ```
 
-Esperado: ONLINE, login/usuário do pool, reader/writer sem db_owner; migrações aplicadas por administrador e aplicação conectada. Print/saída: [colar].
+Esperado: ONLINE, login/usuário do pool, reader/writer sem db_owner, e as migrações `20261105025544_Inicial`, `20261105033613_Enums`, `20261105050515_SegredosPorDispositivo`. Print/saída: [colar].
 
 ## E07 — GPO, RDP e auditoria (1 ponto com E12)
 
@@ -128,7 +131,7 @@ Prints dos três contadores com caminhos localizados, limites e estado Running: 
 
 ## E10 — recuperação do pool (1 ponto com E11)
 
-Print/saída do 09 parte Pool: [colar]. PID antes: [preencher]; depois: [preencher]; horários: [preencher]. Evento WAS e HTTP 200 posterior: [colar]. Confirmação de que não houve pedido externo nem início manual durante a espera: [preencher]. Rapid-Fail Protection e número de crashes no intervalo: [preencher].
+Print/saída do 09 parte Pool: [colar]. PID antes: [preencher]; depois: [preencher]; horários: [preencher]. Evento WAS e HTTP 200 posterior em `/ambientes` e em `/`: [colar]. Confirmação de que não houve pedido externo nem início manual durante a espera: [preencher]. Rapid-Fail Protection e número de crashes no intervalo: [preencher].
 
 ## E11 — recuperação W3SVC
 
@@ -139,7 +142,7 @@ Get-CimInstance Win32_Service -Filter "Name='W3SVC'" | Select-Object Name,State,
 Get-Service WAS,W3SVC
 ```
 
-Print de isolamento do PID e saída do 09 parte Servico: [colar]. PID antes/depois e tempo real: [preencher]. SCM falha/recuperação + HTTP 200 sem intervenção: [colar]. Se isolamento ou recuperação falhar, registrar aqui e corrigir antes da entrega: [preencher].
+Print de isolamento do PID e saída do 09 parte Servico: [colar]. PID antes/depois e tempo real: [preencher]. SCM falha/recuperação + HTTP 200 em `/` e `/ambientes` sem intervenção: [colar]. Se isolamento ou recuperação falhar, registrar aqui e corrigir antes da entrega: [preencher].
 
 ## E12 — correlação de logs
 
@@ -152,9 +155,9 @@ Selecione só eventos do ensaio antes de publicar saídas. Prints System, Applic
 
 ## E13 — funcionamento completo (2 pontos)
 
-Print/trecho do vídeo: [colar]. Sala identificada, leitura atual, previsão 2 h, ocorrência/ação registrada e persistida após reciclar pool; foto tratada pela API e inacessível diretamente; painel sem dados de aluno/fotos pessoais; retomada de leituras após falha quando houver MQTT. Origem dos dados simulados/públicos: [preencher].
+Print/trecho do vídeo: [colar]. Painel em `/` com sala, nível e previsão; `GET /ambientes`; leitura por MQTT (NAT na 1883) ou por `POST /leituras` com `Mqtt__Desligado=true`; ocorrência ou ação ainda presente depois de reciclar o pool; foto só por `GET /ocorrencias/{id}/foto`. O HMAC `segredo-de-teste-sala-0N` é de demonstração: a troca é `POST /dispositivos/{id}/revogar` e um dispositivo novo, sem exibir segredo nem chave. Origem dos dados simulados/públicos: [preencher].
 
-**Pendente até a aplicação substituir o template.** Não marque E13 aprovado só porque `/ambientes` retorna 200.
+Não marque E13 só com o processo no ar. As duas URLs, a migração e uma leitura gravada fazem parte desta prova.
 
 ## Conferência final
 

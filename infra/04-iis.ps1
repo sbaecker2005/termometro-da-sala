@@ -5,7 +5,8 @@ param(
     [ValidatePattern('^[A-Za-z0-9_-]+$')][string]$Pool = 'TermometroPool',
     [string]$SitePath = 'C:\Sites\Termometro',
     [string]$PhotosPath = 'C:\Dados\Termometro\Fotos',
-    [string]$DnsName = 'api.termometro.local'
+    [string]$DnsName = 'api.termometro.local',
+    [switch]$MqttDesligado
 )
 $ErrorActionPreference = 'Stop'
 $siteFolder = [IO.Path]::GetFullPath($SitePath).TrimEnd('\')
@@ -47,4 +48,46 @@ foreach ($entry in @(@($SitePath,'ReadAndExecute'),@($PhotosPath,'Modify'))) {
 if (-not (Get-NetFirewallRule -Name TermometroHTTP -ErrorAction SilentlyContinue)) {
     New-NetFirewallRule -Name TermometroHTTP -DisplayName 'Termometro HTTP laboratorio' -Direction Inbound -Action Allow -Protocol TCP -LocalPort 80 -Profile Domain,Private -RemoteAddress LocalSubnet | Out-Null
 }
-Write-Host 'Instale manualmente o Hosting Bundle .NET 8 x64 depois do IIS e reinicie a VM. Fotos ficam fora do site; nao sao compartilhadas por SMB.'
+function Get-PoolVar([string]$Name) {
+    try {
+        $vars = @(Get-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter "system.applicationHost/applicationPools/add[@name='$Pool']" -Name environmentVariables -ErrorAction Stop).Collection
+        $found = @($vars | Where-Object { $_.name -eq $Name })
+        if (-not $found) { return '' }
+        return [string]$found[0].value
+    } catch { return '' }
+}
+# shortcut: o cmdlet do IIS nao foi ensaiado aqui, confira os nomes no pool se a variavel nao gravar.
+function Set-PoolVar([string]$Name, [string]$Value) {
+    $poolFilter = "system.applicationHost/applicationPools/add[@name='$Pool']"
+    $item = "$poolFilter/environmentVariables/add[@name='$Name']"
+    $node = $null
+    try { $node = Get-WebConfiguration -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter $item -ErrorAction Stop } catch { $node = $null }
+    if ($node) {
+        Set-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter $item -Name value -Value $Value
+    } else {
+        Add-WebConfigurationProperty -PSPath 'MACHINE/WEBROOT/APPHOST' -Filter $poolFilter -Name environmentVariables -Value @{name=$Name; value=$Value} | Out-Null
+    }
+}
+# No pool, nao no web.config: a publicacao nao apaga a chave e ela nao entra no git.
+$chave = $env:ChaveCoordenacao
+if ([string]::IsNullOrWhiteSpace($chave)) { $chave = Get-PoolVar 'ChaveCoordenacao' }
+if ([string]::IsNullOrWhiteSpace($chave)) {
+    if (-not [Environment]::UserInteractive -or [Console]::IsInputRedirected) { throw 'Defina ChaveCoordenacao na sessao. O valor nao entra no git.' }
+    $secure = Read-Host -AsSecureString -Prompt 'ChaveCoordenacao'
+    if ($secure.Length -lt 1) { throw 'ChaveCoordenacao vazia.' }
+    $ptr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
+    try { $chave = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($ptr) }
+    finally { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptr) }
+}
+$sala = $env:ConnectionStrings__Sala
+if ([string]::IsNullOrWhiteSpace($sala)) { $sala = 'Server=.\SQLEXPRESS;Database=Termometro;Integrated Security=True;TrustServerCertificate=True' }
+Set-PoolVar 'ConnectionStrings__Sala' $sala
+Set-PoolVar 'Fotos__Pasta' $photosFolder
+Set-PoolVar 'ChaveCoordenacao' $chave
+Set-PoolVar 'ASPNETCORE_ENVIRONMENT' 'Production'
+Set-PoolVar 'ASPNETCORE_HTTPS_PORT' '443'
+Set-PoolVar 'Banco__Migrar' 'false'
+if ($MqttDesligado -or $env:Mqtt__Desligado -eq 'true') { Set-PoolVar 'Mqtt__Desligado' 'true' }
+elseif ($env:Mqtt__Desligado -eq 'false') { Set-PoolVar 'Mqtt__Desligado' 'false' }
+if ((Get-WebAppPoolState -Name $Pool).Value -eq 'Started') { Restart-WebAppPool -Name $Pool }
+Write-Host 'Pool: ConnectionStrings__Sala, Fotos__Pasta, ChaveCoordenacao, ASPNETCORE_ENVIRONMENT=Production, ASPNETCORE_HTTPS_PORT=443, Banco__Migrar=false. MQTT ligado exige NAT de saida na 1883; senao use -MqttDesligado. Instale o Hosting Bundle .NET 8 x64 depois do IIS e reinicie a VM. Fotos ficam fora do site; nao sao compartilhadas por SMB.'

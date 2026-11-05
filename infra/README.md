@@ -20,7 +20,9 @@ Equipe (nome completo e RM de todos): [preencher].
 
 Roteiro para laboratório isolado, baseado em `docs/PLANO.md` e no briefing, páginas 32–34. Os scripts preparam serviços; as etapas gráficas de GPO, DFS, certificados e coletores também são obrigatórias. Execute em Windows PowerShell 5.1 **como administrador dentro da VM**, na sequência abaixo. Nunca execute estes scripts no computador pessoal.
 
-Na leitura inicial, a API em `api/TermometroDaSala.Api` era o template `net8.0`, com `/ambientes`, sem `wwwroot`, DbContext ou migrações. Portanto, publicar esse template só comprova o hosting. A equipe da aplicação precisa entregar painel, persistência, migrações, fotos e fluxo de demonstração antes da prova de funcionamento completo. Não há nome de connection string nem opção de caminho de fotos implementados para configurar hoje; confirme os nomes reais com a equipe quando o código chegar. Não invente variáveis que a API não lê.
+A API em `api/` grava pela connection string `ConnectionStrings:Sala` (variável `ConnectionStrings__Sala`) e guarda a foto em `Fotos:Pasta` (`Fotos__Pasta`). A coordenação envia `ChaveCoordenacao` no cabeçalho `X-Chave-Coordenacao`. O painel está em `wwwroot` e abre em `/`; `GET /ambientes` lista as salas. `Banco:Migrar` existe e o padrão é `true` (a API migraria sozinha na subida). Os scripts 04 e 08 gravam `Banco__Migrar=false` no pool: em produção quem migra é o administrador, no passo 5.
+
+O segredo HMAC da semente (`segredo-de-teste-sala-01` a `sala-04`) é só de demonstração. Ele já está nas migrações e não serve como segredo real. Para trocar: `POST /dispositivos/{id}/revogar` com a chave da coordenação e um dispositivo novo. A API não tem rota para cadastrar sensor; a linha nova em `Dispositivos` entra pelo administrador, com segredo que não volta para o git.
 
 Uma VM reúne AD, DNS, arquivos, IIS e SQL para reduzir o laboratório. Essa concentração é um ponto único de falha e não é uma arquitetura de produção. SQL no controlador de domínio tem restrições de contas de serviço e não é recomendado: use uma conta de domínio dedicada na instalação de laboratório; se o instalador recusar, use uma segunda VM membro para SQL e reveja a identidade do pool/acesso ao banco (o login virtual local do script 05 não serve para SQL remoto).
 
@@ -78,7 +80,15 @@ Get-ADGroupMember AdminsTermometro
 
 O script instala File Server e IIS com Application Initialization. Reserva `C:\Sites\Termometro` para publicação e `C:\Dados\Termometro\Fotos` para fotos privadas. Use pastas dedicadas vazias: a execução reaplica a ACL da raiz, removendo permissões extras. Não aponte para diretórios de outros sistemas. Verifique filhos preexistentes com ACL explícita; eles não são saneados automaticamente.
 
-Permissões NTFS esperadas: pool `IIS AppPool\TermometroPool` com leitura/execução no site e Modify em fotos; SYSTEM e Administrators com FullControl para manutenção/recuperação. **Somente o pool escreve entre as identidades da aplicação**; usuários e grupos da escola não escrevem. Preserve a exceção administrativa. Não crie diretório virtual, compartilhamento SMB nem conteúdo em `wwwroot` apontando para fotos. A API deverá usar o caminho privado configurado por seu contrato real.
+Permissões NTFS esperadas: pool `IIS AppPool\TermometroPool` com leitura/execução no site e Modify em fotos; SYSTEM e Administrators com FullControl para manutenção/recuperação. **Somente o pool escreve entre as identidades da aplicação**; usuários e grupos da escola não escrevem. Preserve a exceção administrativa. Não crie diretório virtual, compartilhamento SMB nem conteúdo em `wwwroot` apontando para fotos. O script grava `Fotos__Pasta` com o caminho dessa pasta (absoluto). A API usa o caminho como está quando ele é absoluto.
+
+A chave não entra no git nem na linha de comando. Defina `ChaveCoordenacao` na sessão ou digite no prompt seguro. Sem NAT de saída para `broker.hivemq.com` na porta 1883, desligue o assinante:
+
+```powershell
+.\04-iis.ps1 -MqttDesligado
+```
+
+Com saída pela NAT, rode `.\04-iis.ps1` sem o switch. O mesmo switch vale no 08: sem ele, o 08 não muda `Mqtt__Desligado`. Para religar o MQTT depois de ter desligado, `$env:Mqtt__Desligado='false'` e rode o 04 ou o 08 de novo. Outra connection string (sem senha no arquivo) entra por `ConnectionStrings__Sala` na sessão; o padrão é `Server=.\SQLEXPRESS;Database=Termometro;Integrated Security=True;TrustServerCertificate=True`, o banco que o script 05 cria. Isso substitui o `TermometroDaSala` do `appsettings.json`.
 
 Instale agora o Hosting Bundle .NET 8 x64. Se já foi instalado antes do IIS, execute Repair depois de instalar IIS. Reinicie a VM. Confira:
 
@@ -92,7 +102,10 @@ Get-ItemProperty IIS:\AppPools\TermometroPool -Name processModel
 Get-WebConfigurationProperty -PSPath MACHINE/WEBROOT/APPHOST -Filter "system.applicationHost/sites/site[@name='Termometro']/application[@path='/']" -Name preloadEnabled
 icacls C:\Sites\Termometro
 icacls C:\Dados\Termometro\Fotos
+(Get-WebConfigurationProperty -PSPath MACHINE/WEBROOT/APPHOST -Filter "system.applicationHost/applicationPools/add[@name='TermometroPool']" -Name environmentVariables).Collection.name
 ```
+
+A lista traz os nomes, não os valores. Esperado: `ConnectionStrings__Sala`, `Fotos__Pasta`, `ChaveCoordenacao`, `ASPNETCORE_ENVIRONMENT`, `ASPNETCORE_HTTPS_PORT`, `Banco__Migrar`. `Mqtt__Desligado` só aparece quando o assinante foi desligado ou religado por variável. Não capture o valor da chave.
 
 No IIS Manager, confirme `AlwaysRunning`, idle timeout `00:00:00`, preload `True`, `.NET CLR Version: No Managed Code`, identidade `ApplicationPoolIdentity` e Rapid-Fail Protection habilitado. Anonymous Authentication usa a identidade do pool (não IUSR). O site tem binding HTTP 80 com host `api.termometro.local`; o site padrão pode permanecer, pois o host é distinto. Reexecução preserva bindings de site existente: confirme host/porta manualmente.
 
@@ -104,7 +117,7 @@ A API atual chama `UseHttpsRedirection`. Configure HTTPS antes da prova final: I
 $cert = New-SelfSignedCertificate -DnsName api.termometro.local -CertStoreLocation Cert:\LocalMachine\My
 ```
 
-Selecione esse certificado no binding. No IIS Configuration Editor, escopo do site, `system.webServer/aspNetCore`, collection `environmentVariables`, defina `ASPNETCORE_HTTPS_PORT=443` e `ASPNETCORE_ENVIRONMENT=Production`. Não habilite Development para expor Swagger. Registre essas configurações no site, não edite o artefato publicado; confirme que nova publicação não as sobrescreveu.
+Selecione esse certificado no binding. O pool já recebe `ASPNETCORE_ENVIRONMENT=Production` e `ASPNETCORE_HTTPS_PORT=443` pelos scripts 04 e 08 (junto com a connection string, a pasta de fotos, a chave e `Banco__Migrar=false`). Não grave isso no `web.config` publicado: a próxima cópia apagaria, e a chave iria parar no backup. Não use Development nem Demo no servidor: Development abre o Swagger; Demo abre `POST /demo/semear`. Em Production essa rota responde 404.
 
 ```powershell
 New-NetFirewallRule -Name TermometroHTTPS -DisplayName 'Termometro HTTPS laboratorio' -Direction Inbound -Action Allow -Protocol TCP -LocalPort 443 -Profile Domain,Private -RemoteAddress LocalSubnet
@@ -124,9 +137,23 @@ Get-Service 'MSSQL$SQLEXPRESS'
 .\05-sql.ps1
 ```
 
-O script usa ADO.NET disponível no PowerShell 5.1; não exige `sqlcmd`/SSMS. Cria banco `Termometro` e login Windows `IIS APPPOOL\TermometroPool` com `db_datareader`/`db_datawriter`. Não dá `db_owner` ao processo web. A conexão integrada local usa `TrustServerCertificate=True` pelo certificado do laboratório.
+O script usa ADO.NET disponível no PowerShell 5.1; não exige `sqlcmd`/SSMS. Cria banco `Termometro` e login Windows `IIS APPPOOL\TermometroPool` com `db_datareader`/`db_datawriter`. Não dá `db_owner` ao processo web. A conexão integrada local usa `TrustServerCertificate=True` pelo certificado do laboratório. A API em produção não migra sozinha: `Banco__Migrar=false` no pool. Sem isso o padrão (`true`) chama `Database.Migrate()` na subida, com uma conta que não tem direito de DDL.
 
-Quando as migrações existirem, a equipe aplica um script SQL idempotente revisado usando uma conta administrativa, antes de subir a API. Informe à equipe: servidor `.\SQLEXPRESS`, banco `Termometro`, autenticação integrada e criptografia com certificado de laboratório. Configure a connection string na **chave que o código realmente ler**, no escopo do site/pool; não registre valores secretos. Não há migração automática nem persistência no template atual, então criar banco não prova que a aplicação o usa.
+Na máquina com SDK .NET 8, a partir de `api/` (o comando não abre o SQL; a variável só satisfaz a factory):
+
+```powershell
+dotnet tool restore
+$env:ConnectionStrings__Sala = 'Server=localhost;Database=Termometro;Integrated Security=True;TrustServerCertificate=True'
+dotnet ef migrations script --idempotent --project TermometroDaSala.Api --output $env:TEMP\termometro-migracao.sql
+```
+
+Copie o arquivo para a VM e não o versione: ele repete o segredo HMAC de demonstração da semente. Na VM, como administrador:
+
+```powershell
+.\05-sql.ps1 -MigrationScript $env:TEMP\termometro-migracao.sql
+```
+
+O script separa os lotes no `GO` e aplica no banco `Termometro` com a conta da sessão, não com o pool. A saída deve listar `20261105025544_Inicial`, `20261105033613_Enums` e `20261105050515_SegredosPorDispositivo`. Pode rodar de novo: o SQL é idempotente. Se o SQL Server recusar a migração Inicial com o erro 1785 (dois caminhos de cascata até `Leituras`), pare e leia a limitação no README da API; este script não altera as chaves estrangeiras. Sem `-MigrationScript`, o 05 só cria o banco e o login.
 
 ## 6. GPO, RDP e auditoria
 
@@ -198,16 +225,23 @@ Na máquina de desenvolvimento com SDK .NET 8 (fora do servidor):
 dotnet publish .\api\TermometroDaSala.Api\TermometroDaSala.Api.csproj -c Release -o D:\GS\publish
 ```
 
-Transfira a pasta publicada inteira para `C:\GS\publish` da VM; não copie apenas a DLL. Ela precisa conter `web.config`, DLL, dependências e o painel em `wwwroot`. Não leve arquivos de desenvolvimento com credenciais. Aplique as migrações revisadas e configure banco/caminho privado de fotos quando a aplicação os implementar.
+Transfira a pasta publicada inteira para `C:\GS\publish` da VM; não copie apenas a DLL. Ela precisa conter `web.config`, DLL, dependências, `modelo\modelo.json` e o painel em `wwwroot\index.html`. Não leve arquivos de desenvolvimento com credenciais. Rode o passo 5 antes desta publicação.
 
 ```powershell
-# Hoje, somente teste do template; depois substituir pela rota GET real da aplicacao.
 .\08-publicar-api.ps1 -PublishPath C:\GS\publish -ProbeUri https://api.termometro.local/ambientes
+# Sem NAT de saida na porta 1883, acrescente -MqttDesligado (igual ao 04).
 ```
 
-O script valida arquivos e ANCM, para apenas o pool dedicado, salva backup, copia sem apagar arquivos e religa o pool em `finally`. Falha de HTTP é erro, não sucesso parcial. **Não há rollback automático**: se falhar, preserve logs, pare o pool e restaure o backup revisado; mova os binários novos para quarentena antes de restaurar, pois cópia simples não elimina arquivos adicionados. Não toque no banco nem nas fotos nesse rollback. Não há sincronização/exclusão automática: em mudanças com arquivos removidos, compare os dois diretórios e faça limpeza revisada com backup. O backup herda proteção administrativa; não o compartilhe.
+O script reaplica as variáveis do pool (mesma regra do 04), exige `wwwroot\index.html`, para só o pool dedicado, salva backup, copia sem apagar arquivos e religa o pool em `finally`. Depois exige HTTP 200 em `/ambientes` e no painel `/`. Falha de HTTP é erro, não sucesso parcial. **Não há rollback automático**: se falhar, preserve logs, pare o pool e restaure o backup revisado; mova os binários novos para quarentena antes de restaurar, pois cópia simples não elimina arquivos adicionados. Não toque no banco nem nas fotos nesse rollback. Não há sincronização/exclusão automática: em mudanças com arquivos removidos, compare os dois diretórios e faça limpeza revisada com backup. O backup herda proteção administrativa; não o compartilhe.
 
-Abra `/ambientes` para verificar o runtime. A raiz `/` no template não apresenta painel e não é evidência de proposta completa. Quando a equipe entregar `wwwroot/index.html`, confirme também o middleware de arquivos estáticos/default documents na API, abra `/` e faça o fluxo sala → leitura → previsão → ocorrência/ação → persistência após reciclar pool. Mostre que foto privada não é baixada por URL direta.
+### MQTT ou Insomnia
+
+As duas formas de leitura valem; use uma na prova.
+
+1. **NAT de saída.** A VM alcança `broker.hivemq.com` na porta TCP 1883. Não abra essa porta para dentro e não publique o broker. O assinante sobe com o pool (`Mqtt__Desligado` ausente ou `false`). No vídeo, uma leitura nova aparece em `/` depois que o worker volta.
+2. **Sem internet.** `.\04-iis.ps1 -MqttDesligado` e o mesmo switch no 08 (`Mqtt__Desligado=true`). A leitura entra por `POST /leituras` no Insomnia (`api/insomnia.json`), com o HMAC de demonstração. Desligue o simulador para não disputar o relógio. O painel em `/` lê `GET /ambientes` do mesmo site.
+
+Abra `/` e `/ambientes`. O fluxo da proposta é sala, leitura, previsão, ocorrência ou ação, e o dado continua depois de reciclar o pool. A foto só sai por `GET /ocorrencias/{id}/foto`; não há URL direta para `C:\Dados\Termometro\Fotos`.
 
 ## 9. Teste de falha e entrega
 
@@ -220,11 +254,11 @@ Preencha [EVIDENCIAS.md](EVIDENCIAS.md) e grave [ROTEIRO-VIDEO.md](ROTEIRO-VIDEO
 | Item da pontuação (briefing p. 34) | Pontos | Configuração e prova |
 |---|---:|---|
 | Infraestrutura de rede e identidade: IP fixo, hostname, DNS, AD | 2 | Passos 1–3, scripts 01–03; evidências E01–E03 |
-| Aplicação IIS: site, pool, dependências, pasta, NTFS | 2 | Passos 4–5 e 8, scripts 04/05/08; E04–E06 |
+| Aplicação IIS: site, pool, dependências, pasta, NTFS | 2 | Passos 4–5 e 8, scripts 04/05/08, variáveis do pool e NTFS da pasta de fotos; E04–E06 |
 | Alertas CPU, disco e memória no Monitor de Desempenho | 2 | Passo 7, script 07, coletores e ensaio; E09 |
-| Recuperação automática do serviço e pool, teste de falha | 1 | Passo 9, scripts 07/09 e TESTE-DE-FALHA; E10–E11 |
+| Recuperação automática do serviço e pool, teste de falha | 1 | Passo 9, scripts 07/09 e TESTE-DE-FALHA: depois do PID novo, `/ambientes` e o painel `/`; E10–E11 |
 | Logs de auditoria e acompanhamento | 1 | Passos 6–7, GPO/SACL, Security/System/Application e IIS; E07/E09/E12 |
-| Funcionamento completo da proposta | 2 | Passo 8 e vídeo: painel e fluxo integrado persistente; E13. Pendente da aplicação real |
+| Funcionamento completo da proposta | 2 | Passos 5 e 8 e vídeo: painel `/`, `GET /ambientes`, migração aplicada, leitura por MQTT (NAT 1883) ou `POST /leituras`; E13 |
 | Serviços citados no conceito: GPO, File Server, RDS, DFS | — | Passos 4/6/6a; E07–E08. Confirmar RDS completo com professor |
 
 ## Conferência antes de executar
