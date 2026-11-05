@@ -13,22 +13,1426 @@
  ],
  "fonte": "INMET A701, horário, 2022-2025 (treino 2022-2023, validação 2024, teste 2025)",
  "metricas_teste": {
-  "MAE (°C)": 1.052,
-  "F1 macro (níveis)": 0.745
+  "MAE (°C)": 0.958,
+  "RMSE (°C)": 1.364,
+  "R²": 0.924,
+  "F1 macro (níveis)": 0.66
  },
  "baseline_teste": {
   "MAE (°C)": 1.442,
+  "RMSE (°C)": 2.021,
+  "R²": 0.834,
   "F1 macro (níveis)": 0.667
  },
- "tipo": "linear",
- "intercepto": -4.032482,
- "coeficientes": {
-  "temperatura_c": 1.026225,
-  "umidade_pct": 0.049129,
-  "hora_sen": 1.03887,
-  "hora_cos": -0.78972,
-  "mes_sen": 0.074286,
-  "mes_cos": 0.128616,
-  "variacao_1h": 0.444931
+ "tipo": "arvore",
+ "raiz": {
+  "atributo": "temperatura_c",
+  "limite": 19.95,
+  "menor_ou_igual": {
+   "atributo": "temperatura_c",
+   "limite": 16.349999,
+   "menor_ou_igual": {
+    "atributo": "temperatura_c",
+    "limite": 13.55,
+    "menor_ou_igual": {
+     "atributo": "temperatura_c",
+     "limite": 12.15,
+     "menor_ou_igual": {
+      "atributo": "temperatura_c",
+      "limite": 10.05,
+      "menor_ou_igual": {
+       "atributo": "temperatura_c",
+       "limite": 9.55,
+       "menor_ou_igual": {
+        "valor": 7.875
+       },
+       "maior": {
+        "valor": 9.3968
+       }
+      },
+      "maior": {
+       "atributo": "hora_cos",
+       "limite": -0.12941,
+       "menor_ou_igual": {
+        "atributo": "temperatura_c",
+        "limite": 11.55,
+        "menor_ou_igual": {
+         "valor": 12.1905
+        },
+        "maior": {
+         "valor": 13.2433
+        }
+       },
+       "maior": {
+        "atributo": "temperatura_c",
+        "limite": 11.45,
+        "menor_ou_igual": {
+         "atributo": "hora_sen",
+         "limite": 0.915976,
+         "menor_ou_igual": {
+          "valor": 9.762
+         },
+         "maior": {
+          "valor": 10.7382
+         }
+        },
+        "maior": {
+         "atributo": "hora_sen",
+         "limite": 0.915976,
+         "menor_ou_igual": {
+          "valor": 10.85
+         },
+         "maior": {
+          "valor": 11.7538
+         }
+        }
+       }
+      }
+     },
+     "maior": {
+      "atributo": "hora_cos",
+      "limite": 0.12941,
+      "menor_ou_igual": {
+       "atributo": "hora_sen",
+       "limite": 0.37941,
+       "menor_ou_igual": {
+        "valor": 11.8972
+       },
+       "maior": {
+        "atributo": "temperatura_c",
+        "limite": 12.65,
+        "menor_ou_igual": {
+         "valor": 13.9872
+        },
+        "maior": {
+         "atributo": "hora_cos",
+         "limite": -0.12941,
+         "menor_ou_igual": {
+          "valor": 15.4217
+         },
+         "maior": {
+          "valor": 14.2727
+         }
+        }
+       }
+      },
+      "maior": {
+       "atributo": "temperatura_c",
+       "limite": 12.95,
+       "menor_ou_igual": {
+        "atributo": "hora_sen",
+        "limite": 0.786566,
+        "menor_ou_igual": {
+         "atributo": "umidade_pct",
+         "limite": 77.5,
+         "menor_ou_igual": {
+          "valor": 11.0909
+         },
+         "maior": {
+          "valor": 11.6571
+         }
+        },
+        "maior": {
+         "valor": 12.1121
+        }
+       },
+       "maior": {
+        "atributo": "umidade_pct",
+        "limite": 83.5,
+        "menor_ou_igual": {
+         "atributo": "variacao_1h",
+         "limite": -0.15,
+         "menor_ou_igual": {
+          "valor": 12.0474
+         },
+         "maior": {
+          "valor": 12.4333
+         }
+        },
+        "maior": {
+         "valor": 12.7314
+        }
+       }
+      }
+     }
+    },
+    "maior": {
+     "atributo": "hora_cos",
+     "limite": 0.12941,
+     "menor_ou_igual": {
+      "atributo": "hora_sen",
+      "limite": -0.12941,
+      "menor_ou_igual": {
+       "atributo": "temperatura_c",
+       "limite": 15.55,
+       "menor_ou_igual": {
+        "atributo": "umidade_pct",
+        "limite": 71.5,
+        "menor_ou_igual": {
+         "valor": 12.4875
+        },
+        "maior": {
+         "atributo": "temperatura_c",
+         "limite": 14.75,
+         "menor_ou_igual": {
+          "valor": 13.4086
+         },
+         "maior": {
+          "valor": 14.3303
+         }
+        }
+       },
+       "maior": {
+        "atributo": "umidade_pct",
+        "limite": 72.5,
+        "menor_ou_igual": {
+         "valor": 13.9375
+        },
+        "maior": {
+         "atributo": "umidade_pct",
+         "limite": 81.5,
+         "menor_ou_igual": {
+          "valor": 15.1543
+         },
+         "maior": {
+          "valor": 15.7742
+         }
+        }
+       }
+      },
+      "maior": {
+       "atributo": "temperatura_c",
+       "limite": 15.25,
+       "menor_ou_igual": {
+        "atributo": "hora_cos",
+        "limite": -0.12941,
+        "menor_ou_igual": {
+         "atributo": "umidade_pct",
+         "limite": 76.5,
+         "menor_ou_igual": {
+          "valor": 16.9735
+         },
+         "maior": {
+          "valor": 16.1331
+         }
+        },
+        "maior": {
+         "atributo": "temperatura_c",
+         "limite": 14.55,
+         "menor_ou_igual": {
+          "valor": 14.8958
+         },
+         "maior": {
+          "valor": 15.8056
+         }
+        }
+       },
+       "maior": {
+        "atributo": "variacao_1h",
+        "limite": 0.35,
+        "menor_ou_igual": {
+         "atributo": "umidade_pct",
+         "limite": 86.5,
+         "menor_ou_igual": {
+          "valor": 17.2773
+         },
+         "maior": {
+          "valor": 16.506
+         }
+        },
+        "maior": {
+         "atributo": "hora_cos",
+         "limite": -0.786566,
+         "menor_ou_igual": {
+          "valor": 16.9195
+         },
+         "maior": {
+          "valor": 18.8058
+         }
+        }
+       }
+      }
+     },
+     "maior": {
+      "atributo": "temperatura_c",
+      "limite": 15.05,
+      "menor_ou_igual": {
+       "atributo": "temperatura_c",
+       "limite": 14.25,
+       "menor_ou_igual": {
+        "atributo": "umidade_pct",
+        "limite": 82.5,
+        "menor_ou_igual": {
+         "atributo": "temperatura_c",
+         "limite": 14.05,
+         "menor_ou_igual": {
+          "valor": 12.7525
+         },
+         "maior": {
+          "valor": 13.2595
+         }
+        },
+        "maior": {
+         "atributo": "mes_cos",
+         "limite": -0.683013,
+         "menor_ou_igual": {
+          "valor": 13.1822
+         },
+         "maior": {
+          "valor": 13.5559
+         }
+        }
+       },
+       "maior": {
+        "atributo": "umidade_pct",
+        "limite": 78.5,
+        "menor_ou_igual": {
+         "atributo": "temperatura_c",
+         "limite": 14.75,
+         "menor_ou_igual": {
+          "valor": 13.3239
+         },
+         "maior": {
+          "valor": 13.8419
+         }
+        },
+        "maior": {
+         "atributo": "temperatura_c",
+         "limite": 14.85,
+         "menor_ou_igual": {
+          "valor": 14.0013
+         },
+         "maior": {
+          "valor": 14.528
+         }
+        }
+       }
+      },
+      "maior": {
+       "atributo": "umidade_pct",
+       "limite": 80.5,
+       "menor_ou_igual": {
+        "atributo": "temperatura_c",
+        "limite": 15.45,
+        "menor_ou_igual": {
+         "atributo": "umidade_pct",
+         "limite": 71.5,
+         "menor_ou_igual": {
+          "valor": 13.8433
+         },
+         "maior": {
+          "valor": 14.3203
+         }
+        },
+        "maior": {
+         "atributo": "umidade_pct",
+         "limite": 69.5,
+         "menor_ou_igual": {
+          "valor": 14.4623
+         },
+         "maior": {
+          "valor": 15.1034
+         }
+        }
+       },
+       "maior": {
+        "atributo": "temperatura_c",
+        "limite": 15.55,
+        "menor_ou_igual": {
+         "atributo": "mes_cos",
+         "limite": -0.25,
+         "menor_ou_igual": {
+          "valor": 14.9068
+         },
+         "maior": {
+          "valor": 15.3607
+         }
+        },
+        "maior": {
+         "atributo": "temperatura_c",
+         "limite": 15.85,
+         "menor_ou_igual": {
+          "valor": 15.4641
+         },
+         "maior": {
+          "valor": 15.8202
+         }
+        }
+       }
+      }
+     }
+    }
+   },
+   "maior": {
+    "atributo": "temperatura_c",
+    "limite": 18.150001,
+    "menor_ou_igual": {
+     "atributo": "variacao_1h",
+     "limite": 0.45,
+     "menor_ou_igual": {
+      "atributo": "hora_sen",
+      "limite": 0.915976,
+      "menor_ou_igual": {
+       "atributo": "umidade_pct",
+       "limite": 71.5,
+       "menor_ou_igual": {
+        "atributo": "temperatura_c",
+        "limite": 17.05,
+        "menor_ou_igual": {
+         "atributo": "hora_sen",
+         "limite": -0.603553,
+         "menor_ou_igual": {
+          "valor": 14.4971
+         },
+         "maior": {
+          "valor": 15.2855
+         }
+        },
+        "maior": {
+         "atributo": "hora_sen",
+         "limite": -0.786566,
+         "menor_ou_igual": {
+          "valor": 15.3355
+         },
+         "maior": {
+          "valor": 16.1506
+         }
+        }
+       },
+       "maior": {
+        "atributo": "temperatura_c",
+        "limite": 17.25,
+        "menor_ou_igual": {
+         "atributo": "umidade_pct",
+         "limite": 83.5,
+         "menor_ou_igual": {
+          "valor": 16.1742
+         },
+         "maior": {
+          "valor": 16.8093
+         }
+        },
+        "maior": {
+         "atributo": "temperatura_c",
+         "limite": 17.75,
+         "menor_ou_igual": {
+          "valor": 17.129
+         },
+         "maior": {
+          "valor": 17.6768
+         }
+        }
+       }
+      },
+      "maior": {
+       "atributo": "hora_cos",
+       "limite": 0.12941,
+       "menor_ou_igual": {
+        "atributo": "temperatura_c",
+        "limite": 17.45,
+        "menor_ou_igual": {
+         "atributo": "temperatura_c",
+         "limite": 16.95,
+         "menor_ou_igual": {
+          "valor": 18.2895
+         },
+         "maior": {
+          "valor": 18.9049
+         }
+        },
+        "maior": {
+         "atributo": "umidade_pct",
+         "limite": 85.5,
+         "menor_ou_igual": {
+          "valor": 20.13
+         },
+         "maior": {
+          "valor": 20.0667
+         }
+        }
+       },
+       "maior": {
+        "atributo": "mes_cos",
+        "limite": 0.25,
+        "menor_ou_igual": {
+         "valor": 17.2207
+        },
+        "maior": {
+         "valor": 18.3346
+        }
+       }
+      }
+     },
+     "maior": {
+      "atributo": "hora_sen",
+      "limite": 0.37941,
+      "menor_ou_igual": {
+       "atributo": "hora_sen",
+       "limite": -0.12941,
+       "menor_ou_igual": {
+        "valor": 16.8294
+       },
+       "maior": {
+        "valor": 18.2217
+       }
+      },
+      "maior": {
+       "atributo": "variacao_1h",
+       "limite": 1.35,
+       "menor_ou_igual": {
+        "atributo": "temperatura_c",
+        "limite": 17.05,
+        "menor_ou_igual": {
+         "atributo": "variacao_1h",
+         "limite": 0.75,
+         "menor_ou_igual": {
+          "valor": 18.1667
+         },
+         "maior": {
+          "valor": 18.88
+         }
+        },
+        "maior": {
+         "atributo": "temperatura_c",
+         "limite": 17.75,
+         "menor_ou_igual": {
+          "valor": 19.5509
+         },
+         "maior": {
+          "valor": 20.3488
+         }
+        }
+       },
+       "maior": {
+        "atributo": "variacao_1h",
+        "limite": 1.95,
+        "menor_ou_igual": {
+         "valor": 20.1222
+        },
+        "maior": {
+         "valor": 20.8722
+        }
+       }
+      }
+     }
+    },
+    "maior": {
+     "atributo": "hora_sen",
+     "limite": 0.37941,
+     "menor_ou_igual": {
+      "atributo": "umidade_pct",
+      "limite": 79.5,
+      "menor_ou_igual": {
+       "atributo": "hora_cos",
+       "limite": -0.915976,
+       "menor_ou_igual": {
+        "atributo": "temperatura_c",
+        "limite": 19.05,
+        "menor_ou_igual": {
+         "atributo": "variacao_1h",
+         "limite": 0.95,
+         "menor_ou_igual": {
+          "valor": 18.5839
+         },
+         "maior": {
+          "valor": 19.1633
+         }
+        },
+        "maior": {
+         "atributo": "variacao_1h",
+         "limite": 0.9,
+         "menor_ou_igual": {
+          "valor": 19.9469
+         },
+         "maior": {
+          "valor": 21.003
+         }
+        }
+       },
+       "maior": {
+        "atributo": "umidade_pct",
+        "limite": 70.5,
+        "menor_ou_igual": {
+         "atributo": "temperatura_c",
+         "limite": 19.150001,
+         "menor_ou_igual": {
+          "valor": 16.7815
+         },
+         "maior": {
+          "valor": 17.5688
+         }
+        },
+        "maior": {
+         "atributo": "temperatura_c",
+         "limite": 18.95,
+         "menor_ou_igual": {
+          "valor": 17.6994
+         },
+         "maior": {
+          "valor": 18.7374
+         }
+        }
+       }
+      },
+      "maior": {
+       "atributo": "temperatura_c",
+       "limite": 18.849999,
+       "menor_ou_igual": {
+        "atributo": "umidade_pct",
+        "limite": 87.5,
+        "menor_ou_igual": {
+         "atributo": "hora_cos",
+         "limite": 0.786566,
+         "menor_ou_igual": {
+          "valor": 18.0105
+         },
+         "maior": {
+          "valor": 18.3458
+         }
+        },
+        "maior": {
+         "atributo": "temperatura_c",
+         "limite": 18.55,
+         "menor_ou_igual": {
+          "valor": 18.559
+         },
+         "maior": {
+          "valor": 19.0237
+         }
+        }
+       },
+       "maior": {
+        "atributo": "umidade_pct",
+        "limite": 86.5,
+        "menor_ou_igual": {
+         "atributo": "temperatura_c",
+         "limite": 19.25,
+         "menor_ou_igual": {
+          "valor": 18.8718
+         },
+         "maior": {
+          "valor": 19.3568
+         }
+        },
+        "maior": {
+         "atributo": "hora_cos",
+         "limite": 0.12941,
+         "menor_ou_igual": {
+          "valor": 20.5158
+         },
+         "maior": {
+          "valor": 19.6784
+         }
+        }
+       }
+      }
+     },
+     "maior": {
+      "atributo": "hora_cos",
+      "limite": 0.12941,
+      "menor_ou_igual": {
+       "atributo": "temperatura_c",
+       "limite": 19.349999,
+       "menor_ou_igual": {
+        "atributo": "variacao_1h",
+        "limite": 1.15,
+        "menor_ou_igual": {
+         "atributo": "temperatura_c",
+         "limite": 18.650001,
+         "menor_ou_igual": {
+          "valor": 20.3421
+         },
+         "maior": {
+          "valor": 21.2607
+         }
+        },
+        "maior": {
+         "atributo": "mes_sen",
+         "limite": 0.25,
+         "menor_ou_igual": {
+          "valor": 22.0532
+         },
+         "maior": {
+          "valor": 21.3094
+         }
+        }
+       },
+       "maior": {
+        "atributo": "hora_sen",
+        "limite": 0.603553,
+        "menor_ou_igual": {
+         "valor": 21.7333
+        },
+        "maior": {
+         "atributo": "variacao_1h",
+         "limite": 0.25,
+         "menor_ou_igual": {
+          "valor": 22.0684
+         },
+         "maior": {
+          "valor": 22.8667
+         }
+        }
+       }
+      },
+      "maior": {
+       "atributo": "temperatura_c",
+       "limite": 19.349999,
+       "menor_ou_igual": {
+        "atributo": "hora_sen",
+        "limite": 0.915976,
+        "menor_ou_igual": {
+         "atributo": "umidade_pct",
+         "limite": 73.5,
+         "menor_ou_igual": {
+          "valor": 17.88
+         },
+         "maior": {
+          "valor": 18.745
+         }
+        },
+        "maior": {
+         "atributo": "mes_cos",
+         "limite": -0.25,
+         "menor_ou_igual": {
+          "valor": 18.8367
+         },
+         "maior": {
+          "valor": 19.7956
+         }
+        }
+       },
+       "maior": {
+        "atributo": "hora_sen",
+        "limite": 0.915976,
+        "menor_ou_igual": {
+         "atributo": "umidade_pct",
+         "limite": 79.5,
+         "menor_ou_igual": {
+          "valor": 18.9615
+         },
+         "maior": {
+          "valor": 19.8273
+         }
+        },
+        "maior": {
+         "atributo": "mes_sen",
+         "limite": 0.683013,
+         "menor_ou_igual": {
+          "valor": 21.1194
+         },
+         "maior": {
+          "valor": 20.5972
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "maior": {
+   "atributo": "temperatura_c",
+   "limite": 25.05,
+   "menor_ou_igual": {
+    "atributo": "variacao_1h",
+    "limite": 0.55,
+    "menor_ou_igual": {
+     "atributo": "temperatura_c",
+     "limite": 22.150001,
+     "menor_ou_igual": {
+      "atributo": "umidade_pct",
+      "limite": 71.5,
+      "menor_ou_igual": {
+       "atributo": "hora_sen",
+       "limite": -0.37941,
+       "menor_ou_igual": {
+        "atributo": "temperatura_c",
+        "limite": 21.349999,
+        "menor_ou_igual": {
+         "atributo": "umidade_pct",
+         "limite": 67.5,
+         "menor_ou_igual": {
+          "valor": 18.3703
+         },
+         "maior": {
+          "valor": 19.3937
+         }
+        },
+        "maior": {
+         "atributo": "umidade_pct",
+         "limite": 64.5,
+         "menor_ou_igual": {
+          "valor": 19.163
+         },
+         "maior": {
+          "valor": 20.2829
+         }
+        }
+       },
+       "maior": {
+        "atributo": "hora_cos",
+        "limite": 0.37941,
+        "menor_ou_igual": {
+         "atributo": "temperatura_c",
+         "limite": 21.05,
+         "menor_ou_igual": {
+          "valor": 20.978
+         },
+         "maior": {
+          "valor": 22.3172
+         }
+        },
+        "maior": {
+         "atributo": "temperatura_c",
+         "limite": 21.150001,
+         "menor_ou_igual": {
+          "valor": 19.4488
+         },
+         "maior": {
+          "valor": 20.6417
+         }
+        }
+       }
+      },
+      "maior": {
+       "atributo": "hora_sen",
+       "limite": 0.915976,
+       "menor_ou_igual": {
+        "atributo": "temperatura_c",
+        "limite": 21.05,
+        "menor_ou_igual": {
+         "atributo": "umidade_pct",
+         "limite": 82.5,
+         "menor_ou_igual": {
+          "valor": 20.253
+         },
+         "maior": {
+          "valor": 20.8373
+         }
+        },
+        "maior": {
+         "atributo": "hora_cos",
+         "limite": -0.37941,
+         "menor_ou_igual": {
+          "valor": 22.6586
+         },
+         "maior": {
+          "valor": 21.4117
+         }
+        }
+       },
+       "maior": {
+        "atributo": "hora_cos",
+        "limite": 0.12941,
+        "menor_ou_igual": {
+         "atributo": "temperatura_c",
+         "limite": 20.349999,
+         "menor_ou_igual": {
+          "valor": 22.7075
+         },
+         "maior": {
+          "valor": 23.2941
+         }
+        },
+        "maior": {
+         "atributo": "temperatura_c",
+         "limite": 20.75,
+         "menor_ou_igual": {
+          "valor": 21.5088
+         },
+         "maior": {
+          "valor": 22.6268
+         }
+        }
+       }
+      }
+     },
+     "maior": {
+      "atributo": "hora_sen",
+      "limite": -0.37941,
+      "menor_ou_igual": {
+       "atributo": "umidade_pct",
+       "limite": 58.5,
+       "menor_ou_igual": {
+        "atributo": "temperatura_c",
+        "limite": 23.95,
+        "menor_ou_igual": {
+         "atributo": "hora_sen",
+         "limite": -0.603553,
+         "menor_ou_igual": {
+          "valor": 20.1339
+         },
+         "maior": {
+          "valor": 21.7632
+         }
+        },
+        "maior": {
+         "atributo": "hora_sen",
+         "limite": -0.786566,
+         "menor_ou_igual": {
+          "valor": 21.5064
+         },
+         "maior": {
+          "valor": 22.5367
+         }
+        }
+       },
+       "maior": {
+        "atributo": "temperatura_c",
+        "limite": 23.349999,
+        "menor_ou_igual": {
+         "atributo": "umidade_pct",
+         "limite": 69.5,
+         "menor_ou_igual": {
+          "valor": 21.3372
+         },
+         "maior": {
+          "valor": 22.1387
+         }
+        },
+        "maior": {
+         "atributo": "hora_cos",
+         "limite": -0.12941,
+         "menor_ou_igual": {
+          "valor": 22.3654
+         },
+         "maior": {
+          "valor": 23.1845
+         }
+        }
+       }
+      },
+      "maior": {
+       "atributo": "hora_cos",
+       "limite": 0.37941,
+       "menor_ou_igual": {
+        "atributo": "temperatura_c",
+        "limite": 23.75,
+        "menor_ou_igual": {
+         "atributo": "hora_sen",
+         "limite": 0.12941,
+         "menor_ou_igual": {
+          "valor": 22.7889
+         },
+         "maior": {
+          "valor": 24.2796
+         }
+        },
+        "maior": {
+         "atributo": "hora_sen",
+         "limite": 0.12941,
+         "menor_ou_igual": {
+          "valor": 24.3964
+         },
+         "maior": {
+          "valor": 26.6907
+         }
+        }
+       },
+       "maior": {
+        "atributo": "temperatura_c",
+        "limite": 23.349999,
+        "menor_ou_igual": {
+         "atributo": "umidade_pct",
+         "limite": 62.5,
+         "menor_ou_igual": {
+          "valor": 21.2697
+         },
+         "maior": {
+          "valor": 22.2552
+         }
+        },
+        "maior": {
+         "atributo": "temperatura_c",
+         "limite": 24.150001,
+         "menor_ou_igual": {
+          "valor": 23.0494
+         },
+         "maior": {
+          "valor": 23.8364
+         }
+        }
+       }
+      }
+     }
+    },
+    "maior": {
+     "atributo": "hora_sen",
+     "limite": -0.12941,
+     "menor_ou_igual": {
+      "atributo": "temperatura_c",
+      "limite": 23.25,
+      "menor_ou_igual": {
+       "atributo": "temperatura_c",
+       "limite": 20.849999,
+       "menor_ou_igual": {
+        "valor": 19.7432
+       },
+       "maior": {
+        "atributo": "umidade_pct",
+        "limite": 58.0,
+        "menor_ou_igual": {
+         "atributo": "hora_cos",
+         "limite": -0.915976,
+         "menor_ou_igual": {
+          "valor": 21.6378
+         },
+         "maior": {
+          "valor": 20.0429
+         }
+        },
+        "maior": {
+         "atributo": "temperatura_c",
+         "limite": 21.650001,
+         "menor_ou_igual": {
+          "valor": 21.3132
+         },
+         "maior": {
+          "valor": 22.1381
+         }
+        }
+       }
+      },
+      "maior": {
+       "atributo": "hora_cos",
+       "limite": -0.915976,
+       "menor_ou_igual": {
+        "atributo": "temperatura_c",
+        "limite": 24.25,
+        "menor_ou_igual": {
+         "valor": 23.725
+        },
+        "maior": {
+         "valor": 24.8806
+        }
+       },
+       "maior": {
+        "atributo": "umidade_pct",
+        "limite": 51.0,
+        "menor_ou_igual": {
+         "valor": 22.2881
+        },
+        "maior": {
+         "valor": 23.2727
+        }
+       }
+      }
+     },
+     "maior": {
+      "atributo": "temperatura_c",
+      "limite": 22.25,
+      "menor_ou_igual": {
+       "atributo": "hora_sen",
+       "limite": 0.603553,
+       "menor_ou_igual": {
+        "atributo": "temperatura_c",
+        "limite": 20.95,
+        "menor_ou_igual": {
+         "atributo": "variacao_1h",
+         "limite": 1.45,
+         "menor_ou_igual": {
+          "valor": 21.2
+         },
+         "maior": {
+          "valor": 22.7462
+         }
+        },
+        "maior": {
+         "atributo": "mes_sen",
+         "limite": -0.25,
+         "menor_ou_igual": {
+          "valor": 23.7753
+         },
+         "maior": {
+          "valor": 22.8685
+         }
+        }
+       },
+       "maior": {
+        "atributo": "temperatura_c",
+        "limite": 21.349999,
+        "menor_ou_igual": {
+         "atributo": "variacao_1h",
+         "limite": 1.15,
+         "menor_ou_igual": {
+          "valor": 23.0267
+         },
+         "maior": {
+          "valor": 23.95
+         }
+        },
+        "maior": {
+         "atributo": "hora_sen",
+         "limite": 0.786566,
+         "menor_ou_igual": {
+          "valor": 24.1352
+         },
+         "maior": {
+          "valor": 24.9784
+         }
+        }
+       }
+      },
+      "maior": {
+       "atributo": "hora_sen",
+       "limite": 0.37941,
+       "menor_ou_igual": {
+        "atributo": "temperatura_c",
+        "limite": 23.849999,
+        "menor_ou_igual": {
+         "atributo": "temperatura_c",
+         "limite": 23.05,
+         "menor_ou_igual": {
+          "valor": 23.9464
+         },
+         "maior": {
+          "valor": 24.7824
+         }
+        },
+        "maior": {
+         "atributo": "hora_sen",
+         "limite": 0.12941,
+         "menor_ou_igual": {
+          "valor": 25.31
+         },
+         "maior": {
+          "valor": 26.0614
+         }
+        }
+       },
+       "maior": {
+        "atributo": "temperatura_c",
+        "limite": 23.650001,
+        "menor_ou_igual": {
+         "atributo": "umidade_pct",
+         "limite": 58.5,
+         "menor_ou_igual": {
+          "valor": 24.85
+         },
+         "maior": {
+          "valor": 26.0264
+         }
+        },
+        "maior": {
+         "atributo": "hora_sen",
+         "limite": 0.603553,
+         "menor_ou_igual": {
+          "valor": 26.4577
+         },
+         "maior": {
+          "valor": 27.5725
+         }
+        }
+       }
+      }
+     }
+    }
+   },
+   "maior": {
+    "atributo": "hora_sen",
+    "limite": -0.37941,
+    "menor_ou_igual": {
+     "atributo": "temperatura_c",
+     "limite": 28.849999,
+     "menor_ou_igual": {
+      "atributo": "temperatura_c",
+      "limite": 26.650001,
+      "menor_ou_igual": {
+       "atributo": "hora_sen",
+       "limite": -0.603553,
+       "menor_ou_igual": {
+        "atributo": "umidade_pct",
+        "limite": 56.5,
+        "menor_ou_igual": {
+         "atributo": "temperatura_c",
+         "limite": 25.849999,
+         "menor_ou_igual": {
+          "valor": 22.166
+         },
+         "maior": {
+          "valor": 23.368
+         }
+        },
+        "maior": {
+         "atributo": "variacao_1h",
+         "limite": -1.15,
+         "menor_ou_igual": {
+          "valor": 23.5787
+         },
+         "maior": {
+          "valor": 24.4444
+         }
+        }
+       },
+       "maior": {
+        "atributo": "temperatura_c",
+        "limite": 25.45,
+        "menor_ou_igual": {
+         "valor": 23.9871
+        },
+        "maior": {
+         "atributo": "umidade_pct",
+         "limite": 48.5,
+         "menor_ou_igual": {
+          "valor": 25.1457
+         },
+         "maior": {
+          "valor": 24.5304
+         }
+        }
+       }
+      },
+      "maior": {
+       "atributo": "hora_sen",
+       "limite": -0.603553,
+       "menor_ou_igual": {
+        "atributo": "temperatura_c",
+        "limite": 27.95,
+        "menor_ou_igual": {
+         "atributo": "variacao_1h",
+         "limite": -1.45,
+         "menor_ou_igual": {
+          "valor": 23.7778
+         },
+         "maior": {
+          "valor": 24.8128
+         }
+        },
+        "maior": {
+         "atributo": "hora_cos",
+         "limite": -0.12941,
+         "menor_ou_igual": {
+          "valor": 25.1813
+         },
+         "maior": {
+          "valor": 26.4938
+         }
+        }
+       },
+       "maior": {
+        "atributo": "temperatura_c",
+        "limite": 27.95,
+        "menor_ou_igual": {
+         "atributo": "temperatura_c",
+         "limite": 27.45,
+         "menor_ou_igual": {
+          "valor": 25.763
+         },
+         "maior": {
+          "valor": 26.4067
+         }
+        },
+        "maior": {
+         "valor": 27.163
+        }
+       }
+      }
+     },
+     "maior": {
+      "atributo": "temperatura_c",
+      "limite": 31.75,
+      "menor_ou_igual": {
+       "atributo": "hora_sen",
+       "limite": -0.603553,
+       "menor_ou_igual": {
+        "atributo": "temperatura_c",
+        "limite": 30.55,
+        "menor_ou_igual": {
+         "atributo": "umidade_pct",
+         "limite": 39.5,
+         "menor_ou_igual": {
+          "valor": 26.1842
+         },
+         "maior": {
+          "valor": 26.9607
+         }
+        },
+        "maior": {
+         "atributo": "mes_sen",
+         "limite": 0.25,
+         "menor_ou_igual": {
+          "valor": 28.352
+         },
+         "maior": {
+          "valor": 26.4848
+         }
+        }
+       },
+       "maior": {
+        "atributo": "temperatura_c",
+        "limite": 30.849999,
+        "menor_ou_igual": {
+         "atributo": "umidade_pct",
+         "limite": 42.5,
+         "menor_ou_igual": {
+          "valor": 28.2938
+         },
+         "maior": {
+          "valor": 26.9711
+         }
+        },
+        "maior": {
+         "valor": 29.3226
+        }
+       }
+      },
+      "maior": {
+       "atributo": "temperatura_c",
+       "limite": 33.5,
+       "menor_ou_igual": {
+        "atributo": "hora_sen",
+        "limite": -0.786566,
+        "menor_ou_igual": {
+         "valor": 28.2297
+        },
+        "maior": {
+         "valor": 29.7796
+        }
+       },
+       "maior": {
+        "valor": 31.6086
+       }
+      }
+     }
+    },
+    "maior": {
+     "atributo": "temperatura_c",
+     "limite": 27.650001,
+     "menor_ou_igual": {
+      "atributo": "hora_sen",
+      "limite": 0.37941,
+      "menor_ou_igual": {
+       "atributo": "variacao_1h",
+       "limite": -0.45,
+       "menor_ou_igual": {
+        "valor": 24.7444
+       },
+       "maior": {
+        "atributo": "temperatura_c",
+        "limite": 27.150001,
+        "menor_ou_igual": {
+         "atributo": "mes_sen",
+         "limite": 0.25,
+         "menor_ou_igual": {
+          "valor": 26.0245
+         },
+         "maior": {
+          "valor": 27.0091
+         }
+        },
+        "maior": {
+         "atributo": "hora_sen",
+         "limite": 0.12941,
+         "menor_ou_igual": {
+          "valor": 27.255
+         },
+         "maior": {
+          "valor": 29.0031
+         }
+        }
+       }
+      },
+      "maior": {
+       "atributo": "variacao_1h",
+       "limite": 1.05,
+       "menor_ou_igual": {
+        "valor": 27.431
+       },
+       "maior": {
+        "atributo": "temperatura_c",
+        "limite": 25.75,
+        "menor_ou_igual": {
+         "atributo": "umidade_pct",
+         "limite": 59.5,
+         "menor_ou_igual": {
+          "valor": 27.8286
+         },
+         "maior": {
+          "valor": 28.5385
+         }
+        },
+        "maior": {
+         "atributo": "temperatura_c",
+         "limite": 26.75,
+         "menor_ou_igual": {
+          "valor": 29.0
+         },
+         "maior": {
+          "valor": 29.5865
+         }
+        }
+       }
+      }
+     },
+     "maior": {
+      "atributo": "temperatura_c",
+      "limite": 31.650001,
+      "menor_ou_igual": {
+       "atributo": "temperatura_c",
+       "limite": 29.150001,
+       "menor_ou_igual": {
+        "atributo": "hora_sen",
+        "limite": 0.12941,
+        "menor_ou_igual": {
+         "atributo": "mes_sen",
+         "limite": -0.25,
+         "menor_ou_igual": {
+          "valor": 27.2778
+         },
+         "maior": {
+          "valor": 28.5577
+         }
+        },
+        "maior": {
+         "atributo": "umidade_pct",
+         "limite": 50.5,
+         "menor_ou_igual": {
+          "valor": 29.5561
+         },
+         "maior": {
+          "valor": 30.3544
+         }
+        }
+       },
+       "maior": {
+        "atributo": "hora_sen",
+        "limite": 0.12941,
+        "menor_ou_igual": {
+         "atributo": "umidade_pct",
+         "limite": 36.5,
+         "menor_ou_igual": {
+          "valor": 29.1211
+         },
+         "maior": {
+          "valor": 30.2708
+         }
+        },
+        "maior": {
+         "atributo": "temperatura_c",
+         "limite": 29.95,
+         "menor_ou_igual": {
+          "valor": 30.7605
+         },
+         "maior": {
+          "valor": 31.7364
+         }
+        }
+       }
+      },
+      "maior": {
+       "atributo": "temperatura_c",
+       "limite": 32.549999,
+       "menor_ou_igual": {
+        "valor": 31.6
+       },
+       "maior": {
+        "valor": 33.5625
+       }
+      }
+     }
+    }
+   }
+  }
  }
 }

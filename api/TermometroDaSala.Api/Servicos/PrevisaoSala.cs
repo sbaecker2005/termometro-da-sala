@@ -36,7 +36,7 @@ public class PrevisorRuaModelo : IPrevisorRua
     private readonly SalaDb _db;
     private readonly ILogger<PrevisorRuaModelo> _log;
     private readonly PrevisorRuaBaseline _provisorio;
-    private readonly (double Intercepto, Dictionary<string, double> Coef)? _modelo;
+    private readonly Func<Dictionary<string, double>, double>? _modelo; // linear ou arvore, conforme ml/modelo.json
 
     public PrevisorRuaModelo(SalaDb db, ILogger<PrevisorRuaModelo> log, string caminho)
     {
@@ -75,20 +75,46 @@ public class PrevisorRuaModelo : IPrevisorRua
             ["mes_cos"] = Math.Cos(2 * Math.PI * local.Month / 12),
             ["variacao_1h"] = variacao,
         };
-        var (intercepto, coef) = _modelo.Value;
-        var y = intercepto;
-        foreach (var par in coef)
-            y += par.Value * valores[par.Key];
-        return y;
+        return _modelo(valores);
     }
 
-    static (double, Dictionary<string, double>)? Carregar(string caminho, ILogger log)
+    static readonly HashSet<string> Atributos = new() { "temperatura_c", "umidade_pct", "hora_sen", "hora_cos", "mes_sen", "mes_cos", "variacao_1h" };
+
+    // arvore exportada pelo notebook: {atributo, limite, menor_ou_igual, maior} nos nos internos e {valor} nas folhas
+    static double Avaliar(JsonElement no, Dictionary<string, double> x)
+    {
+        while (!no.TryGetProperty("valor", out var folha))
+        {
+            var atributo = no.GetProperty("atributo").GetString() ?? throw new InvalidDataException("atributo");
+            no = x[atributo] <= no.GetProperty("limite").GetDouble() ? no.GetProperty("menor_ou_igual") : no.GetProperty("maior");
+        }
+        return no.GetProperty("valor").GetDouble();
+    }
+
+    static void ConferirArvore(JsonElement no, int profundidade = 0)
+    {
+        if (profundidade > 64) throw new InvalidDataException("profundidade");
+        if (no.TryGetProperty("valor", out var v)) { v.GetDouble(); return; }
+        if (!Atributos.Contains(no.GetProperty("atributo").GetString() ?? "")) throw new InvalidDataException("atributo");
+        no.GetProperty("limite").GetDouble();
+        ConferirArvore(no.GetProperty("menor_ou_igual"), profundidade + 1);
+        ConferirArvore(no.GetProperty("maior"), profundidade + 1);
+    }
+
+    static Func<Dictionary<string, double>, double>? Carregar(string caminho, ILogger log)
     {
         try
         {
             using var doc = JsonDocument.Parse(File.ReadAllText(caminho));
             var raiz = doc.RootElement;
-            if (raiz.GetProperty("tipo").GetString() != "linear")
+            var tipo = raiz.GetProperty("tipo").GetString();
+            if (tipo == "arvore")
+            {
+                var no = raiz.GetProperty("raiz").Clone();
+                ConferirArvore(no);
+                return x => Avaliar(no, x);
+            }
+            if (tipo != "linear")
                 throw new InvalidDataException("tipo");
             var coef = new Dictionary<string, double>();
             var tabela = raiz.GetProperty("coeficientes");
@@ -100,7 +126,8 @@ public class PrevisorRuaModelo : IPrevisorRua
                 coef[nome] = tabela.GetProperty(nome).GetDouble();
             }
             if (coef.Count == 0) throw new InvalidDataException("vazio");
-            return (raiz.GetProperty("intercepto").GetDouble(), coef);
+            var intercepto = raiz.GetProperty("intercepto").GetDouble();
+            return x => intercepto + coef.Sum(par => par.Value * x[par.Key]);
         }
         catch (Exception ex)
         {

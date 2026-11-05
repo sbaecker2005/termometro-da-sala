@@ -17,12 +17,12 @@ public class PrevisorModeloTestes
     {
         using var doc = JsonDocument.Parse(File.ReadAllText(AcharModelo()));
         var modelo = doc.RootElement;
-        // 17:00 UTC em 15/01/2026 = 14h em São Paulo. Valores de 2 casas conferidos na mão.
+        // 17:00 UTC em 15/01/2026 = 14h em São Paulo. Valores de 2 casas conferidos na mão (árvore do ml/modelo.json, percorrida em Python).
         (DateTimeOffset Utc, double Temp, int Umid, double? Antes, int Hora, int Mes, double Variacao, string Maos)[] linhas =
         {
-            (new DateTimeOffset(2026, 1, 15, 17, 0, 0, TimeSpan.Zero), 30, 50, 28.5, 14, 1, 1.5, "30.19"),
-            (new DateTimeOffset(2026, 7, 15, 3, 0, 0, TimeSpan.Zero), 18, 80, 18.4, 0, 7, -0.4, "17.25"),
-            (new DateTimeOffset(2025, 12, 21, 15, 0, 0, TimeSpan.Zero), 27.2, 62, null, 12, 12, 0, "27.85"),
+            (new DateTimeOffset(2026, 1, 15, 17, 0, 0, TimeSpan.Zero), 30, 50, 28.5, 14, 1, 1.5, "26.97"),
+            (new DateTimeOffset(2026, 7, 15, 3, 0, 0, TimeSpan.Zero), 18, 80, 18.4, 0, 7, -0.4, "17.68"),
+            (new DateTimeOffset(2025, 12, 21, 15, 0, 0, TimeSpan.Zero), 27.2, 62, null, 12, 12, 0, "27.26"),
         };
 
         using var banco = new BancoRua();
@@ -88,6 +88,14 @@ public class PrevisorModeloTestes
             ["mes_cos"] = Math.Cos(2 * Math.PI * mes / 12),
             ["variacao_1h"] = variacao,
         };
+        if (modelo.GetProperty("tipo").GetString() == "arvore")
+        {
+            var no = modelo.GetProperty("raiz");
+            while (!no.TryGetProperty("valor", out _))
+                no = atributos[no.GetProperty("atributo").GetString()!] <= no.GetProperty("limite").GetDouble()
+                    ? no.GetProperty("menor_ou_igual") : no.GetProperty("maior");
+            return no.GetProperty("valor").GetDouble();
+        }
         var y = modelo.GetProperty("intercepto").GetDouble();
         var coef = modelo.GetProperty("coeficientes");
         foreach (var nome in modelo.GetProperty("atributos").EnumerateArray())
