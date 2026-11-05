@@ -14,4 +14,4 @@
 | Indicador de impacto | Aulas no nível "Perigo" sem ação registrada (meta: zero) e minutos entre o alerta e a ação |
 | ODS conectados | 3 (meta 3.d), 4 (meta 4.a), 11 (meta 11.b) e 13 (meta 13.1) |
 
-O documento descritivo está em [DOCUMENTO.md](DOCUMENTO.md). O modelo ArchiMate está em `termometro-da-sala.xml` e a imagem em `diagrama.svg`. O pitch está em [PITCH.md](PITCH.md).
+O documento descritivo está em [DOCUMENTO.md](DOCUMENTO.md). O modelo ArchiMate está em `termometro-da-sala.archimate` (Archi) e em `termometro-da-sala.xml` (Open Exchange 3.1). A visão exportada do Archi está em `diagrama-archi.png`. O pitch está em [PITCH.md](PITCH.md).
