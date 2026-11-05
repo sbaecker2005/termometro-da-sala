@@ -1,0 +1,6 @@
+@TermometroDaSala.Api_HostAddress = http://localhost:5182
+
+GET {{TermometroDaSala.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
