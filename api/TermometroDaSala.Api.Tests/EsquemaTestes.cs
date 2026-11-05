@@ -49,6 +49,27 @@ public class EsquemaTestes
         Assert.Single(Regex.Matches(criaLeituras.Value, "ON DELETE CASCADE"));
     }
 
+    // O SQL Server também recusa ALTER COLUMN em coluna de chave primária enquanto a PK existe.
+    [Fact]
+    public void ColunaDeChavePrimariaSoMudaComAPkSolta()
+    {
+        using var db = NovoBanco();
+        var sql = db.GetService<IMigrator>().GenerateScript(options: MigrationsSqlGenerationOptions.Idempotent);
+        foreach (var entidade in db.Model.GetEntityTypes())
+        {
+            var tabela = entidade.GetTableName()!;
+            var pk = entidade.FindPrimaryKey()!;
+            foreach (var coluna in pk.Properties.Select(p => p.GetColumnName()))
+                foreach (Match m in Regex.Matches(sql, $@"ALTER TABLE \[{tabela}\] ALTER COLUMN \[{coluna}\]"))
+                {
+                    var antes = sql[..m.Index];
+                    var solta = antes.LastIndexOf($"ALTER TABLE [{tabela}] DROP CONSTRAINT [{pk.GetName()}]", StringComparison.Ordinal);
+                    var recria = antes.LastIndexOf($"ALTER TABLE [{tabela}] ADD CONSTRAINT [{pk.GetName()}]", StringComparison.Ordinal);
+                    Assert.True(solta > recria, $"{tabela}.{coluna} é alterada com a {pk.GetName()} ainda ativa.");
+                }
+        }
+    }
+
     // Cada tabela de onde parte uma cascata que chega até esta entidade, uma vez por caminho.
     static IEnumerable<IEntityType> Ancestrais(IEntityType entidade) =>
         entidade.GetForeignKeys()

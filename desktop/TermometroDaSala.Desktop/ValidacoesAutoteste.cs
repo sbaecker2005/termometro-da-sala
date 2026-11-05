@@ -77,6 +77,13 @@ public static class ValidacoesAutoteste
             Exigir((await reaberto.AcoesDoDia(new DateOnly(2026, 1, 6))).Single().Id == 2, "Modo local não numerou as ações.");
             Exigir((await reaberto.Listar()).Single().Leitura is null, "Modo local inventou leitura.");
             Exigir(await reaberto.Prever(sala.Id) is null, "Modo local inventou previsão.");
+            // Arquivo da versão 0.1.0: ação com id GUID em texto continua legível e ganha id numérico.
+            File.WriteAllText(caminho, """{"salas":[{"id":"sala-03","nome":"Sala 3","andar":0,"faceSol":"oeste"}],"acoes":[{"id":"3f2b8c1e-0000-4000-8000-000000000001","ambienteId":"sala-03","nivel":"cuidado","descricao":"Abrir janelas","registradoEm":"2026-01-05T17:00:00+00:00"},{"id":7,"ambienteId":"sala-03","nivel":"cuidado","descricao":"Trocar de sala","registradoEm":"2026-01-05T18:00:00+00:00"}]}""");
+            var antigo = new ServicoSalasLocal(caminho);
+            Exigir((await antigo.Listar()).Single().Id == "sala-03", "Arquivo da versão anterior não abriu.");
+            var acoesAntigas = await antigo.AcoesDoDia(new DateOnly(2026, 1, 5));
+            Exigir(acoesAntigas.Count == 2 && acoesAntigas.Any(a => a is { Id: 8, Descricao: "Abrir janelas" }) && acoesAntigas.Any(a => a.Id == 7),
+                "Ação antiga não foi convertida preservando o registro.");
             File.WriteAllText(caminho, "arquivo corrompido");
             try { await reaberto.Cadastrar(new Sala { Id = "sala-04", Nome = "Sala 4" }); throw new InvalidOperationException("Arquivo corrompido aceito."); }
             catch (JsonException) { }

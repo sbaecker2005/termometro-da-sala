@@ -20,6 +20,9 @@ namespace TermometroDaSala.Api.Dados.Migrations
                 oldType: "nvarchar(20)",
                 oldMaxLength: 20);
 
+            // O SQL Server nao altera coluna de chave primaria: solta a PK, altera e recria.
+            migrationBuilder.DropPrimaryKey(name: "PK_NiveisAcao", table: "NiveisAcao");
+
             migrationBuilder.AlterColumn<string>(
                 name: "Nivel",
                 table: "NiveisAcao",
@@ -29,6 +32,8 @@ namespace TermometroDaSala.Api.Dados.Migrations
                 oldClrType: typeof(string),
                 oldType: "nvarchar(20)",
                 oldMaxLength: 20);
+
+            migrationBuilder.AddPrimaryKey(name: "PK_NiveisAcao", table: "NiveisAcao", column: "Nivel");
 
             migrationBuilder.AlterColumn<string>(
                 name: "Origem",
@@ -94,6 +99,8 @@ namespace TermometroDaSala.Api.Dados.Migrations
                 oldType: "nvarchar(7)",
                 oldMaxLength: 7);
 
+            migrationBuilder.DropPrimaryKey(name: "PK_NiveisAcao", table: "NiveisAcao");
+
             migrationBuilder.AlterColumn<string>(
                 name: "Nivel",
                 table: "NiveisAcao",
@@ -103,6 +110,8 @@ namespace TermometroDaSala.Api.Dados.Migrations
                 oldClrType: typeof(string),
                 oldType: "nvarchar(7)",
                 oldMaxLength: 7);
+
+            migrationBuilder.AddPrimaryKey(name: "PK_NiveisAcao", table: "NiveisAcao", column: "Nivel");
 
             migrationBuilder.AlterColumn<string>(
                 name: "Origem",

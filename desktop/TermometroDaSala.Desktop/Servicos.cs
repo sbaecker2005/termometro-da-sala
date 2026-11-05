@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace TermometroDaSala.Desktop;
 
@@ -101,13 +102,32 @@ public sealed class ServicoSalasLocal(string arquivo) : IServicoSalas
     private DadosLocais Ler()
     {
         if (!File.Exists(arquivo)) return new DadosLocais();
-        var dados = JsonSerializer.Deserialize<DadosLocais>(File.ReadAllText(arquivo), ServicoSalasApi.Json)
+        var raiz = JsonNode.Parse(File.ReadAllText(arquivo)) as JsonObject
+            ?? throw new JsonException("Arquivo local vazio ou inválido. Preserve-o antes de corrigir.");
+        ConverterAcoesAntigas(raiz);
+        var dados = raiz.Deserialize<DadosLocais>(ServicoSalasApi.Json)
             ?? throw new JsonException("Arquivo local vazio ou inválido. Preserve-o antes de corrigir.");
         if (dados.Salas is null || dados.Acoes is null || dados.Salas.Any(s => Validacoes.Sala(s).Count > 0) ||
             dados.Salas.Select(s => s.Id).Distinct().Count() != dados.Salas.Count)
             throw new JsonException("Dados locais inválidos. O arquivo não foi sobrescrito.");
         foreach (var acao in dados.Acoes) Validacoes.Conferir(acao);
         return dados;
+    }
+
+    // Até a versão 0.1.0 o id da ação era um GUID em texto. Cada id em texto vira o próximo número livre,
+    // preservando o registro; o arquivo só é regravado no próximo salvamento.
+    internal static void ConverterAcoesAntigas(JsonObject raiz)
+    {
+        var chave = raiz.Select(p => p.Key).FirstOrDefault(k => k.Equals("acoes", StringComparison.OrdinalIgnoreCase));
+        if (chave is null || raiz[chave] is not JsonArray acoes) return;
+        var proximo = acoes.Select(a => a?["id"] ?? a?["Id"]).OfType<JsonValue>()
+            .Select(v => v.TryGetValue<long>(out var n) ? n : 0).DefaultIfEmpty(0).Max() + 1;
+        foreach (var acao in acoes.OfType<JsonObject>())
+        {
+            var campo = acao.Select(p => p.Key).FirstOrDefault(k => k.Equals("id", StringComparison.OrdinalIgnoreCase));
+            if (campo is null || acao[campo] is not JsonValue valor || !valor.TryGetValue<string>(out var texto)) continue;
+            acao[campo] = long.TryParse(texto, out var numero) ? numero : proximo++;
+        }
     }
 
     private void Salvar(DadosLocais dados)

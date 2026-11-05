@@ -222,7 +222,7 @@ use `Banco__Migrar=false`.
 | Ordem | Migração | O que faz |
 |---|---|---|
 | 1 | `20261105025544_Inicial` | Cria as 8 tabelas, as chaves, os índices e a semente (4 salas, 4 dispositivos e as 4 faixas de `NiveisAcao`) |
-| 2 | `20261105033613_Enums` | Mantém os valores textuais dos enums e reduz as colunas ao tamanho deles: Tipo (4), FaceSol (5), Nivel/NivelPrevisto (7) e Origem (11). Não remove tabelas nem linhas |
+| 2 | `20261105033613_Enums` | Mantém os valores textuais dos enums e reduz as colunas ao tamanho deles: Tipo (4), FaceSol (5), Nivel/NivelPrevisto (7) e Origem (11). Como `NiveisAcao.Nivel` é chave primária, a migração solta a PK, altera a coluna e recria a PK (o SQL Server não altera coluna de PK). Não remove tabelas nem linhas |
 | 3 | `20261105050515_SegredosPorDispositivo` | Troca o segredo de demonstração das salas 01, 02 e 04 para um por dispositivo. A sala 03 mantém o vetor público do contrato |
 
 Exclusão em cascata: apagar um ambiente apaga seus dispositivos, leituras, previsões,
@@ -230,7 +230,8 @@ ocorrências e ações. A FK `Leituras -> Dispositivos` é `NO ACTION` (`Restric
 o SQL Server não aceita que uma tabela receba cascata por dois caminhos
 (`Ambientes -> Leituras` e `Ambientes -> Dispositivos -> Leituras`, erro 1785), e um
 dispositivo com leituras não deve sumir com o histórico. O teste `EsquemaTestes` confere
-o modelo e o script gerado para o SQL Server.
+o modelo e o script gerado para o SQL Server, inclusive que nenhuma coluna de chave primária
+é alterada com a PK ativa.
 
 Em banco que já tenha dados, confira antes da migração 2 se há valores fora do domínio
 ou maiores que esses limites e faça backup. Para conferir sem banco:
@@ -300,7 +301,7 @@ pessoais ou credenciais.
 dotnet test
 ```
 
-São 35 testes xUnit: vetores do contrato (HMAC, índice de calor, relógio de São Paulo),
+São 36 testes xUnit: vetores do contrato (HMAC, índice de calor, relógio de São Paulo),
 leitura do modelo de previsão, rotas da API e o esquema do banco. Os testes de rota usam
 SQLite em memória; `EsquemaTestes` monta o modelo com o provedor do SQL Server, sem
 conectar, e confere as FKs e o script das migrações. A saída da última execução está em

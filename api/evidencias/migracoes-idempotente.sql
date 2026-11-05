@@ -304,6 +304,15 @@ IF NOT EXISTS (
     WHERE [MigrationId] = N'20261105033613_Enums'
 )
 BEGIN
+    ALTER TABLE [NiveisAcao] DROP CONSTRAINT [PK_NiveisAcao];
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261105033613_Enums'
+)
+BEGIN
     DECLARE @var1 sysname;
     SELECT @var1 = [d].[name]
     FROM [sys].[default_constraints] [d]
@@ -311,6 +320,15 @@ BEGIN
     WHERE ([d].[parent_object_id] = OBJECT_ID(N'[NiveisAcao]') AND [c].[name] = N'Nivel');
     IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [NiveisAcao] DROP CONSTRAINT [' + @var1 + '];');
     ALTER TABLE [NiveisAcao] ALTER COLUMN [Nivel] nvarchar(7) NOT NULL;
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261105033613_Enums'
+)
+BEGIN
+    ALTER TABLE [NiveisAcao] ADD CONSTRAINT [PK_NiveisAcao] PRIMARY KEY ([Nivel]);
 END;
 GO
 
