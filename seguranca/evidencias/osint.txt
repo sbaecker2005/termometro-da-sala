@@ -3,7 +3,7 @@ Data: 05/11/2026 (UTC-3)
 Ambiente: Windows 11, Git Bash, copia local do repositorio publico https://github.com/sbaecker2005/termometro-da-sala
 Pergunta: o que um terceiro descobre lendo so o que publicamos (repositorio, links de entrega)?
 Limite: busca feita nos arquivos da versao atual, sem rede. Pastas de dependencias e de compilacao
-(node_modules, bin, obj) ficaram de fora. A busca no historico do git esta no item 8 e ainda precisa ser executada.
+(node_modules, bin, obj) ficaram de fora. A busca no historico do git (item 8) foi executada em 05/11/2026.
 
 Filtro usado em todos os comandos: X="--exclude-dir=node_modules --exclude-dir=bin --exclude-dir=obj --exclude-dir=.git"
 
@@ -26,7 +26,11 @@ Filtro usado em todos os comandos: X="--exclude-dir=node_modules --exclude-dir=b
    Comando: grep -rnIi $X "password=\|pwd=\|User Id=" --include=*.json --include=*.cs --include=*.ps1 --include=*.ts --include=*.md .
    Obtido: 1 linha, api/README.md:215, com Password=$env:MSSQL_SA_PASSWORD (variavel de ambiente, sem valor).
            appsettings.json usa Trusted_Connection (sem senha). insomnia.json traz chave_coordenacao vazia.
-   Decisao: nada a remover. A chave da coordenacao so existe no pool do IIS (infra/04-iis.ps1:72-86).
+   Comando: git grep -n -iE 'chave.?coordenacao.*"[^"$<{ ]{3,}"'
+   Obtido: so a suite automatizada: api/TermometroDaSala.Api.Tests/ApiTestes.cs:544 e :561 com o valor de teste
+           "chave-teste" e :260 com "outra" (chave errada de proposito, para o teste do 401).
+   Decisao: nada a remover. "chave-teste" e valor de teste publico, como segredo-de-teste-sala-0N, e nunca e
+           configurado no IIS. A chave da coordenacao do laboratorio so existe no pool do IIS (infra/04-iis.ps1:72-86).
 
 3. Arquivos de segredo locais
    Comando: find . -path ./app/node_modules -prune -o -name ".env*" -print ; find ... -name "secrets.h" -print
@@ -58,18 +62,31 @@ Filtro usado em todos os comandos: X="--exclude-dir=node_modules --exclude-dir=b
            api/TermometroDaSala.Api/fotos/ esta no .gitignore.
    Decisao: prints da entrega mostram so sala vazia ou equipamento; o upload ja remove APP1/EXIF (C9).
 
-8. Historico do git (A EXECUTAR pela equipe, na copia completa do repositorio)
-   git log --all --oneline -S "segredo-de-teste"
+8. Historico do git (executado em 05/11/2026, na copia local com todos os ramos: 61 commits, o mais recente e8e75d5)
+   Comandos e resultado obtido:
+   git log --all --oneline -S "segredo-de-teste" | wc -l
+       10 commits; o primeiro e 96abdd9 (API ASP.NET Core). Valores encontrados no historico:
+       so segredo-de-teste-sala-01 a -04 (os vetores de teste do item 1). Nenhum outro segredo.
    git log --all --oneline -- esp32/secrets.h
-   git log --all --oneline -G "ChaveCoordenacao\"?\s*[:=]\s*\"[^\"]+"
-   Esperado: so os vetores de teste do item 1; nenhum secrets.h commitado; nenhuma chave da coordenacao com valor.
-   Obtido: [preencher com a saida e a data]
+       nenhuma linha: secrets.h nunca foi commitado.
+   git log --all -p -G ChaveCoordenacao | grep '^+' | grep -iE 'ChaveCoordenacao.*"[^"]+"'
+       (pega a forma JSON "ChaveCoordenacao": "..." e a forma C# UseSetting("ChaveCoordenacao", "..."))
+       so o valor de teste "chave-teste" de api/TermometroDaSala.Api.Tests/ApiTestes.cs (hoje nas linhas 544 e 561),
+       o "outra" do teste do 401 e linhas sem valor (nome do cabecalho, leitura da configuracao, um log de
+       compilacao com o nome do arquivo do filtro e as linhas dos proprios roteiros). Nenhuma chave da coordenacao de uso real em commit algum.
+   git log --all -p -i -G "password=|pwd=" | grep "^+" | grep -iE "password=|pwd="
+       so Password=$env:MSSQL_SA_PASSWORD (variavel de ambiente) e as linhas deste proprio roteiro.
+   git log --all --diff-filter=A --name-only | grep -iE '(^|/)\.env|secrets\.h$|\.pfx$|\.pem$|\.key$'
+       nenhum arquivo .env, secrets.h, certificado ou chave privada adicionado em nenhum commit.
+   Esperado: so os vetores de teste do item 1 e valores de teste da suite; nenhum secrets.h commitado; nenhuma
+             chave da coordenacao de uso real.
+   Obtido: igual ao esperado.
 
 9. Link do Wokwi (A EXECUTAR depois de publicado)
    Abrir o link em janela anonima e conferir que o unico segredo visivel e o de esp32-sala-03.
    Obtido: [preencher]
 
-Conclusao: nenhuma credencial de producao nem dado de aluno nos arquivos da versao atual. O historico do git
-so fica conferido depois do item 8; ate la, a ausencia no historico nao esta comprovada. A exposicao real sao os vetores
+Conclusao: nenhuma credencial de producao nem dado de aluno nos arquivos da versao atual nem no historico do git
+(item 8). A exposicao real sao os vetores
 de teste dos quatro dispositivos semeados e o topico MQTT publico, ambos aceitos so no laboratorio e com
 revogacao marcada para depois da avaliacao.
