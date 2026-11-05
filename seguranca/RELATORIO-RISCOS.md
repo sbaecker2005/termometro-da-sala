@@ -12,7 +12,7 @@
 
 O Termômetro da Sala mede o calor de salas de aula sem climatização (ESP32), envia as leituras assinadas por MQTT a uma API ASP.NET Core com SQL Server e apoia a coordenação na decisão de agir. O professor registra ocorrências com foto pelo app. Os ativos mais sensíveis são as **fotos de ocorrência** (podem expor menores, LGPD art. 14), os **segredos dos dispositivos** e o **servidor Windows**.
 
-A análise seguiu a ISO/IEC 27005:2022 e a NIST SP 800-30 Rev. 1, com ameaças classificadas por STRIDE e vulnerabilidades ligadas ao OWASP Top 10 2021 e ao CWE. Foram identificados **14 riscos**. Sem controles, 6 eram críticos e 8 altos. Com os controles que o código já executa e que a suíte de testes comprova (47 de 47 testes aprovados em 05/11/2026), ficam **1 crítico, 3 altos, 8 moderados e 2 baixos**. C1 e C4 estão parciais (seção 6.1), e a matriz só desconta a parte que o código executa.
+A análise seguiu a ISO/IEC 27005:2022 e a NIST SP 800-30 Rev. 1, com ameaças classificadas por STRIDE e vulnerabilidades ligadas ao OWASP Top 10 2021 e ao CWE. Foram identificados **14 riscos**. Sem controles, 6 eram críticos e 8 altos. Com os controles que o código já executa e que a suíte de testes comprova (47 de 55 testes aprovados em 05/11/2026), ficam **1 crítico, 3 altos, 8 moderados e 2 baixos**. C1 e C4 estão parciais (seção 6.1), e a matriz só desconta a parte que o código executa.
 
 | Prioridade | Risco | Classe depois | O que segue aberto |
 |---|---|---|---|
@@ -290,7 +290,7 @@ O anexo [ANEXO-EVIDENCIAS.md](ANEXO-EVIDENCIAS.md) traz, para cada evidência E0
 
 | Arquivo | Controle | Resultado obtido |
 |---|---|---|
-| `dotnet-test-seguranca.txt` | C1–C5, C9, C10, C11, cota | Suíte completa 47/47; 20 testes de segurança listados, 20 aprovados |
+| `dotnet-test-seguranca.txt` | C1–C5, C9, C10, C11, cota | Suíte completa 55/55; 20 testes de segurança listados, 20 aprovados |
 | `recusas-log.txt` | C1 | Cinco motivos de recusa no log da API |
 | `consulta-parametrizada.txt` | C2 | Id com `OR 1=1` vira parâmetro `@__id_0` de 18 caracteres; GET responde 404 |
 | `upload-travessia.txt` | C3 | `../foto.jpg` e `../x.jpg` recusados com `nome-invalido` |

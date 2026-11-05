@@ -38,7 +38,7 @@ Get-Content -LiteralPath $Fonte -Encoding UTF8 |
     ForEach-Object { $Linha++; '{0}: {1}' -f $Linha, $_ }
 ```
 
-Esperado: arquivo e linha de C1–C12 estão na seção 6 do relatório. Abrir somente fonte que não contenha a chave da coordenação. Se uma linha mudar, atualizar o relatório. A suíte está em `evidencias/dotnet-test-seguranca.txt` (47/47 no total; 20 testes de segurança listados).
+Esperado: arquivo e linha de C1–C12 estão na seção 6 do relatório. Abrir somente fonte que não contenha a chave da coordenação. Se uma linha mudar, atualizar o relatório. A suíte está em `evidencias/dotnet-test-seguranca.txt` (55/55 no total; 20 testes de segurança listados).
 
 **Print E01:** [inserir versão, ambiente e trechos numerados dos controles]
 

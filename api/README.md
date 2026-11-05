@@ -93,12 +93,12 @@ O delta é a média de (índice da sala − índice da rua) nas últimas 3 h, co
 
 Fora do Demo nenhuma rotina grava `LeiturasRua`, então pode não haver rua. Nesse caso a API não inventa a rua nem devolve "normal" por falta de dado: `ruaDisponivel` vem `false`, `indiceSalaPrevisto` é o índice da última leitura válida da sala nas últimas 3 h (a hipótese é que a sala se mantenha), `nivelPrevisto` é o nível desse índice, `deltaSala` vem `null`, `semLeiturasRecentes` vem `false` e `indiceRuaPrevisto` vem `0`, sem significado. Sem rua e sem leitura válida recente, a rota responde 503 `{"motivo":"sem-dados-para-prever"}`. Testes: `SemRuaForaDoDemoAPrevisaoSegueASalaENaoDizNormal` e `DemoComRuaQuenteNaoMarcaSalaFrescaComoSuspeita`.
 
-A rua daqui a 2 h vem da árvore de regressão em `TermometroDaSala.Api/modelo/modelo.json` (cópia de `ml/modelo.json`, profundidade 8 e folha mínima 30, treinada no notebook com o horário do INMET, estação A701, 2022–2025). No teste de 2025 o MAE foi 0,958 °C, contra 1,442 °C do baseline "daqui a 2 h = agora". O recall do nível "cuidado" ainda é baixo; a análise está em `ml/README.md`. O caminho fica em `Modelo:Caminho`. `ModeloRua` lê o arquivo, confere a árvore e monta os mesmos atributos do notebook (temperatura, umidade, hora e mês em seno e cosseno, variação da última hora). Sem o arquivo, ou com JSON inválido, a API registra no log e cai na regra provisória.
+A rua daqui a 2 h vem da árvore de regressão em `TermometroDaSala.Api/modelo/modelo.json` (cópia de `ml/modelo.json`, profundidade 12 e folha mínima 24, treinada no notebook com o horário do INMET, estação A701, 2022–2025). No teste de 2025 o MAE foi 0,909 °C, contra 1,442 °C do baseline "daqui a 2 h = agora". O recall do nível "cuidado" ainda é baixo; a análise está em `ml/README.md`. O caminho fica em `Modelo:Caminho`. `ModeloRua` lê o arquivo, confere a árvore e monta os mesmos atributos do notebook (temperatura, umidade, hora e mês em seno e cosseno, variação da última hora e índice de calor atual (`indice_agora`)). Sem o arquivo, ou com JSON inválido, a API registra no log e cai na regra provisória.
 
 - Fora do Demo (`PrevisorRuaModelo`), a entrada do modelo é a rua gravada em `LeiturasRua`. Sem modelo, repete o índice da rua de agora.
 - No Demo (`PrevisorRuaDemo`), a rua vem de `demo/rua-dia-quente.csv` (dia quente de exemplo) projetado na hora local de São Paulo. A entrada do modelo é a hora atual do CSV, com a variação desde a hora anterior do CSV e o mês de hoje, e o `indiceRuaPrevisto` que app, desktop e painel mostram é a saída do modelo. Sem modelo, usa a hora do CSV duas horas à frente.
 
-O teste `PrevisorModeloTestes.DemoAplicaOModeloAoDiaDoCsvEDaOMesmoValor` monta um CSV com o vetor da seção 6 do notebook (15/01/2026 14h, 30 °C, 50%, 28,5 °C uma hora antes) e confere que o Demo e o previsor do banco devolvem o mesmo valor, 26,97 °C. `DemoComRuaQuenteNaoMarcaSalaFrescaComoSuspeita` confere pela rota que, no Demo, `indiceRuaPrevisto` é a saída do modelo para a hora do CSV, e não a hora do CSV duas horas à frente.
+O teste `PrevisorModeloTestes.DemoAplicaOModeloAoDiaDoCsvEDaOMesmoValor` monta um CSV com o vetor da seção 6 do notebook (15/01/2026 14h, 30 °C, 50%, 28,5 °C uma hora antes) e confere que o Demo e o previsor do banco devolvem o mesmo valor, 27,16 °C. `DemoComRuaQuenteNaoMarcaSalaFrescaComoSuspeita` confere pela rota que, no Demo, `indiceRuaPrevisto` é a saída do modelo para a hora do CSV, e não a hora do CSV duas horas à frente.
 
 `POST /demo/semear` lê `demo/leituras-simuladas.csv` e desloca a curva para terminar na última leitura ao vivo (`origem = dispositivo`), gravando as 3 h anteriores com `origem = simulada`.
 
@@ -335,10 +335,11 @@ pessoais ou credenciais.
 dotnet test
 ```
 
-São 47 testes xUnit: vetores do contrato (HMAC, índice de calor, relógio de São Paulo),
+São 55 testes xUnit: vetores do contrato (HMAC, índice de calor, relógio de São Paulo),
 leitura do modelo de previsão (no banco e no Demo, com o mesmo valor), rotas da API (CRUD de
 salas, ocorrências, foto com chave, níveis, cabeçalhos de segurança), previsão sem rua e
-histórico, limite do MQTT, estrutura do JPEG e o esquema do banco. Os testes de rota usam
+histórico, alerta da sala com delta e arredondamento nos limites 27/32/41 °C,
+limite do MQTT, estrutura do JPEG e o esquema do banco. Os testes de rota usam
 SQLite em memória, só no projeto de testes (a API referencia apenas o provedor do SQL
 Server). Como o SQLite não ordena `DateTimeOffset`, os testes gravam as datas como ticks UTC
 (`SqliteDeTeste.cs`), e as consultas com `WHERE` e `ORDER BY` por data rodam no banco do mesmo

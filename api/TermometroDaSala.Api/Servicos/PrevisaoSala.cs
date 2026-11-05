@@ -72,7 +72,7 @@ public class PrevisorRuaModelo : IPrevisorRua
 // Leitura do ml/modelo.json, usada fora do Demo (rua gravada no banco) e no Demo (dia do CSV).
 public static class ModeloRua
 {
-    static readonly HashSet<string> Nomes = new() { "temperatura_c", "umidade_pct", "hora_sen", "hora_cos", "mes_sen", "mes_cos", "variacao_1h" };
+    static readonly HashSet<string> Nomes = new() { "temperatura_c", "umidade_pct", "hora_sen", "hora_cos", "mes_sen", "mes_cos", "variacao_1h", "indice_agora" };
 
     // arvore exportada pelo notebook: {atributo, limite, menor_ou_igual, maior} nos nos internos e {valor} nas folhas
     static double Avaliar(JsonElement no, Dictionary<string, double> x)
@@ -104,6 +104,7 @@ public static class ModeloRua
         ["mes_sen"] = Math.Sin(2 * Math.PI * local.Month / 12),
         ["mes_cos"] = Math.Cos(2 * Math.PI * local.Month / 12),
         ["variacao_1h"] = variacao1h,
+        ["indice_agora"] = IndiceCalor.Calcular(temperaturaC, umidadePct),
     };
 
     public static Func<Dictionary<string, double>, double>? Carregar(string caminho, ILogger log)

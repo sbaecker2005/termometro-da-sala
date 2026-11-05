@@ -125,15 +125,15 @@ médico nem medição IBUTG.
 
 Rua atual: dia quente do CSV INMET reproduzido. Rua daqui a 2 h: o modelo
 treinado com dados reais (`ml/modelo.json`, árvore de regressão), aplicado pela
-API com os atributos do notebook: temperatura, umidade, hora local, mês e variação
-da última hora. Fora do Demo, a entrada é a rua gravada em `LeiturasRua`. No Demo,
+API com os atributos do notebook: temperatura, umidade, hora local, mês, variação
+da última hora e índice de calor atual (`indice_agora`). Fora do Demo, a entrada é a rua gravada em `LeiturasRua`. No Demo,
 a entrada é a hora atual do CSV (temperatura, umidade e variação desde a hora
 anterior do CSV), com o mês de hoje; o `indiceRuaPrevisto` que app, desktop e
 painel mostram é a saída do modelo. Sem `modelo.json` válido, o Demo usa a hora do
 CSV duas horas à frente e fora dele a rua de agora se repete. O teste
 `PrevisorModeloTestes.DemoAplicaOModeloAoDiaDoCsvEDaOMesmoValor` confere que o Demo
 e o previsor do banco devolvem o mesmo valor para o vetor da seção 6 do notebook
-(15/01/2026 14h, 30 °C, 50%, +1,5 °C na última hora: 26,97 °C). Busca ao vivo A701
+(15/01/2026 14h, 30 °C, 50%, +1,5 °C na última hora: 27,16 °C). Busca ao vivo A701
 e reserva Open-Meteo são evolução opcional.
 
 Delta = média de (índice da sala − índice da rua), comparados no mesmo instante

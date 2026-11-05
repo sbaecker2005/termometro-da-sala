@@ -80,7 +80,7 @@
       <documentation>Parte da API (serviço em segundo plano com MQTTnet). Recebe as leituras do broker e aplica a mesma checagem do POST /leituras.</documentation>
     </element>
     <element xsi:type="archimate:ApplicationComponent" name="Modelo de ML (árvore de decisão)" id="e-modelo">
-      <documentation>Árvore de decisão (profundidade 8, folha 30) que prevê o índice de calor da rua em 2 h. MAE de 0,958 °C no teste de 2025, contra 1,442 °C do baseline.</documentation>
+      <documentation>Árvore de decisão (profundidade 12, folha 24) que prevê o índice de calor da rua em 2 h. MAE de 0,909 °C no teste de 2025, contra 1,442 °C do baseline.</documentation>
     </element>
     <element xsi:type="archimate:ApplicationComponent" name="App do professor (Expo)" id="e-app">
       <documentation>App do professor em Expo e TypeScript: salas, detalhe com previsão e ocorrência com foto.</documentation>

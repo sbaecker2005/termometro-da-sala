@@ -49,10 +49,13 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor
 from pathlib import Path
 from IPython.display import display
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score, f1_score, classification_report
-from sklearn.model_selection import TimeSeriesSplit, GridSearchCV, cross_val_score
+from sklearn.model_selection import ParameterGrid
+import platform
+print('Python', platform.python_version())
 
 PASTA = Path('ml') if Path('ml/dados/inmet_a701.csv').exists() else Path('.')
 CSV_GITHUB = 'https://raw.githubusercontent.com/sbaecker2005/termometro-da-sala/main/ml/dados/inmet_a701.csv'
@@ -115,7 +118,7 @@ df['nivel'].value_counts()"""),
 verao.groupby(verao.local.dt.hour)['indice'].mean().plot(marker='o', figsize=(8, 3), title='Índice de calor médio por hora (verão, A701)')
 plt.xlabel('hora local'); plt.ylabel('°C'); plt.grid(alpha=.3); plt.show()"""),
     md("""## 3. Atributos e alvo
-Só atributos que **existem em produção** (o boletim horário do INMET): temperatura, umidade, hora local (em seno e cosseno, para o modelo entender que 23h fica perto de 0h), mês e variação da temperatura na última hora. O alvo é o índice de calor **2 horas depois**. Só entram linhas com as horas vizinhas presentes (sem buracos)."""),
+Só atributos que **existem em produção** (o boletim horário do INMET): temperatura, umidade, hora local (em seno e cosseno, para o modelo entender que 23h fica perto de 0h), mês, variação da temperatura na última hora e índice de calor atual, calculado pela mesma fórmula da API. O alvo é o índice de calor **2 horas depois**. Só entram linhas com as horas vizinhas presentes (sem buracos). O índice atual responde ao baixo recall encontrado na versão anterior, sem mudar os limites dos níveis do contrato."""),
     code("""uma_h, duas_h = pd.Timedelta(hours=1), pd.Timedelta(hours=2)
 anterior = df['temperatura_c'].reindex(df.index - uma_h).to_numpy()
 futuro = df['indice'].reindex(df.index + duas_h).to_numpy()
@@ -127,8 +130,9 @@ X = pd.DataFrame({
     'mes_sen': np.sin(2 * np.pi * df.local.dt.month / 12),
     'mes_cos': np.cos(2 * np.pi * df.local.dt.month / 12),
     'variacao_1h': df.temperatura_c.to_numpy() - anterior,
+    'indice_agora': df['indice'],
 }, index=df.index)
-dados = X.assign(indice_agora=df['indice'], alvo=futuro).dropna()
+dados = X.assign(alvo=futuro).dropna()
 ano = dados.index.year
 treino = dados[(ano <= 2023) & (dados.index + duas_h < pd.Timestamp('2024-01-01', tz='UTC'))]
 valid = dados[(ano == 2024) & (dados.index + duas_h < pd.Timestamp('2025-01-01', tz='UTC'))]
@@ -160,13 +164,15 @@ for i in range(len(correlacao)):
         ax.text(j, i, f'{correlacao.iloc[i, j]:.2f}', ha='center', va='center', fontsize=8)
 fig.colorbar(imagem, ax=ax); plt.tight_layout(); plt.show()"""),
     md("""## 4. Modelos
-Divisão **por tempo** (sem embaralhar): treina em 2022–2023, ajusta a árvore com
-`TimeSeriesSplit` expansivo de 3 blocos e intervalo de 2 exemplos, escolhe entre
-linear e árvore pelo menor MAE em 2024 e só no fim mede em 2025. Os modelos
-permanecem ajustados apenas em 2022–2023, sem retreino após a seleção.
-O baseline "daqui a 2 h = agora" serve como referência. O critério de seleção é
-MAE, não recall de risco; essa escolha pode favorecer um modelo que perde episódios
-raros. O teste final serve para reportar esse limite, sem reajustar a escolha."""),
+Divisão **por tempo**, sem embaralhar: cada configuração treina só em 2022–2023
+ e é medida em 2024. Grade completa: profundidades 4 a 12 e None, folhas de 10 a 50
+ (todos os inteiros), 410 configurações. Escolha da árvore pelo menor MAE não arredondado
+ de validação; em empate, menor RMSE. Comparamos linear, persistência e uma floresta
+ de 100 árvores (profundidade 12, folha 10), sem buscar parâmetros do ensemble.
+ Exportamos sempre uma árvore única: a API percorre seus nós em C#, sem Python.
+ Nenhum retreino após a escolha. O ano de 2025 fica para a avaliação final.
+ Como 2025 já apareceu na auditoria anterior, este é um teste de regressão temporal,
+ não uma confirmação independente da revisão; será necessário um período novo."""),
     code("""def avalia(nome, previsto, real):
     reais = [nivel(v) for v in real]
     presentes = [n for n in NIVEIS if n in reais]  # 'perigo' não aparece na A701 em 2022-2025: fica fora da média
@@ -175,27 +181,40 @@ raros. O teste final serve para reportar esse limite, sem reajustar a escolha.""
             'R²': round(r2_score(real, previsto), 3),
             'F1 macro (níveis)': round(f1_score(reais, [nivel(v) for v in previsto], average='macro', labels=presentes, zero_division=0), 3)}
 
-cv = TimeSeriesSplit(n_splits=3, gap=2)
-for antes, depois in cv.split(treino):
-    assert treino.index[antes[-1]] + duas_h < treino.index[depois[0]]
-# gap=2 impede que o alvo +2 h do treino alcance o próximo bloco.
-busca = GridSearchCV(DecisionTreeRegressor(random_state=42),
-                    {'max_depth': [4, 6, 8], 'min_samples_leaf': [30, 50]},
-                    scoring='neg_mean_absolute_error', cv=cv)
-busca.fit(treino[ATRIBUTOS], treino.alvo)
-print('Busca: 6 combinações × 3 blocos, escolhidas pelo menor MAE; profundidades limitam complexidade e folhas reduzem sobreajuste.')
-display(pd.DataFrame(busca.cv_results_)[['param_max_depth', 'param_min_samples_leaf', 'mean_test_score', 'std_test_score']]
-        .assign(MAE_CV=lambda t: -t.mean_test_score).drop(columns='mean_test_score').sort_values('MAE_CV'))
-print('Linear, MAE médio na mesma CV:', -cross_val_score(LinearRegression(), treino[ATRIBUTOS], treino.alvo,
-                                                       cv=cv, scoring='neg_mean_absolute_error').mean())
-print('Melhor árvore:', busca.best_params_)
+resultados_grade = []
+configuracoes = list(ParameterGrid({'max_depth': list(range(4, 13)) + [None],
+                                    'min_samples_leaf': list(range(10, 51))}))
+arvore, melhor_erro = None, (float('inf'), float('inf'))
+for parametros in configuracoes:
+    candidata = DecisionTreeRegressor(random_state=42, **parametros).fit(treino[ATRIBUTOS], treino.alvo)
+    p = candidata.predict(valid[ATRIBUTOS])
+    erros = (mean_absolute_error(valid.alvo, p), float(np.sqrt(mean_squared_error(valid.alvo, p))))
+    resultados_grade.append({**parametros, 'MAE (°C)': erros[0], 'RMSE (°C)': erros[1]})
+    if erros < melhor_erro:
+        arvore, melhor_erro, melhores_parametros = candidata, erros, parametros
+assert len(resultados_grade) == 410
+grade = pd.DataFrame(resultados_grade)
+grade['max_depth'] = grade.max_depth.map(lambda v: 'None' if pd.isna(v) else str(int(v)))
+grade = grade.sort_values(['MAE (°C)', 'RMSE (°C)'], kind='stable')
+grade.to_csv(PASTA / 'grade-parametros.csv', index=False)
+with pd.option_context('display.max_rows', 410):
+    display(grade)
+print('Melhor árvore:', melhores_parametros, '| MAE e RMSE 2024:', melhor_erro)
 linear = LinearRegression().fit(treino[ATRIBUTOS], treino.alvo)
-arvore = busca.best_estimator_
+floresta = RandomForestRegressor(n_estimators=100, max_depth=12, min_samples_leaf=10,
+                                 random_state=42, n_jobs=1).fit(treino[ATRIBUTOS], treino.alvo)
+# Versão anterior: mesma divisão, sete atributos, profundidade 8 e folha 30.
+atributos_antes = [a for a in ATRIBUTOS if a != 'indice_agora']
+arvore_antes = DecisionTreeRegressor(max_depth=8, min_samples_leaf=30, random_state=42).fit(
+    treino[atributos_antes], treino.alvo)
 candidatos = {'baseline (agora)': lambda d: d.indice_agora.to_numpy(),
               'regressão linear': lambda d: linear.predict(d[ATRIBUTOS]),
+              'floresta (comparação)': lambda d: floresta.predict(d[ATRIBUTOS]),
+              'árvore anterior': lambda d: arvore_antes.predict(d[atributos_antes]),
               'árvore ajustada': lambda d: arvore.predict(d[ATRIBUTOS])}
 validacao = pd.DataFrame([avalia(n, f(valid), valid.alvo) for n, f in candidatos.items()])
-validacao"""),
+display(validacao)
+print('Exportação: árvore única com menor MAE em 2024; ensemble somente para comparação.')"""),
     md("""### Importância dos atributos
 Coeficientes da linear multiplicados pelo desvio padrão de cada atributo no treino:
 variação prevista em °C para +1 desvio padrão, mantendo os demais atributos constantes.
@@ -206,7 +225,7 @@ correlacionados; as duas escalas não são diretamente comparáveis."""),
 display(importancias)
 importancias.plot.bar(subplots=True, figsize=(9, 6), legend=False)
 plt.tight_layout(); plt.show()"""),
-    code("""escolhido = validacao[validacao.modelo != 'baseline (agora)'].sort_values('MAE (°C)').iloc[0].modelo
+    code("""escolhido = 'árvore ajustada'
 print('modelo escolhido na validação:', escolhido)
 previsoes_teste = {n: f(teste) for n, f in candidatos.items()}
 resultado_teste = pd.DataFrame([avalia(n, p, teste.alvo) for n, p in previsoes_teste.items()])
@@ -228,6 +247,28 @@ erro = pd.Series(np.abs(prev - teste.alvo.to_numpy()), index=teste.index)
 erro.groupby(teste.index.tz_convert('America/Sao_Paulo').hour).mean().plot(kind='bar', figsize=(8, 3), title='Erro médio por hora local (teste)')
 plt.ylabel('°C'); plt.show()
 pd.crosstab(pd.Series([nivel(v) for v in teste.alvo], name='real'), pd.Series([nivel(v) for v in prev], name='previsto'))"""),
+    md("""### Alerta antes e depois
+Alerta significa índice previsto **≥ 32 °C** (cuidado ou perigo), sem alterar a tabela
+ do contrato. Comparamos a árvore anterior (sete atributos), a revisão (índice atual
+ incluído e grade ampliada) e a persistência. Precisão, recall e contagens são medidos
+ em 2024 e depois em 2025; não calibramos um novo limiar no teste.
+ São alertas da rua: o delta da sala ainda precisa de validação com medições reais."""),
+    code("""from sklearn.metrics import precision_score, recall_score
+alertas = []
+for periodo, conjunto in [('validação 2024', valid), ('teste 2025', teste)]:
+    real = conjunto.alvo.to_numpy() >= 32
+    for nome in ['baseline (agora)', 'árvore anterior', escolhido]:
+        previsto = candidatos[nome](conjunto) >= 32
+        tp = int(np.sum(real & previsto))
+        fp = int(np.sum(~real & previsto))
+        fn = int(np.sum(real & ~previsto))
+        assert tp + fn == int(real.sum())
+        alertas.append({'período': periodo, 'modelo': nome, 'TP': tp, 'FP': fp, 'FN': fn,
+                        'precisão': precision_score(real, previsto, zero_division=0),
+                        'recall': recall_score(real, previsto, zero_division=0)})
+alertas = pd.DataFrame(alertas)
+display(alertas)
+alertas.to_csv(PASTA / 'alertas.csv', index=False)"""),
     md("""## 5. Exportar `modelo.json`
 A API (C#) carrega este arquivo e aplica o modelo: não há servidor Python em produção. O JSON leva os atributos na ordem, os coeficientes (linear) ou os nós da árvore, e as métricas de teste."""),
     code("""def arvore_json(m):
@@ -244,11 +285,7 @@ base = resultado_teste.set_index('modelo').loc['baseline (agora)'].to_dict()
 modelo = {'versao': 1, 'alvo': 'indice_calor_c em 2 h', 'horizonte_horas': 2, 'atributos': ATRIBUTOS,
           'fonte': 'INMET A701, horário, 2022-2025 (treino 2022-2023, validação 2024, teste 2025)',
           'metricas_teste': metricas, 'baseline_teste': base}
-if escolhido == 'regressão linear':
-    modelo |= {'tipo': 'linear', 'intercepto': round(float(linear.intercept_), 6),
-               'coeficientes': {a: round(float(c), 6) for a, c in zip(ATRIBUTOS, linear.coef_)}}
-else:
-    modelo |= {'tipo': 'arvore', 'raiz': arvore_json(arvore)}
+modelo |= {'tipo': 'arvore', 'raiz': arvore_json(arvore)}
 with open(PASTA / 'modelo.json', 'w', encoding='utf-8') as f:
     json.dump(modelo, f, ensure_ascii=False, indent=1)
 print('modelo.json:', modelo['tipo'], metricas)"""),
@@ -267,7 +304,11 @@ amostra = teste.sample(200, random_state=1)
 referencia = pd.Series(prev, index=teste.index)
 diferenca = max(abs(prever_json(exportado, r) - referencia.loc[i]) for i, r in amostra.iterrows())
 assert diferenca < 0.01, diferenca
-print('diferença máxima JSON x scikit-learn:', round(diferenca, 5))"""),
+print('diferença máxima JSON x scikit-learn:', round(diferenca, 5))
+paridade = amostra[ATRIBUTOS].copy()
+paridade['previsto'] = arvore.predict(amostra[ATRIBUTOS])
+paridade.to_json(PASTA / 'paridade-api.json', orient='records', indent=1, double_precision=15)
+print('paridade-api.json:', len(paridade), 'previsões do scikit-learn para o teste da API')"""),
     md("""## 6. Previsão em uso
 O mesmo vetor do teste da API (`PrevisorModeloTestes.cs`): 15/01/2026 às 17:00 UTC
 (14h em São Paulo), rua a 30 °C e 50% de umidade, 1,5 °C mais quente que uma hora antes.
@@ -284,9 +325,17 @@ local = agora_utc.tz_convert('America/Sao_Paulo')
 entrada = {'temperatura_c': 30.0, 'umidade_pct': 50.0,
            'hora_sen': np.sin(2 * np.pi * local.hour / 24), 'hora_cos': np.cos(2 * np.pi * local.hour / 24),
            'mes_sen': np.sin(2 * np.pi * local.month / 12), 'mes_cos': np.cos(2 * np.pi * local.month / 12),
-           'variacao_1h': 1.5}
+           'variacao_1h': 1.5, 'indice_agora': indice_calor_c(30.0, 50)}
 rua_prevista = prever_json(exportado, entrada)
-assert round(rua_prevista, 2) == 26.97  # mesmo valor esperado no teste da API
+assert abs(rua_prevista - arvore.predict(pd.DataFrame([entrada])[ATRIBUTOS])[0]) < 0.01
+vetores = []
+for temp, umidade, hora, mes, variacao in [(30, 50, 14, 1, 1.5), (18, 80, 0, 7, -0.4), (27.2, 62, 12, 12, 0)]:
+    x = {'temperatura_c': temp, 'umidade_pct': umidade, 'hora_sen': np.sin(2*np.pi*hora/24),
+         'hora_cos': np.cos(2*np.pi*hora/24), 'mes_sen': np.sin(2*np.pi*mes/12),
+         'mes_cos': np.cos(2*np.pi*mes/12), 'variacao_1h': variacao, 'indice_agora': indice_calor_c(temp, umidade)}
+    vetores.append({**x, 'previsto': prever_json(exportado, x)})
+print('Vetores para PrevisorModeloTestes:')
+display(pd.DataFrame(vetores))
 DELTA_SALA_3 = 4.0  # exemplo do modo demonstração, não medição
 sala_prevista = rua_prevista + DELTA_SALA_3
 display(pd.DataFrame({'valor': [f"{local:%d/%m/%Y %Hh} (São Paulo)", f"{indice_calor_c(30.0, 50)} °C ({nivel(indice_calor_c(30.0, 50))})",
@@ -318,7 +367,7 @@ print('resíduo médio:', round(residuos.mean(), 3), '°C | 90% dos erros entre'
     md("""## 7. Conclusões e limitações
 - O modelo é comparado com o baseline "daqui a 2 h = agora", que é o que uma pessoa faria olhando o termômetro. A tabela de teste mostra quanto ele ganha.
 - `Cuidado` é raro: o relatório mostra seu recall e a comparação com o baseline, pois o F1 macro não basta para avaliar a segurança. `Perigo` não aparece nesta base; suporte zero não comprova capacidade de previsão desse nível. Não há garantia de detectar todos os episódios críticos, nem validação da previsão dentro da sala.
-- Nesta execução, a árvore escolhida pelo MAE de validação atinge MAE de **0,958 °C**, RMSE de **1,364 °C** e R² de **0,924** em 2025. Porém reconhece só **7 de 48** horas de `cuidado` (recall **14,6%**), abaixo do baseline (**18 de 48**, **37,5%**); erra 39 como `atencao` e 2 como `normal`. A melhora média não demonstra melhora no alerta crítico. A linear tem F1 macro maior (0,745 contra 0,660 da árvore), mas não foi escolhida pelo critério definido. Uma futura revisão do critério deve usar treino/validação e um novo período de teste, sem escolher pelo resultado de 2025.
+- A tabela de regressão e a comparação de precisão/recall mostram separadamente erro em graus e alerta. O índice atual responde ao limite da versão anterior; os limites continuam 27, 32 e 41 °C. Nenhum limiar foi escolhido em 2025. O atributo adicional não garante detectar todos os episódios; falsos negativos e falsos positivos devem acompanhar a demonstração.
 - O aviso com 2 h de antecedência apoia a decisão da coordenação de hidratar, ventilar ou realocar a turma, ligado ao **ODS 3.d** (alerta precoce e redução de riscos à saúde). O impacto deve ser medido por aulas em Perigo sem ação, ainda sem evidência medida neste estudo; a previsão não substitui a leitura atual nem os protocolos da escola.
 - A previsão é da **rua**. A sala entra pela regra do delta (média das últimas 3 h da diferença sala − rua, medida pelo ESP32), que é simples e auditável. Ela supõe que a diferença das últimas 3 h se mantém nas próximas 2 h; no fim da tarde tende a superestimar.
 - Os dados são públicos e reais (INMET). As leituras da sala no Wokwi e no modo demonstração são simuladas, e o README diz isso.

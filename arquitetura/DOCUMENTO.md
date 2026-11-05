@@ -159,7 +159,7 @@ A Fase C junta aplicação e dados. A visão mostra os processos de negócio no 
 |---|---|---|
 | API | Valida e grava leituras, calcula o índice e a previsão, guarda ocorrências e ações | ASP.NET Core 8, EF Core |
 | Assinante MQTT | Parte da API. Recebe as leituras do broker e aplica a mesma checagem do `POST /leituras` | MQTTnet |
-| Modelo de ML | Prevê o índice de calor da rua em 2 h | Árvore de decisão treinada em Python (MAE 0,958 °C no teste 2025), aplicada pela API em C# a partir do modelo.json |
+| Modelo de ML | Prevê o índice de calor da rua em 2 h | Árvore de decisão treinada em Python (MAE 0,909 °C no teste 2025), aplicada pela API em C# a partir do modelo.json |
 | App do professor | Salas, detalhe com previsão e ocorrência com foto | Expo + TypeScript |
 | Terminal da coordenação | Salas, registro de ação, cadastro de sala e revogação de sensor | Windows Forms |
 | Painel web | Mural de só leitura para a TV da escola | Página estática no `wwwroot` da API |
@@ -176,7 +176,7 @@ A API realiza cinco serviços de aplicação e expõe as "Rotas HTTP da API", us
 
 **Dados (parte da Fase C).** No modelo, os objetos de dados são a "Leitura assinada", a "Previsão da sala" (calculada pela API a cada consulta; a tabela `Previsoes` fica reservada e nada grava nela hoje), "Ambiente (sala)", "Dispositivo (sensor)", "Ocorrência", "Ação" e "Nível e ação sugerida". Os três últimos realizam os objetos de negócio "Ocorrência da sala", "Ação registrada" e "Protocolo de calor". No banco, as tabelas são `Ambientes` (salas), `Dispositivos`, `Leituras`, `LeiturasRua`, `Previsoes`, `Ocorrencias`, `Acoes` e `NiveisAcao` (`api/TermometroDaSala.Api/Dados/SalaDb.cs`). Nenhuma tabela tem campo de aluno.
 
-**Resultado do modelo.** Dados reais do INMET (A701), treino em 2022–2023, validação em 2024 e teste em 2025. A árvore (profundidade 8, folha 30) foi a escolhida pelo menor MAE na validação. No teste, o MAE foi de 0,958 °C contra 1,442 °C da regra "daqui a 2 h igual a agora". O F1 macro dos níveis foi 0,660 contra 0,667 do baseline: o menor erro médio não melhorou o alerta de cuidado extremo. Detalhes em `ml/README.md`.
+**Resultado do modelo.** Dados reais do INMET (A701), treino em 2022–2023, validação em 2024 e teste em 2025. A árvore (profundidade 12, folha 24) foi a escolhida pelo menor MAE na validação. No teste, o MAE foi de 0,909 °C contra 1,442 °C da regra "daqui a 2 h igual a agora". O F1 macro dos níveis foi 0,730 contra 0,667 do baseline. Em 2025, o recall de cuidado passou de 14,6% na árvore anterior para 39,6% na revisada, contra 37,5% do baseline; a precisão da revisada foi de 52,8%, com 29 falsos negativos e 17 falsos positivos. Em 2024, o recall da revisada ainda ficou abaixo do baseline (34,0% contra 39,4%). Detalhes em `ml/README.md`.
 
 **A previsão da sala** é a rua prevista somada ao delta da sala, que é a média da diferença entre sala e rua nas últimas 3 h, com no mínimo 3 leituras. Exemplo: rua prevista em 34 + delta 4 = 38, Cuidado extremo. **Limitação:** o delta assume que a diferença se mantém nas próximas 2 h, e no fim da tarde tende a superestimar.
 
@@ -207,7 +207,7 @@ Situação desta versão em 05/11/2026.
 
 | Parte | Situação |
 |---|---|
-| Modelo de ML | Notebook executado. Árvore (profundidade 8, folha 30) escolhida pelo MAE de validação. No teste de 2025, MAE 0,958 °C (`ml/modelo.json`) |
+| Modelo de ML | Notebook executado. Árvore (profundidade 12, folha 24) escolhida pelo MAE de validação. No teste de 2025, MAE 0,909 °C (`ml/modelo.json`) |
 | App do professor | Quatro telas em Expo. O modo simulado vem ligado; com `EXPO_PUBLIC_API_MOCK=0` o app chama a API |
 | API | Rotas de salas, leituras, previsão, ocorrências, ações, revogação e demonstração. Painel em `wwwroot`. 47 testes automatizados, todos passando no `dotnet test`: 37 `[Fact]` e 10 casos `[InlineData]` em 2 `[Theory]` (`api/evidencias/dotnet-test.txt`) |
 | Terminal da coordenação | Windows Forms: salas, ação, cadastro, revogação e CSV. Se a API cai, usa a reserva local |

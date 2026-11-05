@@ -54,10 +54,10 @@ Cortes rápidos de 3 s cada, gravados antes, com o nome da disciplina na tela.
 |---|---|
 | Archi com a "Visão em quatro camadas" aberta e as visões Motivação, Negócio, Aplicação, Tecnologia e Implementação e migração na árvore do modelo (`arquitetura/termometro-da-sala.archimate`) | Arquitetura (TOGAF) |
 | Notebook do modelo com a tabela de MAE de validação e teste | Machine Learning |
-| Saída do `dotnet test` com os 47 testes passando | SOA e Testing |
+| Saída do `dotnet test` com os 55 testes passando | SOA e Testing |
 | Windows Server com o IIS e o pool da API | Operating Systems |
 
-> Por trás disso: o modelo ArchiMate com uma visão por camada, o notebook com dados reais do INMET, a API com 47 testes passando e o servidor Windows que publica tudo.
+> Por trás disso: o modelo ArchiMate com uma visão por camada, o notebook com dados reais do INMET, a API com 55 testes passando e o servidor Windows que publica tudo.
 
 ## Impacto (2:30 a 3:10)
 
@@ -95,7 +95,7 @@ As ressalvas ficam no slide 6: a base de 3 milhões da outra nota da Seduc, a pr
 
 ### Slide 5: A previsão
 - Exemplo: rua prevista 34 + delta da sala 4 = 38, Cuidado extremo
-- Erro médio de 0,958 °C no teste (árvore), contra 1,442 °C de "daqui a 2 h igual a agora"
+- Erro médio de 0,909 °C no teste (árvore), contra 1,442 °C de "daqui a 2 h igual a agora"
 - Nenhum dado de aluno
 
 ### Slide 6: O impacto

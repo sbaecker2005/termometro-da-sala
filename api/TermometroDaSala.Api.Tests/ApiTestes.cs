@@ -603,6 +603,43 @@ public class ApiTestes
         Assert.Equal(gravada.PrevistoPara.AddHours(-2), gravada.CalculadaEm);
     }
 
+    [Theory]
+    [InlineData(22.949, 26.9, "normal")]
+    [InlineData(22.951, 27.0, "atencao")]
+    [InlineData(27.949, 31.9, "atencao")]
+    [InlineData(27.951, 32.0, "cuidado")]
+    [InlineData(36.949, 40.9, "cuidado")]
+    [InlineData(36.951, 41.0, "perigo")]
+    public async Task AlertaServidoUsaSalaComDeltaEArredondamento(double rua, double sala, string nivel)
+    {
+        var agora = new DateTimeOffset(2026, 1, 15, 17, 0, 0, TimeSpan.Zero);
+        using var f = new ApiFabrica(tempo: new RelogioFixo(agora));
+        using var app = f.WithWebHostBuilder(b => b.ConfigureTestServices(s =>
+            s.AddSingleton<IPrevisorRua>(new RuaFixa(rua))));
+        using var c = app.CreateClient();
+        using var escopo = app.Services.CreateScope();
+        var db = escopo.ServiceProvider.GetRequiredService<SalaDb>();
+        db.Database.EnsureCreated();
+        for (var i = 0; i < 3; i++) InserirPar(db, agora.AddMinutes(-i), 32, 28);
+        db.SaveChanges();
+
+        using var doc = JsonDocument.Parse(await c.GetStringAsync("/ambientes/sala-03/previsao"));
+        var p = doc.RootElement;
+        Assert.Equal(4, p.GetProperty("deltaSala").GetDouble());
+        Assert.Equal(sala, p.GetProperty("indiceSalaPrevisto").GetDouble());
+        Assert.Equal(nivel, p.GetProperty("nivelPrevisto").GetString());
+        var gravada = Assert.Single(db.Previsoes);
+        Assert.Equal(sala, gravada.IndiceSalaPrevisto);
+        Assert.Equal(nivel, gravada.NivelPrevisto.ToString());
+    }
+
+    sealed class RuaFixa(double previsto) : IPrevisorRua
+    {
+        public double? IndiceNoInstante(DateTimeOffset utc) => 28;
+        public double? TemperaturaNoInstante(DateTimeOffset utc) => null;
+        public double? PreverDaquiA2h(DateTimeOffset utc) => previsto;
+    }
+
     // SOI, SOF0 1x1 com um componente, SOS, um byte de varredura, EOI
     static byte[] JpegMinimo() => new byte[]
     {

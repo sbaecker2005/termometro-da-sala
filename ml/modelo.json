@@ -9,14 +9,15 @@
   "hora_cos",
   "mes_sen",
   "mes_cos",
-  "variacao_1h"
+  "variacao_1h",
+  "indice_agora"
  ],
  "fonte": "INMET A701, horário, 2022-2025 (treino 2022-2023, validação 2024, teste 2025)",
  "metricas_teste": {
-  "MAE (°C)": 0.958,
-  "RMSE (°C)": 1.364,
-  "R²": 0.924,
-  "F1 macro (níveis)": 0.66
+  "MAE (°C)": 0.909,
+  "RMSE (°C)": 1.324,
+  "R²": 0.929,
+  "F1 macro (níveis)": 0.73
  },
  "baseline_teste": {
   "MAE (°C)": 1.442,
@@ -26,66 +27,38 @@
  },
  "tipo": "arvore",
  "raiz": {
-  "atributo": "temperatura_c",
+  "atributo": "indice_agora",
   "limite": 19.95,
   "menor_ou_igual": {
-   "atributo": "temperatura_c",
-   "limite": 16.349999,
+   "atributo": "indice_agora",
+   "limite": 15.85,
    "menor_ou_igual": {
-    "atributo": "temperatura_c",
-    "limite": 13.55,
+    "atributo": "indice_agora",
+    "limite": 12.65,
     "menor_ou_igual": {
-     "atributo": "temperatura_c",
-     "limite": 12.15,
+     "atributo": "indice_agora",
+     "limite": 9.95,
      "menor_ou_igual": {
       "atributo": "temperatura_c",
-      "limite": 10.05,
+      "limite": 9.65,
       "menor_ou_igual": {
-       "atributo": "temperatura_c",
-       "limite": 9.55,
+       "atributo": "hora_cos",
+       "limite": 0.37941,
        "menor_ou_igual": {
-        "valor": 7.875
+        "valor": 8.3808
        },
        "maior": {
-        "valor": 9.3968
+        "valor": 7.5042
        }
       },
       "maior": {
-       "atributo": "hora_cos",
-       "limite": -0.12941,
+       "atributo": "hora_sen",
+       "limite": 0.786566,
        "menor_ou_igual": {
-        "atributo": "temperatura_c",
-        "limite": 11.55,
-        "menor_ou_igual": {
-         "valor": 12.1905
-        },
-        "maior": {
-         "valor": 13.2433
-        }
+        "valor": 9.1581
        },
        "maior": {
-        "atributo": "temperatura_c",
-        "limite": 11.45,
-        "menor_ou_igual": {
-         "atributo": "hora_sen",
-         "limite": 0.915976,
-         "menor_ou_igual": {
-          "valor": 9.762
-         },
-         "maior": {
-          "valor": 10.7382
-         }
-        },
-        "maior": {
-         "atributo": "hora_sen",
-         "limite": 0.915976,
-         "menor_ou_igual": {
-          "valor": 10.85
-         },
-         "maior": {
-          "valor": 11.7538
-         }
-        }
+        "valor": 10.5639
        }
       }
      },
@@ -96,61 +69,131 @@
        "atributo": "hora_sen",
        "limite": 0.37941,
        "menor_ou_igual": {
-        "valor": 11.8972
+        "valor": 11.34
        },
        "maior": {
         "atributo": "temperatura_c",
-        "limite": 12.65,
+        "limite": 11.95,
         "menor_ou_igual": {
-         "valor": 13.9872
-        },
-        "maior": {
          "atributo": "hora_cos",
          "limite": -0.12941,
          "menor_ou_igual": {
-          "valor": 15.4217
+          "valor": 13.1761
          },
          "maior": {
-          "valor": 14.2727
+          "valor": 11.6286
+         }
+        },
+        "maior": {
+         "atributo": "indice_agora",
+         "limite": 12.35,
+         "menor_ou_igual": {
+          "atributo": "variacao_1h",
+          "limite": 0.55,
+          "menor_ou_igual": {
+           "atributo": "mes_cos",
+           "limite": -0.683013,
+           "menor_ou_igual": {
+            "valor": 14.0708
+           },
+           "maior": {
+            "valor": 13.3655
+           }
+          },
+          "maior": {
+           "valor": 14.8833
+          }
+         },
+         "maior": {
+          "valor": 15.2444
          }
         }
        }
       },
       "maior": {
-       "atributo": "temperatura_c",
-       "limite": 12.95,
+       "atributo": "indice_agora",
+       "limite": 11.55,
        "menor_ou_igual": {
-        "atributo": "hora_sen",
-        "limite": 0.786566,
+        "atributo": "indice_agora",
+        "limite": 10.75,
         "menor_ou_igual": {
-         "atributo": "umidade_pct",
-         "limite": 77.5,
+         "atributo": "indice_agora",
+         "limite": 10.45,
          "menor_ou_igual": {
-          "valor": 11.0909
+          "valor": 9.8906
          },
          "maior": {
-          "valor": 11.6571
+          "valor": 10.276
          }
         },
         "maior": {
-         "valor": 12.1121
+         "atributo": "umidade_pct",
+         "limite": 84.5,
+         "menor_ou_igual": {
+          "atributo": "mes_cos",
+          "limite": -0.25,
+          "menor_ou_igual": {
+           "atributo": "variacao_1h",
+           "limite": -0.15,
+           "menor_ou_igual": {
+            "valor": 10.5406
+           },
+           "maior": {
+            "valor": 10.8292
+           }
+          },
+          "maior": {
+           "valor": 11.1625
+          }
+         },
+         "maior": {
+          "atributo": "umidade_pct",
+          "limite": 87.5,
+          "menor_ou_igual": {
+           "valor": 11.232
+          },
+          "maior": {
+           "valor": 11.1296
+          }
+         }
         }
        },
        "maior": {
-        "atributo": "umidade_pct",
-        "limite": 83.5,
+        "atributo": "indice_agora",
+        "limite": 12.15,
         "menor_ou_igual": {
-         "atributo": "variacao_1h",
-         "limite": -0.15,
+         "atributo": "mes_cos",
+         "limite": -0.683013,
          "menor_ou_igual": {
-          "valor": 12.0474
+          "valor": 11.2242
          },
          "maior": {
-          "valor": 12.4333
+          "atributo": "hora_sen",
+          "limite": 0.37941,
+          "menor_ou_igual": {
+           "valor": 11.44
+          },
+          "maior": {
+           "valor": 11.816
+          }
          }
         },
         "maior": {
-         "valor": 12.7314
+         "atributo": "mes_sen",
+         "limite": -0.683013,
+         "menor_ou_igual": {
+          "atributo": "mes_sen",
+          "limite": -0.933013,
+          "menor_ou_igual": {
+           "valor": 12.1333
+          },
+          "maior": {
+           "valor": 12.2667
+          }
+         },
+         "maior": {
+          "valor": 11.8957
+         }
         }
        }
       }
@@ -158,44 +201,30 @@
     },
     "maior": {
      "atributo": "hora_cos",
-     "limite": 0.12941,
+     "limite": -0.12941,
      "menor_ou_igual": {
       "atributo": "hora_sen",
       "limite": -0.12941,
       "menor_ou_igual": {
-       "atributo": "temperatura_c",
-       "limite": 15.55,
+       "atributo": "indice_agora",
+       "limite": 14.45,
        "menor_ou_igual": {
-        "atributo": "umidade_pct",
-        "limite": 71.5,
-        "menor_ou_igual": {
-         "valor": 12.4875
-        },
-        "maior": {
-         "atributo": "temperatura_c",
-         "limite": 14.75,
-         "menor_ou_igual": {
-          "valor": 13.4086
-         },
-         "maior": {
-          "valor": 14.3303
-         }
-        }
+        "valor": 12.9163
        },
        "maior": {
         "atributo": "umidade_pct",
-        "limite": 72.5,
+        "limite": 68.0,
         "menor_ou_igual": {
-         "valor": 13.9375
+         "valor": 13.6074
         },
         "maior": {
-         "atributo": "umidade_pct",
-         "limite": 81.5,
+         "atributo": "indice_agora",
+         "limite": 15.25,
          "menor_ou_igual": {
-          "valor": 15.1543
+          "valor": 14.372
          },
          "maior": {
-          "valor": 15.7742
+          "valor": 15.3038
          }
         }
        }
@@ -204,159 +233,418 @@
        "atributo": "temperatura_c",
        "limite": 15.25,
        "menor_ou_igual": {
-        "atributo": "hora_cos",
-        "limite": -0.12941,
+        "atributo": "umidade_pct",
+        "limite": 76.5,
         "menor_ou_igual": {
-         "atributo": "umidade_pct",
-         "limite": 76.5,
+         "atributo": "hora_sen",
+         "limite": 0.786566,
          "menor_ou_igual": {
-          "valor": 16.9735
+          "valor": 16.3261
          },
          "maior": {
-          "valor": 16.1331
+          "valor": 17.71
          }
         },
         "maior": {
-         "atributo": "temperatura_c",
-         "limite": 14.55,
+         "atributo": "mes_cos",
+         "limite": -0.25,
          "menor_ou_igual": {
-          "valor": 14.8958
+          "atributo": "variacao_1h",
+          "limite": 0.75,
+          "menor_ou_igual": {
+           "atributo": "variacao_1h",
+           "limite": -0.05,
+           "menor_ou_igual": {
+            "valor": 15.6114
+           },
+           "maior": {
+            "atributo": "indice_agora",
+            "limite": 14.35,
+            "menor_ou_igual": {
+             "atributo": "indice_agora",
+             "limite": 13.65,
+             "menor_ou_igual": {
+              "valor": 15.9208
+             },
+             "maior": {
+              "valor": 16.304
+             }
+            },
+            "maior": {
+             "valor": 16.78
+            }
+           }
+          },
+          "maior": {
+           "valor": 17.2577
+          }
          },
          "maior": {
-          "valor": 15.8056
+          "atributo": "indice_agora",
+          "limite": 14.15,
+          "menor_ou_igual": {
+           "valor": 14.84
+          },
+          "maior": {
+           "valor": 15.916
+          }
          }
         }
        },
        "maior": {
-        "atributo": "variacao_1h",
-        "limite": 0.35,
+        "atributo": "hora_sen",
+        "limite": 0.37941,
         "menor_ou_igual": {
-         "atributo": "umidade_pct",
-         "limite": 86.5,
-         "menor_ou_igual": {
-          "valor": 17.2773
-         },
-         "maior": {
-          "valor": 16.506
-         }
+         "valor": 16.327
         },
         "maior": {
-         "atributo": "hora_cos",
-         "limite": -0.786566,
+         "atributo": "variacao_1h",
+         "limite": 1.05,
          "menor_ou_igual": {
-          "valor": 16.9195
+          "atributo": "umidade_pct",
+          "limite": 78.5,
+          "menor_ou_igual": {
+           "valor": 18.4833
+          },
+          "maior": {
+           "atributo": "variacao_1h",
+           "limite": 0.35,
+           "menor_ou_igual": {
+            "valor": 16.7778
+           },
+           "maior": {
+            "valor": 17.928
+           }
+          }
          },
          "maior": {
-          "valor": 18.8058
+          "atributo": "umidade_pct",
+          "limite": 69.5,
+          "menor_ou_igual": {
+           "valor": 18.35
+          },
+          "maior": {
+           "valor": 19.6281
+          }
          }
         }
        }
       }
      },
      "maior": {
-      "atributo": "temperatura_c",
-      "limite": 15.05,
+      "atributo": "indice_agora",
+      "limite": 14.65,
       "menor_ou_igual": {
-       "atributo": "temperatura_c",
-       "limite": 14.25,
+       "atributo": "hora_sen",
+       "limite": 0.982963,
        "menor_ou_igual": {
-        "atributo": "umidade_pct",
-        "limite": 82.5,
+        "atributo": "indice_agora",
+        "limite": 13.75,
         "menor_ou_igual": {
-         "atributo": "temperatura_c",
-         "limite": 14.05,
+         "atributo": "indice_agora",
+         "limite": 13.25,
          "menor_ou_igual": {
-          "valor": 12.7525
+          "atributo": "indice_agora",
+          "limite": 12.95,
+          "menor_ou_igual": {
+           "atributo": "umidade_pct",
+           "limite": 81.5,
+           "menor_ou_igual": {
+            "valor": 12.1941
+           },
+           "maior": {
+            "valor": 12.5235
+           }
+          },
+          "maior": {
+           "atributo": "umidade_pct",
+           "limite": 80.5,
+           "menor_ou_igual": {
+            "valor": 12.6158
+           },
+           "maior": {
+            "valor": 12.7979
+           }
+          }
          },
          "maior": {
-          "valor": 13.2595
+          "atributo": "mes_cos",
+          "limite": -0.683013,
+          "menor_ou_igual": {
+           "atributo": "umidade_pct",
+           "limite": 82.5,
+           "menor_ou_igual": {
+            "valor": 12.79
+           },
+           "maior": {
+            "valor": 13.1581
+           }
+          },
+          "maior": {
+           "atributo": "hora_sen",
+           "limite": -0.12941,
+           "menor_ou_igual": {
+            "valor": 13.2
+           },
+           "maior": {
+            "atributo": "umidade_pct",
+            "limite": 84.5,
+            "menor_ou_igual": {
+             "valor": 13.5448
+            },
+            "maior": {
+             "valor": 13.3741
+            }
+           }
+          }
          }
         },
         "maior": {
-         "atributo": "mes_cos",
-         "limite": -0.683013,
+         "atributo": "indice_agora",
+         "limite": 14.25,
          "menor_ou_igual": {
-          "valor": 13.1822
+          "atributo": "hora_sen",
+          "limite": 0.915976,
+          "menor_ou_igual": {
+           "atributo": "umidade_pct",
+           "limite": 72.5,
+           "menor_ou_igual": {
+            "valor": 13.0226
+           },
+           "maior": {
+            "atributo": "umidade_pct",
+            "limite": 82.5,
+            "menor_ou_igual": {
+             "atributo": "mes_cos",
+             "limite": -0.683013,
+             "menor_ou_igual": {
+              "valor": 13.4242
+             },
+             "maior": {
+              "valor": 13.576
+             }
+            },
+            "maior": {
+             "atributo": "indice_agora",
+             "limite": 14.05,
+             "menor_ou_igual": {
+              "valor": 13.5846
+             },
+             "maior": {
+              "valor": 13.9312
+             }
+            }
+           }
+          },
+          "maior": {
+           "valor": 14.0733
+          }
          },
          "maior": {
-          "valor": 13.5559
+          "atributo": "hora_sen",
+          "limite": 0.786566,
+          "menor_ou_igual": {
+           "atributo": "variacao_1h",
+           "limite": -0.65,
+           "menor_ou_igual": {
+            "valor": 13.504
+           },
+           "maior": {
+            "atributo": "variacao_1h",
+            "limite": -0.15,
+            "menor_ou_igual": {
+             "atributo": "hora_sen",
+             "limite": -0.12941,
+             "menor_ou_igual": {
+              "valor": 14.1133
+             },
+             "maior": {
+              "valor": 13.7941
+             }
+            },
+            "maior": {
+             "valor": 14.1925
+            }
+           }
+          },
+          "maior": {
+           "valor": 14.3512
+          }
          }
         }
        },
        "maior": {
-        "atributo": "umidade_pct",
-        "limite": 78.5,
+        "atributo": "temperatura_c",
+        "limite": 13.85,
         "menor_ou_igual": {
-         "atributo": "temperatura_c",
-         "limite": 14.75,
-         "menor_ou_igual": {
-          "valor": 13.3239
-         },
-         "maior": {
-          "valor": 13.8419
-         }
+         "valor": 14.1467
         },
         "maior": {
-         "atributo": "temperatura_c",
-         "limite": 14.85,
+         "atributo": "umidade_pct",
+         "limite": 82.5,
          "menor_ou_igual": {
-          "valor": 14.0013
+          "valor": 15.4687
          },
          "maior": {
-          "valor": 14.528
+          "valor": 14.9828
          }
         }
        }
       },
       "maior": {
-       "atributo": "umidade_pct",
-       "limite": 80.5,
+       "atributo": "hora_sen",
+       "limite": 0.982963,
        "menor_ou_igual": {
-        "atributo": "temperatura_c",
-        "limite": 15.45,
+        "atributo": "indice_agora",
+        "limite": 15.25,
         "menor_ou_igual": {
-         "atributo": "umidade_pct",
-         "limite": 71.5,
+         "atributo": "mes_cos",
+         "limite": 0.25,
          "menor_ou_igual": {
-          "valor": 13.8433
+          "atributo": "umidade_pct",
+          "limite": 84.5,
+          "menor_ou_igual": {
+           "atributo": "indice_agora",
+           "limite": 15.05,
+           "menor_ou_igual": {
+            "atributo": "umidade_pct",
+            "limite": 78.5,
+            "menor_ou_igual": {
+             "valor": 14.0702
+            },
+            "maior": {
+             "atributo": "umidade_pct",
+             "limite": 81.5,
+             "menor_ou_igual": {
+              "valor": 14.4897
+             },
+             "maior": {
+              "valor": 14.331
+             }
+            }
+           },
+           "maior": {
+            "atributo": "umidade_pct",
+            "limite": 80.5,
+            "menor_ou_igual": {
+             "valor": 14.4822
+            },
+            "maior": {
+             "valor": 14.8083
+            }
+           }
+          },
+          "maior": {
+           "atributo": "indice_agora",
+           "limite": 14.95,
+           "menor_ou_igual": {
+            "valor": 14.6488
+           },
+           "maior": {
+            "atributo": "hora_sen",
+            "limite": 0.12941,
+            "menor_ou_igual": {
+             "valor": 14.892
+            },
+            "maior": {
+             "valor": 15.008
+            }
+           }
+          }
          },
          "maior": {
-          "valor": 14.3203
+          "valor": 15.2441
          }
         },
         "maior": {
          "atributo": "umidade_pct",
-         "limite": 69.5,
+         "limite": 82.5,
          "menor_ou_igual": {
-          "valor": 14.4623
+          "atributo": "hora_sen",
+          "limite": 0.786566,
+          "menor_ou_igual": {
+           "atributo": "variacao_1h",
+           "limite": -0.45,
+           "menor_ou_igual": {
+            "atributo": "umidade_pct",
+            "limite": 70.5,
+            "menor_ou_igual": {
+             "valor": 14.4656
+            },
+            "maior": {
+             "valor": 14.8119
+            }
+           },
+           "maior": {
+            "atributo": "mes_cos",
+            "limite": -0.25,
+            "menor_ou_igual": {
+             "atributo": "umidade_pct",
+             "limite": 77.5,
+             "menor_ou_igual": {
+              "valor": 14.6586
+             },
+             "maior": {
+              "valor": 15.1625
+             }
+            },
+            "maior": {
+             "valor": 15.2842
+            }
+           }
+          },
+          "maior": {
+           "valor": 15.6107
+          }
          },
          "maior": {
-          "valor": 15.1034
+          "atributo": "hora_sen",
+          "limite": 0.915976,
+          "menor_ou_igual": {
+           "atributo": "indice_agora",
+           "limite": 15.65,
+           "menor_ou_igual": {
+            "atributo": "umidade_pct",
+            "limite": 84.5,
+            "menor_ou_igual": {
+             "valor": 15.2119
+            },
+            "maior": {
+             "atributo": "mes_cos",
+             "limite": -0.25,
+             "menor_ou_igual": {
+              "valor": 15.366
+             },
+             "maior": {
+              "valor": 15.5176
+             }
+            }
+           },
+           "maior": {
+            "atributo": "mes_cos",
+            "limite": -0.25,
+            "menor_ou_igual": {
+             "valor": 15.5533
+            },
+            "maior": {
+             "valor": 15.7464
+            }
+           }
+          },
+          "maior": {
+           "valor": 15.8487
+          }
          }
         }
        },
        "maior": {
-        "atributo": "temperatura_c",
-        "limite": 15.55,
+        "atributo": "mes_cos",
+        "limite": -0.683013,
         "menor_ou_igual": {
-         "atributo": "mes_cos",
-         "limite": -0.25,
-         "menor_ou_igual": {
-          "valor": 14.9068
-         },
-         "maior": {
-          "valor": 15.3607
-         }
+         "valor": 16.2889
         },
         "maior": {
-         "atributo": "temperatura_c",
-         "limite": 15.85,
-         "menor_ou_igual": {
-          "valor": 15.4641
-         },
-         "maior": {
-          "valor": 15.8202
-         }
+         "valor": 17.2068
         }
        }
       }
@@ -364,8 +652,8 @@
     }
    },
    "maior": {
-    "atributo": "temperatura_c",
-    "limite": 18.150001,
+    "atributo": "indice_agora",
+    "limite": 18.05,
     "menor_ou_igual": {
      "atributo": "variacao_1h",
      "limite": 0.45,
@@ -373,107 +661,429 @@
       "atributo": "hora_sen",
       "limite": 0.915976,
       "menor_ou_igual": {
-       "atributo": "umidade_pct",
-       "limite": 71.5,
+       "atributo": "indice_agora",
+       "limite": 16.75,
        "menor_ou_igual": {
-        "atributo": "temperatura_c",
-        "limite": 17.05,
+        "atributo": "umidade_pct",
+        "limite": 78.5,
         "menor_ou_igual": {
-         "atributo": "hora_sen",
-         "limite": -0.603553,
+         "atributo": "indice_agora",
+         "limite": 16.55,
          "menor_ou_igual": {
-          "valor": 14.4971
+          "atributo": "variacao_1h",
+          "limite": -0.25,
+          "menor_ou_igual": {
+           "atributo": "umidade_pct",
+           "limite": 71.5,
+           "menor_ou_igual": {
+            "atributo": "hora_sen",
+            "limite": -0.603553,
+            "menor_ou_igual": {
+             "valor": 14.7806
+            },
+            "maior": {
+             "valor": 15.2045
+            }
+           },
+           "maior": {
+            "atributo": "indice_agora",
+            "limite": 16.150001,
+            "menor_ou_igual": {
+             "valor": 15.224
+            },
+            "maior": {
+             "valor": 15.5895
+            }
+           }
+          },
+          "maior": {
+           "atributo": "hora_sen",
+           "limite": -0.37941,
+           "menor_ou_igual": {
+            "valor": 15.3806
+           },
+           "maior": {
+            "atributo": "hora_cos",
+            "limite": 0.786566,
+            "menor_ou_igual": {
+             "valor": 16.1708
+            },
+            "maior": {
+             "valor": 15.5583
+            }
+           }
+          }
          },
          "maior": {
-          "valor": 15.2855
+          "atributo": "umidade_pct",
+          "limite": 66.5,
+          "menor_ou_igual": {
+           "valor": 15.56
+          },
+          "maior": {
+           "valor": 16.2814
+          }
          }
         },
         "maior": {
-         "atributo": "hora_sen",
-         "limite": -0.786566,
+         "atributo": "hora_cos",
+         "limite": -0.37941,
          "menor_ou_igual": {
-          "valor": 15.3355
+          "atributo": "hora_sen",
+          "limite": 0.603553,
+          "menor_ou_igual": {
+           "valor": 16.3909
+          },
+          "maior": {
+           "valor": 17.716
+          }
          },
          "maior": {
-          "valor": 16.1506
+          "atributo": "indice_agora",
+          "limite": 16.45,
+          "menor_ou_igual": {
+           "atributo": "indice_agora",
+           "limite": 16.25,
+           "menor_ou_igual": {
+            "atributo": "umidade_pct",
+            "limite": 83.5,
+            "menor_ou_igual": {
+             "atributo": "variacao_1h",
+             "limite": -0.35,
+             "menor_ou_igual": {
+              "valor": 15.5154
+             },
+             "maior": {
+              "valor": 15.7449
+             }
+            },
+            "maior": {
+             "atributo": "hora_cos",
+             "limite": 0.915976,
+             "menor_ou_igual": {
+              "valor": 15.9937
+             },
+             "maior": {
+              "valor": 15.7581
+             }
+            }
+           },
+           "maior": {
+            "atributo": "umidade_pct",
+            "limite": 83.5,
+            "menor_ou_igual": {
+             "atributo": "hora_cos",
+             "limite": 0.786566,
+             "menor_ou_igual": {
+              "valor": 15.8741
+             },
+             "maior": {
+              "valor": 16.0583
+             }
+            },
+            "maior": {
+             "valor": 16.1079
+            }
+           }
+          },
+          "maior": {
+           "atributo": "mes_cos",
+           "limite": 0.25,
+           "menor_ou_igual": {
+            "atributo": "mes_cos",
+            "limite": -0.683013,
+            "menor_ou_igual": {
+             "valor": 16.2487
+            },
+            "maior": {
+             "valor": 16.07
+            }
+           },
+           "maior": {
+            "atributo": "mes_sen",
+            "limite": -0.25,
+            "menor_ou_igual": {
+             "valor": 16.3654
+            },
+            "maior": {
+             "valor": 16.6417
+            }
+           }
+          }
          }
         }
        },
        "maior": {
-        "atributo": "temperatura_c",
-        "limite": 17.25,
+        "atributo": "indice_agora",
+        "limite": 17.45,
         "menor_ou_igual": {
          "atributo": "umidade_pct",
-         "limite": 83.5,
+         "limite": 78.5,
          "menor_ou_igual": {
-          "valor": 16.1742
+          "atributo": "variacao_1h",
+          "limite": -0.85,
+          "menor_ou_igual": {
+           "atributo": "hora_cos",
+           "limite": -0.12941,
+           "menor_ou_igual": {
+            "valor": 15.0929
+           },
+           "maior": {
+            "valor": 15.9702
+           }
+          },
+          "maior": {
+           "atributo": "hora_cos",
+           "limite": -0.603553,
+           "menor_ou_igual": {
+            "valor": 16.9654
+           },
+           "maior": {
+            "atributo": "indice_agora",
+            "limite": 17.150001,
+            "menor_ou_igual": {
+             "atributo": "umidade_pct",
+             "limite": 72.5,
+             "menor_ou_igual": {
+              "valor": 15.9343
+             },
+             "maior": {
+              "valor": 16.3465
+             }
+            },
+            "maior": {
+             "atributo": "hora_sen",
+             "limite": -0.12941,
+             "menor_ou_igual": {
+              "valor": 16.4314
+             },
+             "maior": {
+              "valor": 16.672
+             }
+            }
+           }
+          }
          },
          "maior": {
-          "valor": 16.8093
+          "atributo": "variacao_1h",
+          "limite": 0.15,
+          "menor_ou_igual": {
+           "atributo": "indice_agora",
+           "limite": 17.150001,
+           "menor_ou_igual": {
+            "atributo": "umidade_pct",
+            "limite": 81.5,
+            "menor_ou_igual": {
+             "atributo": "hora_sen",
+             "limite": -0.37941,
+             "menor_ou_igual": {
+              "valor": 16.35
+             },
+             "maior": {
+              "valor": 16.4042
+             }
+            },
+            "maior": {
+             "atributo": "umidade_pct",
+             "limite": 89.5,
+             "menor_ou_igual": {
+              "valor": 16.6835
+             },
+             "maior": {
+              "valor": 17.0207
+             }
+            }
+           },
+           "maior": {
+            "atributo": "umidade_pct",
+            "limite": 85.5,
+            "menor_ou_igual": {
+             "atributo": "indice_agora",
+             "limite": 17.349999,
+             "menor_ou_igual": {
+              "valor": 16.8222
+             },
+             "maior": {
+              "valor": 17.0885
+             }
+            },
+            "maior": {
+             "atributo": "variacao_1h",
+             "limite": -0.15,
+             "menor_ou_igual": {
+              "valor": 17.3378
+             },
+             "maior": {
+              "valor": 16.9893
+             }
+            }
+           }
+          },
+          "maior": {
+           "valor": 18.0233
+          }
          }
         },
         "maior": {
-         "atributo": "temperatura_c",
-         "limite": 17.75,
+         "atributo": "umidade_pct",
+         "limite": 69.5,
          "menor_ou_igual": {
-          "valor": 17.129
+          "atributo": "hora_sen",
+          "limite": -0.603553,
+          "menor_ou_igual": {
+           "valor": 16.2462
+          },
+          "maior": {
+           "atributo": "variacao_1h",
+           "limite": -0.75,
+           "menor_ou_igual": {
+            "valor": 16.56
+           },
+           "maior": {
+            "valor": 17.1367
+           }
+          }
          },
          "maior": {
-          "valor": 17.6768
+          "atributo": "hora_cos",
+          "limite": -0.37941,
+          "menor_ou_igual": {
+           "atributo": "hora_sen",
+           "limite": -0.37941,
+           "menor_ou_igual": {
+            "valor": 17.3294
+           },
+           "maior": {
+            "valor": 18.8615
+           }
+          },
+          "maior": {
+           "atributo": "umidade_pct",
+           "limite": 78.5,
+           "menor_ou_igual": {
+            "atributo": "indice_agora",
+            "limite": 17.650001,
+            "menor_ou_igual": {
+             "valor": 16.8727
+            },
+            "maior": {
+             "atributo": "variacao_1h",
+             "limite": -0.35,
+             "menor_ou_igual": {
+              "valor": 17.1297
+             },
+             "maior": {
+              "valor": 17.459
+             }
+            }
+           },
+           "maior": {
+            "atributo": "mes_cos",
+            "limite": 0.25,
+            "menor_ou_igual": {
+             "atributo": "indice_agora",
+             "limite": 17.650001,
+             "menor_ou_igual": {
+              "valor": 17.1958
+             },
+             "maior": {
+              "valor": 17.4843
+             }
+            },
+            "maior": {
+             "atributo": "indice_agora",
+             "limite": 17.75,
+             "menor_ou_igual": {
+              "valor": 17.5033
+             },
+             "maior": {
+              "valor": 17.79
+             }
+            }
+           }
+          }
          }
         }
        }
       },
       "maior": {
-       "atributo": "hora_cos",
-       "limite": 0.12941,
+       "atributo": "indice_agora",
+       "limite": 16.95,
        "menor_ou_igual": {
-        "atributo": "temperatura_c",
-        "limite": 17.45,
+        "atributo": "hora_cos",
+        "limite": 0.12941,
         "menor_ou_igual": {
-         "atributo": "temperatura_c",
-         "limite": 16.95,
+         "atributo": "indice_agora",
+         "limite": 16.45,
          "menor_ou_igual": {
-          "valor": 18.2895
+          "atributo": "umidade_pct",
+          "limite": 85.5,
+          "menor_ou_igual": {
+           "valor": 17.8143
+          },
+          "maior": {
+           "valor": 17.0708
+          }
          },
          "maior": {
-          "valor": 18.9049
+          "valor": 18.4489
          }
         },
         "maior": {
-         "atributo": "umidade_pct",
-         "limite": 85.5,
+         "atributo": "mes_cos",
+         "limite": -0.25,
          "menor_ou_igual": {
-          "valor": 20.13
+          "valor": 16.3973
          },
          "maior": {
-          "valor": 20.0667
+          "valor": 17.4538
          }
         }
        },
        "maior": {
-        "atributo": "mes_cos",
-        "limite": 0.25,
+        "atributo": "hora_cos",
+        "limite": 0.12941,
         "menor_ou_igual": {
-         "valor": 17.2207
+         "atributo": "temperatura_c",
+         "limite": 17.45,
+         "menor_ou_igual": {
+          "valor": 18.827
+         },
+         "maior": {
+          "atributo": "hora_cos",
+          "limite": -0.12941,
+          "menor_ou_igual": {
+           "valor": 20.388
+          },
+          "maior": {
+           "valor": 19.3778
+          }
+         }
         },
         "maior": {
-         "valor": 18.3346
+         "atributo": "mes_cos",
+         "limite": 0.25,
+         "menor_ou_igual": {
+          "valor": 17.6577
+         },
+         "maior": {
+          "valor": 18.6727
+         }
         }
        }
       }
      },
      "maior": {
       "atributo": "hora_sen",
-      "limite": 0.37941,
+      "limite": 0.12941,
       "menor_ou_igual": {
-       "atributo": "hora_sen",
-       "limite": -0.12941,
+       "atributo": "hora_cos",
+       "limite": -0.982963,
        "menor_ou_igual": {
-        "valor": 16.8294
+        "valor": 18.0839
        },
        "maior": {
-        "valor": 18.2217
+        "valor": 16.9386
        }
       },
       "maior": {
@@ -483,246 +1093,540 @@
         "atributo": "temperatura_c",
         "limite": 17.05,
         "menor_ou_igual": {
-         "atributo": "variacao_1h",
-         "limite": 0.75,
+         "atributo": "hora_sen",
+         "limite": 0.786566,
          "menor_ou_igual": {
-          "valor": 18.1667
+          "valor": 17.9649
          },
          "maior": {
-          "valor": 18.88
+          "valor": 18.7532
          }
         },
         "maior": {
-         "atributo": "temperatura_c",
-         "limite": 17.75,
+         "atributo": "hora_sen",
+         "limite": 0.603553,
          "menor_ou_igual": {
-          "valor": 19.5509
+          "valor": 18.8062
          },
          "maior": {
-          "valor": 20.3488
+          "atributo": "temperatura_c",
+          "limite": 17.75,
+          "menor_ou_igual": {
+           "atributo": "indice_agora",
+           "limite": 17.25,
+           "menor_ou_igual": {
+            "valor": 19.992
+           },
+           "maior": {
+            "valor": 19.4
+           }
+          },
+          "maior": {
+           "valor": 20.3533
+          }
          }
         }
        },
        "maior": {
-        "atributo": "variacao_1h",
-        "limite": 1.95,
+        "atributo": "indice_agora",
+        "limite": 16.55,
         "menor_ou_igual": {
-         "valor": 20.1222
+         "valor": 19.9053
         },
         "maior": {
-         "valor": 20.8722
+         "atributo": "indice_agora",
+         "limite": 17.349999,
+         "menor_ou_igual": {
+          "atributo": "variacao_1h",
+          "limite": 2.15,
+          "menor_ou_igual": {
+           "valor": 20.2269
+          },
+          "maior": {
+           "valor": 20.8808
+          }
+         },
+         "maior": {
+          "valor": 21.0762
+         }
         }
        }
       }
      }
     },
     "maior": {
-     "atributo": "hora_sen",
-     "limite": 0.37941,
+     "atributo": "variacao_1h",
+     "limite": 0.55,
      "menor_ou_igual": {
-      "atributo": "umidade_pct",
-      "limite": 79.5,
+      "atributo": "hora_sen",
+      "limite": 0.915976,
       "menor_ou_igual": {
-       "atributo": "hora_cos",
-       "limite": -0.915976,
+       "atributo": "indice_agora",
+       "limite": 19.05,
        "menor_ou_igual": {
-        "atributo": "temperatura_c",
-        "limite": 19.05,
+        "atributo": "umidade_pct",
+        "limite": 74.5,
         "menor_ou_igual": {
-         "atributo": "variacao_1h",
-         "limite": 0.95,
+         "atributo": "hora_sen",
+         "limite": -0.12941,
          "menor_ou_igual": {
-          "valor": 18.5839
+          "atributo": "variacao_1h",
+          "limite": -0.95,
+          "menor_ou_igual": {
+           "atributo": "hora_cos",
+           "limite": -0.12941,
+           "menor_ou_igual": {
+            "valor": 16.3
+           },
+           "maior": {
+            "atributo": "umidade_pct",
+            "limite": 59.5,
+            "menor_ou_igual": {
+             "valor": 17.1917
+            },
+            "maior": {
+             "valor": 17.1042
+            }
+           }
+          },
+          "maior": {
+           "atributo": "indice_agora",
+           "limite": 18.75,
+           "menor_ou_igual": {
+            "atributo": "umidade_pct",
+            "limite": 67.5,
+            "menor_ou_igual": {
+             "atributo": "hora_cos",
+             "limite": 0.603553,
+             "menor_ou_igual": {
+              "valor": 16.612
+             },
+             "maior": {
+              "valor": 17.1406
+             }
+            },
+            "maior": {
+             "valor": 17.5868
+            }
+           },
+           "maior": {
+            "valor": 17.8417
+           }
+          }
          },
          "maior": {
-          "valor": 19.1633
+          "atributo": "hora_cos",
+          "limite": 0.603553,
+          "menor_ou_igual": {
+           "valor": 18.5296
+          },
+          "maior": {
+           "atributo": "indice_agora",
+           "limite": 18.650001,
+           "menor_ou_igual": {
+            "valor": 17.5645
+           },
+           "maior": {
+            "valor": 18.037
+           }
+          }
          }
         },
         "maior": {
-         "atributo": "variacao_1h",
-         "limite": 0.9,
+         "atributo": "indice_agora",
+         "limite": 18.75,
          "menor_ou_igual": {
-          "valor": 19.9469
+          "atributo": "hora_sen",
+          "limite": 0.603553,
+          "menor_ou_igual": {
+           "atributo": "indice_agora",
+           "limite": 18.349999,
+           "menor_ou_igual": {
+            "atributo": "indice_agora",
+            "limite": 18.150001,
+            "menor_ou_igual": {
+             "atributo": "umidade_pct",
+             "limite": 81.5,
+             "menor_ou_igual": {
+              "valor": 17.5267
+             },
+             "maior": {
+              "valor": 17.7419
+             }
+            },
+            "maior": {
+             "atributo": "variacao_1h",
+             "limite": -0.35,
+             "menor_ou_igual": {
+              "valor": 17.7083
+             },
+             "maior": {
+              "valor": 17.98
+             }
+            }
+           },
+           "maior": {
+            "atributo": "umidade_pct",
+            "limite": 86.5,
+            "menor_ou_igual": {
+             "atributo": "mes_cos",
+             "limite": 0.25,
+             "menor_ou_igual": {
+              "valor": 17.8364
+             },
+             "maior": {
+              "valor": 18.1815
+             }
+            },
+            "maior": {
+             "valor": 18.39
+            }
+           }
+          },
+          "maior": {
+           "atributo": "hora_cos",
+           "limite": 0.603553,
+           "menor_ou_igual": {
+            "valor": 18.7844
+           },
+           "maior": {
+            "valor": 18.2722
+           }
+          }
          },
          "maior": {
-          "valor": 21.003
+          "atributo": "hora_sen",
+          "limite": 0.12941,
+          "menor_ou_igual": {
+           "atributo": "umidade_pct",
+           "limite": 85.5,
+           "menor_ou_igual": {
+            "atributo": "hora_cos",
+            "limite": 0.37941,
+            "menor_ou_igual": {
+             "valor": 18.108
+            },
+            "maior": {
+             "valor": 18.4953
+            }
+           },
+           "maior": {
+            "valor": 18.7583
+           }
+          },
+          "maior": {
+           "atributo": "hora_cos",
+           "limite": 0.603553,
+           "menor_ou_igual": {
+            "valor": 19.3211
+           },
+           "maior": {
+            "valor": 18.7178
+           }
+          }
          }
         }
        },
        "maior": {
         "atributo": "umidade_pct",
-        "limite": 70.5,
+        "limite": 72.5,
         "menor_ou_igual": {
-         "atributo": "temperatura_c",
-         "limite": 19.150001,
+         "atributo": "hora_sen",
+         "limite": -0.603553,
          "menor_ou_igual": {
-          "valor": 16.7815
+          "atributo": "hora_cos",
+          "limite": 0.12941,
+          "menor_ou_igual": {
+           "atributo": "umidade_pct",
+           "limite": 59.5,
+           "menor_ou_igual": {
+            "valor": 16.6061
+           },
+           "maior": {
+            "valor": 17.8125
+           }
+          },
+          "maior": {
+           "atributo": "indice_agora",
+           "limite": 19.45,
+           "menor_ou_igual": {
+            "valor": 17.8688
+           },
+           "maior": {
+            "valor": 18.6244
+           }
+          }
          },
          "maior": {
-          "valor": 17.5688
+          "atributo": "hora_cos",
+          "limite": 0.0,
+          "menor_ou_igual": {
+           "valor": 19.9758
+          },
+          "maior": {
+           "atributo": "umidade_pct",
+           "limite": 58.5,
+           "menor_ou_igual": {
+            "valor": 18.2684
+           },
+           "maior": {
+            "valor": 18.9588
+           }
+          }
          }
         },
         "maior": {
-         "atributo": "temperatura_c",
-         "limite": 18.95,
+         "atributo": "hora_cos",
+         "limite": -0.37941,
          "menor_ou_igual": {
-          "valor": 17.6994
+          "atributo": "hora_sen",
+          "limite": -0.12941,
+          "menor_ou_igual": {
+           "valor": 19.2833
+          },
+          "maior": {
+           "valor": 20.4487
+          }
          },
          "maior": {
-          "valor": 18.7374
+          "atributo": "umidade_pct",
+          "limite": 83.5,
+          "menor_ou_igual": {
+           "atributo": "indice_agora",
+           "limite": 19.349999,
+           "menor_ou_igual": {
+            "atributo": "hora_sen",
+            "limite": -0.12941,
+            "menor_ou_igual": {
+             "atributo": "mes_sen",
+             "limite": -0.25,
+             "menor_ou_igual": {
+              "valor": 18.5538
+             },
+             "maior": {
+              "valor": 18.7679
+             }
+            },
+            "maior": {
+             "valor": 18.9366
+            }
+           },
+           "maior": {
+            "atributo": "hora_sen",
+            "limite": 0.37941,
+            "menor_ou_igual": {
+             "atributo": "mes_sen",
+             "limite": 0.683013,
+             "menor_ou_igual": {
+              "valor": 18.9653
+             },
+             "maior": {
+              "valor": 19.181
+             }
+            },
+            "maior": {
+             "valor": 19.3886
+            }
+           }
+          },
+          "maior": {
+           "atributo": "indice_agora",
+           "limite": 19.55,
+           "menor_ou_igual": {
+            "atributo": "indice_agora",
+            "limite": 19.25,
+            "menor_ou_igual": {
+             "atributo": "hora_cos",
+             "limite": 0.786566,
+             "menor_ou_igual": {
+              "valor": 19.1148
+             },
+             "maior": {
+              "valor": 19.0
+             }
+            },
+            "maior": {
+             "atributo": "variacao_1h",
+             "limite": -0.15,
+             "menor_ou_igual": {
+              "valor": 19.4277
+             },
+             "maior": {
+              "valor": 19.1773
+             }
+            }
+           },
+           "maior": {
+            "atributo": "mes_cos",
+            "limite": 0.25,
+            "menor_ou_igual": {
+             "valor": 19.4111
+            },
+            "maior": {
+             "atributo": "indice_agora",
+             "limite": 19.650001,
+             "menor_ou_igual": {
+              "valor": 19.5
+             },
+             "maior": {
+              "valor": 19.7185
+             }
+            }
+           }
+          }
          }
         }
        }
       },
       "maior": {
-       "atributo": "temperatura_c",
-       "limite": 18.849999,
+       "atributo": "hora_cos",
+       "limite": 0.12941,
        "menor_ou_igual": {
-        "atributo": "umidade_pct",
-        "limite": 87.5,
+        "atributo": "temperatura_c",
+        "limite": 18.650001,
         "menor_ou_igual": {
-         "atributo": "hora_cos",
-         "limite": 0.786566,
+         "atributo": "umidade_pct",
+         "limite": 86.5,
          "menor_ou_igual": {
-          "valor": 18.0105
+          "valor": 20.3467
          },
          "maior": {
-          "valor": 18.3458
+          "valor": 20.8857
          }
         },
         "maior": {
-         "atributo": "temperatura_c",
-         "limite": 18.55,
+         "atributo": "variacao_1h",
+         "limite": 0.25,
          "menor_ou_igual": {
-          "valor": 18.559
+          "atributo": "mes_cos",
+          "limite": -0.25,
+          "menor_ou_igual": {
+           "valor": 21.0062
+          },
+          "maior": {
+           "atributo": "umidade_pct",
+           "limite": 84.5,
+           "menor_ou_igual": {
+            "valor": 22.15
+           },
+           "maior": {
+            "valor": 21.2263
+           }
+          }
          },
          "maior": {
-          "valor": 19.0237
+          "valor": 21.9436
          }
         }
        },
        "maior": {
-        "atributo": "umidade_pct",
-        "limite": 86.5,
+        "atributo": "indice_agora",
+        "limite": 19.150001,
         "menor_ou_igual": {
-         "atributo": "temperatura_c",
-         "limite": 19.25,
+         "atributo": "mes_cos",
+         "limite": 0.683013,
          "menor_ou_igual": {
-          "valor": 18.8718
+          "atributo": "indice_agora",
+          "limite": 18.55,
+          "menor_ou_igual": {
+           "valor": 18.5885
+          },
+          "maior": {
+           "valor": 19.26
+          }
          },
          "maior": {
-          "valor": 19.3568
+          "valor": 19.7625
          }
         },
         "maior": {
-         "atributo": "hora_cos",
-         "limite": 0.12941,
+         "atributo": "mes_cos",
+         "limite": 0.25,
          "menor_ou_igual": {
-          "valor": 20.5158
+          "valor": 19.9179
          },
          "maior": {
-          "valor": 19.6784
+          "valor": 20.7974
          }
         }
        }
       }
      },
      "maior": {
-      "atributo": "hora_cos",
-      "limite": 0.12941,
+      "atributo": "hora_sen",
+      "limite": -0.12941,
       "menor_ou_igual": {
-       "atributo": "temperatura_c",
-       "limite": 19.349999,
+       "valor": 18.8205
+      },
+      "maior": {
+       "atributo": "indice_agora",
+       "limite": 18.650001,
        "menor_ou_igual": {
         "atributo": "variacao_1h",
         "limite": 1.15,
         "menor_ou_igual": {
-         "atributo": "temperatura_c",
-         "limite": 18.650001,
-         "menor_ou_igual": {
-          "valor": 20.3421
-         },
-         "maior": {
-          "valor": 21.2607
-         }
-        },
-        "maior": {
-         "atributo": "mes_sen",
-         "limite": 0.25,
-         "menor_ou_igual": {
-          "valor": 22.0532
-         },
-         "maior": {
-          "valor": 21.3094
-         }
-        }
-       },
-       "maior": {
-        "atributo": "hora_sen",
-        "limite": 0.603553,
-        "menor_ou_igual": {
-         "valor": 21.7333
+         "valor": 20.0911
         },
         "maior": {
          "atributo": "variacao_1h",
-         "limite": 0.25,
+         "limite": 1.95,
          "menor_ou_igual": {
-          "valor": 22.0684
+          "valor": 21.2933
          },
          "maior": {
-          "valor": 22.8667
-         }
-        }
-       }
-      },
-      "maior": {
-       "atributo": "temperatura_c",
-       "limite": 19.349999,
-       "menor_ou_igual": {
-        "atributo": "hora_sen",
-        "limite": 0.915976,
-        "menor_ou_igual": {
-         "atributo": "umidade_pct",
-         "limite": 73.5,
-         "menor_ou_igual": {
-          "valor": 17.88
-         },
-         "maior": {
-          "valor": 18.745
-         }
-        },
-        "maior": {
-         "atributo": "mes_cos",
-         "limite": -0.25,
-         "menor_ou_igual": {
-          "valor": 18.8367
-         },
-         "maior": {
-          "valor": 19.7956
+          "valor": 22.2486
          }
         }
        },
        "maior": {
         "atributo": "hora_sen",
-        "limite": 0.915976,
+        "limite": 0.786566,
         "menor_ou_igual": {
-         "atributo": "umidade_pct",
-         "limite": 79.5,
+         "atributo": "variacao_1h",
+         "limite": 1.45,
          "menor_ou_igual": {
-          "valor": 18.9615
+          "atributo": "hora_sen",
+          "limite": 0.37941,
+          "menor_ou_igual": {
+           "valor": 20.7875
+          },
+          "maior": {
+           "valor": 21.5234
+          }
          },
          "maior": {
-          "valor": 19.8273
+          "atributo": "variacao_1h",
+          "limite": 2.25,
+          "menor_ou_igual": {
+           "atributo": "umidade_pct",
+           "limite": 60.5,
+           "menor_ou_igual": {
+            "valor": 21.6958
+           },
+           "maior": {
+            "valor": 22.2345
+           }
+          },
+          "maior": {
+           "valor": 22.7483
+          }
          }
         },
         "maior": {
          "atributo": "mes_sen",
-         "limite": 0.683013,
+         "limite": -0.683013,
          "menor_ou_igual": {
-          "valor": 21.1194
+          "valor": 23.3
          },
          "maior": {
-          "valor": 20.5972
+          "atributo": "indice_agora",
+          "limite": 19.45,
+          "menor_ou_igual": {
+           "valor": 22.0757
+          },
+          "maior": {
+           "valor": 22.8462
+          }
          }
         }
        }
@@ -732,117 +1636,460 @@
    }
   },
   "maior": {
-   "atributo": "temperatura_c",
-   "limite": 25.05,
+   "atributo": "indice_agora",
+   "limite": 24.75,
    "menor_ou_igual": {
     "atributo": "variacao_1h",
     "limite": 0.55,
     "menor_ou_igual": {
-     "atributo": "temperatura_c",
-     "limite": 22.150001,
+     "atributo": "indice_agora",
+     "limite": 22.25,
      "menor_ou_igual": {
-      "atributo": "umidade_pct",
-      "limite": 71.5,
+      "atributo": "hora_sen",
+      "limite": 0.915976,
       "menor_ou_igual": {
-       "atributo": "hora_sen",
-       "limite": -0.37941,
+       "atributo": "indice_agora",
+       "limite": 20.95,
        "menor_ou_igual": {
-        "atributo": "temperatura_c",
-        "limite": 21.349999,
+        "atributo": "umidade_pct",
+        "limite": 71.5,
         "menor_ou_igual": {
-         "atributo": "umidade_pct",
-         "limite": 67.5,
+         "atributo": "hora_sen",
+         "limite": -0.37941,
          "menor_ou_igual": {
-          "valor": 18.3703
+          "atributo": "hora_cos",
+          "limite": -0.12941,
+          "menor_ou_igual": {
+           "atributo": "hora_cos",
+           "limite": -0.603553,
+           "menor_ou_igual": {
+            "valor": 18.8714
+           },
+           "maior": {
+            "atributo": "umidade_pct",
+            "limite": 60.5,
+            "menor_ou_igual": {
+             "valor": 17.5167
+            },
+            "maior": {
+             "valor": 18.356
+            }
+           }
+          },
+          "maior": {
+           "atributo": "indice_agora",
+           "limite": 20.45,
+           "menor_ou_igual": {
+            "atributo": "variacao_1h",
+            "limite": -0.75,
+            "menor_ou_igual": {
+             "valor": 18.5242
+            },
+            "maior": {
+             "valor": 19.0
+            }
+           },
+           "maior": {
+            "atributo": "mes_sen",
+            "limite": -0.25,
+            "menor_ou_igual": {
+             "valor": 19.0613
+            },
+            "maior": {
+             "valor": 19.4879
+            }
+           }
+          }
          },
          "maior": {
-          "valor": 19.3937
+          "atributo": "hora_cos",
+          "limite": 0.0,
+          "menor_ou_igual": {
+           "valor": 21.4741
+          },
+          "maior": {
+           "valor": 19.7585
+          }
          }
         },
         "maior": {
-         "atributo": "umidade_pct",
-         "limite": 64.5,
+         "atributo": "hora_cos",
+         "limite": -0.786566,
          "menor_ou_igual": {
-          "valor": 19.163
+          "atributo": "umidade_pct",
+          "limite": 82.5,
+          "menor_ou_igual": {
+           "valor": 20.972
+          },
+          "maior": {
+           "valor": 22.128
+          }
          },
          "maior": {
-          "valor": 20.2829
+          "atributo": "indice_agora",
+          "limite": 20.45,
+          "menor_ou_igual": {
+           "atributo": "umidade_pct",
+           "limite": 83.5,
+           "menor_ou_igual": {
+            "atributo": "hora_sen",
+            "limite": 0.603553,
+            "menor_ou_igual": {
+             "atributo": "mes_sen",
+             "limite": 0.683013,
+             "menor_ou_igual": {
+              "valor": 19.4462
+             },
+             "maior": {
+              "valor": 19.78
+             }
+            },
+            "maior": {
+             "valor": 20.2
+            }
+           },
+           "maior": {
+            "atributo": "variacao_1h",
+            "limite": -0.65,
+            "menor_ou_igual": {
+             "valor": 20.4846
+            },
+            "maior": {
+             "atributo": "indice_agora",
+             "limite": 20.150001,
+             "menor_ou_igual": {
+              "valor": 19.8463
+             },
+             "maior": {
+              "valor": 20.1196
+             }
+            }
+           }
+          },
+          "maior": {
+           "atributo": "umidade_pct",
+           "limite": 82.5,
+           "menor_ou_igual": {
+            "atributo": "variacao_1h",
+            "limite": -1.05,
+            "menor_ou_igual": {
+             "valor": 19.6464
+            },
+            "maior": {
+             "atributo": "hora_sen",
+             "limite": 0.37941,
+             "menor_ou_igual": {
+              "valor": 20.2214
+             },
+             "maior": {
+              "valor": 20.4709
+             }
+            }
+           },
+           "maior": {
+            "atributo": "hora_sen",
+            "limite": 0.786566,
+            "menor_ou_igual": {
+             "atributo": "variacao_1h",
+             "limite": -0.65,
+             "menor_ou_igual": {
+              "valor": 21.1037
+             },
+             "maior": {
+              "valor": 20.4659
+             }
+            },
+            "maior": {
+             "valor": 21.2269
+            }
+           }
+          }
          }
         }
        },
        "maior": {
-        "atributo": "hora_cos",
-        "limite": 0.37941,
+        "atributo": "umidade_pct",
+        "limite": 71.5,
         "menor_ou_igual": {
-         "atributo": "temperatura_c",
-         "limite": 21.05,
+         "atributo": "hora_sen",
+         "limite": -0.37941,
          "menor_ou_igual": {
-          "valor": 20.978
+          "atributo": "hora_cos",
+          "limite": 0.12941,
+          "menor_ou_igual": {
+           "atributo": "umidade_pct",
+           "limite": 64.5,
+           "menor_ou_igual": {
+            "atributo": "indice_agora",
+            "limite": 22.05,
+            "menor_ou_igual": {
+             "atributo": "hora_sen",
+             "limite": -0.982963,
+             "menor_ou_igual": {
+              "valor": 19.6706
+             },
+             "maior": {
+              "valor": 18.6294
+             }
+            },
+            "maior": {
+             "valor": 19.8519
+            }
+           },
+           "maior": {
+            "atributo": "mes_sen",
+            "limite": -0.25,
+            "menor_ou_igual": {
+             "valor": 19.5625
+            },
+            "maior": {
+             "valor": 20.1467
+            }
+           }
+          },
+          "maior": {
+           "atributo": "indice_agora",
+           "limite": 21.849999,
+           "menor_ou_igual": {
+            "atributo": "mes_sen",
+            "limite": -0.25,
+            "menor_ou_igual": {
+             "valor": 19.6118
+            },
+            "maior": {
+             "valor": 20.45
+            }
+           },
+           "maior": {
+            "valor": 21.0167
+           }
+          }
          },
          "maior": {
-          "valor": 22.3172
-         }
-        },
-        "maior": {
-         "atributo": "temperatura_c",
-         "limite": 21.150001,
-         "menor_ou_igual": {
-          "valor": 19.4488
-         },
-         "maior": {
-          "valor": 20.6417
-         }
-        }
-       }
-      },
-      "maior": {
-       "atributo": "hora_sen",
-       "limite": 0.915976,
-       "menor_ou_igual": {
-        "atributo": "temperatura_c",
-        "limite": 21.05,
-        "menor_ou_igual": {
-         "atributo": "umidade_pct",
-         "limite": 82.5,
-         "menor_ou_igual": {
-          "valor": 20.253
-         },
-         "maior": {
-          "valor": 20.8373
+          "atributo": "hora_cos",
+          "limite": -0.603553,
+          "menor_ou_igual": {
+           "atributo": "umidade_pct",
+           "limite": 59.5,
+           "menor_ou_igual": {
+            "valor": 22.9962
+           },
+           "maior": {
+            "valor": 21.652
+           }
+          },
+          "maior": {
+           "atributo": "temperatura_c",
+           "limite": 21.849999,
+           "menor_ou_igual": {
+            "valor": 20.4294
+           },
+           "maior": {
+            "valor": 20.9956
+           }
+          }
          }
         },
         "maior": {
          "atributo": "hora_cos",
          "limite": -0.37941,
          "menor_ou_igual": {
-          "valor": 22.6586
+          "atributo": "hora_sen",
+          "limite": -0.12941,
+          "menor_ou_igual": {
+           "atributo": "umidade_pct",
+           "limite": 78.5,
+           "menor_ou_igual": {
+            "valor": 20.8103
+           },
+           "maior": {
+            "valor": 21.7463
+           }
+          },
+          "maior": {
+           "atributo": "temperatura_c",
+           "limite": 21.349999,
+           "menor_ou_igual": {
+            "valor": 23.028
+           },
+           "maior": {
+            "valor": 24.0103
+           }
+          }
          },
          "maior": {
-          "valor": 21.4117
+          "atributo": "indice_agora",
+          "limite": 21.55,
+          "menor_ou_igual": {
+           "atributo": "indice_agora",
+           "limite": 21.25,
+           "menor_ou_igual": {
+            "atributo": "variacao_1h",
+            "limite": -0.45,
+            "menor_ou_igual": {
+             "atributo": "variacao_1h",
+             "limite": -0.65,
+             "menor_ou_igual": {
+              "valor": 20.41
+             },
+             "maior": {
+              "valor": 20.6
+             }
+            },
+            "maior": {
+             "atributo": "umidade_pct",
+             "limite": 86.5,
+             "menor_ou_igual": {
+              "valor": 20.7993
+             },
+             "maior": {
+              "valor": 21.0947
+             }
+            }
+           },
+           "maior": {
+            "atributo": "umidade_pct",
+            "limite": 75.5,
+            "menor_ou_igual": {
+             "valor": 20.5462
+            },
+            "maior": {
+             "atributo": "umidade_pct",
+             "limite": 85.5,
+             "menor_ou_igual": {
+              "valor": 21.0483
+             },
+             "maior": {
+              "valor": 21.3673
+             }
+            }
+           }
+          },
+          "maior": {
+           "atributo": "indice_agora",
+           "limite": 21.95,
+           "menor_ou_igual": {
+            "atributo": "umidade_pct",
+            "limite": 79.5,
+            "menor_ou_igual": {
+             "atributo": "hora_sen",
+             "limite": -0.12941,
+             "menor_ou_igual": {
+              "valor": 20.9676
+             },
+             "maior": {
+              "valor": 21.3457
+             }
+            },
+            "maior": {
+             "atributo": "variacao_1h",
+             "limite": -0.05,
+             "menor_ou_igual": {
+              "valor": 21.3733
+             },
+             "maior": {
+              "valor": 21.5268
+             }
+            }
+           },
+           "maior": {
+            "atributo": "umidade_pct",
+            "limite": 85.5,
+            "menor_ou_igual": {
+             "atributo": "hora_sen",
+             "limite": -0.37941,
+             "menor_ou_igual": {
+              "valor": 21.4333
+             },
+             "maior": {
+              "valor": 21.7217
+             }
+            },
+            "maior": {
+             "valor": 21.9553
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "maior": {
+       "atributo": "hora_cos",
+       "limite": 0.12941,
+       "menor_ou_igual": {
+        "atributo": "indice_agora",
+        "limite": 20.849999,
+        "menor_ou_igual": {
+         "atributo": "variacao_1h",
+         "limite": 0.15,
+         "menor_ou_igual": {
+          "atributo": "mes_sen",
+          "limite": 0.683013,
+          "menor_ou_igual": {
+           "valor": 22.052
+          },
+          "maior": {
+           "valor": 22.6444
+          }
+         },
+         "maior": {
+          "valor": 23.0364
+         }
+        },
+        "maior": {
+         "atributo": "mes_sen",
+         "limite": 0.933013,
+         "menor_ou_igual": {
+          "atributo": "temperatura_c",
+          "limite": 21.55,
+          "menor_ou_igual": {
+           "atributo": "temperatura_c",
+           "limite": 20.95,
+           "menor_ou_igual": {
+            "valor": 23.0346
+           },
+           "maior": {
+            "valor": 23.5314
+           }
+          },
+          "maior": {
+           "valor": 22.7774
+          }
+         },
+         "maior": {
+          "valor": 23.7769
          }
         }
        },
        "maior": {
-        "atributo": "hora_cos",
-        "limite": 0.12941,
+        "atributo": "indice_agora",
+        "limite": 21.05,
         "menor_ou_igual": {
-         "atributo": "temperatura_c",
-         "limite": 20.349999,
+         "atributo": "mes_cos",
+         "limite": 0.25,
          "menor_ou_igual": {
-          "valor": 22.7075
+          "valor": 20.9026
          },
          "maior": {
-          "valor": 23.2941
+          "atributo": "variacao_1h",
+          "limite": -0.05,
+          "menor_ou_igual": {
+           "valor": 21.8613
+          },
+          "maior": {
+           "valor": 21.1593
+          }
          }
         },
         "maior": {
-         "atributo": "temperatura_c",
-         "limite": 20.75,
+         "atributo": "variacao_1h",
+         "limite": -0.25,
          "menor_ou_igual": {
-          "valor": 21.5088
+          "valor": 23.08
          },
          "maior": {
-          "valor": 22.6268
+          "valor": 22.1634
          }
         }
        }
@@ -853,52 +2100,227 @@
       "limite": -0.37941,
       "menor_ou_igual": {
        "atributo": "umidade_pct",
-       "limite": 58.5,
+       "limite": 64.5,
        "menor_ou_igual": {
-        "atributo": "temperatura_c",
-        "limite": 23.95,
+        "atributo": "indice_agora",
+        "limite": 23.55,
         "menor_ou_igual": {
-         "atributo": "hora_sen",
-         "limite": -0.603553,
+         "atributo": "hora_cos",
+         "limite": -0.786566,
          "menor_ou_igual": {
-          "valor": 20.1339
+          "valor": 22.3074
          },
          "maior": {
-          "valor": 21.7632
+          "atributo": "hora_cos",
+          "limite": -0.12941,
+          "menor_ou_igual": {
+           "atributo": "variacao_1h",
+           "limite": -0.95,
+           "menor_ou_igual": {
+            "atributo": "mes_sen",
+            "limite": -0.25,
+            "menor_ou_igual": {
+             "valor": 19.2296
+            },
+            "maior": {
+             "valor": 19.944
+            }
+           },
+           "maior": {
+            "atributo": "variacao_1h",
+            "limite": -0.55,
+            "menor_ou_igual": {
+             "valor": 20.8962
+            },
+            "maior": {
+             "valor": 20.2698
+            }
+           }
+          },
+          "maior": {
+           "atributo": "hora_sen",
+           "limite": -0.915976,
+           "menor_ou_igual": {
+            "atributo": "indice_agora",
+            "limite": 22.95,
+            "menor_ou_igual": {
+             "valor": 20.5208
+            },
+            "maior": {
+             "valor": 21.3
+            }
+           },
+           "maior": {
+            "valor": 21.6857
+           }
+          }
          }
         },
         "maior": {
          "atributo": "hora_sen",
-         "limite": -0.786566,
+         "limite": -0.603553,
          "menor_ou_igual": {
-          "valor": 21.5064
+          "atributo": "hora_cos",
+          "limite": -0.12941,
+          "menor_ou_igual": {
+           "atributo": "indice_agora",
+           "limite": 24.25,
+           "menor_ou_igual": {
+            "atributo": "mes_sen",
+            "limite": -0.25,
+            "menor_ou_igual": {
+             "valor": 20.6088
+            },
+            "maior": {
+             "valor": 21.3489
+            }
+           },
+           "maior": {
+            "atributo": "variacao_1h",
+            "limite": -0.55,
+            "menor_ou_igual": {
+             "valor": 21.5276
+            },
+            "maior": {
+             "valor": 22.1769
+            }
+           }
+          },
+          "maior": {
+           "atributo": "indice_agora",
+           "limite": 24.25,
+           "menor_ou_igual": {
+            "valor": 22.0545
+           },
+           "maior": {
+            "valor": 22.87
+           }
+          }
          },
          "maior": {
-          "valor": 22.5367
+          "valor": 22.8386
          }
         }
        },
        "maior": {
-        "atributo": "temperatura_c",
-        "limite": 23.349999,
+        "atributo": "indice_agora",
+        "limite": 23.75,
         "menor_ou_igual": {
-         "atributo": "umidade_pct",
-         "limite": 69.5,
+         "atributo": "indice_agora",
+         "limite": 22.75,
          "menor_ou_igual": {
-          "valor": 21.3372
+          "atributo": "umidade_pct",
+          "limite": 69.5,
+          "menor_ou_igual": {
+           "valor": 20.9963
+          },
+          "maior": {
+           "atributo": "umidade_pct",
+           "limite": 82.5,
+           "menor_ou_igual": {
+            "atributo": "mes_sen",
+            "limite": 0.933013,
+            "menor_ou_igual": {
+             "atributo": "indice_agora",
+             "limite": 22.55,
+             "menor_ou_igual": {
+              "valor": 21.5191
+             },
+             "maior": {
+              "valor": 21.8387
+             }
+            },
+            "maior": {
+             "valor": 21.9568
+            }
+           },
+           "maior": {
+            "valor": 22.1697
+           }
+          }
          },
          "maior": {
-          "valor": 22.1387
+          "atributo": "hora_cos",
+          "limite": 0.12941,
+          "menor_ou_igual": {
+           "atributo": "umidade_pct",
+           "limite": 73.5,
+           "menor_ou_igual": {
+            "valor": 21.6
+           },
+           "maior": {
+            "atributo": "temperatura_c",
+            "limite": 22.849999,
+            "menor_ou_igual": {
+             "valor": 22.02
+            },
+            "maior": {
+             "valor": 22.15
+            }
+           }
+          },
+          "maior": {
+           "atributo": "indice_agora",
+           "limite": 23.150001,
+           "menor_ou_igual": {
+            "atributo": "umidade_pct",
+            "limite": 75.5,
+            "menor_ou_igual": {
+             "valor": 22.027
+            },
+            "maior": {
+             "valor": 22.4821
+            }
+           },
+           "maior": {
+            "atributo": "umidade_pct",
+            "limite": 74.5,
+            "menor_ou_igual": {
+             "valor": 22.4146
+            },
+            "maior": {
+             "valor": 22.7543
+            }
+           }
+          }
          }
         },
         "maior": {
-         "atributo": "hora_cos",
-         "limite": -0.12941,
+         "atributo": "umidade_pct",
+         "limite": 67.5,
          "menor_ou_igual": {
-          "valor": 22.3654
+          "valor": 22.3765
          },
          "maior": {
-          "valor": 23.1845
+          "atributo": "variacao_1h",
+          "limite": -0.35,
+          "menor_ou_igual": {
+           "atributo": "umidade_pct",
+           "limite": 70.5,
+           "menor_ou_igual": {
+            "valor": 22.8107
+           },
+           "maior": {
+            "atributo": "hora_cos",
+            "limite": 0.12941,
+            "menor_ou_igual": {
+             "valor": 23.3167
+            },
+            "maior": {
+             "valor": 22.9889
+            }
+           }
+          },
+          "maior": {
+           "atributo": "umidade_pct",
+           "limite": 74.5,
+           "menor_ou_igual": {
+            "valor": 23.4042
+           },
+           "maior": {
+            "valor": 23.4833
+           }
+          }
          }
         }
        }
@@ -907,50 +2329,134 @@
        "atributo": "hora_cos",
        "limite": 0.37941,
        "menor_ou_igual": {
-        "atributo": "temperatura_c",
-        "limite": 23.75,
+        "atributo": "indice_agora",
+        "limite": 23.849999,
         "menor_ou_igual": {
          "atributo": "hora_sen",
          "limite": 0.12941,
          "menor_ou_igual": {
-          "valor": 22.7889
+          "atributo": "temperatura_c",
+          "limite": 23.05,
+          "menor_ou_igual": {
+           "valor": 22.4571
+          },
+          "maior": {
+           "valor": 23.5868
+          }
          },
          "maior": {
-          "valor": 24.2796
+          "atributo": "hora_cos",
+          "limite": 0.12941,
+          "menor_ou_igual": {
+           "atributo": "indice_agora",
+           "limite": 22.849999,
+           "menor_ou_igual": {
+            "atributo": "mes_sen",
+            "limite": 0.683013,
+            "menor_ou_igual": {
+             "valor": 24.5192
+            },
+            "maior": {
+             "valor": 23.7231
+            }
+           },
+           "maior": {
+            "valor": 24.7543
+           }
+          },
+          "maior": {
+           "valor": 23.4577
+          }
          }
         },
         "maior": {
          "atributo": "hora_sen",
-         "limite": 0.12941,
+         "limite": -0.12941,
          "menor_ou_igual": {
-          "valor": 24.3964
+          "valor": 24.0577
          },
          "maior": {
-          "valor": 26.6907
+          "atributo": "temperatura_c",
+          "limite": 24.05,
+          "menor_ou_igual": {
+           "valor": 25.5846
+          },
+          "maior": {
+           "valor": 26.2483
+          }
          }
         }
        },
        "maior": {
-        "atributo": "temperatura_c",
-        "limite": 23.349999,
+        "atributo": "indice_agora",
+        "limite": 23.45,
         "menor_ou_igual": {
          "atributo": "umidade_pct",
-         "limite": 62.5,
+         "limite": 73.5,
          "menor_ou_igual": {
-          "valor": 21.2697
+          "atributo": "indice_agora",
+          "limite": 22.849999,
+          "menor_ou_igual": {
+           "valor": 21.6478
+          },
+          "maior": {
+           "valor": 22.0593
+          }
          },
          "maior": {
-          "valor": 22.2552
+          "atributo": "indice_agora",
+          "limite": 22.75,
+          "menor_ou_igual": {
+           "atributo": "hora_cos",
+           "limite": 0.786566,
+           "menor_ou_igual": {
+            "valor": 22.2786
+           },
+           "maior": {
+            "atributo": "mes_cos",
+            "limite": 0.683013,
+            "menor_ou_igual": {
+             "valor": 22.0821
+            },
+            "maior": {
+             "valor": 21.8536
+            }
+           }
+          },
+          "maior": {
+           "atributo": "indice_agora",
+           "limite": 23.150001,
+           "menor_ou_igual": {
+            "atributo": "indice_agora",
+            "limite": 22.95,
+            "menor_ou_igual": {
+             "valor": 22.4708
+            },
+            "maior": {
+             "valor": 22.4583
+            }
+           },
+           "maior": {
+            "valor": 22.7034
+           }
+          }
          }
         },
         "maior": {
-         "atributo": "temperatura_c",
-         "limite": 24.150001,
+         "atributo": "indice_agora",
+         "limite": 24.25,
          "menor_ou_igual": {
-          "valor": 23.0494
+          "atributo": "umidade_pct",
+          "limite": 70.5,
+          "menor_ou_igual": {
+           "valor": 22.9533
+          },
+          "maior": {
+           "valor": 23.2356
+          }
          },
          "maior": {
-          "valor": 23.8364
+          "valor": 23.4645
          }
         }
        }
@@ -961,167 +2467,349 @@
      "atributo": "hora_sen",
      "limite": -0.12941,
      "menor_ou_igual": {
-      "atributo": "temperatura_c",
-      "limite": 23.25,
+      "atributo": "indice_agora",
+      "limite": 22.849999,
       "menor_ou_igual": {
-       "atributo": "temperatura_c",
-       "limite": 20.849999,
+       "atributo": "indice_agora",
+       "limite": 21.25,
        "menor_ou_igual": {
-        "valor": 19.7432
-       },
-       "maior": {
-        "atributo": "umidade_pct",
-        "limite": 58.0,
+        "atributo": "hora_sen",
+        "limite": -0.37941,
         "menor_ou_igual": {
-         "atributo": "hora_cos",
-         "limite": -0.915976,
-         "menor_ou_igual": {
-          "valor": 21.6378
-         },
-         "maior": {
-          "valor": 20.0429
-         }
+         "valor": 19.9212
         },
         "maior": {
-         "atributo": "temperatura_c",
-         "limite": 21.650001,
+         "valor": 20.6875
+        }
+       },
+       "maior": {
+        "atributo": "mes_sen",
+        "limite": -0.25,
+        "menor_ou_igual": {
+         "valor": 20.865
+        },
+        "maior": {
+         "atributo": "indice_agora",
+         "limite": 22.349999,
          "menor_ou_igual": {
-          "valor": 21.3132
+          "atributo": "variacao_1h",
+          "limite": 1.05,
+          "menor_ou_igual": {
+           "valor": 21.0667
+          },
+          "maior": {
+           "valor": 21.8621
+          }
          },
          "maior": {
-          "valor": 22.1381
+          "valor": 22.2923
          }
         }
        }
       },
       "maior": {
        "atributo": "hora_cos",
-       "limite": -0.915976,
+       "limite": -0.786566,
        "menor_ou_igual": {
-        "atributo": "temperatura_c",
-        "limite": 24.25,
+        "atributo": "mes_sen",
+        "limite": 0.25,
         "menor_ou_igual": {
-         "valor": 23.725
+         "atributo": "variacao_1h",
+         "limite": 1.25,
+         "menor_ou_igual": {
+          "valor": 23.6622
+         },
+         "maior": {
+          "valor": 24.5655
+         }
         },
         "maior": {
-         "valor": 24.8806
+         "valor": 23.0226
         }
        },
        "maior": {
-        "atributo": "umidade_pct",
-        "limite": 51.0,
+        "atributo": "indice_agora",
+        "limite": 23.45,
         "menor_ou_igual": {
-         "valor": 22.2881
+         "valor": 21.9125
         },
         "maior": {
-         "valor": 23.2727
+         "valor": 22.8161
         }
        }
       }
      },
      "maior": {
-      "atributo": "temperatura_c",
-      "limite": 22.25,
+      "atributo": "indice_agora",
+      "limite": 22.349999,
       "menor_ou_igual": {
-       "atributo": "hora_sen",
-       "limite": 0.603553,
+       "atributo": "indice_agora",
+       "limite": 21.25,
        "menor_ou_igual": {
-        "atributo": "temperatura_c",
-        "limite": 20.95,
+        "atributo": "variacao_1h",
+        "limite": 1.35,
         "menor_ou_igual": {
-         "atributo": "variacao_1h",
-         "limite": 1.45,
+         "atributo": "hora_sen",
+         "limite": 0.603553,
          "menor_ou_igual": {
-          "valor": 21.2
+          "atributo": "temperatura_c",
+          "limite": 20.849999,
+          "menor_ou_igual": {
+           "valor": 20.7846
+          },
+          "maior": {
+           "valor": 22.4484
+          }
          },
          "maior": {
-          "valor": 22.7462
+          "atributo": "hora_sen",
+          "limite": 0.915976,
+          "menor_ou_igual": {
+           "atributo": "umidade_pct",
+           "limite": 78.5,
+           "menor_ou_igual": {
+            "valor": 23.1
+           },
+           "maior": {
+            "valor": 22.54
+           }
+          },
+          "maior": {
+           "valor": 23.4028
+          }
          }
         },
         "maior": {
-         "atributo": "mes_sen",
-         "limite": -0.25,
+         "atributo": "indice_agora",
+         "limite": 20.55,
          "menor_ou_igual": {
-          "valor": 23.7753
+          "atributo": "mes_sen",
+          "limite": -0.25,
+          "menor_ou_igual": {
+           "valor": 23.3976
+          },
+          "maior": {
+           "valor": 22.6346
+          }
          },
          "maior": {
-          "valor": 22.8685
+          "atributo": "hora_cos",
+          "limite": -0.603553,
+          "menor_ou_igual": {
+           "atributo": "variacao_1h",
+           "limite": 1.95,
+           "menor_ou_igual": {
+            "valor": 23.28
+           },
+           "maior": {
+            "valor": 23.9975
+           }
+          },
+          "maior": {
+           "valor": 24.6929
+          }
          }
         }
        },
        "maior": {
-        "atributo": "temperatura_c",
-        "limite": 21.349999,
+        "atributo": "hora_sen",
+        "limite": 0.786566,
         "menor_ou_igual": {
-         "atributo": "variacao_1h",
-         "limite": 1.15,
+         "atributo": "umidade_pct",
+         "limite": 72.5,
          "menor_ou_igual": {
-          "valor": 23.0267
+          "atributo": "hora_sen",
+          "limite": 0.37941,
+          "menor_ou_igual": {
+           "atributo": "mes_sen",
+           "limite": -0.25,
+           "menor_ou_igual": {
+            "valor": 24.0116
+           },
+           "maior": {
+            "valor": 23.1
+           }
+          },
+          "maior": {
+           "atributo": "indice_agora",
+           "limite": 21.95,
+           "menor_ou_igual": {
+            "atributo": "variacao_1h",
+            "limite": 1.65,
+            "menor_ou_igual": {
+             "valor": 23.5458
+            },
+            "maior": {
+             "valor": 24.3258
+            }
+           },
+           "maior": {
+            "valor": 24.6795
+           }
+          }
          },
          "maior": {
-          "valor": 23.95
+          "valor": 22.875
          }
         },
         "maior": {
-         "atributo": "hora_sen",
-         "limite": 0.786566,
+         "atributo": "variacao_1h",
+         "limite": 1.25,
          "menor_ou_igual": {
-          "valor": 24.1352
+          "atributo": "temperatura_c",
+          "limite": 21.650001,
+          "menor_ou_igual": {
+           "valor": 23.9226
+          },
+          "maior": {
+           "valor": 24.8
+          }
          },
          "maior": {
-          "valor": 24.9784
+          "atributo": "mes_sen",
+          "limite": 0.25,
+          "menor_ou_igual": {
+           "valor": 25.672
+          },
+          "maior": {
+           "valor": 24.9447
+          }
          }
         }
        }
       },
       "maior": {
        "atributo": "hora_sen",
-       "limite": 0.37941,
+       "limite": 0.603553,
        "menor_ou_igual": {
-        "atributo": "temperatura_c",
+        "atributo": "indice_agora",
         "limite": 23.849999,
         "menor_ou_igual": {
-         "atributo": "temperatura_c",
-         "limite": 23.05,
+         "atributo": "hora_sen",
+         "limite": 0.37941,
          "menor_ou_igual": {
-          "valor": 23.9464
+          "atributo": "umidade_pct",
+          "limite": 62.5,
+          "menor_ou_igual": {
+           "atributo": "umidade_pct",
+           "limite": 54.0,
+           "menor_ou_igual": {
+            "atributo": "variacao_1h",
+            "limite": 1.85,
+            "menor_ou_igual": {
+             "atributo": "temperatura_c",
+             "limite": 23.55,
+             "menor_ou_igual": {
+              "valor": 24.248
+             },
+             "maior": {
+              "valor": 24.716
+             }
+            },
+            "maior": {
+             "valor": 25.0862
+            }
+           },
+           "maior": {
+            "valor": 25.3581
+           }
+          },
+          "maior": {
+           "valor": 23.8063
+          }
          },
          "maior": {
-          "valor": 24.7824
+          "atributo": "umidade_pct",
+          "limite": 62.0,
+          "menor_ou_igual": {
+           "valor": 25.7269
+          },
+          "maior": {
+           "valor": 25.1333
+          }
          }
         },
         "maior": {
          "atributo": "hora_sen",
          "limite": 0.12941,
          "menor_ou_igual": {
-          "valor": 25.31
+          "valor": 25.4826
          },
          "maior": {
-          "valor": 26.0614
+          "atributo": "mes_sen",
+          "limite": 0.25,
+          "menor_ou_igual": {
+           "valor": 26.5641
+          },
+          "maior": {
+           "atributo": "temperatura_c",
+           "limite": 24.150001,
+           "menor_ou_igual": {
+            "valor": 25.7852
+           },
+           "maior": {
+            "valor": 26.0167
+           }
+          }
          }
         }
        },
        "maior": {
-        "atributo": "temperatura_c",
-        "limite": 23.650001,
+        "atributo": "indice_agora",
+        "limite": 23.349999,
         "menor_ou_igual": {
-         "atributo": "umidade_pct",
-         "limite": 58.5,
+         "atributo": "indice_agora",
+         "limite": 22.849999,
          "menor_ou_igual": {
-          "valor": 24.85
+          "atributo": "umidade_pct",
+          "limite": 71.5,
+          "menor_ou_igual": {
+           "valor": 24.8815
+          },
+          "maior": {
+           "valor": 25.7673
+          }
          },
          "maior": {
-          "valor": 26.0264
+          "atributo": "variacao_1h",
+          "limite": 1.25,
+          "menor_ou_igual": {
+           "valor": 25.6821
+          },
+          "maior": {
+           "valor": 26.355
+          }
          }
         },
         "maior": {
-         "atributo": "hora_sen",
-         "limite": 0.603553,
+         "atributo": "indice_agora",
+         "limite": 23.75,
          "menor_ou_igual": {
-          "valor": 26.4577
+          "atributo": "variacao_1h",
+          "limite": 1.65,
+          "menor_ou_igual": {
+           "valor": 26.204
+          },
+          "maior": {
+           "valor": 27.1714
+          }
          },
          "maior": {
-          "valor": 27.5725
+          "atributo": "mes_cos",
+          "limite": 0.683013,
+          "menor_ou_igual": {
+           "atributo": "indice_agora",
+           "limite": 24.150001,
+           "menor_ou_igual": {
+            "valor": 27.3647
+           },
+           "maior": {
+            "valor": 27.7833
+           }
+          },
+          "maior": {
+           "valor": 27.1525
+          }
          }
         }
        }
@@ -1130,304 +2818,703 @@
     }
    },
    "maior": {
-    "atributo": "hora_sen",
-    "limite": -0.37941,
+    "atributo": "indice_agora",
+    "limite": 28.05,
     "menor_ou_igual": {
-     "atributo": "temperatura_c",
-     "limite": 28.849999,
+     "atributo": "hora_sen",
+     "limite": -0.37941,
      "menor_ou_igual": {
-      "atributo": "temperatura_c",
-      "limite": 26.650001,
+      "atributo": "indice_agora",
+      "limite": 26.45,
       "menor_ou_igual": {
        "atributo": "hora_sen",
        "limite": -0.603553,
        "menor_ou_igual": {
         "atributo": "umidade_pct",
-        "limite": 56.5,
+        "limite": 55.5,
         "menor_ou_igual": {
          "atributo": "temperatura_c",
          "limite": 25.849999,
          "menor_ou_igual": {
-          "valor": 22.166
+          "atributo": "hora_cos",
+          "limite": -0.12941,
+          "menor_ou_igual": {
+           "atributo": "variacao_1h",
+           "limite": -0.55,
+           "menor_ou_igual": {
+            "valor": 21.3313
+           },
+           "maior": {
+            "valor": 22.6
+           }
+          },
+          "maior": {
+           "valor": 22.7923
+          }
          },
          "maior": {
-          "valor": 23.368
+          "atributo": "hora_sen",
+          "limite": -0.786566,
+          "menor_ou_igual": {
+           "atributo": "hora_cos",
+           "limite": -0.37941,
+           "menor_ou_igual": {
+            "valor": 22.4158
+           },
+           "maior": {
+            "valor": 23.4432
+           }
+          },
+          "maior": {
+           "atributo": "umidade_pct",
+           "limite": 36.5,
+           "menor_ou_igual": {
+            "valor": 24.525
+           },
+           "maior": {
+            "valor": 23.1875
+           }
+          }
          }
         },
         "maior": {
-         "atributo": "variacao_1h",
-         "limite": -1.15,
+         "atributo": "indice_agora",
+         "limite": 25.25,
          "menor_ou_igual": {
-          "valor": 23.5787
+          "atributo": "hora_cos",
+          "limite": -0.12941,
+          "menor_ou_igual": {
+           "valor": 22.6297
+          },
+          "maior": {
+           "valor": 23.7564
+          }
          },
          "maior": {
-          "valor": 24.4444
+          "atributo": "variacao_1h",
+          "limite": -1.15,
+          "menor_ou_igual": {
+           "atributo": "hora_cos",
+           "limite": -0.12941,
+           "menor_ou_igual": {
+            "valor": 23.1486
+           },
+           "maior": {
+            "valor": 23.8414
+           }
+          },
+          "maior": {
+           "atributo": "variacao_1h",
+           "limite": -0.35,
+           "menor_ou_igual": {
+            "valor": 24.1195
+           },
+           "maior": {
+            "valor": 24.6184
+           }
+          }
          }
         }
        },
        "maior": {
-        "atributo": "temperatura_c",
+        "atributo": "indice_agora",
         "limite": 25.45,
         "menor_ou_igual": {
-         "valor": 23.9871
+         "valor": 23.734
         },
         "maior": {
-         "atributo": "umidade_pct",
-         "limite": 48.5,
+         "atributo": "variacao_1h",
+         "limite": -0.15,
          "menor_ou_igual": {
-          "valor": 25.1457
+          "valor": 24.3593
          },
          "maior": {
-          "valor": 24.5304
+          "atributo": "umidade_pct",
+          "limite": 41.5,
+          "menor_ou_igual": {
+           "valor": 25.572
+          },
+          "maior": {
+           "valor": 24.9692
+          }
          }
         }
        }
       },
       "maior": {
        "atributo": "hora_sen",
-       "limite": -0.603553,
+       "limite": -0.786566,
        "menor_ou_igual": {
-        "atributo": "temperatura_c",
-        "limite": 27.95,
+        "atributo": "variacao_1h",
+        "limite": -1.45,
         "menor_ou_igual": {
-         "atributo": "variacao_1h",
-         "limite": -1.45,
+         "atributo": "mes_cos",
+         "limite": 0.25,
          "menor_ou_igual": {
-          "valor": 23.7778
+          "valor": 24.5038
          },
          "maior": {
-          "valor": 24.8128
+          "valor": 23.1889
          }
         },
         "maior": {
-         "atributo": "hora_cos",
-         "limite": -0.12941,
+         "atributo": "indice_agora",
+         "limite": 27.45,
          "menor_ou_igual": {
-          "valor": 25.1813
+          "atributo": "hora_cos",
+          "limite": -0.12941,
+          "menor_ou_igual": {
+           "valor": 23.917
+          },
+          "maior": {
+           "valor": 24.6632
+          }
          },
          "maior": {
-          "valor": 26.4938
+          "atributo": "temperatura_c",
+          "limite": 27.95,
+          "menor_ou_igual": {
+           "atributo": "umidade_pct",
+           "limite": 53.5,
+           "menor_ou_igual": {
+            "valor": 24.5185
+           },
+           "maior": {
+            "valor": 25.2708
+           }
+          },
+          "maior": {
+           "valor": 25.616
+          }
          }
         }
        },
        "maior": {
-        "atributo": "temperatura_c",
-        "limite": 27.95,
+        "atributo": "umidade_pct",
+        "limite": 32.0,
         "menor_ou_igual": {
-         "atributo": "temperatura_c",
-         "limite": 27.45,
-         "menor_ou_igual": {
-          "valor": 25.763
-         },
-         "maior": {
-          "valor": 26.4067
-         }
-        },
-        "maior": {
-         "valor": 27.163
-        }
-       }
-      }
-     },
-     "maior": {
-      "atributo": "temperatura_c",
-      "limite": 31.75,
-      "menor_ou_igual": {
-       "atributo": "hora_sen",
-       "limite": -0.603553,
-       "menor_ou_igual": {
-        "atributo": "temperatura_c",
-        "limite": 30.55,
-        "menor_ou_igual": {
-         "atributo": "umidade_pct",
-         "limite": 39.5,
-         "menor_ou_igual": {
-          "valor": 26.1842
-         },
-         "maior": {
-          "valor": 26.9607
-         }
+         "valor": 26.381
         },
         "maior": {
          "atributo": "mes_sen",
          "limite": 0.25,
          "menor_ou_igual": {
-          "valor": 28.352
+          "valor": 24.5644
          },
          "maior": {
-          "valor": 26.4848
+          "atributo": "umidade_pct",
+          "limite": 44.5,
+          "menor_ou_igual": {
+           "valor": 26.0962
+          },
+          "maior": {
+           "atributo": "mes_cos",
+           "limite": 0.25,
+           "menor_ou_igual": {
+            "valor": 24.8138
+           },
+           "maior": {
+            "valor": 25.9893
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "maior": {
+      "atributo": "hora_sen",
+      "limite": 0.37941,
+      "menor_ou_igual": {
+       "atributo": "variacao_1h",
+       "limite": -0.05,
+       "menor_ou_igual": {
+        "atributo": "indice_agora",
+        "limite": 25.849999,
+        "menor_ou_igual": {
+         "valor": 24.2619
+        },
+        "maior": {
+         "atributo": "umidade_pct",
+         "limite": 56.5,
+         "menor_ou_igual": {
+          "valor": 26.3167
+         },
+         "maior": {
+          "valor": 25.2577
          }
         }
        },
        "maior": {
-        "atributo": "temperatura_c",
-        "limite": 30.849999,
+        "atributo": "indice_agora",
+        "limite": 27.25,
         "menor_ou_igual": {
-         "atributo": "umidade_pct",
-         "limite": 42.5,
+         "atributo": "mes_sen",
+         "limite": 0.25,
          "menor_ou_igual": {
-          "valor": 28.2938
+          "atributo": "hora_sen",
+          "limite": 0.12941,
+          "menor_ou_igual": {
+           "atributo": "mes_cos",
+           "limite": 0.25,
+           "menor_ou_igual": {
+            "atributo": "mes_cos",
+            "limite": -0.683013,
+            "menor_ou_igual": {
+             "valor": 25.8167
+            },
+            "maior": {
+             "valor": 26.7024
+            }
+           },
+           "maior": {
+            "atributo": "indice_agora",
+            "limite": 25.95,
+            "menor_ou_igual": {
+             "valor": 25.8387
+            },
+            "maior": {
+             "valor": 24.7586
+            }
+           }
+          },
+          "maior": {
+           "atributo": "indice_agora",
+           "limite": 25.650001,
+           "menor_ou_igual": {
+            "valor": 26.2167
+           },
+           "maior": {
+            "valor": 27.3417
+           }
+          }
          },
          "maior": {
-          "valor": 26.9711
+          "atributo": "indice_agora",
+          "limite": 26.150001,
+          "menor_ou_igual": {
+           "atributo": "indice_agora",
+           "limite": 25.349999,
+           "menor_ou_igual": {
+            "atributo": "variacao_1h",
+            "limite": 1.05,
+            "menor_ou_igual": {
+             "valor": 26.3583
+            },
+            "maior": {
+             "valor": 25.532
+            }
+           },
+           "maior": {
+            "atributo": "umidade_pct",
+            "limite": 57.5,
+            "menor_ou_igual": {
+             "valor": 26.2735
+            },
+            "maior": {
+             "valor": 27.463
+            }
+           }
+          },
+          "maior": {
+           "atributo": "umidade_pct",
+           "limite": 54.5,
+           "menor_ou_igual": {
+            "valor": 27.1935
+           },
+           "maior": {
+            "valor": 27.9765
+           }
+          }
          }
         },
         "maior": {
-         "valor": 29.3226
+         "atributo": "mes_sen",
+         "limite": 0.683013,
+         "menor_ou_igual": {
+          "atributo": "variacao_1h",
+          "limite": 0.95,
+          "menor_ou_igual": {
+           "valor": 26.8242
+          },
+          "maior": {
+           "valor": 27.7065
+          }
+         },
+         "maior": {
+          "atributo": "temperatura_c",
+          "limite": 27.150001,
+          "menor_ou_igual": {
+           "valor": 27.8708
+          },
+          "maior": {
+           "valor": 28.7741
+          }
+         }
         }
        }
       },
       "maior": {
-       "atributo": "temperatura_c",
-       "limite": 33.5,
+       "atributo": "hora_cos",
+       "limite": 0.12941,
        "menor_ou_igual": {
-        "atributo": "hora_sen",
-        "limite": -0.786566,
+        "atributo": "indice_agora",
+        "limite": 25.75,
         "menor_ou_igual": {
-         "valor": 28.2297
+         "atributo": "hora_cos",
+         "limite": -0.786566,
+         "menor_ou_igual": {
+          "atributo": "variacao_1h",
+          "limite": 1.65,
+          "menor_ou_igual": {
+           "valor": 27.1593
+          },
+          "maior": {
+           "valor": 27.5036
+          }
+         },
+         "maior": {
+          "atributo": "indice_agora",
+          "limite": 25.349999,
+          "menor_ou_igual": {
+           "atributo": "umidade_pct",
+           "limite": 64.5,
+           "menor_ou_igual": {
+            "valor": 27.608
+           },
+           "maior": {
+            "valor": 28.0818
+           }
+          },
+          "maior": {
+           "valor": 28.5571
+          }
+         }
         },
         "maior": {
-         "valor": 29.7796
+         "atributo": "indice_agora",
+         "limite": 27.349999,
+         "menor_ou_igual": {
+          "atributo": "hora_cos",
+          "limite": -0.786566,
+          "menor_ou_igual": {
+           "atributo": "variacao_1h",
+           "limite": 2.15,
+           "menor_ou_igual": {
+            "valor": 28.2071
+           },
+           "maior": {
+            "valor": 28.7833
+           }
+          },
+          "maior": {
+           "valor": 29.2404
+          }
+         },
+         "maior": {
+          "atributo": "variacao_1h",
+          "limite": 1.65,
+          "menor_ou_igual": {
+           "valor": 29.4
+          },
+          "maior": {
+           "valor": 29.992
+          }
+         }
         }
        },
        "maior": {
-        "valor": 31.6086
+        "valor": 25.2731
        }
       }
      }
     },
     "maior": {
-     "atributo": "temperatura_c",
-     "limite": 27.650001,
+     "atributo": "hora_sen",
+     "limite": -0.37941,
      "menor_ou_igual": {
-      "atributo": "hora_sen",
-      "limite": 0.37941,
+      "atributo": "temperatura_c",
+      "limite": 30.55,
       "menor_ou_igual": {
-       "atributo": "variacao_1h",
-       "limite": -0.45,
+       "atributo": "hora_sen",
+       "limite": -0.603553,
        "menor_ou_igual": {
-        "valor": 24.7444
-       },
-       "maior": {
-        "atributo": "temperatura_c",
-        "limite": 27.150001,
+        "atributo": "umidade_pct",
+        "limite": 54.5,
         "menor_ou_igual": {
-         "atributo": "mes_sen",
-         "limite": 0.25,
+         "atributo": "indice_agora",
+         "limite": 29.95,
          "menor_ou_igual": {
-          "valor": 26.0245
+          "atributo": "variacao_1h",
+          "limite": -1.45,
+          "menor_ou_igual": {
+           "valor": 25.2152
+          },
+          "maior": {
+           "atributo": "mes_cos",
+           "limite": 0.25,
+           "menor_ou_igual": {
+            "atributo": "umidade_pct",
+            "limite": 46.5,
+            "menor_ou_igual": {
+             "atributo": "mes_sen",
+             "limite": 0.933013,
+             "menor_ou_igual": {
+              "valor": 26.737
+             },
+             "maior": {
+              "valor": 26.0
+             }
+            },
+            "maior": {
+             "valor": 25.0083
+            }
+           },
+           "maior": {
+            "atributo": "mes_sen",
+            "limite": 0.25,
+            "menor_ou_igual": {
+             "atributo": "indice_agora",
+             "limite": 28.95,
+             "menor_ou_igual": {
+              "valor": 27.3333
+             },
+             "maior": {
+              "valor": 26.5036
+             }
+            },
+            "maior": {
+             "atributo": "umidade_pct",
+             "limite": 46.5,
+             "menor_ou_igual": {
+              "valor": 25.8833
+             },
+             "maior": {
+              "valor": 26.4769
+             }
+            }
+           }
+          }
          },
          "maior": {
-          "valor": 27.0091
+          "atributo": "variacao_1h",
+          "limite": -0.45,
+          "menor_ou_igual": {
+           "valor": 27.6875
+          },
+          "maior": {
+           "valor": 27.3375
+          }
          }
         },
         "maior": {
-         "atributo": "hora_sen",
-         "limite": 0.12941,
+         "atributo": "hora_cos",
+         "limite": -0.37941,
          "menor_ou_igual": {
-          "valor": 27.255
+          "valor": 23.7444
          },
          "maior": {
-          "valor": 29.0031
+          "valor": 25.7607
          }
+        }
+       },
+       "maior": {
+        "atributo": "umidade_pct",
+        "limite": 50.5,
+        "menor_ou_igual": {
+         "atributo": "variacao_1h",
+         "limite": 1.05,
+         "menor_ou_igual": {
+          "atributo": "umidade_pct",
+          "limite": 43.5,
+          "menor_ou_igual": {
+           "valor": 28.5576
+          },
+          "maior": {
+           "valor": 27.5667
+          }
+         },
+         "maior": {
+          "valor": 27.1583
+         }
+        },
+        "maior": {
+         "valor": 26.6639
         }
        }
       },
       "maior": {
-       "atributo": "variacao_1h",
-       "limite": 1.05,
+       "atributo": "temperatura_c",
+       "limite": 32.75,
        "menor_ou_igual": {
-        "valor": 27.431
-       },
-       "maior": {
-        "atributo": "temperatura_c",
-        "limite": 25.75,
+        "atributo": "mes_sen",
+        "limite": 0.25,
         "menor_ou_igual": {
-         "atributo": "umidade_pct",
-         "limite": 59.5,
+         "atributo": "indice_agora",
+         "limite": 30.150001,
          "menor_ou_igual": {
-          "valor": 27.8286
+          "valor": 27.6943
          },
          "maior": {
-          "valor": 28.5385
+          "atributo": "hora_sen",
+          "limite": -0.786566,
+          "menor_ou_igual": {
+           "valor": 28.7526
+          },
+          "maior": {
+           "valor": 29.9109
+          }
          }
         },
         "maior": {
-         "atributo": "temperatura_c",
-         "limite": 26.75,
+         "atributo": "indice_agora",
+         "limite": 30.55,
          "menor_ou_igual": {
-          "valor": 29.0
+          "valor": 28.5964
          },
          "maior": {
-          "valor": 29.5865
+          "valor": 26.5951
          }
+        }
+       },
+       "maior": {
+        "atributo": "indice_agora",
+        "limite": 32.549999,
+        "menor_ou_igual": {
+         "valor": 29.6542
+        },
+        "maior": {
+         "valor": 31.7278
         }
        }
       }
      },
      "maior": {
-      "atributo": "temperatura_c",
-      "limite": 31.650001,
+      "atributo": "indice_agora",
+      "limite": 30.650001,
       "menor_ou_igual": {
-       "atributo": "temperatura_c",
-       "limite": 29.150001,
+       "atributo": "hora_sen",
+       "limite": 0.12941,
        "menor_ou_igual": {
-        "atributo": "hora_sen",
-        "limite": 0.12941,
+        "atributo": "temperatura_c",
+        "limite": 28.75,
         "menor_ou_igual": {
-         "atributo": "mes_sen",
-         "limite": -0.25,
+         "atributo": "umidade_pct",
+         "limite": 55.5,
          "menor_ou_igual": {
-          "valor": 27.2778
+          "atributo": "mes_cos",
+          "limite": 0.683013,
+          "menor_ou_igual": {
+           "atributo": "variacao_1h",
+           "limite": 0.65,
+           "menor_ou_igual": {
+            "valor": 28.4704
+           },
+           "maior": {
+            "valor": 28.9708
+           }
+          },
+          "maior": {
+           "valor": 27.6414
+          }
          },
          "maior": {
-          "valor": 28.5577
+          "valor": 26.6333
          }
         },
         "maior": {
-         "atributo": "umidade_pct",
-         "limite": 50.5,
+         "atributo": "indice_agora",
+         "limite": 29.55,
          "menor_ou_igual": {
-          "valor": 29.5561
+          "atributo": "hora_sen",
+          "limite": -0.12941,
+          "menor_ou_igual": {
+           "valor": 28.4632
+          },
+          "maior": {
+           "valor": 29.6806
+          }
          },
          "maior": {
-          "valor": 30.3544
+          "atributo": "temperatura_c",
+          "limite": 29.7,
+          "menor_ou_igual": {
+           "valor": 29.3231
+          },
+          "maior": {
+           "atributo": "temperatura_c",
+           "limite": 30.349999,
+           "menor_ou_igual": {
+            "valor": 30.8077
+           },
+           "maior": {
+            "valor": 29.9356
+           }
+          }
          }
         }
        },
        "maior": {
-        "atributo": "hora_sen",
-        "limite": 0.12941,
+        "atributo": "indice_agora",
+        "limite": 29.25,
         "menor_ou_igual": {
-         "atributo": "umidade_pct",
-         "limite": 36.5,
+         "atributo": "hora_sen",
+         "limite": 0.37941,
          "menor_ou_igual": {
-          "valor": 29.1211
+          "atributo": "temperatura_c",
+          "limite": 28.25,
+          "menor_ou_igual": {
+           "valor": 29.1929
+          },
+          "maior": {
+           "valor": 29.8385
+          }
          },
          "maior": {
-          "valor": 30.2708
+          "atributo": "mes_cos",
+          "limite": 0.683013,
+          "menor_ou_igual": {
+           "valor": 29.6731
+          },
+          "maior": {
+           "valor": 30.2516
+          }
          }
         },
         "maior": {
-         "atributo": "temperatura_c",
-         "limite": 29.95,
+         "atributo": "mes_sen",
+         "limite": -0.25,
          "menor_ou_igual": {
-          "valor": 30.7605
+          "valor": 31.5417
          },
          "maior": {
-          "valor": 31.7364
+          "atributo": "umidade_pct",
+          "limite": 47.5,
+          "menor_ou_igual": {
+           "valor": 30.9125
+          },
+          "maior": {
+           "valor": 30.6167
+          }
          }
         }
        }
       },
       "maior": {
        "atributo": "temperatura_c",
-       "limite": 32.549999,
+       "limite": 32.75,
        "menor_ou_igual": {
-        "valor": 31.6
+        "atributo": "hora_sen",
+        "limite": -0.12941,
+        "menor_ou_igual": {
+         "valor": 30.9781
+        },
+        "maior": {
+         "valor": 32.0617
+        }
        },
        "maior": {
-        "valor": 33.5625
+        "valor": 33.9917
        }
       }
      }

@@ -26,34 +26,54 @@ Integrantes: Samuel Baecker — RM [preencher]
 | `dados/inmet_a701.csv` | Dataset: INMET, estação automática A701 (São Paulo, Mirante de Santana), dados horários de 2022 a 2025, hora em UTC |
 | `extrair_a701.py` | Extrai a A701 dos zips anuais do INMET ([portal.inmet.gov.br/dadoshistoricos](https://portal.inmet.gov.br/dadoshistoricos)) |
 | `gerar_notebook.py` | Monta o notebook (as células ficam legíveis no git) |
+| `grade-parametros.csv` | MAE e RMSE de todas as 410 configurações na validação de 2024 |
+| `alertas.csv` | Precisão, recall e TP/FP/FN antes e depois em 2024 e 2025 |
 | `modelo.json` | O modelo exportado, que a API em C# carrega |
+| `paridade-api.json` | 200 entradas de 2025 e previsões do scikit-learn, exportadas pelo notebook para o teste da API |
+| `test_alertas.py` | Teste offline de precisão/recall antes e depois, com o CSV real e o JSON exportado |
 | `requirements.txt` | Versões usadas na execução local (Python 3.11) |
 
 ## Decisões
 
 - **Dados reais e públicos.** O briefing aceita bases públicas. O INMET mede a rua; a sala entra pelo sensor ESP32, pela regra do delta.
 - **Alvo:** índice de calor (fórmula da NOAA, a mesma do ESP32 e da API) daqui a 2 horas, regressão.
-- **Atributos só de produção:** temperatura, umidade, hora local e mês (em seno e cosseno) e variação da última hora. Nada que a API não tenha no boletim horário.
+- **Atributos só de produção:** temperatura, umidade, hora local e mês (em seno e cosseno) variação da última hora e `indice_agora`, calculado pela fórmula do contrato. Nada que a API não tenha no boletim horário.
 - **Hora em UTC convertida para São Paulo** antes de tudo, com o vetor de teste do contrato (15/01/2026 às 1700 UTC = 14h).
 - **Preparação e análise:** origem e colunas do INMET documentadas no notebook; calendário UTC com 0/212/19/47 horas ausentes ou descartadas em 2022/2023/2024/2025. São 92 buracos, o maior com 54 h. O CSV limpo não permite separar falta de registro de descarte. A montagem dos atributos/alvo remove 205 linhas sem vizinhos; outras 4 são excluídas nas fronteiras entre conjuntos. Há distribuição do alvo e dos níveis e matriz de correlação no treino.
 - **Divisão por tempo:** treino 2022–2023 (17.192 exemplos), validação 2024 (8.740), teste 2025 (8.645, usado só na avaliação final). O alvo +2 h não cruza as fronteiras.
-- **Busca:** `TimeSeriesSplit(n_splits=3, gap=2)` só no treino; seis combinações de profundidade (4, 6, 8) e folha mínima (30, 50), pelo MAE. Melhor árvore: profundidade 8 e folha 30 (MAE médio na CV 1,054 °C; linear 1,092 °C).
-- **Modelo:** árvore ajustada, escolhida pelo menor MAE em 2024 (0,981 °C contra 1,098 °C da linear). Não houve retreino. Exportada no formato existente `tipo: arvore`, `atributos` e `raiz` com nós `atributo`, `limite`, `menor_ou_igual`, `maior` ou folha `valor`. A API em C# percorre esse JSON (árvore ou linear) sem Python em produção; o teste `PrevisorModeloTestes` confere três previsões. O notebook compara a leitura do JSON com as previsões já calculadas em 200 exemplos (diferença máxima < 0,00005 °C).
-- **Interpretação:** coeficientes da linear multiplicados pelo desvio padrão dos atributos e importância por redução de impureza da árvore; temperatura responde por cerca de 88,6% da importância da árvore. Associação não implica causalidade.
+- **Busca:** 410 configurações, `max_depth` em `[4,5,6,7,8,9,10,11,12,None]` e `min_samples_leaf` em todos os inteiros de 10 a 50. Cada árvore treina até 2023 e é medida em 2024; MAE não arredondado decide, RMSE desempata. A tabela completa está no notebook e em `grade-parametros.csv`.
+- **Modelo:** profundidade 12, folha mínima 24, MAE 0,914540 °C e RMSE 1,342734 °C em 2024. A árvore anterior tinha MAE 0,981 °C; a linear revisada 1,089 °C e a persistência 1,479 °C. Não houve retreino.
+- **Ensemble só para comparação:** floresta de 100 árvores, profundidade 12, folha 10, semente 42, MAE 0,834 °C em 2024. Ela vence em regressão, mas a exportação continua uma árvore única, conforme o contrato da API, que percorre o JSON em C# sem Python em produção. A escolha é a melhor árvore da grade, não o melhor regressor entre todas as famílias.
+- **Formato:** mantidos `tipo: arvore`, `atributos`, `raiz` e os nós existentes. O atributo `indice_agora` entra no ponto compartilhado `ModeloRua.Atributos` do Demo e do banco; a validação de nomes passa a aceitá-lo. As cópias do JSON em `ml/` e na API precisam ser publicadas junto com esse código. O notebook confere 200 exemplos contra scikit-learn (diferença máxima < 0,00005 °C), exporta suas entradas e previsões em `paridade-api.json` e calcula os três vetores de `PrevisorModeloTestes`. Os testes da API verificam igualdade byte a byte das cópias de `modelo.json` e paridade do avaliador C# com as 200 previsões do scikit-learn (tolerância de 0,00005 °C).
+- **Interpretação:** coeficientes padronizados da linear e redução de impureza da árvore; `indice_agora` concentra 88,0% da importância. Ele deriva de temperatura e umidade, portanto essa importância não mede causalidade nem efeito isolado.
+- **Revisão motivada pela auditoria:** incluímos `indice_agora` para responder ao baixo recall. Os limites 27/32/41 °C permanecem os do contrato; nenhum limiar foi escolhido no teste. A revisão combina atributo adicional e grade ampliada, sem atribuir todo o ganho a um único fator. 2025 já havia sido visto na auditoria: o resultado abaixo é regressão temporal; confirmação independente requer dados novos.
 
 ## Resultado no teste (2025)
 
 | Modelo | MAE (°C) | RMSE (°C) | R² | F1 macro (níveis presentes) |
 |---|---:|---:|---:|---:|
 | Baseline "daqui a 2 h = agora" | 1,442 | 2,021 | 0,834 | 0,667 |
-| Regressão linear | 1,053 | 1,451 | 0,914 | 0,745 |
-| **Árvore (profundidade 8, folha 30; escolhida)** | **0,958** | **1,364** | **0,924** | **0,660** |
+| Regressão linear (com índice atual) | 1,050 | 1,448 | 0,915 | 0,757 |
+| Floresta (somente comparação) | 0,822 | 1,220 | 0,939 | 0,728 |
+| Árvore anterior (8, folha 30) | 0,958 | 1,364 | 0,924 | 0,660 |
+| **Árvore exportada (12, folha 24)** | **0,909** | **1,324** | **0,929** | **0,730** |
 
 O nível "perigo" (índice ≥ 41 °C) não aparece na rua da A701 entre 2022 e 2025, por isso o F1 macro é a média dos níveis presentes. Dentro de uma sala sem ventilação o índice passa da rua: é o que o delta mede.
 
-**Limite crítico:** no treino, só 104 alvos são `cuidado` (0,605%) e nenhum é `perigo`. No teste, a árvore detecta 7 das 48 horas de `cuidado` (precisão 58,3%, recall 14,6%), enquanto o baseline detecta 18 (precisão 38,3%, recall 37,5%). A árvore classifica 39 dessas horas como atenção e 2 como normal. O menor MAE não garante melhor alerta; a escolha por MAE foi mantida sem ajustar o modelo ao teste. O notebook inclui `classification_report` e matriz de confusão; a macro do relatório inclui o nível sem suporte e difere da tabela acima.
+**Alerta antes e depois:** índice previsto ≥ 32 °C, incluindo cuidado e perigo. A avaliação é da rua, sem delta da sala.
 
-O notebook traz o gráfico de previsto contra real na semana mais quente de 2025 (árvore e baseline) e o histograma dos resíduos: erro médio de −0,012 °C, com 90% dos erros entre −2,16 e +2,18 °C.
+| Período | Regra | TP | FP | FN | Precisão | Recall |
+|---|---|---:|---:|---:|---:|---:|
+| 2024 | Persistência | 37 | 57 | 57 | 39,4% | 39,4% |
+| 2024 | Árvore anterior | 8 | 8 | 86 | 50,0% | 8,5% |
+| 2024 | Árvore revisada | 32 | 31 | 62 | 50,8% | 34,0% |
+| 2025 | Persistência | 18 | 29 | 30 | 38,3% | 37,5% |
+| 2025 | Árvore anterior | 7 | 5 | 41 | 58,3% | 14,6% |
+| 2025 | Árvore revisada | 19 | 17 | 29 | 52,8% | 39,6% |
+
+**Limite crítico:** o treino tem só 104 alvos cuidado (0,605%) e nenhum perigo. A revisão detecta 19 das 48 horas de cuidado em 2025, ante 7 da árvore anterior e 18 da persistência. A precisão cai de 58,3% para 52,8% e os falsos positivos sobem de 5 para 17; ainda perde 29 horas críticas (27 como atenção, 2 como normal). Em 2024, o recall continua abaixo da persistência. Não há garantia de segurança nem validação dentro da sala. O `classification_report` inclui perigo com suporte zero; sua macro difere da tabela de regressão, que usa só níveis presentes.
+
+O notebook mostra previsto contra real na semana mais quente de 2025 e resíduos: média −0,032 °C, com 90% dos erros entre −2,11 e +2,08 °C.
 
 ## Previsão em uso
 
@@ -63,9 +83,9 @@ A seção 6 do notebook repete o vetor do teste da API e mostra a previsão do j
 |---|---|
 | Agora | 15/01/2026 às 17:00 UTC = 14h em São Paulo; rua a 30 °C, 50% de umidade, +1,5 °C na última hora |
 | Índice da rua agora | 31,0 °C (atenção) |
-| Rua prevista para +2 h (`modelo.json`) | 26,97 °C, o mesmo valor que a API calcula no teste |
+| Rua prevista para +2 h (`modelo.json`) | 27,16 °C, o mesmo valor que a API calcula no teste |
 | Delta da sala 3 | +4 °C (valor de exemplo do modo demonstração, não medição) |
-| Sala prevista para +2 h | 30,97 °C, nível **atenção** |
+| Sala prevista para +2 h | 31,16 °C, nível **atenção** |
 | Ação sugerida (`CONTRATO.md`) | liberar água, abrir janelas e ligar ventiladores |
 
 Em produção, o delta é a média da diferença sala − rua nas últimas 3 h, medida pelo ESP32.
@@ -74,9 +94,23 @@ O aviso com 2 h de antecedência apoia a coordenação ao hidratar, ventilar ou 
 
 ## Como rodar
 
+**Regressão offline**, a partir da raiz, no ambiente Python 3.11 já usado pelo notebook:
+
+```powershell
+python -m unittest discover -s ml -p test_alertas.py
+dotnet test api/TermometroDaSala.Api.Tests/TermometroDaSala.Api.Tests.csproj --no-restore
+```
+
+O teste Python reutiliza as células de preparação e divisão temporal do notebook,
+treina a árvore anterior e percorre o JSON revisado em todos os exemplos de 2024/2025.
+Confere TP, FP, FN, precisão e recall das seis linhas de `alertas.csv`, sem executar
+a grade nem regravar o notebook. Essas métricas usam o índice da rua sem delta.
+Na API, seis casos pela rota HTTP conferem o nível servido e gravado após somar
+o delta e arredondar a sala para uma casa, dos dois lados dos limites 27/32/41 °C.
+
 **No Colab:** clique em "Abrir no Colab" no topo e use Ambiente de execução → Executar tudo. Não instale o `requirements.txt` no Colab: as versões fixadas (numpy 1.24.3, pandas 2.0.3, scikit-learn 1.3.0) são as da execução local em Python 3.11 e não têm pacote para o Python do Colab. As bibliotecas que já vêm no Colab bastam. Sem a pasta `ml` ao lado, o notebook lê o CSV de `https://raw.githubusercontent.com/sbaecker2005/termometro-da-sala/main/ml/dados/inmet_a701.csv`. O RMSE é calculado com `np.sqrt(mean_squared_error(...))`, que funciona nas versões antigas e novas do scikit-learn.
 
-**Localmente**, na pasta `ml`, com Python 3.11:
+**Localmente**, na pasta `ml`, com Python 3.11. Execução desta revisão: **3.11.9**, numpy 1.24.3, pandas 2.0.3 e scikit-learn 1.3.0 (sem novos pacotes):
 
 ```powershell
 python -m pip install -r requirements.txt

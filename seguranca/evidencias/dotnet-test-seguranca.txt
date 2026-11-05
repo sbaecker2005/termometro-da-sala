@@ -1,10 +1,10 @@
 Evidencia: suite de seguranca da API, incluindo autorizacao da foto (C10) e cabecalhos (C11)
 Ambiente: Windows, .NET SDK 8.0.427, SQLite em memoria; dependencias ja restauradas
-Data: 2026-11-05T11:31:55.1916470-03:00
+Data: 2026-11-05T16:20:48.3652634-03:00
 
 Comando 1:
   dotnet test api\TermometroDaSala.sln --no-restore -m:1 -nodeReuse:false
-Resultado obtido: 47 aprovados, 0 falhas, 0 ignorados (37 Fact e 10 InlineData em 2 Theory).
+Resultado obtido: 55 aprovados, 0 falhas, 0 ignorados (39 Fact e 16 InlineData em 3 Theory).
 
 Comando 2:
   dotnet test api\TermometroDaSala.Api.Tests\TermometroDaSala.Api.Tests.csproj --no-restore --no-build --logger "console;verbosity=normal" --filter "HmacDoContrato|LimitesDaJanelaEDaFaixa|RecusasELeituraAceita|SegredoDeOutraSalaNaoAssina|ConsultaDeLeiturasParametrizada|UploadRecusaOQueNaoEJpegENomeComDoisPontos|UploadRecusaJpegSemQuadroOuSemVarredura|UploadRemoveSegmentoApp1|DemoSemearForaDoAmbienteDemoResponde404|CoordenacaoSemChaveNaoGravaELeituraContinuaComHmac|EscritaAcimaDeTrintaPorMinutoResponde429|CadastroRecusaEntradaInvalida|MqttDescartaMensagemAcimaDoLimite|OcorrenciaCriadaVoltaNaListaDaSalaEFotoSoComChave|RespostasLevamNosniffEProducaoLevaHsts"

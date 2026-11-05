@@ -117,7 +117,7 @@ Pasta de ML (README, dataset INMET A701, modelo.json): https://github.com/sbaeck
 | Preparação e análise | 2,0 | seções 2 e 3 do notebook |
 | Modelo e treino | 3,0 | seção 4 do notebook e `ml/modelo.json` |
 | Avaliação com métrica | 2,0 | tabela de MAE e F1 no README e no notebook |
-| Integração na solução | 1,0 | `api/TermometroDaSala.Api/modelo/modelo.json`, aplicado também no Demo ao dia do CSV; mostrar no sistema rodando `GET /ambientes/sala-03/previsao` com `indiceRuaPrevisto` calculado pelo modelo. Teste `DemoAplicaOModeloAoDiaDoCsvEDaOMesmoValor` (26,97 °C, igual à seção 6); previsão no app e no desktop |
+| Integração na solução | 1,0 | `api/TermometroDaSala.Api/modelo/modelo.json`, aplicado também no Demo ao dia do CSV; mostrar no sistema rodando `GET /ambientes/sala-03/previsao` com `indiceRuaPrevisto` calculado pelo modelo. Teste `DemoAplicaOModeloAoDiaDoCsvEDaOMesmoValor` (27,16 °C, igual à seção 6); previsão no app e no desktop |
 
 - [ ] Preencher o RM no README, no notebook e em `ml/gerar_notebook.py` (gerar o notebook de novo depois, para os dois não divergirem)
 - [ ] Gravar o vídeo e colar o link no texto acima

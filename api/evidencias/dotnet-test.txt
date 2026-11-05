@@ -1,50 +1,14 @@
-  Passed TermometroDaSala.Api.Tests.VetoresTestes.IndiceDeCalor(temp: 38, umidade: 70, esperado: 62.5, nivel: "perigo") [3 ms]
-  Passed TermometroDaSala.Api.Tests.VetoresTestes.IndiceDeCalor(temp: 24, umidade: 40, esperado: 23.5, nivel: "normal") [< 1 ms]
-  Passed TermometroDaSala.Api.Tests.VetoresTestes.IndiceDeCalor(temp: 30, umidade: 50, esperado: 31, nivel: "atencao") [< 1 ms]
-  Passed TermometroDaSala.Api.Tests.VetoresTestes.IndiceDeCalor(temp: 33.399999999999999, umidade: 58, esperado: 39.799999999999997, nivel: "cuidado") [< 1 ms]
-  Passed TermometroDaSala.Api.Tests.VetoresTestes.DiaQuenteProjetadoNaHoraLocal [9 ms]
-  Passed TermometroDaSala.Api.Tests.VetoresTestes.HmacDoContrato [< 1 ms]
-  Passed TermometroDaSala.Api.Tests.VetoresTestes.RelogioInmet1700UtcE14hEmSaoPaulo [< 1 ms]
-  Passed TermometroDaSala.Api.Tests.VetoresTestes.LimitesDaJanelaEDaFaixa [< 1 ms]
-  Passed TermometroDaSala.Api.Tests.VetoresTestes.SuspeitaNoSaltoENaRua [< 1 ms]
-  Passed TermometroDaSala.Api.Tests.EsquemaTestes.NenhumaTabelaRecebeCascataPorDoisCaminhos [345 ms]
-  Passed TermometroDaSala.Api.Tests.EsquemaTestes.LeituraNaoApagaEmCascataPeloDispositivo [4 ms]
-  Passed TermometroDaSala.Api.Tests.EsquemaTestes.ColunaDeChavePrimariaSoMudaComAPkSolta [91 ms]
-  Passed TermometroDaSala.Api.Tests.EsquemaTestes.ScriptDasMigracoesTemUmaCascataSoEmLeituras [11 ms]
-  Passed TermometroDaSala.Api.Tests.PrevisorModeloTestes.TresLinhasBatemComAFormulaEComAHoraDeSaoPaulo [587 ms]
-  Passed TermometroDaSala.Api.Tests.PrevisorModeloTestes.ArquivoAusenteOuInvalidoCaiNoProvisorio [14 ms]
-  Passed TermometroDaSala.Api.Tests.PrevisorModeloTestes.DemoAplicaOModeloAoDiaDoCsvEDaOMesmoValor [41 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastroRecusaEntradaInvalida(id: "invalido", nome: "Sala", andar: 0, faceSol: "leste") [264 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastroRecusaEntradaInvalida(id: "sala-05", nome: "Sala", andar: 0, faceSol: "desconhecida") [58 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastroRecusaEntradaInvalida(id: "sala-05", nome: "Sala", andar: 21, faceSol: "leste") [26 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastroRecusaEntradaInvalida(id: "sala-05", nome: "Sala", andar: -1, faceSol: "leste") [27 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastroRecusaEntradaInvalida(id: "sala-05", nome: " ", andar: 0, faceSol: "leste") [20 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastroRecusaEntradaInvalida(id: "sala-05", nome: "Sala", andar: 0, faceSol: "0") [17 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.AcaoInvalidaDizOMotivoELocationApontaParaODia [76 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.ConsultaDeLeiturasParametrizada [129 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.RecusasELeituraAceita [58 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.MqttDescartaMensagemAcimaDoLimite [31 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.CrudDeAmbientesComLocationE409QuandoHaLeituras [87 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastraSalaSemCriarSensorERecusaDuplicata [35 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.SegredoDeOutraSalaNaoAssina [26 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.LeiturasEmCsv [36 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.CoordenacaoSemChaveNaoGravaELeituraContinuaComHmac [86 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.DeltaSemTresParesENuloEComTresFechaOExemplo [66 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.UploadRemoveSegmentoApp1 [42 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.EscritaAcimaDeTrintaPorMinutoResponde429 [167 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.OcorrenciaCriadaVoltaNaListaDaSalaEFotoSoComChave [43 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.AcoesDoDiaUsamLimitesDeSaoPauloEContratoDoDesktop [24 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.FactoryUsaConnectionStringDoAmbiente [5 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.UploadRecusaOQueNaoEJpegENomeComDoisPontos [51 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.RegistraAcao [16 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.DemoSemearForaDoAmbienteDemoResponde404 [18 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.RespostasLevamNosniffEProducaoLevaHsts [51 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.PrevisaoServidaEntraNoHistorico [39 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.UploadRecusaJpegSemQuadroOuSemVarredura [23 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.DemoComRuaQuenteNaoMarcaSalaFrescaComoSuspeita [42 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.DemoSemearExigeLeituraAoVivoEAncoraNela [41 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.NiveisVemDaTabelaEBatemComAsFaixasDoCodigo [26 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.SemRuaForaDoDemoAPrevisaoSegueASalaENaoDizNormal [45 ms]
-Total tests: 47
-     Passed: 47
- Total time: 2.8334 Seconds
+Resumo da execução local em 05/11/2026, lote M2 (correção 2).
+Comando na raiz:
+dotnet test api/TermometroDaSala.Api.Tests/TermometroDaSala.Api.Tests.csproj --no-restore --logger "console;verbosity=normal"
+
+Test Run Successful.
+Total tests: 55
+     Passed: 55
+ Total time: 4.7281 Seconds
+
+0 falhas, 0 ignorados. 39 Fact e 16 InlineData em 3 Theory.
+Inclui 200 previsões de paridade do JSON com scikit-learn, igualdade das cópias
+do modelo e seis casos HTTP do alerta com delta e arredondamento da sala
+(26.9/27.0, 31.9/32.0 e 40.9/41.0), incluindo persistência do nível no histórico.
+Os 20 testes de segurança existentes continuam incluídos na suíte completa.
