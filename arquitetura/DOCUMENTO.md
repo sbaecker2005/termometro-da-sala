@@ -93,7 +93,7 @@ A previsão é sempre um apoio. O registro é o que permite medir o indicador de
 |---|---|---|
 | API | Valida e grava leituras, calcula o índice e a previsão, guarda ocorrências e ações | ASP.NET Core 8, EF Core |
 | Assinante MQTT | Parte da API. Recebe as leituras do broker e aplica a mesma checagem do `POST /leituras` | MQTTnet |
-| Modelo de ML | Prevê o índice de calor da rua em 2 h | Regressão linear treinada em Python, aplicada pela API em C# |
+| Modelo de ML | Prevê o índice de calor da rua em 2 h | Árvore de decisão treinada em Python (MAE 0,958 °C no teste 2025), aplicada pela API em C# a partir do modelo.json |
 | App do professor | Salas, detalhe com previsão e ocorrência com foto | Expo + TypeScript |
 | Terminal da coordenação | Salas, registro de ação, cadastro e revogação de sensor | Windows Forms |
 | Painel web | Mural de só leitura para a TV da escola | Página estática no `wwwroot` da API |

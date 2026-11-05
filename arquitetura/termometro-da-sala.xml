@@ -45,7 +45,7 @@
     <!-- Aplicação -->
     <element identifier="e-api" xsi:type="ApplicationComponent"><name xml:lang="pt">API Termômetro da Sala (ASP.NET Core 8)</name></element>
     <element identifier="e-mqtt" xsi:type="ApplicationComponent"><name xml:lang="pt">Assinante MQTT (MQTTnet)</name></element>
-    <element identifier="e-modelo" xsi:type="ApplicationComponent"><name xml:lang="pt">Modelo de ML (regressão linear)</name></element>
+    <element identifier="e-modelo" xsi:type="ApplicationComponent"><name xml:lang="pt">Modelo de ML (árvore de decisão)</name></element>
     <element identifier="e-app" xsi:type="ApplicationComponent"><name xml:lang="pt">App do professor (Expo)</name></element>
     <element identifier="e-painel" xsi:type="ApplicationComponent"><name xml:lang="pt">Painel web (mural da TV)</name></element>
     <element identifier="e-desktop" xsi:type="ApplicationComponent"><name xml:lang="pt">Terminal da coordenação (Windows Forms)</name></element>
