@@ -120,8 +120,10 @@ public sealed class ServicoSalasLocal(string arquivo) : IServicoSalas
     {
         var chave = raiz.Select(p => p.Key).FirstOrDefault(k => k.Equals("acoes", StringComparison.OrdinalIgnoreCase));
         if (chave is null || raiz[chave] is not JsonArray acoes) return;
+        // Números gravados como texto ("1") também reservam o id, para o convertido não colidir.
         var proximo = acoes.Select(a => a?["id"] ?? a?["Id"]).OfType<JsonValue>()
-            .Select(v => v.TryGetValue<long>(out var n) ? n : 0).DefaultIfEmpty(0).Max() + 1;
+            .Select(v => v.TryGetValue<long>(out var n) ? n : v.TryGetValue<string>(out var t) && long.TryParse(t, out var m) ? m : 0)
+            .DefaultIfEmpty(0).Max() + 1;
         foreach (var acao in acoes.OfType<JsonObject>())
         {
             var campo = acao.Select(p => p.Key).FirstOrDefault(k => k.Equals("id", StringComparison.OrdinalIgnoreCase));

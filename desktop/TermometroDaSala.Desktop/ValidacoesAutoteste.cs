@@ -84,6 +84,9 @@ public static class ValidacoesAutoteste
             var acoesAntigas = await antigo.AcoesDoDia(new DateOnly(2026, 1, 5));
             Exigir(acoesAntigas.Count == 2 && acoesAntigas.Any(a => a is { Id: 8, Descricao: "Abrir janelas" }) && acoesAntigas.Any(a => a.Id == 7),
                 "Ação antiga não foi convertida preservando o registro.");
+            File.WriteAllText(caminho, """{"salas":[],"acoes":[{"id":"1","ambienteId":"sala-03","nivel":"cuidado","descricao":"Abrir janelas","registradoEm":"2026-01-05T17:00:00+00:00"},{"id":"3f2b8c1e-0000-4000-8000-000000000002","ambienteId":"sala-03","nivel":"cuidado","descricao":"Ligar ventilador","registradoEm":"2026-01-05T18:00:00+00:00"}]}""");
+            var ids = (await new ServicoSalasLocal(caminho).AcoesDoDia(new DateOnly(2026, 1, 5))).Select(a => a.Id).Order().ToArray();
+            Exigir(ids.SequenceEqual(new long[] { 1, 2 }), "Id numérico em texto colidiu com id convertido.");
             File.WriteAllText(caminho, "arquivo corrompido");
             try { await reaberto.Cadastrar(new Sala { Id = "sala-04", Nome = "Sala 4" }); throw new InvalidOperationException("Arquivo corrompido aceito."); }
             catch (JsonException) { }
