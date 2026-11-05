@@ -209,7 +209,7 @@ Situação desta versão em 05/11/2026.
 |---|---|
 | Modelo de ML | Notebook executado. Árvore (profundidade 8, folha 30) escolhida pelo MAE de validação. No teste de 2025, MAE 0,958 °C (`ml/modelo.json`) |
 | App do professor | Quatro telas em Expo. O modo simulado vem ligado; com `EXPO_PUBLIC_API_MOCK=0` o app chama a API |
-| API | Rotas de salas, leituras, previsão, ocorrências, ações, revogação e demonstração. Painel em `wwwroot`. 40 testes automatizados, todos passando no `dotnet test`: 30 `[Fact]` e 10 casos `[InlineData]` em 2 `[Theory]` (`api/evidencias/dotnet-test.txt`) |
+| API | Rotas de salas, leituras, previsão, ocorrências, ações, revogação e demonstração. Painel em `wwwroot`. 47 testes automatizados, todos passando no `dotnet test`: 37 `[Fact]` e 10 casos `[InlineData]` em 2 `[Theory]` (`api/evidencias/dotnet-test.txt`) |
 | Terminal da coordenação | Windows Forms: salas, ação, cadastro, revogação e CSV. Se a API cai, usa a reserva local |
 | ESP32 | `sketch.ino`, `diagram.json` e `libraries.txt` para o Wokwi. O `esp32/README.md` descreve a simulação e o vetor de HMAC |
 | Windows Server | Roteiro em `infra/README.md` e scripts `01-rede.ps1` a `09-teste-de-falha.ps1` |
@@ -314,7 +314,7 @@ Pelo índice de calor, a rua ficou em Normal por 30.792 horas, em Atenção por 
 | Previsão errada no fim da tarde, porque o delta superestima | Baixo | Limitação declarada. O erro é para o lado da cautela, e a leitura ao vivo prevalece |
 | Sensor na porta não representar o meio da sala | Médio | Calibrar com termo-higrômetro no piloto |
 | O modelo não prevê acima do que viu: a rua nunca passou de Cuidado extremo nos dados | Médio | O Perigo da sala vem da medição e do delta. Treinar de novo a cada ano com dados novos |
-| Foto de ocorrência com rosto de aluno | Alto | Aviso na tela, sem EXIF, foto fora do painel e acesso por id, nunca por caminho |
+| Foto de ocorrência com rosto de aluno | Alto | Aviso na tela, sem EXIF, foto fora do painel e acesso por id com a chave da coordenação, nunca por caminho |
 | Assinante MQTT parar com o pool ocioso | Alto | Pool sempre ligado e recuperação automática, configurados pelo roteiro de Operating Systems. O teste de falha está em `infra/TESTE-DE-FALHA.md`, e o resultado na VM vai para `infra/EVIDENCIAS.md` |
 | Coordenação sem tempo de olhar o terminal | Médio | Indicador de minutos entre alerta e ação, para mostrar o gargalo. Notificação como evolução |
 

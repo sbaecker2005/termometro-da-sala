@@ -1,7 +1,7 @@
 Evidencia C3: upload com nome de arquivo com travessia
 Ambiente: Windows 11, .NET SDK 8.0.427, banco SQLite em memoria dos testes (nenhum banco real)
 Data: 05/11/2026 09:28 (UTC-3)
-Origem: trecho do log da execucao do Comando 2 de dotnet-test-seguranca.txt (18 testes de seguranca, 18 aprovados)
+Origem: trecho do log da coleta local anterior; resumo da suite atual em dotnet-test-seguranca.txt
 Teste: ApiTestes.UploadRecusaOQueNaoEJpegENomeComDoisPontos (ApiTestes.cs:144-163), nomes ../foto.jpg e ../x.jpg
 Linhas de log obtidas (OcorrenciasController.cs:22-23, log em :113):
   ocorrencia recusada: nome-invalido

@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     # API do laboratorio ou local (banco descartavel). Nunca apontar para servico de terceiros.
     # No laboratorio use https://api.termometro.local (certificado importado conforme infra/README.md, "HTTPS no laboratorio"):
@@ -7,10 +7,11 @@ param(
 )
 # Cenarios de ataque da secao 4.2 do RELATORIO-RISCOS.md: SQLi (S1), LFI e upload (S2) e OSINT (S3).
 # Cada passo imprime esperado x obtido. Usa so os vetores de teste publicos (segredo-de-teste-sala-0N).
-# A chave da coordenacao vem de $env:CHAVE_COORDENACAO e nunca e impressa; sem ela, S3.5 e S3.6 ficam "nao executado".
+# A chave da coordenacao vem de $env:CHAVE_COORDENACAO e nunca e impressa; necessaria para S2.5, S3.3, S3.5 e S3.6.
 # Rodar antes do E04: S3 revoga esp32-sala-04 (sem rota de reativacao; recriar o banco descartavel depois).
 # Faz 11 escritas, abaixo da cota de 30 por minuto. Sai com o numero de passos que divergem (0 = tudo confere).
 $ErrorActionPreference = 'Stop'
+if ([string]::IsNullOrWhiteSpace($env:CHAVE_COORDENACAO)) { throw 'Defina CHAVE_COORDENACAO para os downloads autorizados e a revogacao.' }
 $Base = $Api.AbsoluteUri.TrimEnd('/')
 $Pasta = Join-Path $env:TEMP ('termometro-ataques-' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $Pasta | Out-Null
@@ -97,7 +98,7 @@ foreach ($c in @(
     @('S2.3', '..%2F..%2Fappsettings.json'),
     @('S2.4', 'C%3A%5CWindows%5Cwin.ini'),
     @('S2.5', [guid]::NewGuid().ToString()))) {
-    $r = Pedir @("$Base/ocorrencias/$($c[1])/foto")
+    $r = Pedir @('-H', "X-Chave-Coordenacao: $env:CHAVE_COORDENACAO", "$Base/ocorrencias/$($c[1])/foto")
     # 404 vem da rota {id:guid}; o HTTP.sys (IIS) pode barrar a travessia antes, com 400 ou 403.
     Passo $c[0] ("GET /ocorrencias/{0}/foto" -f $c[1]) '4xx (404 na API), sem bytes de arquivo do servidor' ('{0}, {1} bytes' -f $r.Status, $r.Bytes.Length) ($r.Status -ge 400 -and $r.Status -lt 500 -and $r.Texto -notmatch 'ConnectionStrings|\[fonts\]')
 }
@@ -113,7 +114,7 @@ $r = Ocorrencia $Jpeg 'foto.jpg'
 $id = if ($r.Texto -match '"id":"([0-9a-f-]{36})"') { $Matches[1] } else { '' }
 Passo 'S2.9' 'Upload legitimo (JPEG de sala vazia)' '201 com id GUID gerado no servidor' ('{0} id={1}' -f $r.Status, $id) ($r.Status -eq 201 -and $id -ne '')
 $r = Pedir @("$Base/ocorrencias/$id/foto")
-Passo 'S2.10' 'GET da foto pelo id, sem nenhuma chave (lacuna R12)' '200 hoje (lacuna declarada; alvo do C10 e 401)' ('{0}, {1} bytes' -f $r.Status, $r.Bytes.Length) ($r.Status -eq 200)
+Passo 'S2.10' 'GET da foto pelo id, sem nenhuma chave (R12 corrigido)' '401 chave-invalida' ('{0}, {1} bytes' -f $r.Status, $r.Bytes.Length) ($r.Status -eq 401 -and (Motivo $r) -eq 'chave-invalida')
 ''
 'S3 - OSINT: vetor de teste publico e metadados de foto (R6, R7, R10, controle C6, C9 e C10)'
 $agora = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
@@ -122,7 +123,7 @@ Passo 'S3.1' 'Leitura forjada com o segredo-de-teste-sala-04 copiado do reposito
 $r = Ocorrencia $Exif 'foto.jpg'
 $idExif = if ($r.Texto -match '"id":"([0-9a-f-]{36})"') { $Matches[1] } else { '' }
 Passo 'S3.2' 'Upload de foto com APP1/EXIF contendo GPS-TESTE' '201' $r.Status ($r.Status -eq 201)
-$r = Pedir @("$Base/ocorrencias/$idExif/foto")
+$r = Pedir @('-H', "X-Chave-Coordenacao: $env:CHAVE_COORDENACAO", "$Base/ocorrencias/$idExif/foto")
 $temGps = $r.Texto.Contains('GPS-TESTE')
 Passo 'S3.3' 'Download da foto: procurar GPS-TESTE nos bytes' '200 sem GPS-TESTE (APP1 removido)' ('{0}, GPS-TESTE presente: {1}' -f $r.Status, $temGps) ($r.Status -eq 200 -and -not $temGps)
 $r = Pedir @('-X', 'POST', '-H', 'Content-Length: 0', "$Base/dispositivos/esp32-sala-04/revogar")

@@ -48,7 +48,7 @@ README com execução, descrição e nomes: `api/README.md`.
 
 ## Cybersecurity
 
-**Enviar:** um PDF. A fonte é `seguranca/RELATORIO-RISCOS.md`, com o anexo `seguranca/EVIDENCIAS.md`. Exportar pelo editor, num PDF só.
+**Enviar:** um PDF. A fonte é `seguranca/RELATORIO-RISCOS.md`, com o anexo `seguranca/ANEXO-EVIDENCIAS.md` (comandos em `seguranca/EVIDENCIAS.md`). Exportar pelo editor, num PDF só.
 
 | Item | Pontos | Onde |
 |---|---:|---|
@@ -58,7 +58,7 @@ README com execução, descrição e nomes: `api/README.md`.
 | Evidências técnicas | 2,0 | seção 8, `seguranca/EVIDENCIAS.md` e `seguranca/evidencias/` |
 
 - [ ] Preencher o RM no relatório
-- [ ] Na VM: nmap, IIS, GPO e os prints que o roteiro marca como pendentes
+- [ ] Na VM: rodar `seguranca/cenarios-ataque.ps1` em banco descartável, com a chave da coordenação definida sem exibi-la; coletar nmap, IIS e GPO e preencher os prints e resultados em `seguranca/ANEXO-EVIDENCIAS.md` pelo roteiro `seguranca/EVIDENCIAS.md`
 - [ ] Exportar o PDF e enviar no Teams
 
 ## C# Windows Forms
@@ -71,7 +71,7 @@ O briefing desta disciplina não divide a nota em pontos. O que a página 29 ped
 |---|---|
 | Lógica, validação e persistência | `desktop/TermometroDaSala.Desktop/Form1.cs`, `Servicos.cs` |
 | POO do domínio | `desktop/TermometroDaSala.Desktop/Dominio.cs` |
-| Interface Windows Forms | `Form1.cs`, `Form1.Designer.cs` |
+| Interface Windows Forms | `Form1.cs`, `Form1.Designer.cs` e `TelaCoordenacao.cs` |
 | README (problema, pessoa real, como rodar, tecnologias, equipe) | `desktop/README.md` |
 | Versionamento semântico, tags e changelog | `desktop/CHANGELOG.md` (`v0.1.0`) |
 | Arquivo txt com RM, nome e link | `desktop/integrantes.txt` |
@@ -79,6 +79,7 @@ O briefing desta disciplina não divide a nota em pontos. O que a página 29 ped
 - [ ] Preencher RM e link em `desktop/integrantes.txt` e o RM no README
 - [ ] Fazer a entrevista e escrever nome, escola e data no README
 - [ ] Abrir o pull request da versão e criar as tags no GitHub (`v0.1.0` em diante)
+- [ ] Gravar ou printar a `TelaCoordenacao`: chave sem valor visível, cadastro/edição/exclusão de sala, ocorrências e revogação; conferir os 6 testes do desktop
 - [ ] Gerar o ZIP e conferir numa pasta limpa (comandos abaixo)
 - [ ] Enviar ZIP e txt no Teams, um integrante
 
@@ -116,7 +117,7 @@ Pasta de ML (README, dataset INMET A701, modelo.json): https://github.com/sbaeck
 | Preparação e análise | 2,0 | seções 2 e 3 do notebook |
 | Modelo e treino | 3,0 | seção 4 do notebook e `ml/modelo.json` |
 | Avaliação com métrica | 2,0 | tabela de MAE e F1 no README e no notebook |
-| Integração na solução | 1,0 | `api/TermometroDaSala.Api/modelo/modelo.json`, aplicado pela API e conferido no teste `PrevisorModeloTestes` (26,97 °C, igual à seção 6); previsão no app e no desktop |
+| Integração na solução | 1,0 | `api/TermometroDaSala.Api/modelo/modelo.json`, aplicado também no Demo ao dia do CSV; mostrar no sistema rodando `GET /ambientes/sala-03/previsao` com `indiceRuaPrevisto` calculado pelo modelo. Teste `DemoAplicaOModeloAoDiaDoCsvEDaOMesmoValor` (26,97 °C, igual à seção 6); previsão no app e no desktop |
 
 - [ ] Preencher o RM no README, no notebook e em `ml/gerar_notebook.py` (gerar o notebook de novo depois, para os dois não divergirem)
 - [ ] Gravar o vídeo e colar o link no texto acima
@@ -151,7 +152,7 @@ Pasta de ML (README, dataset INMET A701, modelo.json): https://github.com/sbaeck
 | Logs de auditoria | 1 | `06-gpo.ps1` e a seção de auditoria do README |
 | Funcionamento completo | 2 | painel em `api/TermometroDaSala.Api/wwwroot/index.html` e `GET /ambientes`, no vídeo |
 
-- [ ] Montar a VM e preencher `infra/EVIDENCIAS.md` (prints, PIDs, IP, data)
+- [ ] Montar a VM, executar `infra/10-coletar-evidencias.ps1` conforme `infra/README.md` e preencher `infra/EVIDENCIAS.md` com as saídas e os prints (PIDs, IP, data); não mostrar segredos
 - [ ] Preencher a equipe e os RMs no README e em `infra/EVIDENCIAS.md`
 - [ ] Gravar o vídeo de até 7 min e publicar o link com acesso liberado ao professor
 - [ ] Trocar os campos com o marcador de preencher do bloco abaixo pelos valores reais do `infra/EVIDENCIAS.md`
@@ -166,7 +167,7 @@ Os campos com valor fixo vêm dos scripts e do `infra/README.md`. Os que depende
 | Projeto | Termômetro da Sala |
 | Equipe (nome e RM) | [preencher] |
 | Repositório | https://github.com/sbaecker2005/termometro-da-sala |
-| Roteiro de configuração | https://github.com/sbaecker2005/termometro-da-sala/tree/main/infra (README, scripts `01` a `09` e `TESTE-DE-FALHA.md`) |
+| Roteiro de configuração | https://github.com/sbaecker2005/termometro-da-sala/tree/main/infra (README, scripts `01` a `10` e `TESTE-DE-FALHA.md`) |
 | Evidências (prints e saídas) | https://github.com/sbaecker2005/termometro-da-sala/blob/main/infra/EVIDENCIAS.md e a pasta `infra/evidencias/` |
 | Vídeo (link e duração) | [preencher] |
 | Sistema e virtualização | Windows Server 2022, avaliação, Desktop Experience; versão e hipervisor: [preencher] |
@@ -211,15 +212,15 @@ Os campos com valor fixo vêm dos scripts e do `infra/README.md`. Os que depende
 
 - [ ] Publicar o projeto no Wokwi (o link ainda não está no repositório) e não versionar `secrets.h`
 - [ ] Preencher o RM em `esp32/integrantes.txt`
-- [ ] Gravar o vídeo de até 4 min
+- [ ] Gravar o vídeo de até 4 min mostrando LCD (temperatura e nível), buzzer em Perigo e botão de reconhecimento no Wokwi, além do LED e da publicação assinada
 - [ ] Enviar os dois links e o txt no Teams
 
 ## Testing (TOGAF) e pitch
 
 **Enviar:** quatro coisas, na mesma tarefa do Teams. O pitch de até 4 min entra nesta disciplina. Roteiro do pitch, com 3min30s: `arquitetura/PITCH.md`.
 
-1. O modelo ArchiMate: `arquitetura/termometro-da-sala.archimate`, o arquivo que abre no Archi. Ele tem cinco visões: Motivação, Negócio, Aplicação, Tecnologia e "Visão em quatro camadas", que junta as quatro.
-2. Um PNG por visão, exportado no Archi com a visão aberta (**File > Export > View As Image**, formato PNG): `visao-motivacao.png`, `visao-negocio.png`, `visao-aplicacao.png` e `visao-tecnologia.png`, todos em `arquitetura/`. A visão em quatro camadas já está em `arquitetura/diagrama-archi.png`. Antes de exportar, abra cada visão e confira que nenhuma linha passa por cima do nome de um elemento; se passar, arraste o elemento, salve o modelo e exporte.
+1. O modelo ArchiMate: `arquitetura/termometro-da-sala.archimate`, o arquivo que abre no Archi. Ele tem seis visões: Motivação, Negócio, Aplicação, Tecnologia, Implementação e migração e "Visão em quatro camadas", que junta as quatro.
+2. Um PNG por visão, exportado no Archi com a visão aberta (**File > Export > View As Image**, formato PNG): `visao-motivacao.png`, `visao-negocio.png`, `visao-aplicacao.png`, `visao-tecnologia.png` e `visao-implementacao.png`, todos em `arquitetura/`. A visão em quatro camadas já está em `arquitetura/diagrama-archi.png`. Antes de exportar, abra cada visão e confira que nenhuma linha passa por cima do nome de um elemento; se passar, arraste o elemento, salve o modelo e exporte.
 3. O PDF do documento descritivo, exportado de `arquitetura/DOCUMENTO.md`, com capa (projeto, equipe com nome e RM, disciplina) e as imagens das visões em PNG. Imagem SVG costuma sumir na exportação; por isso o PDF usa os PNGs.
 4. O link do pitch no YouTube, como não listado, testado numa aba anônima.
 
@@ -236,9 +237,9 @@ Nenhum desses quatro pode ir com o marcador de preenchimento. O `.md` não subst
 
 - [ ] Fazer a entrevista e colocar a fala no pitch e o piloto da escola na seção 7
 - [ ] Preencher os RMs em `arquitetura/DOCUMENTO.md` e `arquitetura/PITCH.md`
-- [ ] Abrir o `.archimate` no Archi e exportar os quatro PNGs das visões, com os nomes do item 2
-- [ ] Na "Visão em quatro camadas", afastar as linhas que cortam "Protocolo de calor" e "ODS 13.1" e exportar de novo o `diagrama-archi.png`
-- [ ] Trocar o marcador das imagens na seção 4 do `DOCUMENTO.md` pelas imagens exportadas
+- [ ] Abrir o `.archimate` no Archi, conferir as seis visões e exportar os PNGs com os nomes do item 2 e `diagrama-archi.png`
+- [ ] Conferir a legibilidade da "Visão em quatro camadas" e gravar as seis visões abertas no Archi para os cortes do pitch
+- [ ] Conferir as seis imagens no `DOCUMENTO.md`, incluindo Implementação e migração na seção 9
 - [ ] Exportar o PDF do documento com os PNGs
 - [ ] Cronometrar o ensaio do pitch (meta 3min30s; se passar de 3min40s, cortar na demonstração), gravar e publicar no YouTube como não listado
 - [ ] Enviar `.archimate`, PNGs, PDF e link do YouTube no Teams
@@ -259,12 +260,12 @@ Get-ChildItem -Recurse -File |
 | Disciplina | Arquivos | O que falta |
 |---|---|---|
 | Todas | `README.md` e o README de cada pasta | Bairro da escola entrevistada, na ficha |
-| SOA | `api/README.md`, `api/evidencias/README.md` | RM; prints do banco (B1 a B5), do Insomnia (1 a 10) e das telas (T1 e T2) |
+| SOA | `api/README.md`, `api/evidencias/README.md` | RM; prints do banco (B1 a B5), do Insomnia (01 a 27) e das telas (T1 e T2) |
 | Cybersecurity | `seguranca/RELATORIO-RISCOS.md`, `seguranca/EVIDENCIAS.md`, `seguranca/evidencias/osint.txt` | RMs dos integrantes; os 15 prints, de E01 a E15; a saída e a data da busca no histórico do repositório, em `osint.txt` |
 | C# Windows Forms | `desktop/README.md`, `desktop/integrantes.txt` | RM e demais integrantes; pessoa entrevistada e relato; prints das telas; link do pull request |
 | Machine Learning | `ml/README.md`, `ml/gerar_notebook.py`, `ml/termometro_da_sala.ipynb` e o texto da tarefa, acima | RM (gerar o notebook de novo depois); link do vídeo |
 | Mobile e IoT | `app/package.json`, `app/README.md` | RM e demais integrantes |
 | Operating Systems | `infra/README.md`, `infra/EVIDENCIAS.md` e o bloco do formulário, acima | Equipe e RMs; data do ensaio, versão do Windows, hipervisor, IP, links do repositório e do vídeo, exigência de RDS; os prints e o que cada um anota (ACL, firewall, limites restaurados, PIDs, horários, Rapid-Fail, origem dos dados) |
 | Physical Computing | `esp32/integrantes.txt`, `esp32/README.md` | Nomes completos e RMs; link do Wokwi e do vídeo; resultado de cada passo do roteiro de simulação |
-| Testing (TOGAF) e pitch | `arquitetura/DOCUMENTO.md`, `arquitetura/PITCH.md`, `arquitetura/README.md` | RMs; as quatro imagens das visões; salas, turnos e alunos por dia da escola do piloto; data de acesso das referências 7 e 8; fala, frase, nome, função e escola da pessoa entrevistada; demais integrantes no slide 1 |
+| Testing (TOGAF) e pitch | `arquitetura/DOCUMENTO.md`, `arquitetura/PITCH.md`, `arquitetura/README.md` | RMs; as seis imagens das visões; salas, turnos e alunos por dia da escola do piloto; data de acesso das referências 7 e 8; fala, frase, nome, função e escola da pessoa entrevistada; demais integrantes no slide 1 |
 | Planejamento | `docs/PLANO.md` | Bairro da escola entrevistada |

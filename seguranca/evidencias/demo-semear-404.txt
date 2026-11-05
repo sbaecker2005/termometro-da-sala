@@ -1,7 +1,7 @@
 Evidencia C5: POST /demo/semear fora do ambiente Demo
 Ambiente: Windows 11, .NET SDK 8.0.427, banco SQLite em memoria dos testes (nenhum banco real)
 Data: 05/11/2026 09:28 (UTC-3)
-Origem: trecho do log da execucao do Comando 2 de dotnet-test-seguranca.txt (18 testes de seguranca, 18 aprovados)
+Origem: trecho do log da coleta local anterior; resumo da suite atual em dotnet-test-seguranca.txt
 Linha de log obtida (DemoController.cs:20):
   demo semear recusado: fora-do-ambiente
 Esperado: 404 fora do Demo. Obtido: recusa fora-do-ambiente e teste aprovado.

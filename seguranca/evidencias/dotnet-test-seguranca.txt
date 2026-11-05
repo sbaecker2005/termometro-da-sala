@@ -1,36 +1,37 @@
-Evidencia: suite de testes de seguranca da API (C1, C2, C3, C4, C5, C9, C10 e cota de escrita)
-Ambiente: Windows 11, .NET SDK 8.0.427, banco SQLite em memoria dos testes (nenhum banco real)
-Data: 05/11/2026 09:28 (UTC-3)
+Evidencia: suite de seguranca da API, incluindo autorizacao da foto (C10) e cabecalhos (C11)
+Ambiente: Windows, .NET SDK 8.0.427, SQLite em memoria; dependencias ja restauradas
+Data: 2026-11-05T11:31:55.1916470-03:00
 
-Comando 1 (suite completa, so o resumo):
-  cd api
-  dotnet test TermometroDaSala.Api.Tests/TermometroDaSala.Api.Tests.csproj
-Resultado obtido:
-  Passed!  - Failed:     0, Passed:    40, Skipped:     0, Total:    40 - TermometroDaSala.Api.Tests.dll (net8.0)
+Comando 1:
+  dotnet test api\TermometroDaSala.sln --no-restore -m:1 -nodeReuse:false
+Resultado obtido: 47 aprovados, 0 falhas, 0 ignorados (37 Fact e 10 InlineData em 2 Theory).
 
-Comando 2 (so os testes de seguranca, com o nome de cada um):
-  dotnet test TermometroDaSala.Api.Tests/TermometroDaSala.Api.Tests.csproj --no-build --logger "console;verbosity=normal" --filter "<nomes abaixo, unidos por |>"
-  Filtro: HmacDoContrato|LimitesDaJanelaEDaFaixa|RecusasELeituraAceita|SegredoDeOutraSalaNaoAssina|ConsultaDeLeiturasParametrizada|UploadRecusaOQueNaoEJpegENomeComDoisPontos|UploadRecusaJpegSemQuadroOuSemVarredura|UploadRemoveSegmentoApp1|DemoSemearForaDoAmbienteDemoResponde404|CoordenacaoSemChaveNaoGravaELeituraContinuaComHmac|EscritaAcimaDeTrintaPorMinutoResponde429|CadastroRecusaEntradaInvalida|MqttDescartaMensagemAcimaDoLimite
+Comando 2:
+  dotnet test api\TermometroDaSala.Api.Tests\TermometroDaSala.Api.Tests.csproj --no-restore --no-build --logger "console;verbosity=normal" --filter "HmacDoContrato|LimitesDaJanelaEDaFaixa|RecusasELeituraAceita|SegredoDeOutraSalaNaoAssina|ConsultaDeLeiturasParametrizada|UploadRecusaOQueNaoEJpegENomeComDoisPontos|UploadRecusaJpegSemQuadroOuSemVarredura|UploadRemoveSegmentoApp1|DemoSemearForaDoAmbienteDemoResponde404|CoordenacaoSemChaveNaoGravaELeituraContinuaComHmac|EscritaAcimaDeTrintaPorMinutoResponde429|CadastroRecusaEntradaInvalida|MqttDescartaMensagemAcimaDoLimite|OcorrenciaCriadaVoltaNaListaDaSalaEFotoSoComChave|RespostasLevamNosniffEProducaoLevaHsts"
 Resultado obtido:
   Passed TermometroDaSala.Api.Tests.VetoresTestes.HmacDoContrato [2 ms]
   Passed TermometroDaSala.Api.Tests.VetoresTestes.LimitesDaJanelaEDaFaixa [< 1 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastroRecusaEntradaInvalida(id: "invalido", nome: "Sala", andar: 0, faceSol: "leste") [621 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastroRecusaEntradaInvalida(id: "sala-05", nome: "Sala", andar: 0, faceSol: "desconhecida") [49 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastroRecusaEntradaInvalida(id: "sala-05", nome: "Sala", andar: 21, faceSol: "leste") [19 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastroRecusaEntradaInvalida(id: "sala-05", nome: "Sala", andar: -1, faceSol: "leste") [28 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastroRecusaEntradaInvalida(id: "invalido", nome: "Sala", andar: 0, faceSol: "leste") [696 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastroRecusaEntradaInvalida(id: "sala-05", nome: "Sala", andar: 0, faceSol: "desconhecida") [95 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastroRecusaEntradaInvalida(id: "sala-05", nome: "Sala", andar: 21, faceSol: "leste") [48 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastroRecusaEntradaInvalida(id: "sala-05", nome: "Sala", andar: -1, faceSol: "leste") [18 ms]
   Passed TermometroDaSala.Api.Tests.ApiTestes.CadastroRecusaEntradaInvalida(id: "sala-05", nome: " ", andar: 0, faceSol: "leste") [17 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastroRecusaEntradaInvalida(id: "sala-05", nome: "Sala", andar: 0, faceSol: "0") [15 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.ConsultaDeLeiturasParametrizada [228 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.RecusasELeituraAceita [76 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.MqttDescartaMensagemAcimaDoLimite [15 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.SegredoDeOutraSalaNaoAssina [19 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.CoordenacaoSemChaveNaoGravaELeituraContinuaComHmac [53 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastroRecusaEntradaInvalida(id: "sala-05", nome: "Sala", andar: 0, faceSol: "0") [19 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.ConsultaDeLeiturasParametrizada [265 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.RecusasELeituraAceita [95 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.MqttDescartaMensagemAcimaDoLimite [19 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.SegredoDeOutraSalaNaoAssina [25 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.CoordenacaoSemChaveNaoGravaELeituraContinuaComHmac [78 ms]
   Passed TermometroDaSala.Api.Tests.ApiTestes.UploadRemoveSegmentoApp1 [45 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.EscritaAcimaDeTrintaPorMinutoResponde429 [127 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.UploadRecusaOQueNaoEJpegENomeComDoisPontos [24 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.DemoSemearForaDoAmbienteDemoResponde404 [26 ms]
-  Passed TermometroDaSala.Api.Tests.ApiTestes.UploadRecusaJpegSemQuadroOuSemVarredura [19 ms]
-  Total tests: 18 | Passed: 18 | Failed: 0
+  Passed TermometroDaSala.Api.Tests.ApiTestes.EscritaAcimaDeTrintaPorMinutoResponde429 [155 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.OcorrenciaCriadaVoltaNaListaDaSalaEFotoSoComChave [48 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.UploadRecusaOQueNaoEJpegENomeComDoisPontos [29 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.DemoSemearForaDoAmbienteDemoResponde404 [20 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.RespostasLevamNosniffEProducaoLevaHsts [47 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.UploadRecusaJpegSemQuadroOuSemVarredura [26 ms]
+Test Run Successful.
+Total tests: 20
+     Passed: 20
 
-Esperado: 18 aprovados, 0 falhas. Obtido: 18 aprovados, 0 falhas.
-Os logs completos de cada execucao nao foram anexados: a semente das salas de teste aparece neles e nao acrescenta prova.
+Esperado e obtido: 20 aprovados, 0 falhas.
+Somente resultados de testes; logs internos e semente omitidos.

@@ -2,7 +2,7 @@
 
 Roteiro de coleta do [RELATORIO-RISCOS.md](RELATORIO-RISCOS.md); não entra no PDF. Os resultados (esperado x obtido e prints) vão para o [ANEXO-EVIDENCIAS.md](ANEXO-EVIDENCIAS.md). **Estado: parte local coletada em 05/11/2026; nmap, IIS, GPO e LED são coletados no laboratório Windows Server.** Não fazer varredura nem inundação do broker público. Não mostrar chaves, senhas, tokens, strings de conexão ou pessoas nos prints.
 
-Rotas existentes: `POST /leituras`, `GET/POST /ambientes`, `GET /ambientes/{id}/leituras`, `GET /ambientes/{id}/previsao`, `POST /ocorrencias`, `GET /ocorrencias/{id}/foto`, `GET/POST /acoes`, `POST /dispositivos/{id}/revogar`, `POST /demo/semear`. Não há `GET /ocorrencias?busca=`, rota de cadastro de dispositivo nem de reativação. O SQLi do roteiro usa `GET /ambientes/{id}/leituras`. Recusas de leitura: `assinatura-invalida`, `reenvio`, `dispositivo-revogado`, `atrasada`, `fora-da-faixa`. Saídas locais em [evidencias/](evidencias/). Cada arquivo traz só o trecho que prova cada controle, sem a semente de teste.
+Rotas existentes: `POST /leituras`, `GET/POST /ambientes`, `GET/PUT/DELETE /ambientes/{id}`, `GET /ambientes/{id}/ocorrencias`, `GET /niveis`, `GET /ambientes/{id}/leituras`, `GET /ambientes/{id}/previsao`, `POST /ocorrencias`, `GET /ocorrencias/{id}/foto`, `GET/POST /acoes`, `POST /dispositivos/{id}/revogar`, `POST /demo/semear`. Não há `GET /ocorrencias?busca=`, rota de cadastro de dispositivo nem de reativação. O SQLi do roteiro usa `GET /ambientes/{id}/leituras`. Recusas de leitura: `assinatura-invalida`, `reenvio`, `dispositivo-revogado`, `atrasada`, `fora-da-faixa`. Saídas locais em [evidencias/](evidencias/). Cada arquivo traz só o trecho que prova cada controle, sem a semente de teste.
 
 Cada print deve trazer ID da evidência, data/hora, ambiente, versão identificada pelo coordenador, comando e resultado; registrar também o arquivo/linha do controle. Anexar logs recortados e sem segredos. Os campos reservados abaixo são para prints, não para registrar aprovação antecipada.
 
@@ -38,7 +38,7 @@ Get-Content -LiteralPath $Fonte -Encoding UTF8 |
     ForEach-Object { $Linha++; '{0}: {1}' -f $Linha, $_ }
 ```
 
-Esperado: arquivo e linha de C1–C12 estão na seção 6 do relatório. Abrir somente fonte que não contenha a chave da coordenação. Se uma linha mudar, atualizar o relatório. A suíte está em `evidencias/dotnet-test-seguranca.txt` (40/40 no total; 18 testes de segurança listados).
+Esperado: arquivo e linha de C1–C12 estão na seção 6 do relatório. Abrir somente fonte que não contenha a chave da coordenação. Se uma linha mudar, atualizar o relatório. A suíte está em `evidencias/dotnet-test-seguranca.txt` (47/47 no total; 20 testes de segurança listados).
 
 **Print E01:** [inserir versão, ambiente e trechos numerados dos controles]
 
@@ -98,9 +98,9 @@ curl.exe -i "$Api/ambientes/$AmbienteId/leituras"
 
 Esperado: 4xx nos dois POSTs, log `assinatura-invalida` no primeiro e `reenvio` no segundo, sem novas linhas no banco. Confirmar também ingestão MQTT com a mesma mensagem na coleção/ferramenta já usada pela equipe; confirmar no código que ambos chamam o mesmo validador. Para MQTT a prova é log e ausência de gravação, não status HTTP. Não publicar em tópico de terceiros.
 
-Repetir o POST válido depois de reiniciar a API no laboratório. Esperado: o último `medidoEm` fica na coluna do dispositivo (`ServicoLeituras.cs:68`), então o reenvio continua recusado depois do reinício. O assinante MQTT está em `api/TermometroDaSala.Api/Servicos/AssinanteMqtt.cs:70` e chama o mesmo `Receber`.
+Repetir o POST válido depois de reiniciar a API no laboratório. Esperado: o último `medidoEm` fica na coluna do dispositivo (`ServicoLeituras.cs:67`), então o reenvio continua recusado depois do reinício. O assinante MQTT está em `api/TermometroDaSala.Api/Servicos/AssinanteMqtt.cs:70` e chama o mesmo `Receber`.
 
-Duas cópias simultâneas de uma leitura nova: o código lê o dispositivo e grava em dois passos, sem token de concorrência (`ServicoLeituras.cs:28` e `:67-69`; C1 parcial no relatório). Se as duas forem gravadas, registrar a contagem como a lacuna declarada, não como aprovação. Não há teste automatizado de concorrência.
+Duas cópias simultâneas de uma leitura nova: o código lê o dispositivo e grava em dois passos, sem token de concorrência (`ServicoLeituras.cs:28` e `:67-68`; C1 parcial no relatório). Se as duas forem gravadas, registrar a contagem como a lacuna declarada, não como aprovação. Não há teste automatizado de concorrência.
 
 **Print E03:** [inserir recusas HTTP, logs HTTP/MQTT e contagem antes/depois/reinício/concorrência]
 
@@ -130,7 +130,7 @@ Esperado: 4xx e `atrasada` nos dois casos, sem gravação. A ordem está em `Val
 
 ### 5. E05 — SQLi na consulta de leituras
 
-Não há busca `GET /ocorrencias?busca=`. A consulta que recebe texto do cliente é `GET /ambientes/{id}/leituras` (`LeiturasController.cs:19`).
+Não há busca `GET /ocorrencias?busca=`. A consulta que recebe texto do cliente é `GET /ambientes/{id}/leituras` (`LeiturasController.cs:18`).
 
 ```powershell
 curl.exe -i "$Api/ambientes/sala-03/leituras"
@@ -143,18 +143,18 @@ Esperado: a sala conhecida devolve só as leituras dela; o id com apóstrofo res
 
 ### 6. E06 — foto legítima, GUID e LFI
 
-Criar no app uma ocorrência artificial com foto de equipamento e guardar o id devolvido pela API; não aceitar id gerado em modo simulado. O download é `GET /ocorrencias/{id}/foto` (`OcorrenciasController.cs:42`).
+Criar no app uma ocorrência artificial com foto de equipamento e guardar o id devolvido pela API; não aceitar id gerado em modo simulado. O download é `GET /ocorrencias/{id}/foto` (`OcorrenciasController.cs:44`).
 
 ```powershell
 $OcorrenciaId = Read-Host 'Id da ocorrencia de teste persistida na API'
-curl.exe -i "$Api/ocorrencias/$OcorrenciaId/foto"
+curl.exe -i -H "X-Chave-Coordenacao: $env:CHAVE_COORDENACAO" "$Api/ocorrencias/$OcorrenciaId/foto"
 curl.exe -i --path-as-is "$Api/ocorrencias/..%2F..%2FWindows%2Fwin.ini/foto"
 curl.exe -i --path-as-is "$Api/ocorrencias/C%3A%5CWindows%5Cwin.ini/foto"
 $PastaFotos = Read-Host 'Caminho local da pasta de fotos na VM'
 Get-ChildItem -LiteralPath $PastaFotos -File | Select-Object Name, Length
 ```
 
-Esperado: foto legítima 200, nome GUID gerado no servidor; travessias 400/404, sem bytes de arquivo do Windows ou detalhe de caminho interno. Anexar resolução id → registro → arquivo, permissões e confirmação de armazenamento sem execução. Um GUID conhecido por terceiro não deve conceder acesso: E15 cobre autorização.
+Esperado: foto legítima 200 com chave válida (definir `$env:CHAVE_COORDENACAO` sem exibir o valor); sem chave, 401. Nome GUID gerado no servidor; travessias 400/404, sem bytes de arquivo do Windows ou detalhe de caminho interno. Anexar resolução id → registro → arquivo, permissões e confirmação de armazenamento sem execução. Um GUID conhecido por terceiro não deve conceder acesso: E15 cobre autorização.
 
 **Print E06:** [inserir foto de equipamento, nome em disco, trecho de resolução e recusas de LFI]
 
@@ -171,7 +171,7 @@ curl.exe -i -F "ambienteId=$AmbienteId" -F 'descricao=Teste de nome invalido' -F
 
 Esperado: falso JPEG recusado com 4xx, sem arquivo/ocorrência parcial. Para separar nome de conteúdo, repetir o segundo comando usando uma foto JPEG válida e conferir que o servidor descarta o nome externo e gera GUID, ou recusa o nome sem escrever fora da pasta.
 
-O arquivo da foto é recusado acima de 5 MB (5242880 bytes) em `OcorrenciasController.cs:21`. A requisição inteira tem teto de 6 MB em `:15`. Gere um arquivo um byte acima de 5 MB:
+O arquivo da foto é recusado acima de 5 MB (5242880 bytes) em `OcorrenciasController.cs:22`. A requisição inteira tem teto de 6 MB em `:16`. Gere um arquivo um byte acima de 5 MB:
 
 ```powershell
 $LimiteBytes = 5MB
@@ -182,7 +182,7 @@ try { $Arquivo.SetLength($LimiteBytes + 1) } finally { $Arquivo.Dispose() }
 curl.exe -i -F "ambienteId=$AmbienteId" -F 'descricao=Teste de limite de tamanho' -F "foto=@$Grande;type=image/jpeg" "$Api/ocorrencias"
 ```
 
-Esperado: 400 com corpo `{"motivo":"arquivo"}` (`OcorrenciasController.cs:21`), sem arquivo nem ocorrência gravados. A requisição fica abaixo do teto de 6 MB, então a resposta vem da regra de 5 MB da ação. O arquivo grande também não é imagem, mas a regra de tamanho roda antes da de conteúdo (`:24`): o motivo `arquivo`, e não `nao-jpeg`, mostra que a recusa foi por tamanho.
+Esperado: 400 com corpo `{"motivo":"arquivo"}` (`OcorrenciasController.cs:22`), sem arquivo nem ocorrência gravados. A requisição fica abaixo do teto de 6 MB, então a resposta vem da regra de 5 MB da ação. O arquivo grande também não é imagem, mas a regra de tamanho roda antes da de conteúdo (`:25`): o motivo `arquivo`, e não `nao-jpeg`, mostra que a recusa foi por tamanho.
 
 **Print E07:** [inserir recusas por conteúdo/tamanho, configuração de limite e ausência de gravação]
 
@@ -199,7 +199,7 @@ curl.exe -i -F "ambienteId=$AmbienteId" -F 'descricao=Ventilador sem funcionar' 
 curl.exe -i -F 'ambienteId=sala-inexistente' -F 'descricao=Ventilador sem funcionar' -F "foto=@$FotoValida;type=image/jpeg" "$Api/ocorrencias"
 ```
 
-Esperado: 4xx, sem registros parciais. Descrição após trim: 10 a 500 caracteres (`OcorrenciasController.cs:20`). No app, fotografar erro com descrição de 9 e 501 caracteres e falta de foto, e sucesso com 10 e 500 caracteres e foto. Para temperatura -11/61 e umidade -1/101, repetir E02 com cada valor alterado também no texto canônico e com nova assinatura válida; alterar só JSON provaria HMAC, não faixa física. Esperado: `fora-da-faixa` (`Contrato.cs:106`) e nenhuma inserção. Testes: `VetoresTestes.LimitesDaJanelaEDaFaixa` e `ApiTestes.RecusasELeituraAceita`.
+Esperado: 4xx, sem registros parciais. Descrição após trim: 10 a 500 caracteres (`OcorrenciasController.cs:21`). No app, fotografar erro com descrição de 9 e 501 caracteres e falta de foto, e sucesso com 10 e 500 caracteres e foto. Para temperatura -11/61 e umidade -1/101, repetir E02 com cada valor alterado também no texto canônico e com nova assinatura válida; alterar só JSON provaria HMAC, não faixa física. Esperado: `fora-da-faixa` (`Contrato.cs:106`) e nenhuma inserção. Testes: `VetoresTestes.LimitesDaJanelaEDaFaixa` e `ApiTestes.RecusasELeituraAceita`.
 
 **Print E08:** [inserir erros do servidor, casos de fronteira e validações do app]
 
@@ -276,7 +276,7 @@ Test-NetConnection -ComputerName $IpServidor -Port 3389
 Test-NetConnection -ComputerName $IpServidor -Port 1433
 ```
 
-Esperado: HTTPS acessível a usuários; HTTP somente se usado para redirecionar; RDP inacessível da rede comum e acessível apenas na rede administrativa; SQL sem exposição a clientes comuns; nenhum listener MQTT no Windows apenas para assinar tópico externo. Se a VM também for controlador de domínio/DNS, portas necessárias a AD/DNS existem: justificar por função e origem, sem afirmar que só 443 pode estar aberta. A lista efetiva de portas é coletada no laboratório Windows Server (nmap e IIS). A API só redireciona para HTTPS em Production (`Program.cs:62`); o binding 443 e a regra de firewall `TermometroHTTPS` (só sub-rede local) estão no `infra/README.md`, seção "HTTPS no laboratório". Esperado no nmap: 443 com o certificado `api.termometro.local` e 80 só redirecionando. TCP não cobre UDP: anexar regras de firewall/DNS para completar a análise, sem alegar varredura UDP executada.
+Esperado: HTTPS acessível a usuários; HTTP somente se usado para redirecionar; RDP inacessível da rede comum e acessível apenas na rede administrativa; SQL sem exposição a clientes comuns; nenhum listener MQTT no Windows apenas para assinar tópico externo. Se a VM também for controlador de domínio/DNS, portas necessárias a AD/DNS existem: justificar por função e origem, sem afirmar que só 443 pode estar aberta. A lista efetiva de portas é coletada no laboratório Windows Server (nmap e IIS). A API só redireciona para HTTPS em Production (`Program.cs:65`); o binding 443 e a regra de firewall `TermometroHTTPS` (só sub-rede local) estão no `infra/README.md`, seção "HTTPS no laboratório". Esperado no nmap: 443 com o certificado `api.termometro.local` e 80 só redirecionando. TCP não cobre UDP: anexar regras de firewall/DNS para completar a análise, sem alegar varredura UDP executada.
 
 **Print E12:** [inserir saídas com origem identificada, portas justificadas e regras de firewall]
 
@@ -303,13 +303,13 @@ Select-String -LiteralPath 'app/app/salas/[id]/ocorrencia.tsx' -Pattern 'exif: f
 Start-Process -FilePath $FotoValida
 ```
 
-Esperado: orientação visível, nenhuma identificação nos arquivos e fotos ausentes do painel público. No Windows, abrir Propriedades → Detalhes tanto do original quanto da foto baixada e conferir GPS/autor/câmera; essa inspeção básica não é prova forense de remoção de todo metadado. `exif: false` evita pedir EXIF no retorno do seletor, sem garantir limpeza do arquivo transmitido. No servidor, `SemApp1` (`OcorrenciasController.cs:68`) regrava o JPEG sem APP1. Teste: `ApiTestes.UploadRemoveSegmentoApp1`. A revisão de rosto continua humana: tirar o EXIF não vê o conteúdo da foto.
+Esperado: orientação visível, nenhuma identificação nos arquivos e fotos ausentes do painel público. No Windows, abrir Propriedades → Detalhes tanto do original quanto da foto baixada e conferir GPS/autor/câmera; essa inspeção básica não é prova forense de remoção de todo metadado. `exif: false` evita pedir EXIF no retorno do seletor, sem garantir limpeza do arquivo transmitido. No servidor, `SemApp1` (`OcorrenciasController.cs:74`) regrava o JPEG sem APP1. Teste: `ApiTestes.UploadRemoveSegmentoApp1`. A revisão de rosto continua humana: tirar o EXIF não vê o conteúdo da foto.
 
 **Print E14:** [inserir avisos, foto artificial, detalhes e painel sem imagem de ocorrência]
 
 ### 15. E15 — acesso indevido e encerramento da coleta
 
-O controle da API é a chave `X-Chave-Coordenacao` (`ExigeChaveCoordenacaoAttribute.cs:20`), não uma conta. Ela protege `POST /ambientes`, `POST /acoes` e `POST /dispositivos/{id}/revogar`. Registrar pelo desktop uma revogação com a chave correta (a de E04) e outra tentativa sem a chave ou com chave errada, sem imprimir o valor. Para acesso anônimo às operações e imagens:
+O controle da API é a chave `X-Chave-Coordenacao` (`ExigeChaveCoordenacaoAttribute.cs:20`), não uma conta. Ela protege `POST /ambientes`, `PUT/DELETE /ambientes/{id}`, `POST /acoes`, `POST /dispositivos/{id}/revogar` e `GET /ocorrencias/{id}/foto`. Registrar pelo desktop uma revogação com a chave correta (a de E04) e outra tentativa sem a chave ou com chave errada, sem imprimir o valor. Para acesso anônimo às operações e imagens:
 
 ```powershell
 curl.exe -i "$Api/ocorrencias/$OcorrenciaId/foto"
@@ -317,7 +317,7 @@ curl.exe -i -X POST "$Api/acoes" -H 'Content-Type: application/json' --data-bina
 curl.exe -i -X POST "$Api/dispositivos/esp32-sala-01/revogar"
 ```
 
-Esperado: `POST /acoes` e a revogação sem chave respondem 401 `chave-invalida` antes de validar o corpo (o filtro é de autorização) e nada é gravado; `esp32-sala-01` continua ativo. A foto responde **200** sem chave: é a lacuna declarada em R12/C10 do relatório. Registrar esse 200 como falha conhecida, não como aprovação de C10.
+Esperado: `POST /acoes` e a revogação sem chave respondem 401 `chave-invalida` antes de validar o corpo (o filtro é de autorização) e nada é gravado; `esp32-sala-01` continua ativo. A foto sem chave responde **401** `chave-invalida`; com chave válida e id existente responde 200. R12 corrigido e coberto por `OcorrenciaCriadaVoltaNaListaDaSalaEFotoSoComChave`.
 
 Ao concluir, restaurar estado dos dispositivos de laboratório, revogar a chave de demonstração ao final da avaliação, fechar o processo de coleta e descartar seu estado criptográfico:
 
