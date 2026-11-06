@@ -267,5 +267,5 @@ Get-ChildItem -Recurse -File |
 | Mobile e IoT | `app/package.json`, `app/README.md` | RM e demais integrantes |
 | Operating Systems | `infra/README.md`, `infra/EVIDENCIAS.md` e o bloco do formulário, acima | Equipe e RMs; data do ensaio, versão do Windows, hipervisor, IP, links do repositório e do vídeo, exigência de RDS; os prints e o que cada um anota (ACL, firewall, limites restaurados, PIDs, horários, Rapid-Fail, origem dos dados) |
 | Physical Computing | `esp32/integrantes.txt`, `esp32/README.md` | Nomes completos e RMs; link do Wokwi e do vídeo; resultado de cada passo do roteiro de simulação |
-| Testing (TOGAF) e pitch | `arquitetura/DOCUMENTO.md`, `arquitetura/PITCH.md`, `arquitetura/README.md` | RMs; as seis imagens das visões; salas, turnos e alunos por dia da escola do piloto; data de acesso das referências 7 e 8; fala, frase, nome, função e escola da pessoa entrevistada; demais integrantes no slide 1 |
+| Testing (TOGAF) e pitch | `arquitetura/DOCUMENTO.md`, `arquitetura/PITCH.md`, `arquitetura/README.md` | RMs; salas, turnos e alunos por dia da escola do piloto; fala, frase, nome, função e escola da pessoa entrevistada; demais integrantes no slide 1 |
 | Planejamento | `docs/PLANO.md` | Bairro da escola entrevistada |
