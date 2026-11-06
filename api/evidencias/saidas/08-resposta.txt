@@ -1,0 +1,23 @@
+2026-11-06T02:34:20.9827984-03:00
+Ambiente: Development; MQTT desligado; conexao: ***
+POST http://localhost:5080/ambientes
+X-Chave-Coordenacao: ***
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {
+  "id": "sala-05",
+  "nome": "Sala 5",
+  "andar": 1,
+  "faceSol": "oeste",
+  "temVentilador": true
+}
+Esperado: HTTP 409; ambiente-existente
+HTTP 409 Conflict
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:20 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"ambiente-existente"}
+Conferencia: OK

@@ -1,0 +1,15 @@
+2026-11-06T02:34:21.2999357-03:00
+Ambiente: Development; MQTT desligado; conexao: ***
+GET http://localhost:5080/ambientes/sala-03/leituras
+
+Corpo enviado: 
+Esperado: HTTP 200; 
+HTTP 200 OK
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:20 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+[{"medidoEm":"2026-11-06T05:34:20+00:00","temperaturaC":33.4,"umidadePct":58,"indiceCalor":39.8,"nivel":"cuidado","origem":"dispositivo","suspeita":false,"dispositivoId":"esp32-sala-03"}]
+Conferencia: OK

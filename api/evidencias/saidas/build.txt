@@ -1,0 +1,9 @@
+  Determining projects to restore...
+  Restored D:\projetos\termometro-wt-evidencias\api\TermometroDaSala.Api\TermometroDaSala.Api.csproj (in 224 ms).
+  TermometroDaSala.Api -> D:\projetos\termometro-wt-evidencias\api\TermometroDaSala.Api\bin\Debug\net8.0\TermometroDaSala.Api.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:03.07

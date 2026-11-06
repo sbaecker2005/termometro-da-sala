@@ -1,0 +1,16 @@
+2026-11-06T02:34:24.4663825-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/ocorrencias
+Content-Type: multipart/form-data; boundary="b19a88b3-9fe0-4382-a5c6-0b73989a3e16"
+
+Corpo enviado: {"ambienteId":"sala-03","descricao":"Ventilador sem funcionar"}; foto: bytes do JPEG/arquivo indicado, sem transcricao binaria
+Esperado: HTTP 400; arquivo
+HTTP 400 Bad Request
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:24 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"arquivo"}
+Conferencia: OK

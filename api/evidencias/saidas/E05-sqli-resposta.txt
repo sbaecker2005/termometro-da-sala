@@ -1,0 +1,15 @@
+2026-11-06T02:34:24.3430263-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+GET http://localhost:5080/ambientes/sala-03%27%20OR%201%3D1%20--/leituras
+
+Corpo enviado: 
+Esperado: HTTP 404; 
+HTTP 404 Not Found
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:24 GMT
+Server: Kestrel
+Content-Type: application/problem+json; charset=utf-8
+
+{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.5","title":"Not Found","status":404,"traceId":"00-9b8c32a0ebef89f05aeb830d0953e282-6201dbdd3a567ad2-00"}
+Conferencia: OK

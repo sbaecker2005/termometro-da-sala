@@ -1,0 +1,525 @@
+2026-11-06T02:34:22.7344595-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/acoes
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {}
+Esperado: HTTP 401; 
+HTTP 401 Unauthorized
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:22 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"chave-invalida"}
+Conferencia: OK
+
+2026-11-06T02:34:22.7444583-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/acoes
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {}
+Esperado: HTTP 401; 
+HTTP 401 Unauthorized
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:22 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"chave-invalida"}
+Conferencia: OK
+
+2026-11-06T02:34:22.7524583-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/acoes
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {}
+Esperado: HTTP 401; 
+HTTP 401 Unauthorized
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:22 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"chave-invalida"}
+Conferencia: OK
+
+2026-11-06T02:34:22.7594583-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/acoes
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {}
+Esperado: HTTP 401; 
+HTTP 401 Unauthorized
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:22 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"chave-invalida"}
+Conferencia: OK
+
+2026-11-06T02:34:22.7664584-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/acoes
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {}
+Esperado: HTTP 401; 
+HTTP 401 Unauthorized
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:22 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"chave-invalida"}
+Conferencia: OK
+
+2026-11-06T02:34:22.7744584-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/acoes
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {}
+Esperado: HTTP 401; 
+HTTP 401 Unauthorized
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:22 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"chave-invalida"}
+Conferencia: OK
+
+2026-11-06T02:34:22.7814631-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/acoes
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {}
+Esperado: HTTP 401; 
+HTTP 401 Unauthorized
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:22 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"chave-invalida"}
+Conferencia: OK
+
+2026-11-06T02:34:22.7884605-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/acoes
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {}
+Esperado: HTTP 401; 
+HTTP 401 Unauthorized
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:22 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"chave-invalida"}
+Conferencia: OK
+
+2026-11-06T02:34:22.7955047-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/acoes
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {}
+Esperado: HTTP 401; 
+HTTP 401 Unauthorized
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:22 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"chave-invalida"}
+Conferencia: OK
+
+2026-11-06T02:34:22.8025042-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/acoes
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {}
+Esperado: HTTP 401; 
+HTTP 401 Unauthorized
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:22 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"chave-invalida"}
+Conferencia: OK
+
+2026-11-06T02:34:22.8095429-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/acoes
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {}
+Esperado: HTTP 401; 
+HTTP 401 Unauthorized
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:22 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"chave-invalida"}
+Conferencia: OK
+
+2026-11-06T02:34:22.8172381-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/acoes
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {}
+Esperado: HTTP 401; 
+HTTP 401 Unauthorized
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:22 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"chave-invalida"}
+Conferencia: OK
+
+2026-11-06T02:34:22.8242381-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/acoes
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {}
+Esperado: HTTP 401; 
+HTTP 401 Unauthorized
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:22 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"chave-invalida"}
+Conferencia: OK
+
+2026-11-06T02:34:22.8297454-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/acoes
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {}
+Esperado: HTTP 401; 
+HTTP 401 Unauthorized
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:22 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"chave-invalida"}
+Conferencia: OK
+
+2026-11-06T02:34:22.8377454-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/acoes
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {}
+Esperado: HTTP 401; 
+HTTP 401 Unauthorized
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:22 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"chave-invalida"}
+Conferencia: OK
+
+2026-11-06T02:34:22.8447454-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/acoes
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {}
+Esperado: HTTP 401; 
+HTTP 401 Unauthorized
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:22 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"chave-invalida"}
+Conferencia: OK
+
+2026-11-06T02:34:22.8517455-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/acoes
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {}
+Esperado: HTTP 401; 
+HTTP 401 Unauthorized
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:22 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"chave-invalida"}
+Conferencia: OK
+
+2026-11-06T02:34:22.8567455-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/acoes
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {}
+Esperado: HTTP 401; 
+HTTP 401 Unauthorized
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:22 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"chave-invalida"}
+Conferencia: OK
+
+2026-11-06T02:34:22.8637476-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/acoes
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {}
+Esperado: HTTP 401; 
+HTTP 401 Unauthorized
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:22 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"chave-invalida"}
+Conferencia: OK
+
+2026-11-06T02:34:22.8717475-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/acoes
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {}
+Esperado: HTTP 401; 
+HTTP 401 Unauthorized
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:22 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"chave-invalida"}
+Conferencia: OK
+
+2026-11-06T02:34:22.8782546-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/acoes
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {}
+Esperado: HTTP 401; 
+HTTP 401 Unauthorized
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:22 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"chave-invalida"}
+Conferencia: OK
+
+2026-11-06T02:34:22.8842545-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/acoes
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {}
+Esperado: HTTP 401; 
+HTTP 401 Unauthorized
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:22 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"chave-invalida"}
+Conferencia: OK
+
+2026-11-06T02:34:22.8912544-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/acoes
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {}
+Esperado: HTTP 401; 
+HTTP 401 Unauthorized
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:22 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"chave-invalida"}
+Conferencia: OK
+
+2026-11-06T02:34:22.8982565-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/acoes
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {}
+Esperado: HTTP 401; 
+HTTP 401 Unauthorized
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:22 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"chave-invalida"}
+Conferencia: OK
+
+2026-11-06T02:34:22.9042567-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/acoes
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {}
+Esperado: HTTP 401; 
+HTTP 401 Unauthorized
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:22 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"chave-invalida"}
+Conferencia: OK
+
+2026-11-06T02:34:22.9107586-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/acoes
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {}
+Esperado: HTTP 401; 
+HTTP 401 Unauthorized
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:22 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"chave-invalida"}
+Conferencia: OK
+
+2026-11-06T02:34:22.9178655-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/acoes
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {}
+Esperado: HTTP 401; 
+HTTP 401 Unauthorized
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:22 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"chave-invalida"}
+Conferencia: OK
+
+2026-11-06T02:34:22.9238654-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/acoes
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {}
+Esperado: HTTP 401; 
+HTTP 401 Unauthorized
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:22 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"chave-invalida"}
+Conferencia: OK
+
+2026-11-06T02:34:22.9308659-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/acoes
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {}
+Esperado: HTTP 429; 
+HTTP 429 Too Many Requests
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:22 GMT
+Server: Kestrel
+Content-Length: 0
+
+
+Conferencia: OK
+
+2026-11-06T02:34:22.9428559-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/acoes
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {}
+Esperado: HTTP 429; 
+HTTP 429 Too Many Requests
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:22 GMT
+Server: Kestrel
+Content-Length: 0
+
+
+Conferencia: OK
+
+2026-11-06T02:34:22.9498560-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/acoes
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {}
+Esperado: HTTP 429; 
+HTTP 429 Too Many Requests
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:22 GMT
+Server: Kestrel
+Content-Length: 0
+
+
+Conferencia: OK
+
+Conferencia: OK

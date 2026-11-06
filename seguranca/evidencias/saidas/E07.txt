@@ -1,0 +1,53 @@
+2026-11-06T02:34:26.7051011-03:00
+E07 - parte local; prints e demais itens do roteiro permanecem pendentes.
+Antes/depois dos uploads invalidos e faixas: Ocorrencias 1/1; Leituras 21/21
+2026-11-06T02:34:24.3840266-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/ocorrencias
+Content-Type: multipart/form-data; boundary="6fa2ee8e-1305-46ff-a63a-f4d0f34ef97e"
+
+Corpo enviado: {"descricao":"Teste de arquivo invalido","foto":"D:\\projetos\\termometro-wt-evidencias\\api\\evidencias\\saidas\\temporario-dc0c9b40ccac4aeb845ce9e0b1e2a114\\falsa.jpg","ambienteId":"sala-03"}; foto: bytes do JPEG/arquivo indicado, sem transcricao binaria
+Esperado: HTTP 400; nao-jpeg
+HTTP 400 Bad Request
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:24 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"nao-jpeg"}
+Conferencia: OK
+
+2026-11-06T02:34:24.4060778-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/ocorrencias
+Content-Type: multipart/form-data; boundary="c4081bc5-377f-43a6-808c-07a4c1ee9a6c"
+
+Corpo enviado: {"descricao":"Teste de nome invalido","foto":"D:\\projetos\\termometro-wt-evidencias\\api\\evidencias\\saidas\\temporario-dc0c9b40ccac4aeb845ce9e0b1e2a114\\falsa.jpg","ambienteId":"sala-03","nomeFoto":"../../teste.jpg"}; foto: bytes do JPEG/arquivo indicado, sem transcricao binaria
+Esperado: HTTP 400; nome-invalido
+HTTP 400 Bad Request
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:24 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"nome-invalido"}
+Conferencia: OK
+
+2026-11-06T02:34:24.4160779-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/ocorrencias
+Content-Type: multipart/form-data; boundary="7bbab84b-c21c-4cdf-84f9-0ba1bfd9cd00"
+
+Corpo enviado: {"descricao":"Teste de limite de tamanho","foto":"D:\\projetos\\termometro-wt-evidencias\\api\\evidencias\\saidas\\temporario-dc0c9b40ccac4aeb845ce9e0b1e2a114\\grande.jpg","ambienteId":"sala-03"}; foto: bytes do JPEG/arquivo indicado, sem transcricao binaria
+Esperado: HTTP 400; arquivo
+HTTP 400 Bad Request
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:24 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"arquivo"}
+Conferencia: OK

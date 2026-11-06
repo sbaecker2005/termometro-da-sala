@@ -1,0 +1,22 @@
+2026-11-06T02:34:21.1321125-03:00
+Ambiente: Development; MQTT desligado; conexao: ***
+POST http://localhost:5080/acoes
+X-Chave-Coordenacao: ***
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {
+  "ambienteId": "sala-03",
+  "nivel": "cuidado",
+  "descricao": "pausa para água"
+}
+Esperado: HTTP 201; Location: /acoes\?dia=
+HTTP 201 Created
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:20 GMT
+Location: /acoes?dia=2026-11-06
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"id":1}
+Conferencia: OK

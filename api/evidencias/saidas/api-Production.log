@@ -1,0 +1,14 @@
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://localhost:5080
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: D:\projetos\termometro-wt-evidencias\api\TermometroDaSala.Api
+warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]
+      Failed to determine the https port for redirect.
+warn: TermometroDaSala.Api.Controllers.DemoController[0]
+      demo semear recusado: fora-do-ambiente
+
+Coleta: processo PID 11564 encerrado; HasExited=True; 2026-11-06T02:34:25.2406461-03:00
