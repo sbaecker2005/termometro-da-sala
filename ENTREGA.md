@@ -252,7 +252,7 @@ As linhas mudam a cada edição, por isso a tabela abaixo aponta o arquivo, e o 
 
 ```powershell
 Get-ChildItem -Recurse -File |
-  Where-Object { $_.FullName -notmatch '\\(node_modules|bin|obj|\.git|\.expo|dist)\\' -and $_.Extension -notin '.sql', '.png' } |
+  Where-Object { $_.FullName -notmatch '\\(node_modules|bin|obj|\.git|\.expo|dist|saidas)\\' -and $_.Extension -notin '.sql', '.png', '.ps1' } |
   Select-String -CaseSensitive -Pattern '\[(preencher|colar|inserir|bairro|pessoa entrevistada|nome da escola|nº de|alunos por dia|Frase|Demais|Espaço|Nome\]|função\]|escola\])' |
   ForEach-Object { '{0}:{1}  {2}' -f (Resolve-Path -Relative $_.Path), $_.LineNumber, $_.Line.Trim() }
 ```
