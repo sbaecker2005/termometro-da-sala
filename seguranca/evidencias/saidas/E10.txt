@@ -1,0 +1,114 @@
+2026-11-06T02:34:26.7171007-03:00
+E10 - parte local; prints e demais itens do roteiro permanecem pendentes.
+# .NET
+bin/
+obj/
+*.user
+.vs/
+appsettings.*.local.json
+
+# Node / Expo
+node_modules/
+.expo/
+dist/
+
+# Python
+__pycache__/
+.ipynb_checkpoints/
+.venv/
+.dotnet-runtime/
+.ipython-runtime/
+dotnet-restore-local.log
+nuget-offline.config
+
+# Segredos
+secrets.h
+*.env
+.env*
+
+# Sistema
+.DS_Store
+Thumbs.db
+docs/briefing-fiap.txt
+
+# Fotos de ocorrencias
+api/TermometroDaSala.Api/fotos/
+
+Data da busca: 2026-11-06T02:34:25.2415889-03:00
+Escopo: historico local de todos os refs, sem rede; sem ler .env* ou contas/.
+Versao: 47a92d3a3a51ded097851a4c68e61f9a6852e664 2026-11-05T16:21:24-03:00
+
+git log --all --oneline -i -G 'segredo-de-teste' -- . :(exclude)**/.env* :(exclude)**/contas/**
+b4b148f Documentos alinhados depois da onda 2: 47 testes da API e 6 do desktop em todo o repositorio, R12 fechado e repontuado (foto so com chave, HSTS e nosniff), linhas citadas atualizadas, entregas novas de cada lote no ENTREGA.md e cenarios de ataque ajustados
+ed8f44e Seguranca: agentes de ameaca, fluxo de dados, tres cenarios de ataque passo a passo contra a API local (SQLi, LFI, OSINT) com esperado x obtido, anexo de evidencias e script dos cenarios
+3226832 API: rotas da onda 2 (ocorrencias por sala, CRUD de ambientes com 409, Location certo, motivo nos 400, foto so com chave, nosniff e HSTS, insomnia em pastas) e dados e dominio (filtros no SQL, sem Sqlite na API, Nivel como enum, Dispositivo.Revogar, GET /niveis, previsao gravada no historico); o Demo aplica o modelo.json ao dia do CSV e o teste prova o mesmo valor do modelo. 47 testes
+e8e75d5 Previsao sem a rua usa a ultima leitura valida da sala (ruaDisponivel), 503 sem-dados-para-prever e 404 tratados na API, no painel web, no app e no desktop
+ca01e73 Seguranca: metodo ISO 27005 e NIST 800-30, STRIDE, OWASP e CWE nos riscos, controles com ISO 27001 Anexo A, riscos de MQTT e HSTS, OSINT do projeto, evidencias curtas
+2e8608f API: FK Leitura-Dispositivo sem cascata (SQL Server recusava a migracao Inicial com erro 1785), testes do esquema, README com camadas, modelo de dados, migracoes e previsao atualizada, indice de evidencias
+ff79ac3 Windows Server alinhado à API: migração por script idempotente, variáveis do pool (conexão, fotos, chave da coordenação), saída MQTT pela NAT ou leituras pelo Insomnia, teste de falha e evidências em /ambientes, troca do segredo de demonstração
+ef7de39 Segurança: segredo HMAC por dispositivo (migração), chave da coordenação nas rotas de escrita, limite de requisições, EXIF removido das fotos, teste de SQLi provando parâmetro; relatório de riscos com os controles reais e evidências locais; 32 testes
+1b0b157 API para SOA: domínio em entidades com enums e navegações, controllers por recurso com DTOs, migração Enums, conexão por ConnectionStrings:Sala, Insomnia com caminho de sucesso e recusas, POST /ambientes, GET /acoes?dia= e GET /ambientes/{id}/ocorrencias; 27 testes
+bcab663 API: domínio em entidades com enums e navegações, controllers por recurso com DTOs, migração Enums, conexão configurável, Insomnia com caminho de sucesso e recusas, POST /ambientes, GET /acoes?dia=, GET /ambientes/{id}/ocorrencias; 25 testes
+1e009ed Contrato entre as partes, ESP32 no Wokwi (HMAC, NTP, LEDs, MQTT), gerador da demonstração e arquitetura (ArchiMate, documento e pitch)
+4dcdfec Contrato entre as partes, ESP32 no Wokwi (HMAC, NTP, LEDs, MQTT), gerador da demonstração e arquitetura (ArchiMate, documento e pitch)
+bf49084 API ASP.NET Core: leituras assinadas (HMAC com antirreenvio), salas, previsão com delta, ocorrências com foto, ações, revogação, modo demonstração, assinante MQTT e painel web; 17 testes
+96abdd9 API ASP.NET Core: leituras assinadas (HMAC com antirreenvio), salas, previsão com delta, ocorrências com foto, ações, revogação, modo demonstração, assinante MQTT e painel web; 17 testes
+
+git log --all --oneline -i -G 'ChaveCoordenacao' -- . :(exclude)**/.env* :(exclude)**/contas/**
+b4b148f Documentos alinhados depois da onda 2: 47 testes da API e 6 do desktop em todo o repositorio, R12 fechado e repontuado (foto so com chave, HSTS e nosniff), linhas citadas atualizadas, entregas novas de cada lote no ENTREGA.md e cenarios de ataque ajustados
+ed8f44e Seguranca: agentes de ameaca, fluxo de dados, tres cenarios de ataque passo a passo contra a API local (SQLi, LFI, OSINT) com esperado x obtido, anexo de evidencias e script dos cenarios
+3226832 API: rotas da onda 2 (ocorrencias por sala, CRUD de ambientes com 409, Location certo, motivo nos 400, foto so com chave, nosniff e HSTS, insomnia em pastas) e dados e dominio (filtros no SQL, sem Sqlite na API, Nivel como enum, Dispositivo.Revogar, GET /niveis, previsao gravada no historico); o Demo aplica o modelo.json ao dia do CSV e o teste prova o mesmo valor do modelo. 47 testes
+e8e75d5 Previsao sem a rua usa a ultima leitura valida da sala (ruaDisponivel), 503 sem-dados-para-prever e 404 tratados na API, no painel web, no app e no desktop
+ca01e73 Seguranca: metodo ISO 27005 e NIST 800-30, STRIDE, OWASP e CWE nos riscos, controles com ISO 27001 Anexo A, riscos de MQTT e HSTS, OSINT do projeto, evidencias curtas
+2e8608f API: FK Leitura-Dispositivo sem cascata (SQL Server recusava a migracao Inicial com erro 1785), testes do esquema, README com camadas, modelo de dados, migracoes e previsao atualizada, indice de evidencias
+ff79ac3 Windows Server alinhado à API: migração por script idempotente, variáveis do pool (conexão, fotos, chave da coordenação), saída MQTT pela NAT ou leituras pelo Insomnia, teste de falha e evidências em /ambientes, troca do segredo de demonstração
+ef7de39 Segurança: segredo HMAC por dispositivo (migração), chave da coordenação nas rotas de escrita, limite de requisições, EXIF removido das fotos, teste de SQLi provando parâmetro; relatório de riscos com os controles reais e evidências locais; 32 testes
+
+git log --all --oneline -i -G 'password=|pwd=|User Id=' -- . :(exclude)**/.env* :(exclude)**/contas/**
+ed8f44e Seguranca: agentes de ameaca, fluxo de dados, tres cenarios de ataque passo a passo contra a API local (SQLi, LFI, OSINT) com esperado x obtido, anexo de evidencias e script dos cenarios
+e8e75d5 Previsao sem a rua usa a ultima leitura valida da sala (ruaDisponivel), 503 sem-dados-para-prever e 404 tratados na API, no painel web, no app e no desktop
+ca01e73 Seguranca: metodo ISO 27005 e NIST 800-30, STRIDE, OWASP e CWE nos riscos, controles com ISO 27001 Anexo A, riscos de MQTT e HSTS, OSINT do projeto, evidencias curtas
+1b0b157 API para SOA: domínio em entidades com enums e navegações, controllers por recurso com DTOs, migração Enums, conexão por ConnectionStrings:Sala, Insomnia com caminho de sucesso e recusas, POST /ambientes, GET /acoes?dia= e GET /ambientes/{id}/ocorrencias; 27 testes
+bcab663 API: domínio em entidades com enums e navegações, controllers por recurso com DTOs, migração Enums, conexão configurável, Insomnia com caminho de sucesso e recusas, POST /ambientes, GET /acoes?dia=, GET /ambientes/{id}/ocorrencias; 25 testes
+
+git log --all --oneline -- esp32/secrets.h (somente metadados)
+(nenhuma linha)
+
+git log --all --diff-filter=A --format= --name-only; filtro de nomes .env, secrets.h, pfx, pem, key
+(nenhuma linha)
+
+Limite: metadados identificam commits a revisar; nao atestam ausencia de credenciais reais no conteudo. Wokwi nao acessado.
+ACL do IIS pendente.
+2026-11-06T02:34:20.9157568-03:00
+Ambiente: Development; MQTT desligado; conexao: ***
+POST http://localhost:5080/dispositivos/esp32-sala-01/revogar
+X-Chave-Coordenacao: ***
+
+Corpo enviado: 
+Esperado: HTTP 200; "ativo":false
+HTTP 200 OK
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:20 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"id":"esp32-sala-01","ativo":false}
+Conferencia: OK
+
+2026-11-06T02:34:20.9327961-03:00
+Ambiente: Development; MQTT desligado; conexao: ***
+POST http://localhost:5080/leituras
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {"ambienteId":"sala-01","dispositivo":"esp32-sala-01","temperaturaC":33.4,"umidadePct":58,"medidoEm":1793943260,"assinatura":"525edf3235249b1711dd74b2b530bd15be205b44a1b97a9b199c12b7a51fdee6"}
+Esperado: HTTP 400; dispositivo-revogado
+HTTP 400 Bad Request
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:20 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"dispositivo-revogado"}
+Conferencia: OK

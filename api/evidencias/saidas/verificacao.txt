@@ -1,0 +1,5 @@
+Data: 2026-11-06T02:34:55.8247885-03:00
+Execucao: gerar-evidencias.ps1 no Windows PowerShell 5.1, SQL Server 2022 Express local (localhost\SQLEXPRESS, autenticacao do Windows).
+Resultado: 34 OK, 0 DIVERGE (ver conferencia.tsv).
+Segredos: chave, HMAC e conexao substituidos por ***; as unicas ocorrencias de 'segredo-de-teste' sao o padrao da busca no historico (E10 e osint-historico).
+Nao executado aqui: VM/IIS/HTTPS, MQTT externo, ESP32 e telas (T1/T2 e prints do desktop sao tirados a parte).

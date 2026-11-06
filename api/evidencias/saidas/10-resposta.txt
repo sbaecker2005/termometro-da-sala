@@ -1,0 +1,15 @@
+2026-11-06T02:34:21.0055830-03:00
+Ambiente: Development; MQTT desligado; conexao: ***
+GET http://localhost:5080/ambientes/sala-05
+
+Corpo enviado: 
+Esperado: HTTP 200; 
+HTTP 200 OK
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:20 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"id":"sala-05","nome":"Sala 5","andar":1,"faceSol":"oeste","nivelAtual":"normal","indiceAtual":0,"ultimaLeituraEm":"","semLeitura":true,"temVentilador":true,"dispositivoId":null}
+Conferencia: OK

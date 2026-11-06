@@ -1,0 +1,16 @@
+2026-11-06T02:34:24.4443858-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/ocorrencias
+Content-Type: multipart/form-data; boundary="adb022e7-a021-4396-9055-efcb45091606"
+
+Corpo enviado: {"descricao":"curta","foto":"D:\\projetos\\termometro-wt-evidencias\\api\\evidencias\\saidas\\temporario-dc0c9b40ccac4aeb845ce9e0b1e2a114\\sala-vazia-sintetica.jpg","ambienteId":"sala-03"}; foto: bytes do JPEG/arquivo indicado, sem transcricao binaria
+Esperado: HTTP 400; descricao
+HTTP 400 Bad Request
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:24 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"descricao"}
+Conferencia: OK

@@ -1,0 +1,13 @@
+2026-11-06T02:34:19.3988033-03:00
+SQL Server Express local; autenticacao Windows; conexao: ***
+SQL: SELECT * FROM __EFMigrationsHistory ORDER BY MigrationId
+
+MigrationId                           ProductVersion
+-----------                           --------------
+20261105025544_Inicial                8.0.11        
+20261105033613_Enums                  8.0.11        
+20261105050515_SegredosPorDispositivo 8.0.11        
+
+
+
+Conferencia: OK

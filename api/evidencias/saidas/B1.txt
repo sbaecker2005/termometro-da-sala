@@ -1,0 +1,11 @@
+2026-11-06T02:34:19.3139302-03:00
+dotnet ef database update --no-build --project TermometroDaSala.Api
+Entity Framework Core .NET Command-line Tools
+8.0.11
+
+Applying migration '20261105025544_Inicial'.
+Applying migration '20261105033613_Enums'.
+Applying migration '20261105050515_SegredosPorDispositivo'.
+Done.
+
+Conferencia: OK

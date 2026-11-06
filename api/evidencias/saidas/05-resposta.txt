@@ -1,0 +1,16 @@
+2026-11-06T02:34:20.9157568-03:00
+Ambiente: Development; MQTT desligado; conexao: ***
+POST http://localhost:5080/dispositivos/esp32-sala-01/revogar
+X-Chave-Coordenacao: ***
+
+Corpo enviado: 
+Esperado: HTTP 200; "ativo":false
+HTTP 200 OK
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:20 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"id":"esp32-sala-01","ativo":false}
+Conferencia: OK

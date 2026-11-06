@@ -1,0 +1,16 @@
+2026-11-06T02:34:20.9327961-03:00
+Ambiente: Development; MQTT desligado; conexao: ***
+POST http://localhost:5080/leituras
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {"ambienteId":"sala-01","dispositivo":"esp32-sala-01","temperaturaC":33.4,"umidadePct":58,"medidoEm":1793943260,"assinatura":"525edf3235249b1711dd74b2b530bd15be205b44a1b97a9b199c12b7a51fdee6"}
+Esperado: HTTP 400; dispositivo-revogado
+HTTP 400 Bad Request
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:20 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"dispositivo-revogado"}
+Conferencia: OK

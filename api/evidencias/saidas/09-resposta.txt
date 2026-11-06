@@ -1,0 +1,22 @@
+2026-11-06T02:34:20.9943056-03:00
+Ambiente: Development; MQTT desligado; conexao: ***
+POST http://localhost:5080/ambientes
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {
+  "id": "sala-06",
+  "nome": "Sala 6",
+  "andar": 0,
+  "faceSol": "leste",
+  "temVentilador": false
+}
+Esperado: HTTP 401; 
+HTTP 401 Unauthorized
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:20 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"chave-invalida"}
+Conferencia: OK

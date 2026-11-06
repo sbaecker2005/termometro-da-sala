@@ -1,0 +1,116 @@
+2026-11-06T02:34:24.5664436-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+GET http://localhost:5080/
+
+Corpo enviado: 
+Esperado: HTTP 200; 
+HTTP 200 OK
+X-Content-Type-Options: nosniff
+Accept-Ranges: bytes
+Date: Fri, 06 Nov 2026 05:34:24 GMT
+ETag: "1dd6da54ecbe993"
+Server: Kestrel
+Content-Length: 3859
+Content-Type: text/html
+Last-Modified: Fri, 06 Nov 2026 04:14:25 GMT
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Termômetro da Sala</title>
+  <style>
+    body { font-family: Georgia, serif; margin: 2rem; color: #1c1917; background: #fafaf9; }
+    table { border-collapse: collapse; width: 100%; background: #fff; }
+    caption { text-align: left; font-weight: bold; margin-bottom: .5rem; }
+    th, td { border: 1px solid #d6d3d1; padding: .7rem; text-align: left; }
+    .normal { background: #dcfce7; }
+    .atencao { background: #fef9c3; }
+    .cuidado { background: #fee2e2; }
+    .perigo { background: #fecaca; }
+  </style>
+</head>
+<body>
+  <h1>Termômetro da Sala</h1>
+  <p>Mural só de leitura para a TV da escola. O texto do nível vale mesmo sem a cor. Atualiza a cada 30 segundos.</p>
+  <table>
+    <caption>Nível de calor das salas</caption>
+    <thead>
+      <tr>
+        <th scope="col">Sala</th>
+        <th scope="col">Nível agora</th>
+        <th scope="col">Índice agora</th>
+        <th scope="col">Nível previsto</th>
+      </tr>
+    </thead>
+    <tbody id="salas"><tr><td colspan="4">Carregando</td></tr></tbody>
+  </table>
+  <p id="aviso" aria-live="polite"></p>
+  <script>
+    const NOMES = { normal: "Normal", atencao: "Atenção", cuidado: "Cuidado extremo", perigo: "Perigo" };
+    function nome(n) { return NOMES[n] || n || "sem nível"; }
+    function celula(texto, nivel) {
+      const td = document.createElement("td");
+      td.textContent = texto;
+      if (nivel) td.className = nivel;
+      return td;
+    }
+    async function atualizar() {
+      const corpo = document.getElementById("salas");
+      const aviso = document.getElementById("aviso");
+      corpo.replaceChildren();
+      try {
+        const resposta = await fetch("/ambientes");
+        if (!resposta.ok) throw new Error("salas");
+        const salas = await resposta.json();
+        if (!salas.length) {
+          const tr = document.createElement("tr");
+          const td = document.createElement("td");
+          td.colSpan = 4;
+          td.textContent = "Nenhuma sala";
+          tr.append(td);
+          corpo.append(tr);
+          return;
+        }
+        for (const sala of salas) {
+          let prev = null;
+          try {
+            const r = await fetch("/ambientes/" + encodeURIComponent(sala.id) + "/previsao");
+            if (r.ok) prev = await r.json();
+          } catch (e) { prev = null; }
+          const agora = sala.semLeitura ? "sem leitura" : nome(sala.nivelAtual);
+          let previsto = "sem previsão";
+          if (prev) {
+            previsto = nome(prev.nivelPrevisto);
+            if (!prev.ruaDisponivel) previsto += " (sem dado da rua: mantém a última leitura válida da sala)";
+            else if (prev.semLeiturasRecentes) previsto += " (só a rua, sala sem leituras recentes)";
+            if (prev.demonstracao) previsto += " — demonstração";
+          }
+          const tr = document.createElement("tr");
+          tr.append(
+            celula(sala.nome),
+            celula(agora, sala.semLeitura ? "" : sala.nivelAtual),
+            celula(sala.semLeitura ? "—" : Number(sala.indiceAtual).toFixed(1) + " °C"),
+            celula(previsto, prev ? prev.nivelPrevisto : "")
+          );
+          corpo.append(tr);
+        }
+        aviso.textContent = "Atualizado.";
+      } catch (e) {
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.colSpan = 4;
+        td.textContent = "Não foi possível carregar as salas.";
+        tr.append(td);
+        corpo.append(tr);
+        aviso.textContent = "Falha ao carregar.";
+      }
+    }
+    atualizar();
+    setInterval(atualizar, 30000);
+  </script>
+</body>
+</html>
+
+Conferencia: OK

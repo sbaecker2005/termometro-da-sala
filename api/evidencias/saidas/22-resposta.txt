@@ -1,0 +1,17 @@
+2026-11-06T02:34:21.3189406-03:00
+Ambiente: Development; MQTT desligado; conexao: ***
+GET http://localhost:5080/ambientes/sala-03/leituras?formato=csv
+
+Corpo enviado: 
+Esperado: HTTP 200; text/csv
+HTTP 200 OK
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:20 GMT
+Server: Kestrel
+Content-Length: 140
+Content-Type: text/csv; charset=utf-8
+
+medidoEm,temperaturaC,umidadePct,indiceCalor,nivel,origem,suspeita
+2026-11-06T05:34:20.0000000+00:00,33.4,58,39.8,cuidado,dispositivo,False
+
+Conferencia: OK

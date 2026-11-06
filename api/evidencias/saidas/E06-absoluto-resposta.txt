@@ -1,0 +1,14 @@
+2026-11-06T02:34:24.3700267-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+GET http://localhost:5080/ocorrencias/C%3A%5CWindows%5Cwin.ini/foto
+
+Corpo enviado: 
+Esperado: HTTP 404; 
+HTTP 404 Not Found
+X-Content-Type-Options: nosniff
+Date: Fri, 06 Nov 2026 05:34:24 GMT
+Server: Kestrel
+Content-Length: 0
+
+
+Conferencia: OK
