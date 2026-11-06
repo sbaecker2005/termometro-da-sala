@@ -40,7 +40,7 @@ Get-Content -LiteralPath $Fonte -Encoding UTF8 |
 
 Esperado: arquivo e linha de C1–C12 estão na seção 6 do relatório. Abrir somente fonte que não contenha a chave da coordenação. Se uma linha mudar, atualizar o relatório. A suíte está em `evidencias/dotnet-test-seguranca.txt` (55/55 no total; 20 testes de segurança listados).
 
-**Print E01:** [inserir versão, ambiente e trechos numerados dos controles] [saida local](evidencias/saidas/E01.txt)
+**Print E01:** ![Evidência E01](evidencias/prints/E01.png) [saida local](evidencias/saidas/E01.txt)
 
 ### 2. E02 — vetor HMAC e leitura legítima
 
@@ -80,7 +80,7 @@ curl.exe -i "$Api/ambientes/$AmbienteId/leituras"
 
 Esperado: resposta 2xx e uma gravação identificável pelo dispositivo/timestamp. O vetor público está em `api/TermometroDaSala.Api.Tests/VetoresTestes.cs` (`HmacDoContrato`) e em `CONTRATO.md`. Cada sala usa `segredo-de-teste-sala-0N`; o vetor da sala 03 não assina a sala 01 (`ApiTestes.SegredoDeOutraSalaNaoAssina`). Nunca imprimir a chave.
 
-**Print E02:** [inserir aceite, registro persistido, teste da API e Serial com vetor comum sem chave] [saida local](evidencias/saidas/E02.txt)
+**Print E02:** ![Evidência E02](evidencias/prints/E02.png) [saida local](evidencias/saidas/E02.txt)
 
 ### 3. E03 — assinatura inválida e reenvio
 
@@ -102,7 +102,7 @@ Repetir o POST válido depois de reiniciar a API no laboratório. Esperado: o ú
 
 Duas cópias simultâneas de uma leitura nova: o código lê o dispositivo e grava em dois passos, sem token de concorrência (`ServicoLeituras.cs:28` e `:67-68`; C1 parcial no relatório). Se as duas forem gravadas, registrar a contagem como a lacuna declarada, não como aprovação. Não há teste automatizado de concorrência.
 
-**Print E03:** [inserir recusas HTTP, logs HTTP/MQTT e contagem antes/depois/reinício/concorrência] [saida local](evidencias/saidas/E03.txt)
+**Print E03:** ![Evidência E03](evidencias/prints/E03.png) [saida local](evidencias/saidas/E03.txt)
 
 ### 4. E04 — revogação e janela temporal
 
@@ -126,7 +126,7 @@ curl.exe -i -H 'Content-Type: application/json' --data-binary "@$Temporal" "$Api
 
 Esperado: 4xx e `atrasada` nos dois casos, sem gravação. A ordem está em `ValidadorLeitura.Motivo` (`api/TermometroDaSala.Api/Dominio/Contrato.cs:98`): assinatura, revogação, reenvio, janela de -10 min a +1 min, faixa. Teste: `VetoresTestes.LimitesDaJanelaEDaFaixa` e `ApiTestes.RecusasELeituraAceita`. O relógio do Wokwi por 15 minutos fica para o laboratório.
 
-**Print E04:** [inserir revogação, recusas temporais e ensaio de sincronização] [saida local](evidencias/saidas/E04.txt)
+**Print E04:** ![Evidência E04](evidencias/prints/E04.png) [saida local](evidencias/saidas/E04.txt)
 
 ### 5. E05 — SQLi na consulta de leituras
 
@@ -139,7 +139,7 @@ curl.exe -i --path-as-is "$Api/ambientes/sala-03%27%20OR%201%3D1%20--/leituras"
 
 Esperado: a sala conhecida devolve só as leituras dela; o id com apóstrofo responde 404 e não lista as outras salas. No teste `ApiTestes.ConsultaDeLeiturasParametrizada`, o comando gerado pelo EF compara o `Id` com o parâmetro `@__id_0` (tamanho 18); o texto `OR 1=1` não entra no SQL (`evidencias/consulta-parametrizada.txt`). Não habilitar log de dados sensíveis no servidor real.
 
-**Print E05:** [inserir consulta com arquivo/linha, parâmetros e comparação de resultados] [saida local](evidencias/saidas/E05.txt)
+**Print E05:** ![Evidência E05](evidencias/prints/E05.png) [saida local](evidencias/saidas/E05.txt)
 
 ### 6. E06 — foto legítima, GUID e LFI
 
@@ -156,7 +156,7 @@ Get-ChildItem -LiteralPath $PastaFotos -File | Select-Object Name, Length
 
 Esperado: foto legítima 200 com chave válida (definir `$env:CHAVE_COORDENACAO` sem exibir o valor); sem chave, 401. Nome GUID gerado no servidor; travessias 400/404, sem bytes de arquivo do Windows ou detalhe de caminho interno. Anexar resolução id → registro → arquivo, permissões e confirmação de armazenamento sem execução. Um GUID conhecido por terceiro não deve conceder acesso: E15 cobre autorização.
 
-**Print E06:** [inserir foto de equipamento, nome em disco, trecho de resolução e recusas de LFI] [saida local](evidencias/saidas/E06.txt)
+**Print E06:** ![Evidência E06](evidencias/prints/E06.png) [saida local](evidencias/saidas/E06.txt)
 
 ### 7. E07 — upload malicioso e tamanho
 
@@ -184,7 +184,7 @@ curl.exe -i -F "ambienteId=$AmbienteId" -F 'descricao=Teste de limite de tamanho
 
 Esperado: 400 com corpo `{"motivo":"arquivo"}` (`OcorrenciasController.cs:22`), sem arquivo nem ocorrência gravados. A requisição fica abaixo do teto de 6 MB, então a resposta vem da regra de 5 MB da ação. O arquivo grande também não é imagem, mas a regra de tamanho roda antes da de conteúdo (`:25`): o motivo `arquivo`, e não `nao-jpeg`, mostra que a recusa foi por tamanho.
 
-**Print E07:** [inserir recusas por conteúdo/tamanho, configuração de limite e ausência de gravação] [saida local](evidencias/saidas/E07.txt)
+**Print E07:** ![Evidência E07](evidencias/prints/E07.png) [saida local](evidencias/saidas/E07.txt)
 
 ### 8. E08 — validação na API e no app
 
@@ -201,7 +201,7 @@ curl.exe -i -F 'ambienteId=sala-inexistente' -F 'descricao=Ventilador sem funcio
 
 Esperado: 4xx, sem registros parciais. Descrição após trim: 10 a 500 caracteres (`OcorrenciasController.cs:21`). No app, fotografar erro com descrição de 9 e 501 caracteres e falta de foto, e sucesso com 10 e 500 caracteres e foto. Para temperatura -11/61 e umidade -1/101, repetir E02 com cada valor alterado também no texto canônico e com nova assinatura válida; alterar só JSON provaria HMAC, não faixa física. Esperado: `fora-da-faixa` (`Contrato.cs:106`) e nenhuma inserção. Testes: `VetoresTestes.LimitesDaJanelaEDaFaixa` e `ApiTestes.RecusasELeituraAceita`.
 
-**Print E08:** [inserir erros do servidor, casos de fronteira e validações do app] [saida local](evidencias/saidas/E08.txt)
+**Print E08:** ![Evidência E08](evidencias/prints/E08.png) [saida local](evidencias/saidas/E08.txt)
 
 ### 9. E09 — /demo/semear recusado fora de Demo
 
@@ -229,7 +229,7 @@ curl.exe -i -X POST 'http://localhost:5080/demo/semear?ambienteId=sala-03'
 
 Esperado em Production: **404**, log `demo semear recusado: fora-do-ambiente` e banco inalterado. O log separa essa recusa de um 404 de rota inexistente; registrar também a linha do código que confere o ambiente. Se houver redirecionamento HTTPS, repetir na URL HTTPS efetiva com certificado válido; 307 não é prova de 404.
 
-**Print E09:** [inserir ambiente, Demo funcional, Production 404 com o log `fora-do-ambiente` e condição no código] [saida local](evidencias/saidas/E09.txt)
+**Print E09:** ![Evidência E09](evidencias/prints/E09.png) [saida local](evidencias/saidas/E09.txt)
 
 ### 10. E10 — segredo fora do repositório
 
@@ -246,7 +246,7 @@ Esperado: regra para secrets.h/configurações locais, exemplo sem chave real e 
 
 No Wokwi, declarar que quem tem link consegue ver o segredo de demonstração. Não tentar comprovar sigilo inexistente. Anexar revogação e recusa posterior de E04, sem fotografar a chave.
 
-**Print E10:** [inserir regras, revisão de versionamento/histórico sem segredos e revogação] [saida local](evidencias/saidas/E10.txt)
+**Print E10:** ![Evidência E10](evidencias/prints/E10.png) [saida local](evidencias/saidas/E10.txt)
 
 ### 11. E11 — GPO, RDP, NTFS e auditoria
 
@@ -305,7 +305,7 @@ Start-Process -FilePath $FotoValida
 
 Esperado: orientação visível, nenhuma identificação nos arquivos e fotos ausentes do painel público. No Windows, abrir Propriedades → Detalhes tanto do original quanto da foto baixada e conferir GPS/autor/câmera; essa inspeção básica não é prova forense de remoção de todo metadado. `exif: false` evita pedir EXIF no retorno do seletor, sem garantir limpeza do arquivo transmitido. No servidor, `SemApp1` (`OcorrenciasController.cs:74`) regrava o JPEG sem APP1. Teste: `ApiTestes.UploadRemoveSegmentoApp1`. A revisão de rosto continua humana: tirar o EXIF não vê o conteúdo da foto.
 
-**Print E14:** [inserir avisos, foto artificial, detalhes e painel sem imagem de ocorrência] [saida local](evidencias/saidas/E14.txt)
+**Print E14:** ![Evidência E14](evidencias/prints/E14.png) [saida local](evidencias/saidas/E14.txt)
 
 ### 15. E15 — acesso indevido e encerramento da coleta
 
@@ -329,7 +329,7 @@ Get-Date -Format o
 
 Os arquivos temporários de leitura têm assinatura, não chave. Guardar somente evidências revisadas, eliminar cópias locais de fotos após a entrega conforme decisão da equipe e não publicar diretório temporário. Revogação é necessária mesmo após remover variáveis de memória.
 
-**Print E15:** [inserir negativas de acesso, operação autorizada, estado preservado e revogação final] [saida local](evidencias/saidas/E15.txt)
+**Print E15:** ![Evidência E15](evidencias/prints/E15.png) [saida local](evidencias/saidas/E15.txt)
 
 ## Montagem do PDF único
 
