@@ -26,7 +26,7 @@ Telas, IIS/HTTPS, ESP32, MQTT e revisão visual da foto real continuam com o coo
 
 | Arquivo | Comando (a partir de `api/`) | O que mostra |
 |---|---|---|
-| [dotnet-test.txt](dotnet-test.txt) | `dotnet test --logger "console;verbosity=normal"` (só as linhas de resultado) | 47 testes aprovados, incluindo `EsquemaTestes` e `DemoAplicaOModeloAoDiaDoCsvEDaOMesmoValor` |
+| [dotnet-test.txt](dotnet-test.txt) | `dotnet test TermometroDaSala.sln --no-restore --logger "console;verbosity=normal" -m:1 -nodeReuse:false` (só as linhas de resultado) | 55 testes da API aprovados em 07/11/2026, incluindo `EsquemaTestes` e `DemoAplicaOModeloAoDiaDoCsvEDaOMesmoValor` |
 | [migracoes-idempotente.sql](migracoes-idempotente.sql) | `dotnet ef migrations script --idempotent --project TermometroDaSala.Api -o evidencias/migracoes-idempotente.sql` | SQL das 3 migrações. Em `CREATE TABLE [Leituras]`, só a FK para `Ambientes` tem `ON DELETE CASCADE`; a FK para `Dispositivos` fica sem ação |
 
 `dotnet ef migrations has-pending-model-changes --project TermometroDaSala.Api` responde

@@ -1,14 +1,25 @@
-Resumo da execução local em 05/11/2026, lote M2 (correção 2).
-Comando na raiz:
-dotnet test api/TermometroDaSala.Api.Tests/TermometroDaSala.Api.Tests.csproj --no-restore --logger "console;verbosity=normal"
+Resumo da execução local em 07/11/2026. Windows, .NET SDK 8.0.427.
+Dependências resolvidas somente pelo cache local, sem fonte de rede.
+Comando na raiz (API):
+dotnet test api/TermometroDaSala.sln --no-restore --logger "console;verbosity=normal" -m:1 -nodeReuse:false
 
 Test Run Successful.
 Total tests: 55
      Passed: 55
- Total time: 4.7281 Seconds
+ Total time: 9.8409 Seconds
 
 0 falhas, 0 ignorados. 39 Fact e 16 InlineData em 3 Theory.
 Inclui 200 previsões de paridade do JSON com scikit-learn, igualdade das cópias
 do modelo e seis casos HTTP do alerta com delta e arredondamento da sala
 (26.9/27.0, 31.9/32.0 e 40.9/41.0), incluindo persistência do nível no histórico.
 Os 20 testes de segurança existentes continuam incluídos na suíte completa.
+
+Execução separada (desktop; não entra na contagem da API):
+dotnet test desktop/TermometroDaSala.Desktop.sln --no-restore --logger "console;verbosity=normal" -m:1 -nodeReuse:false
+
+Test Run Successful.
+Total tests: 6
+     Passed: 6
+ Total time: 2.3440 Seconds
+
+0 falhas, 0 ignorados. 6 Fact.

@@ -209,8 +209,8 @@ Situação desta versão em 05/11/2026.
 |---|---|
 | Modelo de ML | Notebook executado. Árvore (profundidade 12, folha 24) escolhida pelo MAE de validação. No teste de 2025, MAE 0,909 °C (`ml/modelo.json`) |
 | App do professor | Quatro telas em Expo. O modo simulado vem ligado; com `EXPO_PUBLIC_API_MOCK=0` o app chama a API |
-| API | Rotas de salas, leituras, previsão, ocorrências, ações, revogação e demonstração. Painel em `wwwroot`. 47 testes automatizados, todos passando no `dotnet test`: 37 `[Fact]` e 10 casos `[InlineData]` em 2 `[Theory]` (`api/evidencias/dotnet-test.txt`) |
-| Terminal da coordenação | Windows Forms: salas, ação, cadastro, revogação e CSV. Se a API cai, usa a reserva local |
+| API | Rotas de salas, leituras, previsão, ocorrências, ações, revogação e demonstração. Painel em `wwwroot`. 55 testes automatizados da API aprovados em 07/11/2026 no `dotnet test api/TermometroDaSala.sln --no-restore`: 39 `[Fact]` e 16 casos `[InlineData]` em 3 `[Theory]` (`api/evidencias/dotnet-test.txt`) |
+| Terminal da coordenação | Windows Forms: salas, ação, cadastro, revogação e CSV. Se a API cai, usa a reserva local. Separadamente da API, 6 testes aprovados em 07/11/2026 no `dotnet test desktop/TermometroDaSala.Desktop.sln --no-restore` (`api/evidencias/dotnet-test.txt`) |
 | ESP32 | `sketch.ino`, `diagram.json` e `libraries.txt` para o Wokwi. O `esp32/README.md` descreve a simulação e o vetor de HMAC |
 | Windows Server | Roteiro em `infra/README.md` e scripts `01-rede.ps1` a `09-teste-de-falha.ps1` |
 | Relatório de riscos | `seguranca/RELATORIO-RISCOS.md`, com ameaças, controles e evidências da solução |
