@@ -1,4 +1,5 @@
 """Regressão offline do alerta da rua, com o CSV real e o modelo exportado."""
+import ast
 import json
 import os
 from pathlib import Path
@@ -10,6 +11,19 @@ from sklearn.tree import DecisionTreeRegressor
 
 
 class AlertasTestes(unittest.TestCase):
+    def test_previsao_fria_e_bordas(self):
+        pasta = Path(__file__).resolve().parent
+        notebook = json.loads((pasta / 'termometro_da_sala.ipynb').read_text(encoding='utf-8'))
+        fonte, = [''.join(c['source']) for c in notebook['cells']
+                  if c['cell_type'] == 'code' and ''.join(c['source']).startswith('def indice_calor_c')]
+        # Executa só o classificador existente, sem preparar dados nem treinar.
+        funcao, = [n for n in ast.parse(fonte).body if isinstance(n, ast.FunctionDef) and n.name == 'nivel']
+        contexto = {}
+        exec(compile(ast.Module(body=[funcao], type_ignores=[]), '<nivel>', 'exec'), contexto)
+        for previsto, esperado in [(17.9, 'frio'), (18.0, 'normal'), (27.0, 'atencao')]:
+            with self.subTest(previsto=previsto):
+                self.assertEqual(esperado, contexto['nivel'](previsto))
+
     def test_precisao_recall_antes_e_depois(self):
         pasta = Path(__file__).resolve().parent
         self.assertTrue((pasta / 'dados/inmet_a701.csv').is_file())

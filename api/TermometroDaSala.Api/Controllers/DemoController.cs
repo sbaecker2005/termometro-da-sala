@@ -11,8 +11,46 @@ using TermometroDaSala.Api.Servicos;
 namespace TermometroDaSala.Api.Controllers;
 
 [ApiController]
-public class DemoController(SalaDb _db, IHostEnvironment _ambiente, ILogger<DemoController> _log) : ControllerBase
+public class DemoController(SalaDb _db, IHostEnvironment _ambiente, ILogger<DemoController> _log, TimeProvider tempo) : ControllerBase
 {
+    [HttpPost("/demo/mapa")]
+    [EnableRateLimiting("escrita")]
+    public async Task<IActionResult> SemearMapa([FromQuery] string periodo = "tarde")
+    {
+        if (!_ambiente.IsEnvironment("Demo")) return NotFound();
+        if (periodo is not ("tarde" or "madrugada")) return BadRequest(new MotivoSaida("periodo-invalido"));
+        var sala = await _db.Ambientes.Include(a => a.Dispositivos).Include(a => a.Lugares)
+            .AsSplitQuery().SingleOrDefaultAsync(a => a.Id == "sala-07");
+        if (sala is not null && (sala.Nome != "Sala 7" || await _db.Leituras.AnyAsync(l => l.AmbienteId == sala.Id && l.Origem == Origem.dispositivo)))
+            return Conflict(new MotivoSaida("ambiente-em-uso"));
+        var rotulos = new[] { "janela", "fundo", "porta", "centro" };
+        if (sala is null)
+        {
+            sala = new Ambiente { Id = "sala-07", Nome = "Sala 7", LarguraM = 6, ProfundidadeM = 4 };
+            var xs = new double[] { 0, 6, 6, 3 };
+            var ys = new double[] { 2, 4, 0, 2 };
+            for (var i = 0; i < 4; i++)
+                sala.Dispositivos.Add(new Dispositivo { Id = $"demo-sala-07-{rotulos[i]}", Rotulo = rotulos[i], PosX = xs[i], PosY = ys[i], Segredo = "somente-demonstracao-sala-07" });
+            for (var i = 0; i < 6; i++)
+                sala.Lugares.Add(new Lugar { Nome = $"Cadeira {i + 1}", X = i % 3 * 3, Y = i < 3 ? 2 : 4, Vulneravel = i is 0 or 5 });
+            _db.Ambientes.Add(sala);
+        }
+        if (sala.Dispositivos.Count != 4 || sala.Dispositivos.Any(d => !rotulos.Contains(d.Rotulo)))
+            return Conflict(new MotivoSaida("ambiente-em-uso"));
+        _db.Leituras.RemoveRange(await _db.Leituras.Where(l => l.AmbienteId == sala.Id && l.Origem == Origem.simulada).ToListAsync());
+        var agora = tempo.GetUtcNow();
+        foreach (var d in sala.Dispositivos)
+        {
+            var t = periodo == "tarde" ? (d.Rotulo == "janela" ? 35 : 24)
+                : (d.Rotulo == "fundo" ? 15 : 22);
+            var indice = IndiceCalor.Calcular(t, 60);
+            _db.Leituras.Add(new Leitura { AmbienteId = sala.Id, DispositivoId = d.Id, TemperaturaC = t,
+                UmidadePct = 60, IndiceCalor = indice, Nivel = IndiceCalor.Nivel(indice), MedidoEm = agora, Origem = Origem.simulada });
+        }
+        await _db.SaveChangesAsync();
+        return Created("/ambientes/sala-07/mapa", new DemoSaida(4));
+    }
+
     [HttpPost("/demo/semear")]
     [EnableRateLimiting("escrita")]
     public async Task<IActionResult> Semear([FromQuery] string ambienteId)

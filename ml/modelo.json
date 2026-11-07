@@ -17,13 +17,13 @@
   "MAE (°C)": 0.909,
   "RMSE (°C)": 1.324,
   "R²": 0.929,
-  "F1 macro (níveis)": 0.73
+  "F1 macro (níveis)": 0.764
  },
  "baseline_teste": {
   "MAE (°C)": 1.442,
   "RMSE (°C)": 2.021,
   "R²": 0.834,
-  "F1 macro (níveis)": 0.667
+  "F1 macro (níveis)": 0.693
  },
  "tipo": "arvore",
  "raiz": {

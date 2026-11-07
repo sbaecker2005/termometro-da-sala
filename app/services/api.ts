@@ -33,6 +33,7 @@ type AmbienteBase = Omit<Ambiente, 'ultimaLeituraEm' | 'semLeitura'> & { minutos
 
 // Sala 9 fica com leitura de 5 h atrás para o aviso de "sem leituras recentes" fazer sentido.
 const AMBIENTES: AmbienteBase[] = [
+  { id: 'sala-05', nome: 'Sala 5', andar: 0, faceSol: 'sul', nivelAtual: 'frio', indiceAtual: 17.9, minutosDesdeLeitura: 2 },
   { id: 'sala-03', nome: 'Sala 3', andar: 1, faceSol: 'oeste', nivelAtual: 'cuidado', indiceAtual: 34.2, minutosDesdeLeitura: 2 },
   { id: 'sala-01', nome: 'Sala 1', andar: 0, faceSol: 'leste', nivelAtual: 'normal', indiceAtual: 24.5, minutosDesdeLeitura: 4 },
   { id: 'sala-12', nome: 'Sala 12', andar: 2, faceSol: 'norte', nivelAtual: 'atencao', indiceAtual: 29.4, minutosDesdeLeitura: 3 },
@@ -52,6 +53,15 @@ function ambientesSimulados(agora: number): Ambiente[] {
 type PrevisaoBase = Omit<Previsao, 'ambienteId' | 'previstoPara'>;
 
 const PREVISOES: Record<string, PrevisaoBase> = {
+  'sala-05': {
+    indiceRuaPrevisto: 17,
+    deltaSala: 0,
+    indiceSalaPrevisto: 17,
+    nivelPrevisto: 'frio',
+    semLeiturasRecentes: false,
+    demonstracao: true,
+    ruaDisponivel: true,
+  },
   'sala-03': {
     indiceRuaPrevisto: 34,
     deltaSala: 4,

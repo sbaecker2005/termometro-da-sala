@@ -26,6 +26,10 @@ const semRua = {
 };
 
 describe('lerPrevisao', () => {
+  it('aceita frio na previsão recebida', () => {
+    const fria = { ...comRua, indiceRuaPrevisto: 17.9, deltaSala: 0, indiceSalaPrevisto: 17.9, nivelPrevisto: 'frio' };
+    assert.deepEqual(lerPrevisao(fria), fria);
+  });
   it('aceita a previsão com e sem a rua', () => {
     assert.deepEqual(lerPrevisao(comRua), comRua);
     assert.deepEqual(lerPrevisao(semRua), semRua);

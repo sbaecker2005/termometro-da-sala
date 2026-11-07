@@ -18,6 +18,38 @@ public class EsquemaTestes
         .Options);
 
     [Fact]
+    public void FrioTemMigracaoIdempotenteSemMudancasPendentes()
+    {
+        using var db = NovoBanco();
+        var migracao = db.Database.GetMigrations().Single(m => m.EndsWith("_AlertaFrio"));
+        Assert.EndsWith("_AlertaFrio", migracao);
+        var sql = db.GetService<IMigrator>().GenerateScript("20261105050515_SegredosPorDispositivo", migracao,
+            MigrationsSqlGenerationOptions.Idempotent);
+        Assert.Contains("IF NOT EXISTS", sql);
+        Assert.Contains(migracao, sql);
+        Assert.Contains("N''frio''", sql);
+        Assert.Contains("SET [IndiceMin] = 18", sql);
+        Assert.DoesNotContain("DELETE FROM", sql);
+        Assert.False(db.Database.HasPendingModelChanges());
+    }
+
+    [Fact]
+    public void MapaTemMigracaoIdempotenteAditiva()
+    {
+        using var db = NovoBanco();
+        var migracao = db.Database.GetMigrations().Last();
+        Assert.EndsWith("_MapaTermico", migracao);
+        var sql = db.GetService<IMigrator>().GenerateScript("20261107033211_AlertaFrio", migracao,
+            MigrationsSqlGenerationOptions.Idempotent);
+        Assert.Contains("IF NOT EXISTS", sql);
+        Assert.Contains("CREATE TABLE [Lugares]", sql);
+        Assert.Contains("ADD [PosX]", sql);
+        Assert.DoesNotContain("DROP TABLE", sql);
+        Assert.DoesNotContain("DELETE FROM", sql);
+        Assert.False(db.Database.HasPendingModelChanges());
+    }
+
+    [Fact]
     public void LeituraNaoApagaEmCascataPeloDispositivo()
     {
         using var db = NovoBanco();

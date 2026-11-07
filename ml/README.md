@@ -1,5 +1,9 @@
 # Termômetro da Sala — Machine Learning
 
+O mesmo sensor avisa calor no verão (escolas) e frio no inverno (dormitórios e abrigos).
+
+O classificador inclui Frio abaixo de 18 °C (mínimo interno recomendado pela OMS para moradias). O notebook foi regenerado e executado por completo: 15 células de código e 37 saídas, incluindo as métricas de frio. A execução reproduziu a mesma árvore exportada; o F1 macro foi recalculado com frio entre os níveis presentes, e as métricas de calor a partir de 32 °C permanecem iguais.
+
 [![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sbaecker2005/termometro-da-sala/blob/main/ml/termometro_da_sala.ipynb)
 
 ## Ficha da CitizenTech
@@ -52,11 +56,11 @@ Integrantes: Samuel Baecker — RM [preencher]
 
 | Modelo | MAE (°C) | RMSE (°C) | R² | F1 macro (níveis presentes) |
 |---|---:|---:|---:|---:|
-| Baseline "daqui a 2 h = agora" | 1,442 | 2,021 | 0,834 | 0,667 |
-| Regressão linear (com índice atual) | 1,050 | 1,448 | 0,915 | 0,757 |
-| Floresta (somente comparação) | 0,822 | 1,220 | 0,939 | 0,728 |
-| Árvore anterior (8, folha 30) | 0,958 | 1,364 | 0,924 | 0,660 |
-| **Árvore exportada (12, folha 24)** | **0,909** | **1,324** | **0,929** | **0,730** |
+| Baseline "daqui a 2 h = agora" | 1,442 | 2,021 | 0,834 | 0,693 |
+| Regressão linear (com índice atual) | 1,050 | 1,448 | 0,915 | 0,778 |
+| Floresta (somente comparação) | 0,822 | 1,220 | 0,939 | 0,767 |
+| Árvore anterior (8, folha 30) | 0,958 | 1,364 | 0,924 | 0,710 |
+| **Árvore exportada (12, folha 24)** | **0,909** | **1,324** | **0,929** | **0,764** |
 
 O nível "perigo" (índice ≥ 41 °C) não aparece na rua da A701 entre 2022 e 2025, por isso o F1 macro é a média dos níveis presentes. Dentro de uma sala sem ventilação o índice passa da rua: é o que o delta mede.
 
@@ -105,8 +109,8 @@ O teste Python reutiliza as células de preparação e divisão temporal do note
 treina a árvore anterior e percorre o JSON revisado em todos os exemplos de 2024/2025.
 Confere TP, FP, FN, precisão e recall das seis linhas de `alertas.csv`, sem executar
 a grade nem regravar o notebook. Essas métricas usam o índice da rua sem delta.
-Na API, seis casos pela rota HTTP conferem o nível servido e gravado após somar
-o delta e arredondar a sala para uma casa, dos dois lados dos limites 27/32/41 °C.
+Na API, oito casos pela rota HTTP conferem o nível servido e gravado após somar
+o delta e arredondar a sala para uma casa, dos dois lados dos limites 18/27/32/41 °C.
 
 **No Colab:** clique em "Abrir no Colab" no topo e use Ambiente de execução → Executar tudo. Não instale o `requirements.txt` no Colab: as versões fixadas (numpy 1.24.3, pandas 2.0.3, scikit-learn 1.3.0) são as da execução local em Python 3.11 e não têm pacote para o Python do Colab. As bibliotecas que já vêm no Colab bastam. Sem a pasta `ml` ao lado, o notebook lê o CSV de `https://raw.githubusercontent.com/sbaecker2005/termometro-da-sala/main/ml/dados/inmet_a701.csv`. O RMSE é calculado com `np.sqrt(mean_squared_error(...))`, que funciona nas versões antigas e novas do scikit-learn.
 
@@ -118,4 +122,9 @@ python gerar_notebook.py
 python -c "from pathlib import Path; import nbformat; from nbclient import NotebookClient; p = Path('termometro_da_sala.ipynb'); nb = nbformat.read(p, as_version=4); NotebookClient(nb, timeout=600, kernel_name='python3').execute(); nbformat.write(nb, p)"
 ```
 
-O `gerar_notebook.py` monta as células e o comando seguinte executa todas, gravando as saídas no `.ipynb`. A execução regrava `modelo.json`; com os mesmos dados e versões ele sai idêntico ao copiado em `api/TermometroDaSala.Api/modelo/modelo.json`.
+O `gerar_notebook.py` monta as células e o comando seguinte executa todas, gravando as saídas no `.ipynb`. A execução regrava `modelo.json`; mantenha a cópia em `api/TermometroDaSala.Api/modelo/modelo.json` idêntica, inclusive as métricas por nível.
+
+Na execução de 07/11/2026, o Windows negou a configuração de permissões do arquivo
+de conexão do Jupyter. Foi usado o kernel em processo já instalado
+(`ipykernel.inprocess.manager.InProcessKernelManager`), com histórico em memória
+e gráficos inline, preservando os eventos de saída das 15 células na ordem.

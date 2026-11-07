@@ -1,5 +1,7 @@
 # Termômetro da Sala — desktop da coordenação
 
+O mesmo sensor avisa calor no verão (escolas) e frio no inverno (dormitórios e abrigos).
+
 ## Ficha da CitizenTech
 
 | Campo | Conteúdo |
@@ -60,6 +62,7 @@ O nível aparece sempre por texto e cor, para não depender só da cor. A mesma 
 
 | Texto na grade | Cor da célula | Significado |
 |---|---|---|
+| Frio | azul claro | Agasalhar e oferecer cobertor |
 | Normal | verde claro | Índice de calor seguro |
 | Atenção | amarelo | Calor subindo: acompanhar a sala |
 | Cuidado extremo | laranja claro | Agir: ventilar, oferecer água, pausar atividade física |
@@ -76,7 +79,7 @@ Tela principal sem API e sem dados neste computador (modo DEMONSTRAÇÃO, uma sa
 
 ## API e modo local
 
-O cliente segue os contratos de `api/TermometroDaSala.Api/Contratos`. Níveis JSON: `normal`, `atencao`, `cuidado`, `perigo` (texto exibido: Normal, Atenção, Cuidado extremo, Perigo).
+O cliente segue os contratos de `api/TermometroDaSala.Api/Contratos`. Níveis JSON: `frio`, `normal`, `atencao`, `cuidado`, `perigo` (texto exibido: Frio, Normal, Atenção, Cuidado extremo, Perigo).
 
 | Rota | Entrada / resposta |
 |---|---|
@@ -97,7 +100,7 @@ Gravações não são repetidas automaticamente em outro serviço: após falha d
 O arquivo local é `%LOCALAPPDATA%/TermometroDaSala/dados.json`, separado dos dados da API.
 As ações (numeradas em sequência) e a marcação de revogação persistem após fechar o programa.
 
-**DEMONSTRAÇÃO.** Enquanto esse arquivo não existe (por exemplo, quem abre o ZIP sem a API), o modo local mostra quatro salas de exemplo, uma por nível, com previsão e duas ações. A faixa de situação diz "MODO LOCAL — DEMONSTRAÇÃO", cada linha traz o aviso DEMONSTRAÇÃO, os nomes terminam em "(exemplo)" e as duas ações começam com "DEMONSTRAÇÃO:", inclusive no CSV exportado. Os exemplos nunca são gravados: registrar ação ou revogar sensor numa sala de exemplo é recusado, e o primeiro cadastro de sala cria o arquivo só com a sala cadastrada. A partir daí, sem sensor nem API, as salas aparecem como **Sem leitura / Sem previsão**; fora da demonstração não há medição ou previsão artificial.
+**DEMONSTRAÇÃO.** Enquanto esse arquivo não existe (por exemplo, quem abre o ZIP sem a API), o modo local mostra cinco salas de exemplo, uma por nível, com previsão e duas ações. A faixa de situação diz "MODO LOCAL — DEMONSTRAÇÃO", cada linha traz o aviso DEMONSTRAÇÃO, os nomes terminam em "(exemplo)" e as duas ações começam com "DEMONSTRAÇÃO:", inclusive no CSV exportado. Os exemplos nunca são gravados: registrar ação ou revogar sensor numa sala de exemplo é recusado, e o primeiro cadastro de sala cria o arquivo só com a sala cadastrada. A partir daí, sem sensor nem API, as salas aparecem como **Sem leitura / Sem previsão**; fora da demonstração não há medição ou previsão artificial.
 Uma revogação local **não bloqueia o sensor no servidor**. A cada atualização o cliente tenta novamente a API e sinaliza a troca de origem.
 Não há sincronização automática: cadastros e ações locais continuam no arquivo local quando a API retorna.
 Use uma instância por computador para evitar gravações concorrentes no arquivo local.
@@ -124,7 +127,7 @@ O domínio é encapsulado: as propriedades têm `private set`, então só a pró
 - `Sala.Criar(...)` valida antes de criar e, se algum campo estiver errado, lança `CadastroInvalidoException` com a mensagem de cada campo, que o cadastro mostra no ErrorProvider. A sala só muda por `Revogar()` e `ReceberLeitura(...)`.
 - `Acao` tem um construtor que valida sala, nível e descrição (5 a 300 caracteres, sem espaços nas pontas). O número da ação vem da API ou do modo local.
 - A sala que chega da API ou do arquivo passa por `Problemas()` antes de aparecer na tela.
-- O enum segue a convenção do C# (`Normal`, `Atencao`, `Cuidado`, `Perigo`). O conversor `NivelCalorJson` grava em minúsculas, como a API, e por isso o arquivo local da versão anterior continua abrindo.
+- O enum segue a convenção do C# (`Normal`, `Atencao`, `Cuidado`, `Perigo`, `Frio`). O conversor `NivelCalorJson` grava em minúsculas, como a API, e por isso o arquivo local da versão anterior continua abrindo.
 
 ## Diagrama de classes
 
@@ -137,6 +140,7 @@ classDiagram
         Atencao
         Cuidado
         Perigo
+          Frio
     }
     class Sala {
         +string Id

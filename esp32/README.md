@@ -1,5 +1,7 @@
 # Termômetro da Sala — ESP32
 
+O mesmo sensor avisa calor no verão (escolas) e frio no inverno (dormitórios e abrigos).
+
 ## Ficha da CitizenTech
 
 | Campo | Conteúdo |
@@ -105,7 +107,8 @@ compilação continua sendo feita pelo Wokwi.
 
 | Índice de calor | Nível | LED | LCD (2ª linha) | Buzzer | Ação sugerida |
 |---|---|---|---|---|---|
-| < 27 °C | Normal | verde | `Normal` | mudo | nenhuma |
+| < 18 °C | Frio | amarelo piscando (500 ms) | `FRIO` | mudo | fechar janelas, agasalhar e oferecer cobertor |
+| ≥ 18 e < 27 °C | Normal | verde | `Normal` | mudo | nenhuma |
 | ≥ 27 e < 32 °C | Atenção | amarelo | `Atencao` | mudo | água, janelas abertas, ventiladores |
 | ≥ 32 e < 41 °C | Cuidado extremo | vermelho fixo | `Cuidado extremo` | mudo | pausa, troca de sala, adiar Educação Física |
 | ≥ 41 °C | Perigo | vermelho piscando (500 ms) | `Perigo` | bip de 150 ms a cada 2 s | tirar a turma da sala |
@@ -115,6 +118,8 @@ não tem acentos, por isso `Atencao`. Em Perigo, o botão "Ciente" silencia o
 buzzer e o LCD passa a `Perigo (ciente)`; o LED continua piscando. Quando o nível sai de
 Perigo, o "ciente" é zerado e um novo Perigo volta a bipar. O botão só vale em
 Perigo e é local: não entra na leitura assinada nem muda o contrato com a API.
+
+O frio reutiliza o LED amarelo piscando para manter o circuito do Wokwi; Atenção continua com amarelo fixo. O LCD escreve `FRIO`, e o buzzer continua exclusivo de Perigo. A referência de 18 °C como mínimo interno é a recomendação da OMS para moradias. À noite, a ação de frio inclui avisar o plantão e levar quem estiver no cômodo mais frio para outro.
 
 Todos apagados: ainda não mediu ou o sensor deu valor inválido (ver Serial);
 apagado não é Normal. Sensor inválido: o LCD mostra `Sem leitura` /

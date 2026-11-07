@@ -1,14 +1,16 @@
-Resumo da execução local em 05/11/2026, lote M2 (correção 2).
+Resumo da execução local em 07/11/2026, alerta de frio.
 Comando na raiz:
-dotnet test api/TermometroDaSala.Api.Tests/TermometroDaSala.Api.Tests.csproj --no-restore --logger "console;verbosity=normal"
+dotnet test api/TermometroDaSala.Api.Tests/TermometroDaSala.Api.Tests.csproj --no-restore --verbosity minimal
 
-Test Run Successful.
-Total tests: 55
-     Passed: 55
- Total time: 4.7281 Seconds
+Passed! - Failed: 0, Passed: 61, Skipped: 0, Total: 61, Duration: 6 s
 
-0 falhas, 0 ignorados. 39 Fact e 16 InlineData em 3 Theory.
+0 falhas, 0 ignorados. Banco SQLite em memória nas rotas; SQL Server sem abrir conexão nos testes de esquema.
 Inclui 200 previsões de paridade do JSON com scikit-learn, igualdade das cópias
-do modelo e seis casos HTTP do alerta com delta e arredondamento da sala
-(26.9/27.0, 31.9/32.0 e 40.9/41.0), incluindo persistência do nível no histórico.
+do modelo e oito casos HTTP do alerta com delta e arredondamento da sala
+(17.9/18.0, 26.9/27.0, 31.9/32.0 e 40.9/41.0), incluindo persistência do nível no histórico.
+Inclui limites diretos 17.9/18.0/27.0, GET /niveis com cinco faixas e ação de frio,
+SQL idempotente da migração AlertaFrio e ausência de mudanças pendentes no modelo.
+Não foi aplicada migração no SQL Server local nesta execução.
+Execução repetida após regenerar e executar as 15 células do notebook (37 saídas),
+recalcular as métricas com frio e sincronizar a cópia de modelo.json da API.
 Os 20 testes de segurança existentes continuam incluídos na suíte completa.

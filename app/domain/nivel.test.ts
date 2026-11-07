@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { apresentarNivel, nivelDeIndice } from './nivel.ts';
+import { apresentarNivel, ehNivel, nivelDeIndice } from './nivel.ts';
 
 describe('nivelDeIndice', () => {
   it('separa as faixas nos limites do contrato', () => {
+    assert.equal(nivelDeIndice(17.9), 'frio');
+    assert.equal(nivelDeIndice(18), 'normal');
     assert.equal(nivelDeIndice(26.9), 'normal');
     assert.equal(nivelDeIndice(27), 'atencao');
     assert.equal(nivelDeIndice(31.9), 'atencao');
@@ -19,6 +21,12 @@ describe('nivelDeIndice', () => {
 });
 
 describe('apresentarNivel', () => {
+  it('aceita frio e mostra nome, ação e azul', () => {
+    assert.ok(ehNivel('frio'));
+    assert.deepEqual(apresentarNivel('frio'), {
+      nome: 'Frio', acao: 'Fechar janelas, agasalhar e oferecer cobertor; à noite, avisar o plantão', cor: '#1D4ED8',
+    });
+  });
   it('traz nome e ação junto da cor', () => {
     const cuidado = apresentarNivel('cuidado');
     assert.equal(cuidado.nome, 'Cuidado extremo');

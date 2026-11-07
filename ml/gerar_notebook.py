@@ -103,9 +103,9 @@ assert por_ano.ausentes_ou_descartadas.sum() == len(faltantes)"""),
             hi += ((rh - 85) / 10) * ((87 - t) / 5)
     return round((hi - 32) * 5 / 9, 1)
 
-NIVEIS = ['normal', 'atencao', 'cuidado', 'perigo']
+NIVEIS = ['frio', 'normal', 'atencao', 'cuidado', 'perigo']
 def nivel(i):
-    return 'normal' if i < 27 else 'atencao' if i < 32 else 'cuidado' if i < 41 else 'perigo'
+    return 'frio' if i < 18 else 'normal' if i < 27 else 'atencao' if i < 32 else 'cuidado' if i < 41 else 'perigo'
 
 for t, u, esperado, n in [(24.0, 40, 23.5, 'normal'), (30.0, 50, 31.0, 'atencao'), (33.4, 58, 39.8, 'cuidado'), (38.0, 70, 62.5, 'perigo')]:
     assert indice_calor_c(t, u) == esperado and nivel(esperado) == n
@@ -231,7 +231,7 @@ previsoes_teste = {n: f(teste) for n, f in candidatos.items()}
 resultado_teste = pd.DataFrame([avalia(n, p, teste.alvo) for n, p in previsoes_teste.items()])
 resultado_teste"""),
     md("### Onde o modelo acerta e onde erra (teste, 2025)"),
-    md("O `classification_report` inclui os quatro níveis: sua média macro inclui `perigo` com suporte zero. A tabela de regressão usa F1 macro apenas dos níveis presentes, por isso as duas médias diferem."),
+    md("O `classification_report` inclui os cinco níveis: sua média macro inclui `perigo` com suporte zero. A tabela de regressão usa F1 macro apenas dos níveis presentes, por isso as duas médias diferem."),
     code("""prev = previsoes_teste[escolhido]
 relatorios = {}
 for nome in ['baseline (agora)', escolhido]:
@@ -316,7 +316,8 @@ A previsão sai do `modelo.json` percorrido como a API faz. Depois soma-se o *de
 da sala: a diferença média sala − rua das últimas 3 h, medida pelo ESP32. Aqui o delta
 é o valor de exemplo da sala 3 no modo demonstração (+4 °C), não uma medição real.
 O nível e a ação sugerida seguem a tabela do `CONTRATO.md`."""),
-    code("""ACOES = {'normal': 'nenhuma',
+    code("""ACOES = {'frio': 'fechar janelas, agasalhar e oferecer cobertor; à noite, avisar o plantão',
+         'normal': 'nenhuma',
          'atencao': 'liberar água, abrir janelas e ligar ventiladores',
          'cuidado': 'pausa, troca de sala ou adiar Educação Física',
          'perigo': 'tirar a turma da sala'}

@@ -5,6 +5,9 @@ public class Dispositivo
     public string Id { get; set; } = "";
     public string AmbienteId { get; set; } = "";
     public string Segredo { get; set; } = "";
+    public double? PosX { get; set; }
+    public double? PosY { get; set; }
+    public string? Rotulo { get; set; }
     public bool Ativo { get; private set; } = true;
     public DateTimeOffset? UltimoMedidoEm { get; set; }
     public Ambiente Ambiente { get; set; } = null!;

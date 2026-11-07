@@ -7,9 +7,10 @@ namespace TermometroDaSala.Api.Dominio;
 
 public static class IndiceCalor
 {
-    // Faixas iguais à semente de NivelAcao (27 atenção, 32 cuidado, 41 perigo); GET /niveis devolve a tabela e o teste confere as duas.
+    // Faixas iguais à semente de NivelAcao; 18 °C é o mínimo interno recomendado pela OMS para moradias.
     public static Nivel Nivel(double indice)
     {
+        if (indice < 18) return Entidades.Nivel.frio;
         if (indice < 27) return Entidades.Nivel.normal;
         if (indice < 32) return Entidades.Nivel.atencao;
         if (indice < 41) return Entidades.Nivel.cuidado;

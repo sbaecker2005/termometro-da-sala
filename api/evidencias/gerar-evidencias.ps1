@@ -240,7 +240,7 @@ try {
     }
     $estado = Banco B3 'SELECT * FROM Ambientes ORDER BY Id; SELECT Id,AmbienteId,Ativo,UltimoMedidoEm FROM Dispositivos ORDER BY Id; SELECT * FROM NiveisAcao ORDER BY IndiceMin' {
         param($d)
-        $d.Tables[0].Rows.Count -eq 4 -and $d.Tables[1].Rows.Count -eq 4 -and $d.Tables[2].Rows.Count -eq 4
+        $d.Tables[0].Rows.Count -eq 4 -and $d.Tables[1].Rows.Count -eq 4 -and $d.Tables[2].Rows.Count -eq 5
     }
     if ($estado) {
         if (@($estado.Tables[0].Rows | Where-Object Id -eq 'sala-05').Count) { throw 'sala-05 ja existe; interrompido para nao alterar dados anteriores.' }
