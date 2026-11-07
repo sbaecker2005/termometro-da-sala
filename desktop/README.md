@@ -7,7 +7,7 @@ O mesmo sensor avisa calor no verão (escolas) e frio no inverno (dormitórios e
 | Campo | Conteúdo |
 |---|---|
 | Nome da CitizenTech | Termômetro da Sala |
-| Cidade e bairro | São Paulo, [bairro da escola entrevistada] |
+| Cidade e bairro | São Paulo, bairro da escola [a confirmar] |
 | Cidadão beneficiado | Professor(a) e turma de uma sala sem climatização. Quem opera o sistema é a coordenação pedagógica |
 | Problema, em uma frase | Nas tardes quentes, a sala passa do limite seguro sem que ninguém meça, e a escola só reage quando alguém passa mal |
 | Como funciona | Um sensor na porta da sala mede o calor e acende verde, amarelo ou vermelho. O sistema prevê o nível da sala para daqui a 2 h. A coordenação vê todas as salas, decide e registra a ação tomada. O professor acompanha pelo app e registra ocorrências com foto |
@@ -20,7 +20,11 @@ O mesmo sensor avisa calor no verão (escolas) e frio no inverno (dormitórios e
 
 Nas tardes quentes, a coordenação não sabe quais salas passaram do limite seguro de calor. O terminal mostra o nível de cada sala, a previsão para as próximas 2 horas e as ações tomadas no dia, e permite revogar um sensor suspeito.
 
-Pessoa real: **[preencher nome, cargo, escola e data da entrevista]**. Relato: [preencher 2 ou 3 frases do que a pessoa contou]. A entrevista não coleta dados de alunos.
+Pessoa real: **Monalisa Daniela Pereira Amaral, coordenadora do CRAS Santo Amaro (São Paulo)**. Data da entrevista: **07/11/2026**, por escrito, com autorização para citar o nome e as frases. O CRAS entra como referência de ambiente público; a escola continua sendo o cenário principal.
+
+Relato: No CRAS Santo Amaro, em São Paulo, passam no mínimo 150 pessoas por dia, porque ali também funciona um posto do Cadastro Único. A sala dos técnicos recebe sol à tarde, e o calor pesa de janeiro a março; a unidade conta só com janelas e ventiladores e nunca teve climatização, por limitação orçamentária. A coordenadora gostaria de receber o aviso no celular, para ligar ventiladores, abrir janelas e providenciar água gelada e leques, e de ter o histórico de temperatura para levar à Supervisão de Assistência Social, junto com o pedido de manutenção que já fez.
+
+A entrevista não coleta dados de alunos. Os números do CRAS não substituem os da escola do piloto, ainda [a confirmar].
 
 Equipe: **Termômetro da Sala**. Integrante: Samuel Baecker — RM [preencher]. Demais integrantes: [preencher, se houver].
 
