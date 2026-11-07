@@ -130,8 +130,7 @@ Roteiro do vídeo: [ROTEIRO-VIDEO.md](ROTEIRO-VIDEO.md). Prints em `evidencias/`
 
 Para repetir o cenario da madrugada, altere os quatro DHT22 no simulador;
 nao repita a semeadura sobre leituras do circuito. Saltos acima de 5 C sao
-marcados como suspeitos pela API. Roteiro anterior: [ROTEIRO-VIDEO.md](ROTEIRO-VIDEO.md);
-para quatro pontos, use o ensaio desta pagina.
+marcados como suspeitos pela API.
 
 ## Limitacoes
 
