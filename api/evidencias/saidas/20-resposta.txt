@@ -1,4 +1,4 @@
-2026-11-06T02:34:21.2805870-03:00
+2026-11-07T10:02:15.4104172-03:00
 Ambiente: Development; MQTT desligado; conexao: ***
 GET http://localhost:5080/ambientes
 
@@ -7,9 +7,9 @@ Esperado: HTTP 200;
 HTTP 200 OK
 Transfer-Encoding: chunked
 X-Content-Type-Options: nosniff
-Date: Fri, 06 Nov 2026 05:34:20 GMT
+Date: Sat, 07 Nov 2026 13:02:14 GMT
 Server: Kestrel
 Content-Type: application/json; charset=utf-8
 
-[{"id":"sala-01","nome":"Sala 1","andar":0,"faceSol":"leste","nivelAtual":"normal","indiceAtual":0,"ultimaLeituraEm":"","semLeitura":true,"temVentilador":true,"dispositivoId":"esp32-sala-01"},{"id":"sala-02","nome":"Sala 2","andar":0,"faceSol":"norte","nivelAtual":"normal","indiceAtual":0,"ultimaLeituraEm":"","semLeitura":true,"temVentilador":true,"dispositivoId":"esp32-sala-02"},{"id":"sala-03","nome":"Sala 3","andar":1,"faceSol":"oeste","nivelAtual":"cuidado","indiceAtual":39.8,"ultimaLeituraEm":"2026-11-06T05:34:20.0000000+00:00","semLeitura":false,"temVentilador":true,"dispositivoId":"esp32-sala-03"},{"id":"sala-04","nome":"Sala 4","andar":2,"faceSol":"sul","nivelAtual":"normal","indiceAtual":0,"ultimaLeituraEm":"","semLeitura":true,"temVentilador":false,"dispositivoId":"esp32-sala-04"}]
+[{"id":"sala-01","nome":"Sala 1","andar":0,"faceSol":"leste","nivelAtual":"normal","indiceAtual":0,"ultimaLeituraEm":"","semLeitura":true,"temVentilador":true,"dispositivoId":"esp32-sala-01"},{"id":"sala-02","nome":"Sala 2","andar":0,"faceSol":"norte","nivelAtual":"normal","indiceAtual":0,"ultimaLeituraEm":"","semLeitura":true,"temVentilador":true,"dispositivoId":"esp32-sala-02"},{"id":"sala-03","nome":"Sala 3","andar":1,"faceSol":"oeste","nivelAtual":"cuidado","indiceAtual":39.8,"ultimaLeituraEm":"2026-11-07T13:02:13.0000000+00:00","semLeitura":false,"temVentilador":true,"dispositivoId":"esp32-sala-03"},{"id":"sala-04","nome":"Sala 4","andar":2,"faceSol":"sul","nivelAtual":"normal","indiceAtual":0,"ultimaLeituraEm":"","semLeitura":true,"temVentilador":false,"dispositivoId":"esp32-sala-04"}]
 Conferencia: OK

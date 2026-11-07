@@ -54,10 +54,10 @@ Cortes rápidos de 3 s cada, gravados antes, com o nome da disciplina na tela.
 |---|---|
 | Archi com a "Visão em quatro camadas" aberta e as visões Motivação, Negócio, Aplicação, Tecnologia e Implementação e migração na árvore do modelo (`arquitetura/termometro-da-sala.archimate`) | Arquitetura (TOGAF) |
 | Notebook do modelo com a tabela de MAE de validação e teste | Machine Learning |
-| Saída do `dotnet test` com os 55 testes passando | SOA e Testing |
+| Saída do `dotnet test` com os 81 testes passando (total: `api/evidencias/dotnet-test.txt`) | SOA e Testing |
 | Windows Server com o IIS e o pool da API | Operating Systems |
 
-> Por trás disso: o modelo ArchiMate com uma visão por camada, o notebook com dados reais do INMET, a API com 55 testes passando e o servidor Windows que publica tudo.
+> Por trás disso: o modelo ArchiMate com uma visão por camada, o notebook com dados reais do INMET, a API com 81 testes passando (total: `api/evidencias/dotnet-test.txt`; divisão: 46 `[Fact]` e 35 `[InlineData]` em 8 `[Theory]`, contados em `api/TermometroDaSala.Api.Tests/{ApiTestes,EsquemaTestes,PrevisorModeloTestes,VetoresTestes,MapaTestes}.cs`) e o servidor Windows que publica tudo.
 
 ## Impacto (2:30 a 3:10)
 

@@ -1,4 +1,4 @@
-2026-11-06T02:34:21.9632869-03:00
+2026-11-07T10:02:16.1666846-03:00
 Ambiente: Demo; MQTT desligado; conexao: ***
 POST http://localhost:5080/demo/semear?ambienteId=sala-02
 
@@ -7,7 +7,7 @@ Esperado: HTTP 409; ligue o sensor primeiro
 HTTP 409 Conflict
 Transfer-Encoding: chunked
 X-Content-Type-Options: nosniff
-Date: Fri, 06 Nov 2026 05:34:21 GMT
+Date: Sat, 07 Nov 2026 13:02:15 GMT
 Server: Kestrel
 Content-Type: application/json; charset=utf-8
 

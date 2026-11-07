@@ -1,14 +1,14 @@
-2026-11-06T02:34:23.5487226-03:00
+2026-11-07T10:02:17.9463434-03:00
 SQL Server Express local; autenticacao Windows; conexao: ***
 SQL: SELECT TOP 5 * FROM Leituras ORDER BY Id DESC
 
-Id AmbienteId DispositivoId TemperaturaC UmidadePct IndiceCalor Nivel   MedidoEm                    Origem   Suspeita
--- ---------- ------------- ------------ ---------- ----------- -----   --------                    ------   --------
-19 sala-03    esp32-sala-03         33.4         58        39.8 cuidado 11/6/2026 5:24:20 AM +00:00 simulada    False
-18 sala-03    esp32-sala-03         33.2         57          39 cuidado 11/6/2026 5:14:20 AM +00:00 simulada    False
-17 sala-03    esp32-sala-03         33.1         58        39.1 cuidado 11/6/2026 5:04:20 AM +00:00 simulada    False
-16 sala-03    esp32-sala-03         33.1         57        38.7 cuidado 11/6/2026 4:54:20 AM +00:00 simulada    False
-15 sala-03    esp32-sala-03         33.1         59        39.4 cuidado 11/6/2026 4:44:20 AM +00:00 simulada    False
+Id AmbienteId DispositivoId       TemperaturaC UmidadePct IndiceCalor Nivel   MedidoEm                    Origem   Suspeita
+-- ---------- -------------       ------------ ---------- ----------- -----   --------                    ------   --------
+69 sala-07    demo-sala-07-porta            22         60        21.8 normal  11/7/2026 1:02:17 PM +00:00 simulada    False
+68 sala-07    demo-sala-07-janela           22         60        21.8 normal  11/7/2026 1:02:17 PM +00:00 simulada    False
+67 sala-07    demo-sala-07-fundo            15         60        14.1 frio    11/7/2026 1:02:17 PM +00:00 simulada    False
+66 sala-07    demo-sala-07-centro           22         60        21.8 normal  11/7/2026 1:02:17 PM +00:00 simulada    False
+61 sala-03    esp32-sala-03               33.4         58        39.8 cuidado 11/6/2026 5:24:20 AM +00:00 simulada    False
 
 
 

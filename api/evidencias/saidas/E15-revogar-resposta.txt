@@ -1,4 +1,4 @@
-2026-11-06T02:34:24.5454442-03:00
+2026-11-07T10:02:19.1117877-03:00
 Ambiente: Demo; MQTT desligado; conexao: ***
 POST http://localhost:5080/dispositivos/esp32-sala-04/revogar
 
@@ -7,7 +7,7 @@ Esperado: HTTP 401;
 HTTP 401 Unauthorized
 Transfer-Encoding: chunked
 X-Content-Type-Options: nosniff
-Date: Fri, 06 Nov 2026 05:34:24 GMT
+Date: Sat, 07 Nov 2026 13:02:18 GMT
 Server: Kestrel
 Content-Type: application/json; charset=utf-8
 

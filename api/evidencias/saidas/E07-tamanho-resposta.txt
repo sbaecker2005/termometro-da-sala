@@ -1,14 +1,14 @@
-2026-11-06T02:34:24.4160779-03:00
+2026-11-07T10:02:19.0032610-03:00
 Ambiente: Demo; MQTT desligado; conexao: ***
 POST http://localhost:5080/ocorrencias
-Content-Type: multipart/form-data; boundary="7bbab84b-c21c-4cdf-84f9-0ba1bfd9cd00"
+Content-Type: multipart/form-data; boundary="f44108a2-bec1-4cc9-bb18-6790c547e694"
 
-Corpo enviado: {"descricao":"Teste de limite de tamanho","foto":"D:\\projetos\\termometro-wt-evidencias\\api\\evidencias\\saidas\\temporario-dc0c9b40ccac4aeb845ce9e0b1e2a114\\grande.jpg","ambienteId":"sala-03"}; foto: bytes do JPEG/arquivo indicado, sem transcricao binaria
+Corpo enviado: {"descricao":"Teste de limite de tamanho","foto":"D:\\projetos\\termometro-wt-frio\\api\\evidencias\\saidas\\temporario-81a668dc284c499d9fa57729d823249e\\grande.jpg","ambienteId":"sala-03"}; foto: bytes do JPEG/arquivo indicado, sem transcricao binaria
 Esperado: HTTP 400; arquivo
 HTTP 400 Bad Request
 Transfer-Encoding: chunked
 X-Content-Type-Options: nosniff
-Date: Fri, 06 Nov 2026 05:34:24 GMT
+Date: Sat, 07 Nov 2026 13:02:18 GMT
 Server: Kestrel
 Content-Type: application/json; charset=utf-8
 

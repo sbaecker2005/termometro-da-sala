@@ -1,12 +1,13 @@
 #requires -Version 5.1
-param([string]$Foto)
+param([string]$Foto, [switch]$Autoverificar)
 $ErrorActionPreference = 'Stop'
 $raiz = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $saida = Join-Path $PSScriptRoot 'saidas'
 $seguranca = Join-Path $raiz 'seguranca/evidencias/saidas'
 $projeto = Join-Path $raiz 'api/TermometroDaSala.Api'
 $urlBase = 'http://localhost:5080'
-$conexao = 'Server=localhost\SQLEXPRESS;Database=TermometroDaSala;Trusted_Connection=True;TrustServerCertificate=True'
+# O cliente exige TLS por padrao; somente esta coleta local usa a instancia sem criptografia.
+$conexao = 'Server=localhost\SQLEXPRESS;Database=TermometroDaSala;Trusted_Connection=True;TrustServerCertificate=True;Encrypt=False'
 $utf8 = New-Object Text.UTF8Encoding($false)
 $resultados = [ordered]@{}
 $arquivos = @{}
@@ -185,8 +186,19 @@ function Colecao($requisicao, [string]$id, [int]$esperado, [string]$padrao = '',
     }
     Chamar $id $requisicao.method $rota $esperado $corpo $auth $form $padrao $impedir
 }
+function ValidarColecao($pedidos) {
+    foreach ($r in $pedidos) {
+        if ($null -eq $r.metaSortKey -or $r.metaSortKey -notin 1..29) {
+            throw "Colecao invalida: $($r._id) sem metaSortKey valido (1 a 29)."
+        }
+    }
+    if (@($pedidos | Group-Object metaSortKey | Where-Object Count -gt 1).Count) {
+        throw 'Colecao invalida: metaSortKey repetido.'
+    }
+}
 
-New-Item -ItemType Directory -Force $saida,$seguranca,$temporario | Out-Null
+$colecao = (Get-Content (Join-Path $raiz 'api/insomnia.json') -Raw -Encoding UTF8 | ConvertFrom-Json).resources | Where-Object _type -eq 'request' | Sort-Object metaSortKey
+ValidarColecao $colecao
 Add-Type -AssemblyName System.Data,System.Net.Http,System.Drawing
 $vetor = New-Object Security.Cryptography.HMACSHA256
 try {
@@ -196,6 +208,21 @@ try {
 } finally { $vetor.Dispose() }
 if ((Leitura 'sala-03' 33.4 58 1794331200).assinatura -ne '2f7c847dc59835d4a9bacbf9f4b642af0cc563cbf1bf90efb91d127f38297ba0') { throw 'Autoverificacao do canonico falhou.' }
 if ((Redigir "X-Chave-Coordenacao: $chave`r`n$conexao`r`nsegredo-de-teste-sala-03") -match 'segredo-de-teste|Server=|Trusted_Connection|'+$chave) { throw 'Autoverificacao de redacao falhou.' }
+if ($Autoverificar) {
+    foreach ($invalida in @(
+        @([pscustomobject]@{_id='sem-chave'}),
+        @([pscustomobject]@{_id='chave-nula';metaSortKey=$null}),
+        @([pscustomobject]@{_id='zero';metaSortKey=0}),
+        @([pscustomobject]@{metaSortKey=26}, [pscustomobject]@{metaSortKey=26})
+    )) {
+        $recusou = $false
+        try { ValidarColecao $invalida } catch { $recusou = $true }
+        if (!$recusou) { throw 'Autoverificacao: colecao invalida foi aceita.' }
+    }
+    Write-Output 'Autoverificacao OK: HMAC, canonico, redacao e colecao (ausente, nula, zero e duplicada). Sem coleta.'
+    return
+}
+New-Item -ItemType Directory -Force $saida,$seguranca,$temporario | Out-Null
 $handler = [Net.Http.HttpClientHandler]::new()
 $handler.UseProxy = $false
 $handler.AllowAutoRedirect = $false
@@ -234,9 +261,16 @@ try {
             Resultado B1 'B1.txt' ($log -match 'Now listening on:') 'fallback de migracao falhou'
         }
     } finally { Pop-Location }
+    if ($resultados['B1'] -ne 'OK') {
+        Gravar (Join-Path $saida 'conferencia.tsv') "B1`t$($resultados['B1'])`tB1.txt"
+        throw 'Coleta interrompida: migracao falhou; veja saidas/B1.txt.'
+    }
+    $migracoes = Get-ChildItem (Join-Path $projeto 'Dados/Migrations') -Filter '*.cs' -File |
+        Where-Object { $_.Name -notlike '*.Designer.cs' -and $_.Name -ne 'SalaDbModelSnapshot.cs' } |
+        Sort-Object Name | Select-Object -ExpandProperty BaseName
     $null = Banco B2 'SELECT * FROM __EFMigrationsHistory ORDER BY MigrationId' {
         param($d)
-        ($d.Tables[0].Rows.MigrationId -join ',') -eq '20261105025544_Inicial,20261105033613_Enums,20261105050515_SegredosPorDispositivo'
+        ($d.Tables[0].Rows.MigrationId -join ',') -eq ($migracoes -join ',')
     }
     $estado = Banco B3 'SELECT * FROM Ambientes ORDER BY Id; SELECT Id,AmbienteId,Ativo,UltimoMedidoEm FROM Dispositivos ORDER BY Id; SELECT * FROM NiveisAcao ORDER BY IndiceMin' {
         param($d)
@@ -262,7 +296,6 @@ try {
     }
     $Foto = [IO.Path]::GetFullPath($Foto)
     if (!(Test-Path -LiteralPath $Foto)) { throw 'JPEG informado nao existe.' }
-    $colecao = (Get-Content (Join-Path $raiz 'api/insomnia.json') -Raw -Encoding UTF8 | ConvertFrom-Json).resources | Where-Object _type -eq 'request' | Sort-Object metaSortKey
     Iniciar 'Development'
     $script:ocorrencia = [guid]::Empty.ToString()
     $status = @(201,400,400,400,200,400,201,409,401,200,200,409,204,201,200,201,200,401,200,200,200,200,200,200)
@@ -285,18 +318,29 @@ try {
         if ($n -eq 11 -and !$impedir) { Chamar '11-verificacao' GET '/ambientes/sala-05' 200 '' $false $null 'Sala 5 \(reformada\)' }
         if ($n -eq 13 -and !$impedir) { Chamar '13-verificacao' GET '/ambientes/sala-05' 404 }
     }
+    Colecao ($colecao | Where-Object metaSortKey -eq 26) '26' 204
+    $padraoMapa = '(?s)"ambienteId":"sala-01".*"larguraM":6.*"profundidadeM":4.*"grade":\[\{.*"pontos":\[\{.*"rotulo":"janela".*"rotulo":"Cadeira 1".*"precaucoes":\['
+    Colecao ($colecao | Where-Object metaSortKey -eq 27) '27' 200 $padraoMapa
     Colecao ($colecao | Where-Object metaSortKey -eq 25) '25a' 404
     Iniciar 'Demo'
     # sala-02 nao recebe leituras validas no roteiro; nao apaga leituras para fabricar o 409.
     Chamar '25b' POST '/demo/semear?ambienteId=sala-02' 409 '' $false $null 'ligue o sensor primeiro'
     Colecao ($colecao | Where-Object metaSortKey -eq 25) '25c' 201 '"inseridas":'
     Chamar '23-demo' GET '/ambientes/sala-03/previsao' 200 '' $false $null '"indiceRuaPrevisto":'
+    foreach ($n in 28..29) {
+        # POST prepara (201); GET comprova o mapa (200) antes de trocar o periodo.
+        Colecao ($colecao | Where-Object metaSortKey -eq $n) "$n-preparo" 201 '"inseridas":4'
+        $ponto = if ($n -eq 28) { '"rotulo":"janela"[^}]*"temperaturaC":35[^}]*"nivel":"perigo"' } else { '"rotulo":"fundo"[^}]*"temperaturaC":15[^}]*"nivel":"frio"' }
+        $padrao = '(?s)"ambienteId":"sala-07".*"grade":\[\{.*"pontos":\[\{.*' + $ponto + '.*"precaucoes":\[".*trocar.*ambiente desigual'
+        $impedir = if ($respostas["$n-preparo"] -and $respostas["$n-preparo"].Status -eq 201) { '' } else { 'preparo do periodo nao confirmado' }
+        Chamar "$n" GET '/ambientes/sala-07/mapa' 200 '' $false $null $padrao $impedir
+    }
     # 31 escritas sem chave nao gravam acoes e excedem a cota por IP.
-    for ($i=1; $i -le 31; $i++) { Chamar ('26-{0:00}' -f $i) POST '/acoes' $(if ($i -le 28) {401} else {429}) '{}' }
-    $lote = (1..31 | ForEach-Object { Get-Content (Join-Path $saida ('26-{0:00}-resposta.txt' -f $_)) -Raw -Encoding UTF8 }) -join "`r`n"
-    Gravar (Join-Path $saida '26-limite.txt') $lote
-    Resultado '26' '26-limite.txt' (@($respostas.Keys | Where-Object { $_ -like '26-*' -and $respostas[$_].Status -eq 429 }).Count -gt 0) 'nao houve HTTP 429 em 31 escritas'
-    Chamar '27' GET '/' 200 '' $false $null 'X-Content-Type-Options: nosniff'
+    for ($i=1; $i -le 31; $i++) { Chamar ('30-{0:00}' -f $i) POST '/acoes' $(if ($i -le 26) {401} else {429}) '{}' }
+    $lote = (1..31 | ForEach-Object { Get-Content (Join-Path $saida ('30-{0:00}-resposta.txt' -f $_)) -Raw -Encoding UTF8 }) -join "`r`n"
+    Gravar (Join-Path $saida '30-limite.txt') $lote
+    Resultado '30' '30-limite.txt' (@($respostas.Keys | Where-Object { $_ -like '30-*' -and $respostas[$_].Status -eq 429 }).Count -gt 0) 'nao houve HTTP 429 em 31 escritas'
+    Chamar '31' GET '/' 200 '' $false $null 'X-Content-Type-Options: nosniff'
     # Reiniciar limpa apenas a cota em memoria, preservando a evidencia do rate limit.
     Iniciar 'Demo'
     $null = Banco B5 'SELECT TOP 5 * FROM Leituras ORDER BY Id DESC' { param($d) $d.Tables[0].Rows.Count -gt 0 }
@@ -429,7 +473,7 @@ $resumo = foreach ($id in $resultados.Keys) { "$id`t$($resultados[$id])`t$($arqu
 Gravar (Join-Path $saida 'conferencia.tsv') ($resumo -join "`r`n")
 $readme = Join-Path $PSScriptRoot 'README.md'
 $texto = Get-Content $readme -Raw -Encoding UTF8
-foreach ($id in $resultados.Keys | Where-Object { $_ -match '^(B[1-5]|0[1-9]|1[0-9]|2[0-7][abc]?)$' }) {
+foreach ($id in $resultados.Keys | Where-Object { $_ -match '^(B[1-5]|0[1-9]|1[0-9]|2[0-9][abc]?|3[01])$' }) {
     $link = "[saida](saidas/$($arquivos[$id])) - $($resultados[$id])"
     $texto = [regex]::Replace($texto, ('(?m)^(\| '+[regex]::Escape($id)+' \|[^\r\n]*\| )[^|\r\n]*( \|)\r?$'), ('$1'+$link+'$2'))
 }
@@ -440,6 +484,6 @@ foreach ($id in @('E01','E02','E03','E04','E05','E06','E07','E08','E09','E10','E
     $texto = [regex]::Replace($texto, ('(?m)^(\*\*Print '+$id+':\*\* \[inserir[^\r\n]*?\])[^\r\n]*'), ('$1 [saida local](evidencias/saidas/'+$id+'.txt)'))
 }
 [IO.File]::WriteAllText($documento, $texto, $utf8)
-$principais = @($resultados.Keys | Where-Object { $_ -match '^(B[1-5]|0[1-9]|1[0-9]|2[0-7][abc]?)$' })
+$principais = @($resultados.Keys | Where-Object { $_ -match '^(B[1-5]|0[1-9]|1[0-9]|2[0-9][abc]?|3[01])$' })
 $ok = @($principais | Where-Object { $resultados[$_] -eq 'OK' }).Count
 Write-Output "Evidencias principais: $ok OK; $($principais.Count-$ok) DIVERGE. Ver saidas/conferencia.tsv."

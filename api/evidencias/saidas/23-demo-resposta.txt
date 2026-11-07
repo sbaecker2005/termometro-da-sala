@@ -1,4 +1,4 @@
-2026-11-06T02:34:22.6875969-03:00
+2026-11-07T10:02:16.9171842-03:00
 Ambiente: Demo; MQTT desligado; conexao: ***
 GET http://localhost:5080/ambientes/sala-03/previsao
 
@@ -7,9 +7,9 @@ Esperado: HTTP 200; "indiceRuaPrevisto":
 HTTP 200 OK
 Transfer-Encoding: chunked
 X-Content-Type-Options: nosniff
-Date: Fri, 06 Nov 2026 05:34:22 GMT
+Date: Sat, 07 Nov 2026 13:02:16 GMT
 Server: Kestrel
 Content-Type: application/json; charset=utf-8
 
-{"ambienteId":"sala-03","previstoPara":"2026-11-06T07:34:22.7062756+00:00","indiceRuaPrevisto":21,"deltaSala":15.8,"indiceSalaPrevisto":36.8,"nivelPrevisto":"cuidado","semLeiturasRecentes":false,"demonstracao":true,"ruaDisponivel":true}
+{"ambienteId":"sala-03","previstoPara":"2026-11-07T15:02:16.9383688+00:00","indiceRuaPrevisto":31.5,"deltaSala":11.1,"indiceSalaPrevisto":42.6,"nivelPrevisto":"perigo","semLeiturasRecentes":false,"demonstracao":true,"ruaDisponivel":true}
 Conferencia: OK

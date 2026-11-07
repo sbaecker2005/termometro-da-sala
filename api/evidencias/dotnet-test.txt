@@ -1,16 +1,20 @@
-Resumo da execução local em 07/11/2026, alerta de frio.
+Resumo da execução local em 07/11/2026.
 Comando na raiz:
-dotnet test api/TermometroDaSala.Api.Tests/TermometroDaSala.Api.Tests.csproj --no-restore --verbosity minimal
+dotnet test api/TermometroDaSala.Api.Tests/TermometroDaSala.Api.Tests.csproj --no-restore
 
-Passed! - Failed: 0, Passed: 61, Skipped: 0, Total: 61, Duration: 6 s
+Passed! - Failed: 0, Passed: 81, Skipped: 0, Total: 81, Duration: 2 s
 
-0 falhas, 0 ignorados. Banco SQLite em memória nas rotas; SQL Server sem abrir conexão nos testes de esquema.
-Inclui 200 previsões de paridade do JSON com scikit-learn, igualdade das cópias
-do modelo e oito casos HTTP do alerta com delta e arredondamento da sala
-(17.9/18.0, 26.9/27.0, 31.9/32.0 e 40.9/41.0), incluindo persistência do nível no histórico.
-Inclui limites diretos 17.9/18.0/27.0, GET /niveis com cinco faixas e ação de frio,
-SQL idempotente da migração AlertaFrio e ausência de mudanças pendentes no modelo.
-Não foi aplicada migração no SQL Server local nesta execução.
-Execução repetida após regenerar e executar as 15 células do notebook (37 saídas),
-recalcular as métricas com frio e sincronizar a cópia de modelo.json da API.
-Os 20 testes de segurança existentes continuam incluídos na suíte completa.
+0 falhas, 0 ignorados. Banco SQLite em memória nas rotas; os testes não comprovam conexão com SQL Server.
+Contagem em api/TermometroDaSala.Api.Tests/*.cs:
+Arquivo                  Fact  InlineData  Theory
+ApiTestes.cs               25          14       2
+EsquemaTestes.cs             6           0       0
+PrevisorModeloTestes.cs      5           0       0
+VetoresTestes.cs             5           7       2
+MapaTestes.cs                5          14       4
+Total                      46          35       8
+46 Fact + 35 casos InlineData = 81 testes.
+Os quatro arquivos anteriores somam 41 Fact + 21 InlineData em 4 Theory = 62 testes;
+MapaTestes.cs acrescenta 19 casos. SqliteDeTeste.cs não declara testes.
+Nova execução em 07/11/2026: 81 aprovados, 0 falhas, 0 ignorados, duração de 2 s.
+A segunda coleta SQL local parou em B1 por falha de autenticação SSPI; saídas anteriores preservadas.

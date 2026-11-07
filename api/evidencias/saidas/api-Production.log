@@ -5,10 +5,10 @@ info: Microsoft.Hosting.Lifetime[0]
 info: Microsoft.Hosting.Lifetime[0]
       Hosting environment: Production
 info: Microsoft.Hosting.Lifetime[0]
-      Content root path: D:\projetos\termometro-wt-evidencias\api\TermometroDaSala.Api
+      Content root path: D:\projetos\termometro-wt-frio\api\TermometroDaSala.Api
 warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]
       Failed to determine the https port for redirect.
 warn: TermometroDaSala.Api.Controllers.DemoController[0]
       demo semear recusado: fora-do-ambiente
 
-Coleta: processo PID 11564 encerrado; HasExited=True; 2026-11-06T02:34:25.2406461-03:00
+Coleta: processo PID 15696 encerrado; HasExited=True; 2026-11-07T10:02:19.8011051-03:00

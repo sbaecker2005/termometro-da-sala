@@ -1,4 +1,4 @@
-2026-11-06T02:34:21.2275841-03:00
+2026-11-07T10:02:15.3532896-03:00
 Ambiente: Development; MQTT desligado; conexao: ***
 GET http://localhost:5080/ambientes/sala-03/ocorrencias
 
@@ -7,9 +7,9 @@ Esperado: HTTP 200;
 HTTP 200 OK
 Transfer-Encoding: chunked
 X-Content-Type-Options: nosniff
-Date: Fri, 06 Nov 2026 05:34:20 GMT
+Date: Sat, 07 Nov 2026 13:02:14 GMT
 Server: Kestrel
 Content-Type: application/json; charset=utf-8
 
-[{"id":"abc6bc5f-aefa-4353-a0b8-72e7b48b72a4","ambienteId":"sala-03","descricao":"Sala muito quente no fim da aula","criadaEm":"2026-11-06T05:34:21.2087344+00:00"}]
+[{"id":"1d94e306-18f8-48fd-80b8-e58368a0b965","ambienteId":"sala-03","descricao":"Sala muito quente no fim da aula","criadaEm":"2026-11-07T13:02:15.3326408+00:00"},{"id":"81628a69-a054-48ef-885f-21399e62973f","ambienteId":"sala-03","descricao":"Sala muito quente no fim da aula","criadaEm":"2026-11-07T12:18:06.0065549+00:00"},{"id":"abc6bc5f-aefa-4353-a0b8-72e7b48b72a4","ambienteId":"sala-03","descricao":"Sala muito quente no fim da aula","criadaEm":"2026-11-06T05:34:21.2087344+00:00"}]
 Conferencia: OK

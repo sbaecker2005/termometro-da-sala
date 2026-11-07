@@ -1,4 +1,4 @@
-2026-11-06T02:34:21.3189406-03:00
+2026-11-07T10:02:15.4509289-03:00
 Ambiente: Development; MQTT desligado; conexao: ***
 GET http://localhost:5080/ambientes/sala-03/leituras?formato=csv
 
@@ -6,12 +6,36 @@ Corpo enviado:
 Esperado: HTTP 200; text/csv
 HTTP 200 OK
 X-Content-Type-Options: nosniff
-Date: Fri, 06 Nov 2026 05:34:20 GMT
+Date: Sat, 07 Nov 2026 13:02:14 GMT
 Server: Kestrel
-Content-Length: 140
+Content-Length: 1838
 Content-Type: text/csv; charset=utf-8
 
 medidoEm,temperaturaC,umidadePct,indiceCalor,nivel,origem,suspeita
+2026-11-06T02:34:20.0000000+00:00,30.5,62,34.3,cuidado,simulada,False
+2026-11-06T02:44:20.0000000+00:00,30.9,62,35.1,cuidado,simulada,False
+2026-11-06T02:54:20.0000000+00:00,31.0,60,34.8,cuidado,simulada,False
+2026-11-06T03:04:20.0000000+00:00,31.4,60,35.7,cuidado,simulada,False
+2026-11-06T03:14:20.0000000+00:00,31.7,60,36.4,cuidado,simulada,False
+2026-11-06T03:24:20.0000000+00:00,31.9,60,36.8,cuidado,simulada,False
+2026-11-06T03:34:20.0000000+00:00,32.1,59,37.0,cuidado,simulada,False
+2026-11-06T03:44:20.0000000+00:00,32.0,60,37.1,cuidado,simulada,False
+2026-11-06T03:54:20.0000000+00:00,32.2,60,37.5,cuidado,simulada,False
+2026-11-06T04:04:20.0000000+00:00,32.5,59,37.9,cuidado,simulada,False
+2026-11-06T04:14:20.0000000+00:00,32.7,59,38.4,cuidado,simulada,False
+2026-11-06T04:24:20.0000000+00:00,32.6,58,37.9,cuidado,simulada,False
+2026-11-06T04:34:20.0000000+00:00,33.1,59,39.4,cuidado,simulada,False
+2026-11-06T04:44:20.0000000+00:00,33.1,59,39.4,cuidado,simulada,False
+2026-11-06T04:54:20.0000000+00:00,33.1,57,38.7,cuidado,simulada,False
+2026-11-06T05:04:20.0000000+00:00,33.1,58,39.1,cuidado,simulada,False
+2026-11-06T05:14:20.0000000+00:00,33.2,57,39.0,cuidado,simulada,False
+2026-11-06T05:24:20.0000000+00:00,33.4,58,39.8,cuidado,simulada,False
 2026-11-06T05:34:20.0000000+00:00,33.4,58,39.8,cuidado,dispositivo,False
+2026-11-06T05:34:24.0000000+00:00,33.4,58,39.8,cuidado,dispositivo,False
+2026-11-06T05:34:24.0000000+00:00,33.4,58,39.8,cuidado,dispositivo,False
+2026-11-07T12:18:04.0000000+00:00,33.4,58,39.8,cuidado,dispositivo,False
+2026-11-07T12:18:09.0000000+00:00,33.4,58,39.8,cuidado,dispositivo,False
+2026-11-07T12:18:09.0000000+00:00,33.4,58,39.8,cuidado,dispositivo,False
+2026-11-07T13:02:13.0000000+00:00,33.4,58,39.8,cuidado,dispositivo,False
 
 Conferencia: OK

@@ -1,10 +1,10 @@
-2026-11-06T02:34:24.1371857-03:00
+2026-11-07T10:02:18.5559197-03:00
 Demo; duas copias simultaneas; POST http://localhost:5080/leituras
 Content-Type: application/json
-Corpo: {"ambienteId":"sala-03","dispositivo":"esp32-sala-03","temperaturaC":33.4,"umidadePct":58,"medidoEm":1793943264,"assinatura":"9eb4a3fbd631d0bd0d76d85e0d173e1934e75658a7ad7c9d34e08c31c83e88e9"}
+Corpo: {"ambienteId":"sala-03","dispositivo":"esp32-sala-03","temperaturaC":33.4,"umidadePct":58,"medidoEm":1794056538,"assinatura":"62d3fb0028ee60552952b3217672befc2f72f37b04c47a61a4cd5f63d1e304ef"}
 HTTP 201
 [Transfer-Encoding, System.String[]] [X-Content-Type-Options, System.String[]] [Date, System.String[]] [Location, System.String[]] [Server, System.String[]][Content-Type, System.String[]]
-{"id":20,"suspeita":false,"indiceCalor":39.8,"nivel":"cuidado"}
+{"id":71,"suspeita":false,"indiceCalor":39.8,"nivel":"cuidado"}
 HTTP 201
 [Transfer-Encoding, System.String[]] [X-Content-Type-Options, System.String[]] [Date, System.String[]] [Location, System.String[]] [Server, System.String[]][Content-Type, System.String[]]
-{"id":21,"suspeita":false,"indiceCalor":39.8,"nivel":"cuidado"}
+{"id":70,"suspeita":false,"indiceCalor":39.8,"nivel":"cuidado"}

@@ -1,4 +1,4 @@
-2026-11-06T02:34:21.3769423-03:00
+2026-11-07T10:02:15.5074394-03:00
 Ambiente: Development; MQTT desligado; conexao: ***
 GET http://localhost:5080/niveis
 
@@ -7,9 +7,9 @@ Esperado: HTTP 200;
 HTTP 200 OK
 Transfer-Encoding: chunked
 X-Content-Type-Options: nosniff
-Date: Fri, 06 Nov 2026 05:34:20 GMT
+Date: Sat, 07 Nov 2026 13:02:15 GMT
 Server: Kestrel
 Content-Type: application/json; charset=utf-8
 
-[{"nivel":"normal","nome":"Normal","indiceMin":0,"acaoSugerida":"nenhuma"},{"nivel":"atencao","nome":"Atenção","indiceMin":27,"acaoSugerida":"liberar água, abrir janelas e ligar ventiladores"},{"nivel":"cuidado","nome":"Cuidado extremo","indiceMin":32,"acaoSugerida":"pausa, troca de sala ou adiar a Educação Física"},{"nivel":"perigo","nome":"Perigo","indiceMin":41,"acaoSugerida":"tirar a turma da sala"}]
+[{"nivel":"frio","nome":"Frio","indiceMin":-273.15,"acaoSugerida":"Fechar janelas, agasalhar e oferecer cobertor; à noite, avisar o plantão e levar quem estiver no cômodo mais frio para outro"},{"nivel":"normal","nome":"Normal","indiceMin":18,"acaoSugerida":"nenhuma"},{"nivel":"atencao","nome":"Atenção","indiceMin":27,"acaoSugerida":"liberar água, abrir janelas e ligar ventiladores"},{"nivel":"cuidado","nome":"Cuidado extremo","indiceMin":32,"acaoSugerida":"pausa, troca de sala ou adiar a Educação Física"},{"nivel":"perigo","nome":"Perigo","indiceMin":41,"acaoSugerida":"tirar a turma da sala"}]
 Conferencia: OK

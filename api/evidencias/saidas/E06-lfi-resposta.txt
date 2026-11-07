@@ -1,4 +1,4 @@
-2026-11-06T02:34:24.3620266-03:00
+2026-11-07T10:02:18.9500529-03:00
 Ambiente: Demo; MQTT desligado; conexao: ***
 GET http://localhost:5080/ocorrencias/..%2F..%2FWindows%2Fwin.ini/foto
 
@@ -6,7 +6,7 @@ Corpo enviado:
 Esperado: HTTP 404; 
 HTTP 404 Not Found
 X-Content-Type-Options: nosniff
-Date: Fri, 06 Nov 2026 05:34:24 GMT
+Date: Sat, 07 Nov 2026 13:02:18 GMT
 Server: Kestrel
 Content-Length: 0
 

@@ -1,4 +1,4 @@
-2026-11-06T02:34:22.7814631-03:00
+2026-11-07T09:18:07.7492187-03:00
 Ambiente: Demo; MQTT desligado; conexao: ***
 POST http://localhost:5080/acoes
 Content-Type: application/json; charset=utf-8
@@ -8,7 +8,7 @@ Esperado: HTTP 401;
 HTTP 401 Unauthorized
 Transfer-Encoding: chunked
 X-Content-Type-Options: nosniff
-Date: Fri, 06 Nov 2026 05:34:22 GMT
+Date: Sat, 07 Nov 2026 12:18:07 GMT
 Server: Kestrel
 Content-Type: application/json; charset=utf-8
 

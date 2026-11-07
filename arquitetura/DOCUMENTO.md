@@ -74,7 +74,7 @@ O Termômetro da Sala mede cada sala, prevê o nível dela para daqui a 2 horas 
 | R8 | Nunca inventar dado | Qualidade | Sem leituras recentes, a tela mostra só a previsão da rua e o aviso |
 | R9 | Recuperar sozinho de falha do serviço | Disponibilidade | Pool sempre ligado e recuperação do serviço no IIS |
 
-Os níveis usam o índice de calor nas faixas da NOAA: abaixo de 27 °C é Normal, de 27 a 32 °C é Atenção, de 32 a 41 °C é Cuidado extremo e a partir de 41 °C é Perigo.
+Pelo Índice °C, <18 é Frio, usando como referência o mínimo interno de 18 °C recomendado pela OMS para moradias. Normal vai de 18 até menos de 27 °C. As faixas de calor seguem a NOAA: de 27 até menos de 32 °C é Atenção, de 32 até menos de 41 °C é Cuidado extremo e a partir de 41 °C é Perigo.
 
 ## 4. Diagrama de Arquitetura de Soluções
 
@@ -209,7 +209,7 @@ Situação desta versão em 05/11/2026.
 |---|---|
 | Modelo de ML | Notebook executado. Árvore (profundidade 12, folha 24) escolhida pelo MAE de validação. No teste de 2025, MAE 0,909 °C (`ml/modelo.json`) |
 | App do professor | Quatro telas em Expo. O modo simulado vem ligado; com `EXPO_PUBLIC_API_MOCK=0` o app chama a API |
-| API | Rotas de salas, leituras, previsão, ocorrências, ações, revogação e demonstração. Painel em `wwwroot`. 47 testes automatizados, todos passando no `dotnet test`: 37 `[Fact]` e 10 casos `[InlineData]` em 2 `[Theory]` (`api/evidencias/dotnet-test.txt`) |
+| API | Rotas de salas, leituras, previsão, ocorrências, ações, revogação e demonstração. Painel em `wwwroot`. 81 testes automatizados, todos passando no `dotnet test` (total: `api/evidencias/dotnet-test.txt`). Divisão: 46 `[Fact]` e 35 casos `[InlineData]` em 8 `[Theory]`, contados em `api/TermometroDaSala.Api.Tests/{ApiTestes,EsquemaTestes,PrevisorModeloTestes,VetoresTestes,MapaTestes}.cs` |
 | Terminal da coordenação | Windows Forms: salas, ação, cadastro, revogação e CSV. Se a API cai, usa a reserva local |
 | ESP32 | `sketch.ino`, `diagram.json` e `libraries.txt` para o Wokwi. O `esp32/README.md` descreve a simulação e o vetor de HMAC |
 | Windows Server | Roteiro em `infra/README.md` e scripts `01-rede.ps1` a `09-teste-de-falha.ps1` |

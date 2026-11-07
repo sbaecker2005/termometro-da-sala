@@ -1,116 +1,15 @@
-2026-11-06T02:34:22.9798581-03:00
-Ambiente: Demo; MQTT desligado; conexao: ***
-GET http://localhost:5080/
+2026-11-07T10:02:15.5784764-03:00
+Ambiente: Development; MQTT desligado; conexao: ***
+GET http://localhost:5080/ambientes/sala-01/mapa
 
 Corpo enviado: 
-Esperado: HTTP 200; X-Content-Type-Options: nosniff
+Esperado: HTTP 200; (?s)"ambienteId":"sala-01".*"larguraM":6.*"profundidadeM":4.*"grade":\[\{.*"pontos":\[\{.*"rotulo":"janela".*"rotulo":"Cadeira 1".*"precaucoes":\[
 HTTP 200 OK
+Transfer-Encoding: chunked
 X-Content-Type-Options: nosniff
-Accept-Ranges: bytes
-Date: Fri, 06 Nov 2026 05:34:22 GMT
-ETag: "1dd6da54ecbe993"
+Date: Sat, 07 Nov 2026 13:02:15 GMT
 Server: Kestrel
-Content-Length: 3859
-Content-Type: text/html
-Last-Modified: Fri, 06 Nov 2026 04:14:25 GMT
+Content-Type: application/json; charset=utf-8
 
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Termômetro da Sala</title>
-  <style>
-    body { font-family: Georgia, serif; margin: 2rem; color: #1c1917; background: #fafaf9; }
-    table { border-collapse: collapse; width: 100%; background: #fff; }
-    caption { text-align: left; font-weight: bold; margin-bottom: .5rem; }
-    th, td { border: 1px solid #d6d3d1; padding: .7rem; text-align: left; }
-    .normal { background: #dcfce7; }
-    .atencao { background: #fef9c3; }
-    .cuidado { background: #fee2e2; }
-    .perigo { background: #fecaca; }
-  </style>
-</head>
-<body>
-  <h1>Termômetro da Sala</h1>
-  <p>Mural só de leitura para a TV da escola. O texto do nível vale mesmo sem a cor. Atualiza a cada 30 segundos.</p>
-  <table>
-    <caption>Nível de calor das salas</caption>
-    <thead>
-      <tr>
-        <th scope="col">Sala</th>
-        <th scope="col">Nível agora</th>
-        <th scope="col">Índice agora</th>
-        <th scope="col">Nível previsto</th>
-      </tr>
-    </thead>
-    <tbody id="salas"><tr><td colspan="4">Carregando</td></tr></tbody>
-  </table>
-  <p id="aviso" aria-live="polite"></p>
-  <script>
-    const NOMES = { normal: "Normal", atencao: "Atenção", cuidado: "Cuidado extremo", perigo: "Perigo" };
-    function nome(n) { return NOMES[n] || n || "sem nível"; }
-    function celula(texto, nivel) {
-      const td = document.createElement("td");
-      td.textContent = texto;
-      if (nivel) td.className = nivel;
-      return td;
-    }
-    async function atualizar() {
-      const corpo = document.getElementById("salas");
-      const aviso = document.getElementById("aviso");
-      corpo.replaceChildren();
-      try {
-        const resposta = await fetch("/ambientes");
-        if (!resposta.ok) throw new Error("salas");
-        const salas = await resposta.json();
-        if (!salas.length) {
-          const tr = document.createElement("tr");
-          const td = document.createElement("td");
-          td.colSpan = 4;
-          td.textContent = "Nenhuma sala";
-          tr.append(td);
-          corpo.append(tr);
-          return;
-        }
-        for (const sala of salas) {
-          let prev = null;
-          try {
-            const r = await fetch("/ambientes/" + encodeURIComponent(sala.id) + "/previsao");
-            if (r.ok) prev = await r.json();
-          } catch (e) { prev = null; }
-          const agora = sala.semLeitura ? "sem leitura" : nome(sala.nivelAtual);
-          let previsto = "sem previsão";
-          if (prev) {
-            previsto = nome(prev.nivelPrevisto);
-            if (!prev.ruaDisponivel) previsto += " (sem dado da rua: mantém a última leitura válida da sala)";
-            else if (prev.semLeiturasRecentes) previsto += " (só a rua, sala sem leituras recentes)";
-            if (prev.demonstracao) previsto += " — demonstração";
-          }
-          const tr = document.createElement("tr");
-          tr.append(
-            celula(sala.nome),
-            celula(agora, sala.semLeitura ? "" : sala.nivelAtual),
-            celula(sala.semLeitura ? "—" : Number(sala.indiceAtual).toFixed(1) + " °C"),
-            celula(previsto, prev ? prev.nivelPrevisto : "")
-          );
-          corpo.append(tr);
-        }
-        aviso.textContent = "Atualizado.";
-      } catch (e) {
-        const tr = document.createElement("tr");
-        const td = document.createElement("td");
-        td.colSpan = 4;
-        td.textContent = "Não foi possível carregar as salas.";
-        tr.append(td);
-        corpo.append(tr);
-        aviso.textContent = "Falha ao carregar.";
-      }
-    }
-    atualizar();
-    setInterval(atualizar, 30000);
-  </script>
-</body>
-</html>
-
+{"ambienteId":"sala-01","larguraM":6,"profundidadeM":4,"passoM":0.5,"grade":[{"x":0,"y":0,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":0.5,"y":0,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":1,"y":0,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":1.5,"y":0,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":2,"y":0,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":2.5,"y":0,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":3,"y":0,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":3.5,"y":0,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":4,"y":0,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":4.5,"y":0,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":5,"y":0,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":5.5,"y":0,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":6,"y":0,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":0,"y":0.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":0.5,"y":0.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":1,"y":0.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":1.5,"y":0.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":2,"y":0.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":2.5,"y":0.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":3,"y":0.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":3.5,"y":0.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":4,"y":0.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":4.5,"y":0.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":5,"y":0.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":5.5,"y":0.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":6,"y":0.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":0,"y":1,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":0.5,"y":1,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":1,"y":1,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":1.5,"y":1,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":2,"y":1,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":2.5,"y":1,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":3,"y":1,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":3.5,"y":1,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":4,"y":1,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":4.5,"y":1,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":5,"y":1,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":5.5,"y":1,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":6,"y":1,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":0,"y":1.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":0.5,"y":1.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":1,"y":1.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":1.5,"y":1.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":2,"y":1.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":2.5,"y":1.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":3,"y":1.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":3.5,"y":1.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":4,"y":1.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":4.5,"y":1.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":5,"y":1.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":5.5,"y":1.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":6,"y":1.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":0,"y":2,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":0.5,"y":2,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":1,"y":2,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":1.5,"y":2,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":2,"y":2,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":2.5,"y":2,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":3,"y":2,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":3.5,"y":2,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":4,"y":2,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":4.5,"y":2,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":5,"y":2,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":5.5,"y":2,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":6,"y":2,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":0,"y":2.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":0.5,"y":2.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":1,"y":2.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":1.5,"y":2.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":2,"y":2.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":2.5,"y":2.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":3,"y":2.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":3.5,"y":2.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":4,"y":2.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":4.5,"y":2.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":5,"y":2.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":5.5,"y":2.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":6,"y":2.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":0,"y":3,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":0.5,"y":3,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":1,"y":3,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":1.5,"y":3,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":2,"y":3,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":2.5,"y":3,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":3,"y":3,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":3.5,"y":3,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":4,"y":3,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":4.5,"y":3,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":5,"y":3,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":5.5,"y":3,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":6,"y":3,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":0,"y":3.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":0.5,"y":3.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":1,"y":3.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":1.5,"y":3.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":2,"y":3.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":2.5,"y":3.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":3,"y":3.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":3.5,"y":3.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":4,"y":3.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":4.5,"y":3.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":5,"y":3.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":5.5,"y":3.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":6,"y":3.5,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":0,"y":4,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":0.5,"y":4,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":1,"y":4,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":1.5,"y":4,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":2,"y":4,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":2.5,"y":4,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":3,"y":4,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":3.5,"y":4,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":4,"y":4,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":4.5,"y":4,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":5,"y":4,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":5.5,"y":4,"temperaturaC":null,"indiceCalor":null,"nivel":null},{"x":6,"y":4,"temperaturaC":null,"indiceCalor":null,"nivel":null}],"pontos":[{"id":"esp32-sala-01","rotulo":"janela","tipo":"sensor","x":0,"y":2,"vulneravel":false,"temperaturaC":null,"indiceCalor":null,"nivel":null,"desvioC":null,"semLeitura":true},{"id":"1","rotulo":"Cadeira 1","tipo":"lugar","x":1,"y":2,"vulneravel":true,"temperaturaC":null,"indiceCalor":null,"nivel":null,"desvioC":null,"semLeitura":true}],"precaucoes":[],"leituraMaisAntigaEm":null}
 Conferencia: OK

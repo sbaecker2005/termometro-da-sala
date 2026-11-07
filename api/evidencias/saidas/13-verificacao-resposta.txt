@@ -1,4 +1,4 @@
-2026-11-06T02:34:21.1141116-03:00
+2026-11-07T10:02:15.2371363-03:00
 Ambiente: Development; MQTT desligado; conexao: ***
 GET http://localhost:5080/ambientes/sala-05
 
@@ -7,9 +7,9 @@ Esperado: HTTP 404;
 HTTP 404 Not Found
 Transfer-Encoding: chunked
 X-Content-Type-Options: nosniff
-Date: Fri, 06 Nov 2026 05:34:20 GMT
+Date: Sat, 07 Nov 2026 13:02:14 GMT
 Server: Kestrel
 Content-Type: application/problem+json; charset=utf-8
 
-{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.5","title":"Not Found","status":404,"traceId":"00-ec29410c280cfe0ea243b83df5aeb5ed-d7e2ba1188942368-00"}
+{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.5","title":"Not Found","status":404,"traceId":"00-6e0dea5beb7c6b7aafd87bf74eb4fe56-90382e55659955bb-00"}
 Conferencia: OK

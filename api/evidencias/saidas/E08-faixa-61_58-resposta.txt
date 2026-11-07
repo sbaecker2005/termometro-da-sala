@@ -1,14 +1,14 @@
-2026-11-06T02:34:24.4973821-03:00
+2026-11-07T10:02:19.0712773-03:00
 Ambiente: Demo; MQTT desligado; conexao: ***
 POST http://localhost:5080/leituras
 Content-Type: application/json; charset=utf-8
 
-Corpo enviado: {"ambienteId":"sala-02","dispositivo":"esp32-sala-02","temperaturaC":61,"umidadePct":58,"medidoEm":1793943264,"assinatura":"3953355ffee64b3493f139c12b508ce87a8d15166db7ce82edc4668aad8635b4"}
+Corpo enviado: {"ambienteId":"sala-02","dispositivo":"esp32-sala-02","temperaturaC":61,"umidadePct":58,"medidoEm":1794056539,"assinatura":"575b5403767136119261f4ceaf33d58d8732c49459555362d845d403bfea90e0"}
 Esperado: HTTP 400; fora-da-faixa
 HTTP 400 Bad Request
 Transfer-Encoding: chunked
 X-Content-Type-Options: nosniff
-Date: Fri, 06 Nov 2026 05:34:24 GMT
+Date: Sat, 07 Nov 2026 13:02:18 GMT
 Server: Kestrel
 Content-Type: application/json; charset=utf-8
 
