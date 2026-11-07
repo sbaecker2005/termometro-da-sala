@@ -431,6 +431,46 @@ public class ApiTestes
     }
 
     [Fact]
+    public async Task MqttQuatroSensoresMantemAssinaturaOrdemEFormatoAntigo()
+    {
+        using var f = new ApiFabrica("Demo");
+        var c = f.Cliente();
+        Assert.Equal(HttpStatusCode.Created, (await c.PostAsync("/demo/mapa", null)).StatusCode);
+        var assinante = new AssinanteMqtt(f.Services.GetRequiredService<IServiceScopeFactory>(),
+            f.Services.GetRequiredService<IConfiguration>(), f.Services.GetRequiredService<ILogger<AssinanteMqtt>>());
+        var agora = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        var aceitas = 0;
+        foreach (var rotulo in new[] { "janela", "fundo", "porta", "centro" })
+        {
+            var id = $"demo-sala-07-{rotulo}";
+            var assinatura = Assinatura.Hex("somente-demonstracao-sala-07", "sala-07", id, 24, 60, agora);
+            var json = JsonSerializer.Serialize(new { ambienteId = "sala-07", dispositivo = id,
+                temperaturaC = 24.0, umidadePct = 60, medidoEm = agora, assinatura });
+            // Mesmo ambiente e segredo: o identificador tambem precisa estar assinado.
+            var outro = rotulo == "centro" ? "demo-sala-07-janela" : "demo-sala-07-centro";
+            await assinante.Tratar(Encoding.UTF8.GetBytes(json.Replace(id, outro)));
+            using (var consulta = f.Services.CreateScope())
+                Assert.Equal(aceitas, consulta.ServiceProvider.GetRequiredService<SalaDb>()
+                    .Leituras.Count(l => l.Origem == Origem.dispositivo));
+            await assinante.Tratar(Encoding.UTF8.GetBytes(json));
+            await assinante.Tratar(Encoding.UTF8.GetBytes(json));
+            aceitas++;
+        }
+        var antigo = await Corpo("sala-03", "esp32-sala-03", 30, 40, agora).ReadAsStringAsync();
+        await assinante.Tratar(Encoding.UTF8.GetBytes(antigo));
+        using var escopo = f.Services.CreateScope();
+        var db = escopo.ServiceProvider.GetRequiredService<SalaDb>();
+        var leituras = await db.Leituras.Where(l => l.Origem == Origem.dispositivo).ToListAsync();
+        Assert.Equal(5, leituras.Count);
+        Assert.Equal(5, leituras.Select(l => l.DispositivoId).Distinct().Count());
+        using var mapa = JsonDocument.Parse(await c.GetStringAsync("/ambientes/sala-07/mapa"));
+        var sensores = mapa.RootElement.GetProperty("pontos").EnumerateArray()
+            .Where(p => p.GetProperty("tipo").GetString() == "sensor").ToList();
+        Assert.Equal(4, sensores.Count);
+        Assert.All(sensores, p => Assert.False(p.GetProperty("semLeitura").GetBoolean()));
+    }
+
+    [Fact]
     public async Task MqttDescartaMensagemAcimaDoLimite()
     {
         using var f = new ApiFabrica();

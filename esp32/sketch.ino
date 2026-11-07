@@ -1,13 +1,10 @@
 /*
- * Termômetro da Sala: sensor da porta da sala (ESP32 DevKit V1 no Wokwi)
+ * Termômetro da Sala: quatro pontos da sala (ESP32 DevKit V1 no Wokwi)
  *
- * O que faz: a cada 10 s lê temperatura e umidade do DHT22, calcula o índice
- * de calor (NOAA/Rothfusz, a mesma fórmula da API) e acende o LED do nível.
- * Quando o relógio já veio do NTP, assina a leitura com HMAC-SHA256 e publica
- * por MQTT no tópico que a API assina. A API grava a leitura na sala-03, que o
- * professor vê no app e a coordenação vê no desktop e no painel web.
- *
- * Circuito: DHT22 em 3,3 V com DATA no GPIO 15 (pull-up de 10 kΩ);
+ * A cada 10 s mede quatro DHT22, calcula o indice e publica um JSON assinado
+ * por ponto. HMAC, horario e ordem seguem o contrato; o LCD alterna os pontos
+ * e os extremos. Alertas locais continuam funcionando sem internet.
+ * Circuito: DHT22 em 3,3 V nos GPIOs 15, 32, 33 e 25, com pull-ups de 10 kOhm.
  * LEDs verde (GPIO 18), amarelo (GPIO 19) e vermelho (GPIO 4), cada um com
  * resistor de 220 Ω e cátodo no GND; LCD 16x2 I2C (endereço 0x27) em SDA 21 e
  * SCL 22; buzzer no GPIO 26; botão "Ciente" entre o GPIO 27 e o GND.
@@ -32,28 +29,50 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/queue.h>
 #include <freertos/task.h>
-#include "secrets.h"  // AMBIENTE_ID, DISPOSITIVO e SEGREDO (copiar de secrets.exemplo.h)
+#include "secrets.h"  // AMBIENTE_ID, DISPOSITIVO, DISPOSITIVOS e SEGREDO (copiar de secrets.exemplo.h)
 
 // Pinos (GPIO) do DevKit V1, os mesmos D15, D18, D19, D4, D26 e D27 do diagram.json.
 // O LCD usa o I2C padrão do ESP32 (SDA 21, SCL 22), por isso o vermelho fica no 4.
-constexpr int PIN_DHT = 15, VERDE = 18, AMARELO = 19, VERMELHO = 4, BUZZER = 26, BOTAO = 27;
+constexpr int PIN_DHT = 15, PIN_FUNDO = 32, PIN_PORTA = 33, PIN_CENTRO = 25, VERDE = 18, AMARELO = 19, VERMELHO = 4, BUZZER = 26, BOTAO = 27;
 const char TOPICO[] = "fiap-gs/termometro-da-sala/leituras";
 
 // Níveis de calor do contrato (seção 3). SEM_LEITURA apaga todos os LEDs.
 enum Nivel { SEM_LEITURA = -1, NORMAL = 0, ATENCAO = 1, CUIDADO = 2, PERIGO = 3, FRIO = 4 };
 const char *const NOME_NIVEL[] = {"Normal", "Atencao", "Cuidado extremo", "Perigo", "FRIO"};
 
-DHT dht(PIN_DHT, DHT22);
+Nivel nivelAtual = SEM_LEITURA;
+constexpr int TOTAL = 4;
+DHT sensores[] = {DHT(PIN_DHT, DHT22), DHT(PIN_FUNDO, DHT22),
+                  DHT(PIN_PORTA, DHT22), DHT(PIN_CENTRO, DHT22)};
+static_assert(sizeof(DISPOSITIVOS) / sizeof(DISPOSITIVOS[0]) == TOTAL, "Configurar quatro IDs");
+const char *const ROTULOS[] = {"janela", "fundo", "porta", "centro"};
+struct Ponto { double temperatura, indice; Nivel nivel; };
+Ponto pontos[TOTAL] = {{0, 0, SEM_LEITURA}, {0, 0, SEM_LEITURA},
+                       {0, 0, SEM_LEITURA}, {0, 0, SEM_LEITURA}};
+int maisFrio = -1, maisQuente = -1;
+
+void atualizarExtremos() {
+  maisFrio = maisQuente = -1;
+  nivelAtual = SEM_LEITURA;
+  for (int i = 0; i < TOTAL; ++i) {
+    if (pontos[i].nivel == SEM_LEITURA) continue;
+    if (maisFrio < 0 || pontos[i].temperatura < pontos[maisFrio].temperatura) maisFrio = i;
+    if (maisQuente < 0 || pontos[i].temperatura > pontos[maisQuente].temperatura) maisQuente = i;
+    // Prioridade do alerta coletivo: perigo, cuidado, atencao, frio, normal.
+    const int prioridade[] = {0, 2, 3, 4, 1};
+    Nivel n = pontos[i].nivel;
+    if (nivelAtual == SEM_LEITURA || prioridade[n] > prioridade[nivelAtual]) nivelAtual = n;
+  }
+}
 LiquidCrystal_I2C lcd(0x27, 16, 2);  // endereço padrão do LCD 1602 I2C do Wokwi
 WiFiClient rede;
 PubSubClient mqtt(rede);
 volatile bool relogioSincronizado = false;  // vira true no primeiro acerto do NTP
 
 // Leitura já formatada: o mesmo texto da temperatura vai no JSON e no HMAC.
-struct Leitura { char temperatura[16]; int umidade; long long instante; };
-QueueHandle_t fila;  // 1 posição: só a leitura mais recente espera a conexão
-Nivel nivelAtual = SEM_LEITURA;
-double temperaturaAtual = 0, indiceAtual = 0;
+struct Leitura { char temperatura[16]; int umidade; long long instante; int sensor; };
+struct Lote { Leitura leituras[TOTAL]; int quantidade; };
+QueueHandle_t fila;  // um lote: as ultimas leituras dos quatro pontos
 bool ciente = false;  // professor apertou "Ciente" neste Perigo; zera quando o nível sai de Perigo
 
 // Índice de calor em °C com uma casa decimal (NOAA/Rothfusz, CONTRATO.md seção 3).
@@ -116,10 +135,28 @@ void textoLcd(Nivel n, double temp, double indice, bool jaCiente, char *linha1, 
   snprintf(linha2, 17, "%s%s", NOME_NIVEL[n], n == PERIGO && jaCiente ? " (ciente)" : "");
 }
 
+void textoMapa(uint32_t ms, char *linha1, char *linha2) {
+  int pagina = (ms / 3000) % 10;
+  int i = pagina < 8 ? pagina / 2 : (pagina == 8 ? maisQuente : maisFrio);
+  if (i < 0 || pontos[i].nivel == SEM_LEITURA) {
+    snprintf(linha1, 17, "%s", i < 0 ? "Sem extremos" : ROTULOS[i]);
+    snprintf(linha2, 17, "Sem leitura");
+    return;
+  }
+  if (pagina >= 8) {
+    snprintf(linha1, 17, "%s %s", pagina == 8 ? "Quente" : "Frio", ROTULOS[i]);
+    snprintf(linha2, 17, "%.1fC", pontos[i].temperatura);
+  } else {
+    textoLcd(pontos[i].nivel, pontos[i].temperatura, pontos[i].indice, ciente, linha1, linha2);
+    snprintf(linha1, 17, "%s %s%.1fC", ROTULOS[i], pagina % 2 ? "I" : "", 
+             pagina % 2 ? pontos[i].indice : pontos[i].temperatura);
+  }
+}
+
 void mostrarLcd() {
   char linha1[17], linha2[17];
-  textoLcd(nivelAtual, temperaturaAtual, indiceAtual, ciente, linha1, linha2);
-  lcd.setCursor(0, 0); lcd.printf("%-16s", linha1);  // espaços apagam o texto anterior
+  textoMapa(millis(), linha1, linha2);
+  lcd.setCursor(0, 0); lcd.printf("%-16s", linha1);
   lcd.setCursor(0, 1); lcd.printf("%-16s", linha2);
 }
 
@@ -159,6 +196,36 @@ void conferirVetores() {
   assert(strcmp(l2, "Cuidado extremo") == 0);
   textoLcd(SEM_LEITURA, 0, 0, false, l1, l2);
   assert(strcmp(l1, "Sem leitura") == 0);
+  pontos[0] = {35, 40, CUIDADO}; pontos[1] = {15, 15, FRIO};
+  pontos[2] = {24, 24, NORMAL}; pontos[3] = {38, 62, PERIGO};
+  atualizarExtremos();
+  assert(maisFrio == 1 && maisQuente == 3 && nivelAtual == PERIGO);
+  for (int i = 0; i < TOTAL; ++i) {
+    textoMapa(i * 6000, l1, l2);
+    assert(strncmp(l1, ROTULOS[i], strlen(ROTULOS[i])) == 0 && strlen(l1) <= 16);
+    assert(strcmp(l2, NOME_NIVEL[pontos[i].nivel]) == 0);
+  }
+  textoMapa(24000, l1, l2);
+  assert(strcmp(l1, "Quente centro") == 0 && strcmp(l2, "38.0C") == 0);
+  textoMapa(27000, l1, l2);
+  assert(strcmp(l1, "Frio fundo") == 0);
+  pontos[3].nivel = SEM_LEITURA;
+  atualizarExtremos();
+  assert(maisQuente == 0 && nivelAtual == CUIDADO);
+  pontos[0].nivel = SEM_LEITURA;
+  atualizarExtremos();
+  assert(nivelAtual == FRIO);
+  pontos[1].nivel = SEM_LEITURA;
+  atualizarExtremos();
+  assert(nivelAtual == NORMAL && maisFrio == 2 && maisQuente == 2);
+  pontos[0] = pontos[2];
+  atualizarExtremos();
+  assert(maisFrio == 0 && maisQuente == 0);
+  for (auto &p : pontos) p.nivel = SEM_LEITURA;
+  atualizarExtremos();
+  assert(maisFrio == -1 && maisQuente == -1 && nivelAtual == SEM_LEITURA);
+  textoMapa(24000, l1, l2);
+  assert(strcmp(l1, "Sem extremos") == 0);
   Serial.println("Vetores de calor OK");
 }
 
@@ -166,7 +233,7 @@ void conferirVetores() {
 void publicar(const Leitura &l) {
   char canonico[160], assinatura[65], json[320];
   int n = snprintf(canonico, sizeof canonico, "%s|%s|%s|%d|%lld",
-      AMBIENTE_ID, DISPOSITIVO, l.temperatura, l.umidade, l.instante);
+      AMBIENTE_ID, DISPOSITIVOS[l.sensor], l.temperatura, l.umidade, l.instante);
   if (n < 0 || n >= sizeof canonico || !assinar(canonico, SEGREDO, assinatura)) {
     Serial.println("Falha ao assinar leitura");
     return;
@@ -174,7 +241,7 @@ void publicar(const Leitura &l) {
   n = snprintf(json, sizeof json,
       "{\"ambienteId\":\"%s\",\"dispositivo\":\"%s\",\"temperaturaC\":%s,"
       "\"umidadePct\":%d,\"medidoEm\":%lld,\"assinatura\":\"%s\"}",
-      AMBIENTE_ID, DISPOSITIVO, l.temperatura, l.umidade, l.instante, assinatura);
+      AMBIENTE_ID, DISPOSITIVOS[l.sensor], l.temperatura, l.umidade, l.instante, assinatura);
   if (n < 0 || n >= sizeof json || !mqtt.publish(TOPICO, json, false))
     Serial.println("Falha na publicacao MQTT");
   else Serial.println("Leitura publicada");
@@ -184,7 +251,7 @@ void publicar(const Leitura &l) {
 // Fica separada do loop() para que DNS ou broker lentos não travem a medição nem o pisca.
 void conectarEPublicar(void *) {
   uint32_t tentativa = millis() - 5000;
-  long long ultimoPublicado = 0;
+  long long ultimoPublicado[TOTAL] = {};
   for (;;) {
     if (WiFi.status() == WL_CONNECTED) {
       if (!mqtt.connected() && uint32_t(millis()-tentativa) >= 5000) {
@@ -194,14 +261,16 @@ void conectarEPublicar(void *) {
       }
       if (mqtt.connected()) {
         mqtt.loop();
-        Leitura l;
-        if (xQueueReceive(fila, &l, 0) == pdTRUE) {
-          // Mesma janela da API (600 s atrás, 60 s à frente) e ordem estrita contra reenvio.
-          long long idade = (long long)time(nullptr) - l.instante;
-          if (l.instante > ultimoPublicado && idade >= -60 && idade <= 600) {
-            publicar(l);
-            ultimoPublicado = l.instante;
-          } else Serial.println("Relogio ou leitura antiga; aguardando proxima medicao");
+        Lote lote;
+        if (xQueueReceive(fila, &lote, 0) == pdTRUE) {
+          for (int i = 0; i < lote.quantidade; ++i) {
+            const Leitura &l = lote.leituras[i];
+            long long idade = (long long)time(nullptr) - l.instante;
+            if (l.instante > ultimoPublicado[l.sensor] && idade >= -60 && idade <= 600) {
+              publicar(l);
+              ultimoPublicado[l.sensor] = l.instante;
+            } else Serial.println("Relogio ou leitura antiga; aguardando proxima medicao");
+          }
         }
       }
     }
@@ -213,13 +282,13 @@ void setup() {
   Serial.begin(115200);
   pinMode(VERDE, OUTPUT); pinMode(AMARELO, OUTPUT); pinMode(VERMELHO, OUTPUT);
   pinMode(BOTAO, INPUT_PULLUP);  // solto = HIGH, apertado = LOW
-  dht.begin();
+  for (auto &sensor : sensores) sensor.begin();
   lcd.init();  // também inicia o Wire em SDA 21 e SCL 22
   lcd.backlight();
   lcd.print("Termometro Sala");
   lcd.setCursor(0, 1); lcd.print("Medindo...");
   conferirVetores();
-  fila = xQueueCreate(1, sizeof(Leitura));
+  fila = xQueueCreate(1, sizeof(Lote));
   assert(fila);
   mqtt.setServer("broker.hivemq.com", 1883);
   bool bufferOk = mqtt.setBufferSize(512);  // o JSON assinado passa do padrão de 256 bytes
@@ -245,27 +314,30 @@ void loop() {
   uint32_t agora = millis();
   if (uint32_t(agora - ultimaLeitura) >= 10000) {
     ultimaLeitura = agora;
-    float temp = dht.readTemperature(), umidade = dht.readHumidity();
-    // Mesma faixa da API (-10 a 60 °C, 0 a 100 %): fora dela, LEDs apagados e nada publicado.
-    if (!isfinite(temp) || !isfinite(umidade) || temp < -10 || temp > 60 || umidade < 0 || umidade > 100) {
-      nivelAtual = SEM_LEITURA;
-      Serial.println("Sensor invalido; LEDs apagados, sem publicar");
-    } else {
-      Leitura l;
+    Lote lote = {};
+    long long instante = (long long)time(nullptr);
+    for (int i = 0; i < TOTAL; ++i) {
+      float temp = sensores[i].readTemperature(), umidade = sensores[i].readHumidity();
+      if (!isfinite(temp) || !isfinite(umidade) || temp < -10 || temp > 60 || umidade < 0 || umidade > 100) {
+        pontos[i].nivel = SEM_LEITURA;
+        Serial.printf("%s: sensor invalido; sem publicar\n", ROTULOS[i]);
+        continue;
+      }
+      Leitura &l = lote.leituras[lote.quantidade++];
+      l.sensor = i;
       snprintf(l.temperatura, sizeof l.temperatura, "%.1f", temp);
       l.umidade = (int)lround(umidade);
-      // Calcula com os valores já formatados, para ter as mesmas entradas da API.
-      temperaturaAtual = atof(l.temperatura);
-      indiceAtual = indiceCalor(temperaturaAtual, l.umidade);
-      nivelAtual = nivel(indiceAtual);
-      Serial.printf("Temperatura %s C, umidade %d%%, indice %.1f C, nivel %s\n",
-                    l.temperatura, l.umidade, indiceAtual, NOME_NIVEL[nivelAtual]);
-      if (relogioSincronizado) {
-        l.instante = (long long)time(nullptr);
-        // shortcut: QoS 0 e so a leitura mais recente, evoluir se precisar recuperar quedas.
-        xQueueOverwrite(fila, &l);
-      } else Serial.println("Aguardando NTP; LED local ativo");
+      l.instante = instante;
+      pontos[i] = {atof(l.temperatura), indiceCalor(atof(l.temperatura), l.umidade), SEM_LEITURA};
+      pontos[i].nivel = nivel(pontos[i].indice);
+      Serial.printf("%s (%s): %s C, %d%%, indice %.1f C, %s\n", ROTULOS[i], DISPOSITIVOS[i],
+                    l.temperatura, l.umidade, pontos[i].indice, NOME_NIVEL[pontos[i].nivel]);
     }
+    atualizarExtremos();
+    if (relogioSincronizado && lote.quantidade) {
+      // shortcut: QoS 0 e so o lote mais recente, evoluir se precisar recuperar quedas.
+      xQueueOverwrite(fila, &lote);
+    } else if (!relogioSincronizado) Serial.println("Aguardando NTP; alerta local ativo");
     if (nivelAtual != PERIGO) ciente = false;  // um novo Perigo volta a bipar
     mostrarLcd();
   }
@@ -278,6 +350,11 @@ void loop() {
       Serial.println("Professor ciente do Perigo; buzzer silenciado ate o nivel baixar");
       mostrarLcd();
     }
+  }
+  static uint32_t ultimaPagina = 0;
+  if (uint32_t(agora - ultimaPagina) >= 3000) {
+    ultimaPagina = agora;
+    mostrarLcd();
   }
   botaoAntes = botao;
   bool bipar = buzzerLigado(nivelAtual, ciente, agora);
