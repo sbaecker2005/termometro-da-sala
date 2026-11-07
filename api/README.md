@@ -338,10 +338,10 @@ pessoais ou credenciais.
 dotnet test
 ```
 
-São 55 testes xUnit: vetores do contrato (HMAC, índice de calor, relógio de São Paulo),
+São 81 testes xUnit: vetores do contrato (HMAC, índice de calor, relógio de São Paulo),
 leitura do modelo de previsão (no banco e no Demo, com o mesmo valor), rotas da API (CRUD de
 salas, ocorrências, foto com chave, níveis, cabeçalhos de segurança), previsão sem rua e
-histórico, alerta da sala com delta e arredondamento nos limites 27/32/41 °C,
+histórico, alerta da sala com delta e arredondamento nos limites 18/27/32/41 °C (frio incluído), mapa térmico (IDW, precauções e autorização do PUT),
 limite do MQTT, estrutura do JPEG e o esquema do banco. Os testes de rota usam
 SQLite em memória, só no projeto de testes (a API referencia apenas o provedor do SQL
 Server). Como o SQLite não ordena `DateTimeOffset`, os testes gravam as datas como ticks UTC

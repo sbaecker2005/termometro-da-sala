@@ -1,16 +1,17 @@
-Resumo da execução local em 07/11/2026, alerta de frio.
-Comando na raiz:
-dotnet test api/TermometroDaSala.Api.Tests/TermometroDaSala.Api.Tests.csproj --no-restore --verbosity minimal
+Resumo da execução local em 07/11/2026. Windows, .NET SDK 8.0.427.
+Comando na raiz (API):
+dotnet test api/TermometroDaSala.sln --nologo
 
-Passed! - Failed: 0, Passed: 61, Skipped: 0, Total: 61, Duration: 6 s
+Passed! - Failed: 0, Passed: 81, Skipped: 0, Total: 81
+46 [Fact] e 35 casos [InlineData] em 8 [Theory].
 
-0 falhas, 0 ignorados. Banco SQLite em memória nas rotas; SQL Server sem abrir conexão nos testes de esquema.
-Inclui 200 previsões de paridade do JSON com scikit-learn, igualdade das cópias
-do modelo e oito casos HTTP do alerta com delta e arredondamento da sala
-(17.9/18.0, 26.9/27.0, 31.9/32.0 e 40.9/41.0), incluindo persistência do nível no histórico.
-Inclui limites diretos 17.9/18.0/27.0, GET /niveis com cinco faixas e ação de frio,
-SQL idempotente da migração AlertaFrio e ausência de mudanças pendentes no modelo.
-Não foi aplicada migração no SQL Server local nesta execução.
-Execução repetida após regenerar e executar as 15 células do notebook (37 saídas),
-recalcular as métricas com frio e sincronizar a cópia de modelo.json da API.
-Os 20 testes de segurança existentes continuam incluídos na suíte completa.
+Inclui os vetores do contrato, a leitura do modelo de previsão, as rotas da API, os casos HTTP
+do alerta com delta e arredondamento da sala (17.9/18.0, 26.9/27.0, 31.9/32.0 e 40.9/41.0),
+o GET /niveis com cinco faixas e a ação de frio, o mapa térmico (IDW, leituras fora da janela,
+um sensor só, borda de 4 °C, troca de lugar vulnerável, autorização do PUT e a Sala 7 do Demo)
+e o esquema do banco. Os 20 testes de segurança existentes continuam incluídos.
+
+Execução separada (desktop; não entra na contagem da API):
+dotnet test desktop/TermometroDaSala.Desktop.sln --nologo
+
+Passed! - Failed: 0, Passed: 9, Skipped: 0, Total: 9

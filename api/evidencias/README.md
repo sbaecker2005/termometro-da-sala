@@ -30,7 +30,7 @@ As saídas históricas abaixo não comprovam a migração de frio aplicada no ba
 
 | Arquivo | Comando (a partir de `api/`) | O que mostra |
 |---|---|---|
-| [dotnet-test.txt](dotnet-test.txt) | `dotnet test TermometroDaSala.Api.Tests/TermometroDaSala.Api.Tests.csproj --no-restore` | Resultado local com os testes de fronteira do frio e da migração |
+| [dotnet-test.txt](dotnet-test.txt) | `dotnet test api/TermometroDaSala.sln` e `dotnet test desktop/TermometroDaSala.Desktop.sln` | 81 testes da API e 9 do desktop aprovados em 07/11/2026, incluindo o alerta de frio e o mapa térmico |
 | [migracoes-idempotente.sql](migracoes-idempotente.sql) | `dotnet ef migrations script --idempotent --project TermometroDaSala.Api -o evidencias/migracoes-idempotente.sql` | SQL das 4 migrações, incluindo `AlertaFrio`. Em `CREATE TABLE [Leituras]`, só a FK para `Ambientes` tem `ON DELETE CASCADE`; a FK para `Dispositivos` fica sem ação |
 
 `dotnet ef migrations has-pending-model-changes --project TermometroDaSala.Api` responde

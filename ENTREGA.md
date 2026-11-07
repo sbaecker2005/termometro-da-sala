@@ -79,7 +79,7 @@ O briefing desta disciplina não divide a nota em pontos. O que a página 29 ped
 - [ ] Preencher RM e link em `desktop/integrantes.txt` e o RM no README
 - [ ] Fazer a entrevista e escrever nome, escola e data no README
 - [ ] Abrir o pull request da versão e criar as tags no GitHub (`v0.1.0` em diante)
-- [ ] Gravar ou printar a `TelaCoordenacao`: chave sem valor visível, cadastro/edição/exclusão de sala, ocorrências e revogação; conferir os 6 testes do desktop
+- [ ] Gravar ou printar a `TelaCoordenacao`: chave sem valor visível, cadastro/edição/exclusão de sala, ocorrências e revogação; conferir os 9 testes do desktop
 - [ ] Gerar o ZIP e conferir numa pasta limpa (comandos abaixo)
 - [ ] Enviar ZIP e txt no Teams, um integrante
 
