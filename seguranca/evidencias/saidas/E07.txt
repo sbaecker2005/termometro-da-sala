@@ -1,51 +1,51 @@
-2026-11-06T02:34:26.7051011-03:00
+2026-11-07T10:02:21.3533330-03:00
 E07 - parte local; prints e demais itens do roteiro permanecem pendentes.
-Antes/depois dos uploads invalidos e faixas: Ocorrencias 1/1; Leituras 21/21
-2026-11-06T02:34:24.3840266-03:00
+Antes/depois dos uploads invalidos e faixas: Ocorrencias 3/3; Leituras 31/31
+2026-11-07T10:02:18.9700618-03:00
 Ambiente: Demo; MQTT desligado; conexao: ***
 POST http://localhost:5080/ocorrencias
-Content-Type: multipart/form-data; boundary="6fa2ee8e-1305-46ff-a63a-f4d0f34ef97e"
+Content-Type: multipart/form-data; boundary="a1c1e0af-e874-42fc-a237-4656bec1a2cd"
 
-Corpo enviado: {"descricao":"Teste de arquivo invalido","foto":"D:\\projetos\\termometro-wt-evidencias\\api\\evidencias\\saidas\\temporario-dc0c9b40ccac4aeb845ce9e0b1e2a114\\falsa.jpg","ambienteId":"sala-03"}; foto: bytes do JPEG/arquivo indicado, sem transcricao binaria
+Corpo enviado: {"descricao":"Teste de arquivo invalido","foto":"D:\\projetos\\termometro-wt-frio\\api\\evidencias\\saidas\\temporario-81a668dc284c499d9fa57729d823249e\\falsa.jpg","ambienteId":"sala-03"}; foto: bytes do JPEG/arquivo indicado, sem transcricao binaria
 Esperado: HTTP 400; nao-jpeg
 HTTP 400 Bad Request
 Transfer-Encoding: chunked
 X-Content-Type-Options: nosniff
-Date: Fri, 06 Nov 2026 05:34:24 GMT
+Date: Sat, 07 Nov 2026 13:02:18 GMT
 Server: Kestrel
 Content-Type: application/json; charset=utf-8
 
 {"motivo":"nao-jpeg"}
 Conferencia: OK
 
-2026-11-06T02:34:24.4060778-03:00
+2026-11-07T10:02:18.9935731-03:00
 Ambiente: Demo; MQTT desligado; conexao: ***
 POST http://localhost:5080/ocorrencias
-Content-Type: multipart/form-data; boundary="c4081bc5-377f-43a6-808c-07a4c1ee9a6c"
+Content-Type: multipart/form-data; boundary="fe9959e9-931a-436f-8062-0d629ba2ece1"
 
-Corpo enviado: {"descricao":"Teste de nome invalido","foto":"D:\\projetos\\termometro-wt-evidencias\\api\\evidencias\\saidas\\temporario-dc0c9b40ccac4aeb845ce9e0b1e2a114\\falsa.jpg","ambienteId":"sala-03","nomeFoto":"../../teste.jpg"}; foto: bytes do JPEG/arquivo indicado, sem transcricao binaria
+Corpo enviado: {"descricao":"Teste de nome invalido","foto":"D:\\projetos\\termometro-wt-frio\\api\\evidencias\\saidas\\temporario-81a668dc284c499d9fa57729d823249e\\falsa.jpg","ambienteId":"sala-03","nomeFoto":"../../teste.jpg"}; foto: bytes do JPEG/arquivo indicado, sem transcricao binaria
 Esperado: HTTP 400; nome-invalido
 HTTP 400 Bad Request
 Transfer-Encoding: chunked
 X-Content-Type-Options: nosniff
-Date: Fri, 06 Nov 2026 05:34:24 GMT
+Date: Sat, 07 Nov 2026 13:02:18 GMT
 Server: Kestrel
 Content-Type: application/json; charset=utf-8
 
 {"motivo":"nome-invalido"}
 Conferencia: OK
 
-2026-11-06T02:34:24.4160779-03:00
+2026-11-07T10:02:19.0032610-03:00
 Ambiente: Demo; MQTT desligado; conexao: ***
 POST http://localhost:5080/ocorrencias
-Content-Type: multipart/form-data; boundary="7bbab84b-c21c-4cdf-84f9-0ba1bfd9cd00"
+Content-Type: multipart/form-data; boundary="f44108a2-bec1-4cc9-bb18-6790c547e694"
 
-Corpo enviado: {"descricao":"Teste de limite de tamanho","foto":"D:\\projetos\\termometro-wt-evidencias\\api\\evidencias\\saidas\\temporario-dc0c9b40ccac4aeb845ce9e0b1e2a114\\grande.jpg","ambienteId":"sala-03"}; foto: bytes do JPEG/arquivo indicado, sem transcricao binaria
+Corpo enviado: {"descricao":"Teste de limite de tamanho","foto":"D:\\projetos\\termometro-wt-frio\\api\\evidencias\\saidas\\temporario-81a668dc284c499d9fa57729d823249e\\grande.jpg","ambienteId":"sala-03"}; foto: bytes do JPEG/arquivo indicado, sem transcricao binaria
 Esperado: HTTP 400; arquivo
 HTTP 400 Bad Request
 Transfer-Encoding: chunked
 X-Content-Type-Options: nosniff
-Date: Fri, 06 Nov 2026 05:34:24 GMT
+Date: Sat, 07 Nov 2026 13:02:18 GMT
 Server: Kestrel
 Content-Type: application/json; charset=utf-8
 

@@ -15,3 +15,14 @@ Execução separada (desktop; não entra na contagem da API):
 dotnet test desktop/TermometroDaSala.Desktop.sln --nologo
 
 Passed! - Failed: 0, Passed: 9, Skipped: 0, Total: 9
+
+Banco SQLite em memória nas rotas; a coleta no SQL Server local está em api/evidencias/saidas (38 OK, 0 DIVERGE em 07/11/2026).
+Contagem em api/TermometroDaSala.Api.Tests/*.cs:
+Arquivo                  Fact  InlineData  Theory
+ApiTestes.cs               25          14       2
+EsquemaTestes.cs             6           0       0
+PrevisorModeloTestes.cs      5           0       0
+VetoresTestes.cs             5           7       2
+MapaTestes.cs                5          14       4
+Total                      46          35       8
+46 Fact + 35 casos InlineData = 81 testes.

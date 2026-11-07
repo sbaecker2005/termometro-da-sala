@@ -1,4 +1,4 @@
-2026-11-06T02:34:22.5166657-03:00
+2026-11-07T10:02:16.7364841-03:00
 Ambiente: Demo; MQTT desligado; conexao: ***
 POST http://localhost:5080/demo/semear?ambienteId=sala-03
 
@@ -7,7 +7,7 @@ Esperado: HTTP 201; "inseridas":
 HTTP 201 Created
 Transfer-Encoding: chunked
 X-Content-Type-Options: nosniff
-Date: Fri, 06 Nov 2026 05:34:22 GMT
+Date: Sat, 07 Nov 2026 13:02:16 GMT
 Location: /demo/semear
 Server: Kestrel
 Content-Type: application/json; charset=utf-8

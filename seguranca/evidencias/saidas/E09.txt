@@ -1,4 +1,4 @@
-2026-11-06T02:34:26.7141017-03:00
+2026-11-07T10:02:21.3614030-03:00
 E09 - parte local; prints e demais itens do roteiro permanecem pendentes.
 info: Microsoft.Hosting.Lifetime[14]
       Now listening on: http://localhost:5080
@@ -7,16 +7,16 @@ info: Microsoft.Hosting.Lifetime[0]
 info: Microsoft.Hosting.Lifetime[0]
       Hosting environment: Production
 info: Microsoft.Hosting.Lifetime[0]
-      Content root path: D:\projetos\termometro-wt-evidencias\api\TermometroDaSala.Api
+      Content root path: D:\projetos\termometro-wt-frio\api\TermometroDaSala.Api
 warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]
       Failed to determine the https port for redirect.
 warn: TermometroDaSala.Api.Controllers.DemoController[0]
       demo semear recusado: fora-do-ambiente
 
-Coleta: processo PID 11564 encerrado; HasExited=True; 2026-11-06T02:34:25.2406461-03:00
+Coleta: processo PID 15696 encerrado; HasExited=True; 2026-11-07T10:02:19.8011051-03:00
 
 IIS/HTTPS pendentes; 307, se ocorrer, nao prova 404.
-2026-11-06T02:34:21.3920453-03:00
+2026-11-07T10:02:15.6110310-03:00
 Ambiente: Development; MQTT desligado; conexao: ***
 POST http://localhost:5080/demo/semear?ambienteId=sala-03
 
@@ -25,14 +25,14 @@ Esperado: HTTP 404;
 HTTP 404 Not Found
 Transfer-Encoding: chunked
 X-Content-Type-Options: nosniff
-Date: Fri, 06 Nov 2026 05:34:20 GMT
+Date: Sat, 07 Nov 2026 13:02:15 GMT
 Server: Kestrel
 Content-Type: application/problem+json; charset=utf-8
 
-{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.5","title":"Not Found","status":404,"traceId":"00-19f99fa7ad27faca780d0e30777e127a-9389273587aa1c12-00"}
+{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.5","title":"Not Found","status":404,"traceId":"00-1caed72a022295af7f38d80bee899dba-35480865a8f627f3-00"}
 Conferencia: OK
 
-2026-11-06T02:34:21.9632869-03:00
+2026-11-07T10:02:16.1666846-03:00
 Ambiente: Demo; MQTT desligado; conexao: ***
 POST http://localhost:5080/demo/semear?ambienteId=sala-02
 
@@ -41,14 +41,14 @@ Esperado: HTTP 409; ligue o sensor primeiro
 HTTP 409 Conflict
 Transfer-Encoding: chunked
 X-Content-Type-Options: nosniff
-Date: Fri, 06 Nov 2026 05:34:21 GMT
+Date: Sat, 07 Nov 2026 13:02:15 GMT
 Server: Kestrel
 Content-Type: application/json; charset=utf-8
 
 {"motivo":"ligue o sensor primeiro"}
 Conferencia: OK
 
-2026-11-06T02:34:22.5166657-03:00
+2026-11-07T10:02:16.7364841-03:00
 Ambiente: Demo; MQTT desligado; conexao: ***
 POST http://localhost:5080/demo/semear?ambienteId=sala-03
 
@@ -57,7 +57,7 @@ Esperado: HTTP 201; "inseridas":
 HTTP 201 Created
 Transfer-Encoding: chunked
 X-Content-Type-Options: nosniff
-Date: Fri, 06 Nov 2026 05:34:22 GMT
+Date: Sat, 07 Nov 2026 13:02:16 GMT
 Location: /demo/semear
 Server: Kestrel
 Content-Type: application/json; charset=utf-8
@@ -65,7 +65,7 @@ Content-Type: application/json; charset=utf-8
 {"inseridas":18}
 Conferencia: OK
 
-2026-11-06T02:34:25.1249081-03:00
+2026-11-07T10:02:19.6820703-03:00
 Ambiente: Production; MQTT desligado; conexao: ***
 POST http://localhost:5080/demo/semear?ambienteId=sala-03
 
@@ -74,9 +74,9 @@ Esperado: HTTP 404;
 HTTP 404 Not Found
 Transfer-Encoding: chunked
 X-Content-Type-Options: nosniff
-Date: Fri, 06 Nov 2026 05:34:24 GMT
+Date: Sat, 07 Nov 2026 13:02:19 GMT
 Server: Kestrel
 Content-Type: application/problem+json; charset=utf-8
 
-{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.5","title":"Not Found","status":404,"traceId":"00-651e478ab20c68b5bdfdcda6dff1346d-9b79abd5a1a53c62-00"}
+{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.5","title":"Not Found","status":404,"traceId":"00-057a64a501896cabef365362a1d978ac-200ab744ba062143-00"}
 Conferencia: OK

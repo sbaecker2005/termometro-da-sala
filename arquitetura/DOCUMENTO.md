@@ -74,7 +74,7 @@ O Termômetro da Sala mede cada sala, prevê o nível dela para daqui a 2 horas 
 | R8 | Nunca inventar dado | Qualidade | Sem leituras recentes, a tela mostra só a previsão da rua e o aviso |
 | R9 | Recuperar sozinho de falha do serviço | Disponibilidade | Pool sempre ligado e recuperação do serviço no IIS |
 
-Os níveis usam o índice de calor nas faixas da NOAA: abaixo de 27 °C é Normal, de 27 a 32 °C é Atenção, de 32 a 41 °C é Cuidado extremo e a partir de 41 °C é Perigo.
+Pelo Índice °C, <18 é Frio, usando como referência o mínimo interno de 18 °C recomendado pela OMS para moradias. Normal vai de 18 até menos de 27 °C. As faixas de calor seguem a NOAA: de 27 até menos de 32 °C é Atenção, de 32 até menos de 41 °C é Cuidado extremo e a partir de 41 °C é Perigo.
 
 ## 4. Diagrama de Arquitetura de Soluções
 

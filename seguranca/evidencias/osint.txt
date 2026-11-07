@@ -85,43 +85,50 @@ Filtro usado em todos os comandos: X="--exclude-dir=node_modules --exclude-dir=b
 
 
 
-8a. Recoleta local em 2026-11-06T02:34:26.5827154-03:00
-Data da busca: 2026-11-06T02:34:25.2415889-03:00
+
+
+8a. Recoleta local em 2026-11-07T10:02:21.2331598-03:00
+Data da busca: 2026-11-07T10:02:19.8021046-03:00
 Escopo: historico local de todos os refs, sem rede; sem ler .env* ou contas/.
-Versao: 47a92d3a3a51ded097851a4c68e61f9a6852e664 2026-11-05T16:21:24-03:00
+Versao: 52fbeebd1bea21520eea602280e7a98b02d682d7 2026-11-07T08:47:26-03:00
 
 git log --all --oneline -i -G 'segredo-de-teste' -- . :(exclude)**/.env* :(exclude)**/contas/**
+52fbeeb Alerta de frio (nivel frio abaixo de 18 de indice) na API, desktop, app, ESP32 e notebook, e mapa termico M1 na API: sensores com posicao e rotulo, lugares com vulneravel, GET e PUT /ambientes/{id}/mapa com IDW, precaucoes e Sala 7 no Demo; dotnet test 81 OK
+7e1e416 Evidencias: script que gera as saidas da API no SQL Server Express local (B1-B5, chamadas 01-27, 34 OK), prints do Swagger e do painel, saidas de seguranca da API local e busca OSINT no historico
 b4b148f Documentos alinhados depois da onda 2: 47 testes da API e 6 do desktop em todo o repositorio, R12 fechado e repontuado (foto so com chave, HSTS e nosniff), linhas citadas atualizadas, entregas novas de cada lote no ENTREGA.md e cenarios de ataque ajustados
 ed8f44e Seguranca: agentes de ameaca, fluxo de dados, tres cenarios de ataque passo a passo contra a API local (SQLi, LFI, OSINT) com esperado x obtido, anexo de evidencias e script dos cenarios
 3226832 API: rotas da onda 2 (ocorrencias por sala, CRUD de ambientes com 409, Location certo, motivo nos 400, foto so com chave, nosniff e HSTS, insomnia em pastas) e dados e dominio (filtros no SQL, sem Sqlite na API, Nivel como enum, Dispositivo.Revogar, GET /niveis, previsao gravada no historico); o Demo aplica o modelo.json ao dia do CSV e o teste prova o mesmo valor do modelo. 47 testes
 e8e75d5 Previsao sem a rua usa a ultima leitura valida da sala (ruaDisponivel), 503 sem-dados-para-prever e 404 tratados na API, no painel web, no app e no desktop
 ca01e73 Seguranca: metodo ISO 27005 e NIST 800-30, STRIDE, OWASP e CWE nos riscos, controles com ISO 27001 Anexo A, riscos de MQTT e HSTS, OSINT do projeto, evidencias curtas
 2e8608f API: FK Leitura-Dispositivo sem cascata (SQL Server recusava a migracao Inicial com erro 1785), testes do esquema, README com camadas, modelo de dados, migracoes e previsao atualizada, indice de evidencias
-ff79ac3 Windows Server alinhado à API: migração por script idempotente, variáveis do pool (conexão, fotos, chave da coordenação), saída MQTT pela NAT ou leituras pelo Insomnia, teste de falha e evidências em /ambientes, troca do segredo de demonstração
-ef7de39 Segurança: segredo HMAC por dispositivo (migração), chave da coordenação nas rotas de escrita, limite de requisições, EXIF removido das fotos, teste de SQLi provando parâmetro; relatório de riscos com os controles reais e evidências locais; 32 testes
-1b0b157 API para SOA: domínio em entidades com enums e navegações, controllers por recurso com DTOs, migração Enums, conexão por ConnectionStrings:Sala, Insomnia com caminho de sucesso e recusas, POST /ambientes, GET /acoes?dia= e GET /ambientes/{id}/ocorrencias; 27 testes
-bcab663 API: domínio em entidades com enums e navegações, controllers por recurso com DTOs, migração Enums, conexão configurável, Insomnia com caminho de sucesso e recusas, POST /ambientes, GET /acoes?dia=, GET /ambientes/{id}/ocorrencias; 25 testes
-1e009ed Contrato entre as partes, ESP32 no Wokwi (HMAC, NTP, LEDs, MQTT), gerador da demonstração e arquitetura (ArchiMate, documento e pitch)
-4dcdfec Contrato entre as partes, ESP32 no Wokwi (HMAC, NTP, LEDs, MQTT), gerador da demonstração e arquitetura (ArchiMate, documento e pitch)
-bf49084 API ASP.NET Core: leituras assinadas (HMAC com antirreenvio), salas, previsão com delta, ocorrências com foto, ações, revogação, modo demonstração, assinante MQTT e painel web; 17 testes
-96abdd9 API ASP.NET Core: leituras assinadas (HMAC com antirreenvio), salas, previsão com delta, ocorrências com foto, ações, revogação, modo demonstração, assinante MQTT e painel web; 17 testes
+ff79ac3 Windows Server alinhado ├á API: migra├º├úo por script idempotente, vari├íveis do pool (conex├úo, fotos, chave da coordena├º├úo), sa├¡da MQTT pela NAT ou leituras pelo Insomnia, teste de falha e evid├¬ncias em /ambientes, troca do segredo de demonstra├º├úo
+ef7de39 Seguran├ºa: segredo HMAC por dispositivo (migra├º├úo), chave da coordena├º├úo nas rotas de escrita, limite de requisi├º├╡es, EXIF removido das fotos, teste de SQLi provando par├ómetro; relat├│rio de riscos com os controles reais e evid├¬ncias locais; 32 testes
+1b0b157 API para SOA: dom├¡nio em entidades com enums e navega├º├╡es, controllers por recurso com DTOs, migra├º├úo Enums, conex├úo por ConnectionStrings:Sala, Insomnia com caminho de sucesso e recusas, POST /ambientes, GET /acoes?dia= e GET /ambientes/{id}/ocorrencias; 27 testes
+bcab663 API: dom├¡nio em entidades com enums e navega├º├╡es, controllers por recurso com DTOs, migra├º├úo Enums, conex├úo configur├ível, Insomnia com caminho de sucesso e recusas, POST /ambientes, GET /acoes?dia=, GET /ambientes/{id}/ocorrencias; 25 testes
+1e009ed Contrato entre as partes, ESP32 no Wokwi (HMAC, NTP, LEDs, MQTT), gerador da demonstra├º├úo e arquitetura (ArchiMate, documento e pitch)
+4dcdfec Contrato entre as partes, ESP32 no Wokwi (HMAC, NTP, LEDs, MQTT), gerador da demonstra├º├úo e arquitetura (ArchiMate, documento e pitch)
+bf49084 API ASP.NET Core: leituras assinadas (HMAC com antirreenvio), salas, previs├úo com delta, ocorr├¬ncias com foto, a├º├╡es, revoga├º├úo, modo demonstra├º├úo, assinante MQTT e painel web; 17 testes
+96abdd9 API ASP.NET Core: leituras assinadas (HMAC com antirreenvio), salas, previs├úo com delta, ocorr├¬ncias com foto, a├º├╡es, revoga├º├úo, modo demonstra├º├úo, assinante MQTT e painel web; 17 testes
 
 git log --all --oneline -i -G 'ChaveCoordenacao' -- . :(exclude)**/.env* :(exclude)**/contas/**
+52fbeeb Alerta de frio (nivel frio abaixo de 18 de indice) na API, desktop, app, ESP32 e notebook, e mapa termico M1 na API: sensores com posicao e rotulo, lugares com vulneravel, GET e PUT /ambientes/{id}/mapa com IDW, precaucoes e Sala 7 no Demo; dotnet test 81 OK
+7e1e416 Evidencias: script que gera as saidas da API no SQL Server Express local (B1-B5, chamadas 01-27, 34 OK), prints do Swagger e do painel, saidas de seguranca da API local e busca OSINT no historico
 b4b148f Documentos alinhados depois da onda 2: 47 testes da API e 6 do desktop em todo o repositorio, R12 fechado e repontuado (foto so com chave, HSTS e nosniff), linhas citadas atualizadas, entregas novas de cada lote no ENTREGA.md e cenarios de ataque ajustados
 ed8f44e Seguranca: agentes de ameaca, fluxo de dados, tres cenarios de ataque passo a passo contra a API local (SQLi, LFI, OSINT) com esperado x obtido, anexo de evidencias e script dos cenarios
 3226832 API: rotas da onda 2 (ocorrencias por sala, CRUD de ambientes com 409, Location certo, motivo nos 400, foto so com chave, nosniff e HSTS, insomnia em pastas) e dados e dominio (filtros no SQL, sem Sqlite na API, Nivel como enum, Dispositivo.Revogar, GET /niveis, previsao gravada no historico); o Demo aplica o modelo.json ao dia do CSV e o teste prova o mesmo valor do modelo. 47 testes
 e8e75d5 Previsao sem a rua usa a ultima leitura valida da sala (ruaDisponivel), 503 sem-dados-para-prever e 404 tratados na API, no painel web, no app e no desktop
 ca01e73 Seguranca: metodo ISO 27005 e NIST 800-30, STRIDE, OWASP e CWE nos riscos, controles com ISO 27001 Anexo A, riscos de MQTT e HSTS, OSINT do projeto, evidencias curtas
 2e8608f API: FK Leitura-Dispositivo sem cascata (SQL Server recusava a migracao Inicial com erro 1785), testes do esquema, README com camadas, modelo de dados, migracoes e previsao atualizada, indice de evidencias
-ff79ac3 Windows Server alinhado à API: migração por script idempotente, variáveis do pool (conexão, fotos, chave da coordenação), saída MQTT pela NAT ou leituras pelo Insomnia, teste de falha e evidências em /ambientes, troca do segredo de demonstração
-ef7de39 Segurança: segredo HMAC por dispositivo (migração), chave da coordenação nas rotas de escrita, limite de requisições, EXIF removido das fotos, teste de SQLi provando parâmetro; relatório de riscos com os controles reais e evidências locais; 32 testes
+ff79ac3 Windows Server alinhado ├á API: migra├º├úo por script idempotente, vari├íveis do pool (conex├úo, fotos, chave da coordena├º├úo), sa├¡da MQTT pela NAT ou leituras pelo Insomnia, teste de falha e evid├¬ncias em /ambientes, troca do segredo de demonstra├º├úo
+ef7de39 Seguran├ºa: segredo HMAC por dispositivo (migra├º├úo), chave da coordena├º├úo nas rotas de escrita, limite de requisi├º├╡es, EXIF removido das fotos, teste de SQLi provando par├ómetro; relat├│rio de riscos com os controles reais e evid├¬ncias locais; 32 testes
 
 git log --all --oneline -i -G 'password=|pwd=|User Id=' -- . :(exclude)**/.env* :(exclude)**/contas/**
+7e1e416 Evidencias: script que gera as saidas da API no SQL Server Express local (B1-B5, chamadas 01-27, 34 OK), prints do Swagger e do painel, saidas de seguranca da API local e busca OSINT no historico
 ed8f44e Seguranca: agentes de ameaca, fluxo de dados, tres cenarios de ataque passo a passo contra a API local (SQLi, LFI, OSINT) com esperado x obtido, anexo de evidencias e script dos cenarios
 e8e75d5 Previsao sem a rua usa a ultima leitura valida da sala (ruaDisponivel), 503 sem-dados-para-prever e 404 tratados na API, no painel web, no app e no desktop
 ca01e73 Seguranca: metodo ISO 27005 e NIST 800-30, STRIDE, OWASP e CWE nos riscos, controles com ISO 27001 Anexo A, riscos de MQTT e HSTS, OSINT do projeto, evidencias curtas
-1b0b157 API para SOA: domínio em entidades com enums e navegações, controllers por recurso com DTOs, migração Enums, conexão por ConnectionStrings:Sala, Insomnia com caminho de sucesso e recusas, POST /ambientes, GET /acoes?dia= e GET /ambientes/{id}/ocorrencias; 27 testes
-bcab663 API: domínio em entidades com enums e navegações, controllers por recurso com DTOs, migração Enums, conexão configurável, Insomnia com caminho de sucesso e recusas, POST /ambientes, GET /acoes?dia=, GET /ambientes/{id}/ocorrencias; 25 testes
+1b0b157 API para SOA: dom├¡nio em entidades com enums e navega├º├╡es, controllers por recurso com DTOs, migra├º├úo Enums, conex├úo por ConnectionStrings:Sala, Insomnia com caminho de sucesso e recusas, POST /ambientes, GET /acoes?dia= e GET /ambientes/{id}/ocorrencias; 27 testes
+bcab663 API: dom├¡nio em entidades com enums e navega├º├╡es, controllers por recurso com DTOs, migra├º├úo Enums, conex├úo configur├ível, Insomnia com caminho de sucesso e recusas, POST /ambientes, GET /acoes?dia=, GET /ambientes/{id}/ocorrencias; 25 testes
 
 git log --all --oneline -- esp32/secrets.h (somente metadados)
 (nenhuma linha)

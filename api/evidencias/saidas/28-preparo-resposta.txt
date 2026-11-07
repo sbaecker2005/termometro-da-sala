@@ -1,0 +1,16 @@
+2026-11-07T10:02:16.9616182-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5080/demo/mapa?periodo=tarde
+
+Corpo enviado: 
+Esperado: HTTP 201; "inseridas":4
+HTTP 201 Created
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Sat, 07 Nov 2026 13:02:16 GMT
+Location: /ambientes/sala-07/mapa
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"inseridas":4}
+Conferencia: OK

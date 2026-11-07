@@ -1,13 +1,13 @@
-2026-11-06T02:34:19.4143097-03:00
+2026-11-07T10:02:13.2236957-03:00
 SQL Server Express local; autenticacao Windows; conexao: ***
 SQL: SELECT * FROM Ambientes ORDER BY Id; SELECT Id,AmbienteId,Ativo,UltimoMedidoEm FROM Dispositivos ORDER BY Id; SELECT * FROM NiveisAcao ORDER BY IndiceMin
 
-Id      Nome   Tipo Andar FaceSol TemVentilador
---      ----   ---- ----- ------- -------------
-sala-01 Sala 1 sala     0 leste            True
-sala-02 Sala 2 sala     0 norte            True
-sala-03 Sala 3 sala     1 oeste            True
-sala-04 Sala 4 sala     2 sul             False
+Id      Nome   Tipo Andar FaceSol TemVentilador LarguraM ProfundidadeM
+--      ----   ---- ----- ------- ------------- -------- -------------
+sala-01 Sala 1 sala     0 leste            True        6             4
+sala-02 Sala 2 sala     0 norte            True                       
+sala-03 Sala 3 sala     1 oeste            True                       
+sala-04 Sala 4 sala     2 sul             False                       
 
 
 

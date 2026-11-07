@@ -784,8 +784,9 @@
 
                 ],
     "method":  "GET",
-    "url":  "{{ _.base_url }}/ambientes/sala-07/mapa",
-    "name":  "Mapa termico",
+    "url":  "{{ _.base_url }}/ambientes/sala-01/mapa",
+    "name":  "27 GET mapa da sala-01 (200; apos configurar)",
+    "metaSortKey":  27,
     "parentId":  "fld_ambientes",
     "body":  {
 
@@ -806,7 +807,8 @@
                 ],
     "method":  "PUT",
     "url":  "{{ _.base_url }}/ambientes/sala-01/mapa",
-    "name":  "Configurar mapa (204; chave obrigatoria)",
+    "name":  "26 Configurar mapa (204; chave obrigatoria)",
+    "metaSortKey":  26,
     "parentId":  "fld_ambientes",
     "body":  {
                  "mimeType":  "application/json",
@@ -821,7 +823,8 @@
                 ],
     "method":  "POST",
     "url":  "{{ _.base_url }}/demo/mapa?periodo=tarde",
-    "name":  "Demo Sala 7 tarde (201; modo Demo)",
+    "name":  "28 Demo Sala 7 tarde (201; consultar mapa com GET apos preparar)",
+    "metaSortKey":  28,
     "parentId":  "wrk_termometro",
     "body":  {
 
@@ -835,7 +838,8 @@
                 ],
     "method":  "POST",
     "url":  "{{ _.base_url }}/demo/mapa?periodo=madrugada",
-    "name":  "Demo Sala 7 madrugada (201; modo Demo)",
+    "name":  "29 Demo Sala 7 madrugada (201; consultar mapa com GET apos preparar)",
+    "metaSortKey":  29,
     "parentId":  "wrk_termometro",
     "body":  {
 

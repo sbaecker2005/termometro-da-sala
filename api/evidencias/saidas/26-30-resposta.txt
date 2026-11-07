@@ -1,4 +1,4 @@
-2026-11-06T02:34:22.9428559-03:00
+2026-11-07T09:18:07.9474307-03:00
 Ambiente: Demo; MQTT desligado; conexao: ***
 POST http://localhost:5080/acoes
 Content-Type: application/json; charset=utf-8
@@ -7,7 +7,7 @@ Corpo enviado: {}
 Esperado: HTTP 429; 
 HTTP 429 Too Many Requests
 X-Content-Type-Options: nosniff
-Date: Fri, 06 Nov 2026 05:34:22 GMT
+Date: Sat, 07 Nov 2026 12:18:07 GMT
 Server: Kestrel
 Content-Length: 0
 

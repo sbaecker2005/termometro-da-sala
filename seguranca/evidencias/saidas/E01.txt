@@ -1,4 +1,4 @@
-2026-11-06T02:34:26.5937185-03:00
+2026-11-07T10:02:21.2426682-03:00
 Base informada: main 47a92d3; worktree gs/evidencias; sem alterar codigo da API.
 Windows Microsoft Windows NT 10.0.26200.0; PowerShell 5.1.26100.9711; SDK 8.0.427
 Development e Demo em HTTP local; SQL Server 2022 Express; MQTT desligado.
@@ -97,110 +97,111 @@ api/TermometroDaSala.Api/Dominio/Contrato.cs
 7: 
 8: public static class IndiceCalor
 9: {
-10:     // Faixas iguais à semente de NivelAcao (27 atenção, 32 cuidado, 41 perigo); GET /niveis devolve a tabela e o teste confere as duas.
+10:     // Faixas iguais à semente de NivelAcao; 18 °C é o mínimo interno recomendado pela OMS para moradias.
 11:     public static Nivel Nivel(double indice)
 12:     {
-13:         if (indice < 27) return Entidades.Nivel.normal;
-14:         if (indice < 32) return Entidades.Nivel.atencao;
-15:         if (indice < 41) return Entidades.Nivel.cuidado;
-16:         return Entidades.Nivel.perigo;
-17:     }
-18: 
-19:     public static bool EhNivel(string nivel) => Enum.IsDefined(typeof(Nivel), nivel);
-20: 
-21:     public static double Calcular(double tempC, double umidade)
-22:     {
-23:         var t = tempC * 9 / 5 + 32;
-24:         var rh = umidade;
-25:         var simples = 0.5 * (t + 61.0 + (t - 68.0) * 1.2 + rh * 0.094);
-26:         double hi;
-27:         if ((simples + t) / 2 < 80)
-28:         {
-29:             hi = simples;
-30:         }
-31:         else
-32:         {
-33:             hi = -42.379 + 2.04901523 * t + 10.14333127 * rh - 0.22475541 * t * rh
-34:                 - 0.00683783 * t * t - 0.05481717 * rh * rh + 0.00122874 * t * t * rh
-35:                 + 0.00085282 * t * rh * rh - 0.00000199 * t * t * rh * rh;
-36:             if (rh < 13 && t is >= 80 and <= 112)
-37:                 hi -= ((13 - rh) / 4) * Math.Sqrt((17 - Math.Abs(t - 95)) / 17);
-38:             else if (rh > 85 && t is >= 80 and <= 87)
-39:                 hi += ((rh - 85) / 10) * ((87 - t) / 5);
-40:         }
-41:         return Math.Round((hi - 32) * 5 / 9, 1);
-42:     }
-43: }
-44: 
-45: public static class Relogio
-46: {
-47:     public static readonly TimeZoneInfo SaoPaulo =
-48:         TimeZoneInfo.FindSystemTimeZoneById("E. South America Standard Time");
-49: 
-50:     public static DateTimeOffset HoraLocal(DateTimeOffset utc) => TimeZoneInfo.ConvertTime(utc, SaoPaulo);
-51: }
-52: 
-53: public static class Assinatura
-54: {
-55:     public static string Canonico(string ambienteId, string dispositivo, double temperaturaC, int umidadePct, long medidoEm) =>
-56:         string.Join('|',
-57:             ambienteId,
-58:             dispositivo,
-59:             temperaturaC.ToString("0.0", CultureInfo.InvariantCulture),
-60:             umidadePct.ToString(CultureInfo.InvariantCulture),
-61:             medidoEm.ToString(CultureInfo.InvariantCulture));
-62: 
-63:     public static string Hex(string segredo, string ambienteId, string dispositivo, double temperaturaC, int umidadePct, long medidoEm)
-64:     {
-65:         var hash = HMACSHA256.HashData(
-66:             Encoding.UTF8.GetBytes(segredo),
-67:             Encoding.UTF8.GetBytes(Canonico(ambienteId, dispositivo, temperaturaC, umidadePct, medidoEm)));
-68:         return Convert.ToHexString(hash).ToLowerInvariant();
-69:     }
-70: 
-71:     public static bool Confere(string segredo, string ambienteId, string dispositivo, double temperaturaC, int umidadePct, long medidoEm, string assinaturaHex)
-72:     {
-73:         byte[] informado;
-74:         try { informado = Convert.FromHexString(assinaturaHex); }
-75:         catch (FormatException) { return false; }
-76:         var hash = HMACSHA256.HashData(
-77:             Encoding.UTF8.GetBytes(segredo),
-78:             Encoding.UTF8.GetBytes(Canonico(ambienteId, dispositivo, temperaturaC, umidadePct, medidoEm)));
-79:         return informado.Length == hash.Length && CryptographicOperations.FixedTimeEquals(hash, informado);
-80:     }
-81: }
-82: 
-83: public static class ValidadorLeitura
-84: {
-85:     public static string? Motivo(
-86:         string? ambienteDoDispositivo,
-87:         bool? ativo,
-88:         string segredo,
-89:         string ambienteId,
-90:         string dispositivo,
-91:         double temperaturaC,
-92:         int umidadePct,
-93:         long medidoEm,
-94:         string assinatura,
-95:         DateTimeOffset agora,
-96:         long? ultimoMedidoEm)
-97:     {
-98:         if (ambienteDoDispositivo is null
-99:             || ambienteDoDispositivo != ambienteId
-100:             || !Assinatura.Confere(segredo, ambienteId, dispositivo, temperaturaC, umidadePct, medidoEm, assinatura))
-101:             return "assinatura-invalida";
-102:         if (ativo == false) return "dispositivo-revogado";
-103:         if (ultimoMedidoEm is not null && medidoEm <= ultimoMedidoEm) return "reenvio";
-104:         var quando = DateTimeOffset.FromUnixTimeSeconds(medidoEm);
-105:         if (quando < agora.AddMinutes(-10) || quando > agora.AddMinutes(1)) return "atrasada";
-106:         if (temperaturaC is < -10 or > 60 || umidadePct is < 0 or > 100) return "fora-da-faixa";
-107:         return null;
-108:     }
-109: 
-110:     public static bool Suspeita(double temperaturaC, double? temperaturaAnterior, double? temperaturaRua) =>
-111:         (temperaturaAnterior is not null && Math.Abs(temperaturaC - temperaturaAnterior.Value) > 5)
-112:         || (temperaturaRua is > 30 && temperaturaC < temperaturaRua.Value - 8);
-113: }
+13:         if (indice < 18) return Entidades.Nivel.frio;
+14:         if (indice < 27) return Entidades.Nivel.normal;
+15:         if (indice < 32) return Entidades.Nivel.atencao;
+16:         if (indice < 41) return Entidades.Nivel.cuidado;
+17:         return Entidades.Nivel.perigo;
+18:     }
+19: 
+20:     public static bool EhNivel(string nivel) => Enum.IsDefined(typeof(Nivel), nivel);
+21: 
+22:     public static double Calcular(double tempC, double umidade)
+23:     {
+24:         var t = tempC * 9 / 5 + 32;
+25:         var rh = umidade;
+26:         var simples = 0.5 * (t + 61.0 + (t - 68.0) * 1.2 + rh * 0.094);
+27:         double hi;
+28:         if ((simples + t) / 2 < 80)
+29:         {
+30:             hi = simples;
+31:         }
+32:         else
+33:         {
+34:             hi = -42.379 + 2.04901523 * t + 10.14333127 * rh - 0.22475541 * t * rh
+35:                 - 0.00683783 * t * t - 0.05481717 * rh * rh + 0.00122874 * t * t * rh
+36:                 + 0.00085282 * t * rh * rh - 0.00000199 * t * t * rh * rh;
+37:             if (rh < 13 && t is >= 80 and <= 112)
+38:                 hi -= ((13 - rh) / 4) * Math.Sqrt((17 - Math.Abs(t - 95)) / 17);
+39:             else if (rh > 85 && t is >= 80 and <= 87)
+40:                 hi += ((rh - 85) / 10) * ((87 - t) / 5);
+41:         }
+42:         return Math.Round((hi - 32) * 5 / 9, 1);
+43:     }
+44: }
+45: 
+46: public static class Relogio
+47: {
+48:     public static readonly TimeZoneInfo SaoPaulo =
+49:         TimeZoneInfo.FindSystemTimeZoneById("E. South America Standard Time");
+50: 
+51:     public static DateTimeOffset HoraLocal(DateTimeOffset utc) => TimeZoneInfo.ConvertTime(utc, SaoPaulo);
+52: }
+53: 
+54: public static class Assinatura
+55: {
+56:     public static string Canonico(string ambienteId, string dispositivo, double temperaturaC, int umidadePct, long medidoEm) =>
+57:         string.Join('|',
+58:             ambienteId,
+59:             dispositivo,
+60:             temperaturaC.ToString("0.0", CultureInfo.InvariantCulture),
+61:             umidadePct.ToString(CultureInfo.InvariantCulture),
+62:             medidoEm.ToString(CultureInfo.InvariantCulture));
+63: 
+64:     public static string Hex(string segredo, string ambienteId, string dispositivo, double temperaturaC, int umidadePct, long medidoEm)
+65:     {
+66:         var hash = HMACSHA256.HashData(
+67:             Encoding.UTF8.GetBytes(segredo),
+68:             Encoding.UTF8.GetBytes(Canonico(ambienteId, dispositivo, temperaturaC, umidadePct, medidoEm)));
+69:         return Convert.ToHexString(hash).ToLowerInvariant();
+70:     }
+71: 
+72:     public static bool Confere(string segredo, string ambienteId, string dispositivo, double temperaturaC, int umidadePct, long medidoEm, string assinaturaHex)
+73:     {
+74:         byte[] informado;
+75:         try { informado = Convert.FromHexString(assinaturaHex); }
+76:         catch (FormatException) { return false; }
+77:         var hash = HMACSHA256.HashData(
+78:             Encoding.UTF8.GetBytes(segredo),
+79:             Encoding.UTF8.GetBytes(Canonico(ambienteId, dispositivo, temperaturaC, umidadePct, medidoEm)));
+80:         return informado.Length == hash.Length && CryptographicOperations.FixedTimeEquals(hash, informado);
+81:     }
+82: }
+83: 
+84: public static class ValidadorLeitura
+85: {
+86:     public static string? Motivo(
+87:         string? ambienteDoDispositivo,
+88:         bool? ativo,
+89:         string segredo,
+90:         string ambienteId,
+91:         string dispositivo,
+92:         double temperaturaC,
+93:         int umidadePct,
+94:         long medidoEm,
+95:         string assinatura,
+96:         DateTimeOffset agora,
+97:         long? ultimoMedidoEm)
+98:     {
+99:         if (ambienteDoDispositivo is null
+100:             || ambienteDoDispositivo != ambienteId
+101:             || !Assinatura.Confere(segredo, ambienteId, dispositivo, temperaturaC, umidadePct, medidoEm, assinatura))
+102:             return "assinatura-invalida";
+103:         if (ativo == false) return "dispositivo-revogado";
+104:         if (ultimoMedidoEm is not null && medidoEm <= ultimoMedidoEm) return "reenvio";
+105:         var quando = DateTimeOffset.FromUnixTimeSeconds(medidoEm);
+106:         if (quando < agora.AddMinutes(-10) || quando > agora.AddMinutes(1)) return "atrasada";
+107:         if (temperaturaC is < -10 or > 60 || umidadePct is < 0 or > 100) return "fora-da-faixa";
+108:         return null;
+109:     }
+110: 
+111:     public static bool Suspeita(double temperaturaC, double? temperaturaAnterior, double? temperaturaRua) =>
+112:         (temperaturaAnterior is not null && Math.Abs(temperaturaC - temperaturaAnterior.Value) > 5)
+113:         || (temperaturaRua is > 30 && temperaturaC < temperaturaRua.Value - 8);
+114: }
 
 api/TermometroDaSala.Api/Servicos/ServicoLeituras.cs
 1: using TermometroDaSala.Api.Dominio.Entidades;
@@ -542,65 +543,103 @@ api/TermometroDaSala.Api/Controllers/DemoController.cs
 11: namespace TermometroDaSala.Api.Controllers;
 12: 
 13: [ApiController]
-14: public class DemoController(SalaDb _db, IHostEnvironment _ambiente, ILogger<DemoController> _log) : ControllerBase
+14: public class DemoController(SalaDb _db, IHostEnvironment _ambiente, ILogger<DemoController> _log, TimeProvider tempo) : ControllerBase
 15: {
-16:     [HttpPost("/demo/semear")]
+16:     [HttpPost("/demo/mapa")]
 17:     [EnableRateLimiting("escrita")]
-18:     public async Task<IActionResult> Semear([FromQuery] string ambienteId)
+18:     public async Task<IActionResult> SemearMapa([FromQuery] string periodo = "tarde")
 19:     {
-20:         if (!_ambiente.IsEnvironment("Demo")) { _log.LogWarning("demo semear recusado: fora-do-ambiente"); return NotFound(); }
-21:         if (!await _db.Ambientes.AnyAsync(a => a.Id == ambienteId)) return NotFound();
-22:         var aoVivo = await _db.Leituras.Where(l => l.AmbienteId == ambienteId && l.Origem == Origem.dispositivo)
-23:             .OrderBy(l => l.MedidoEm)
-24:             .ToListAsync();
-25:         if (aoVivo.Count == 0) return Conflict(new MotivoSaida("ligue o sensor primeiro"));
-26: 
-27:         var dispositivo = await _db.Dispositivos.FirstAsync(d => d.AmbienteId == ambienteId);
-28:         var linhas = System.IO.File.ReadLines(ArquivosDemo.Achar(_ambiente.ContentRootPath, "leituras-simuladas.csv"))
-29:             .Skip(1)
-30:             .Select(l => l.Split(','))
-31:             .Where(c => c.Length >= 3)
-32:             .Select(c => (
-33:                 Minutos: int.Parse(c[0], CultureInfo.InvariantCulture),
-34:                 Temp: double.Parse(c[1], CultureInfo.InvariantCulture),
-35:                 Umid: int.Parse(c[2], CultureInfo.InvariantCulture)))
-36:             .Where(l => l.Minutos is > 0 and <= 180)
-37:             .OrderByDescending(l => l.Minutos)
-38:             .ToList();
-39:         if (linhas.Count == 0) return Conflict(new MotivoSaida("csv-vazio"));
-40: 
-41:         var ancora = linhas[^1];
-42:         var ultima = aoVivo[^1];
-43:         var dTemp = ultima.TemperaturaC - ancora.Temp;
-44:         var dUmid = ultima.UmidadePct - ancora.Umid;
-45:         var primeira = aoVivo[0].MedidoEm;
-46:         var velhas = _db.Leituras.Where(l => l.AmbienteId == ambienteId && l.Origem == Origem.simulada);
-47:         _db.Leituras.RemoveRange(velhas);
-48: 
-49:         var n = 0;
-50:         foreach (var linha in linhas)
-51:         {
-52:             var temp = Math.Clamp(linha.Temp + dTemp, -10, 60);
-53:             var umid = Math.Clamp(linha.Umid + dUmid, 0, 100);
-54:             var indice = IndiceCalor.Calcular(temp, umid);
-55:             _db.Leituras.Add(new Leitura
-56:             {
-57:                 AmbienteId = ambienteId,
-58:                 DispositivoId = dispositivo.Id,
-59:                 TemperaturaC = temp,
-60:                 UmidadePct = umid,
-61:                 IndiceCalor = indice,
-62:                 Nivel = IndiceCalor.Nivel(indice),
-63:                 MedidoEm = primeira.AddMinutes(-linha.Minutos),
-64:                 Origem = Origem.simulada,
-65:             });
-66:             n++;
-67:         }
-68:         await _db.SaveChangesAsync();
-69:         return Created("/demo/semear", new DemoSaida(n));
-70:     }
-71: 
-72: }
+20:         if (!_ambiente.IsEnvironment("Demo")) return NotFound();
+21:         if (periodo is not ("tarde" or "madrugada")) return BadRequest(new MotivoSaida("periodo-invalido"));
+22:         var sala = await _db.Ambientes.Include(a => a.Dispositivos).Include(a => a.Lugares)
+23:             .AsSplitQuery().SingleOrDefaultAsync(a => a.Id == "sala-07");
+24:         if (sala is not null && (sala.Nome != "Sala 7" || await _db.Leituras.AnyAsync(l => l.AmbienteId == sala.Id && l.Origem == Origem.dispositivo)))
+25:             return Conflict(new MotivoSaida("ambiente-em-uso"));
+26:         var rotulos = new[] { "janela", "fundo", "porta", "centro" };
+27:         if (sala is null)
+28:         {
+29:             sala = new Ambiente { Id = "sala-07", Nome = "Sala 7", LarguraM = 6, ProfundidadeM = 4 };
+30:             var xs = new double[] { 0, 6, 6, 3 };
+31:             var ys = new double[] { 2, 4, 0, 2 };
+32:             for (var i = 0; i < 4; i++)
+33:                 sala.Dispositivos.Add(new Dispositivo { Id = $"demo-sala-07-{rotulos[i]}", Rotulo = rotulos[i], PosX = xs[i], PosY = ys[i], Segredo = "somente-demonstracao-sala-07" });
+34:             for (var i = 0; i < 6; i++)
+35:                 sala.Lugares.Add(new Lugar { Nome = $"Cadeira {i + 1}", X = i % 3 * 3, Y = i < 3 ? 2 : 4, Vulneravel = i is 0 or 5 });
+36:             _db.Ambientes.Add(sala);
+37:         }
+38:         if (sala.Dispositivos.Count != 4 || sala.Dispositivos.Any(d => !rotulos.Contains(d.Rotulo)))
+39:             return Conflict(new MotivoSaida("ambiente-em-uso"));
+40:         _db.Leituras.RemoveRange(await _db.Leituras.Where(l => l.AmbienteId == sala.Id && l.Origem == Origem.simulada).ToListAsync());
+41:         var agora = tempo.GetUtcNow();
+42:         foreach (var d in sala.Dispositivos)
+43:         {
+44:             var t = periodo == "tarde" ? (d.Rotulo == "janela" ? 35 : 24)
+45:                 : (d.Rotulo == "fundo" ? 15 : 22);
+46:             var indice = IndiceCalor.Calcular(t, 60);
+47:             _db.Leituras.Add(new Leitura { AmbienteId = sala.Id, DispositivoId = d.Id, TemperaturaC = t,
+48:                 UmidadePct = 60, IndiceCalor = indice, Nivel = IndiceCalor.Nivel(indice), MedidoEm = agora, Origem = Origem.simulada });
+49:         }
+50:         await _db.SaveChangesAsync();
+51:         return Created("/ambientes/sala-07/mapa", new DemoSaida(4));
+52:     }
+53: 
+54:     [HttpPost("/demo/semear")]
+55:     [EnableRateLimiting("escrita")]
+56:     public async Task<IActionResult> Semear([FromQuery] string ambienteId)
+57:     {
+58:         if (!_ambiente.IsEnvironment("Demo")) { _log.LogWarning("demo semear recusado: fora-do-ambiente"); return NotFound(); }
+59:         if (!await _db.Ambientes.AnyAsync(a => a.Id == ambienteId)) return NotFound();
+60:         var aoVivo = await _db.Leituras.Where(l => l.AmbienteId == ambienteId && l.Origem == Origem.dispositivo)
+61:             .OrderBy(l => l.MedidoEm)
+62:             .ToListAsync();
+63:         if (aoVivo.Count == 0) return Conflict(new MotivoSaida("ligue o sensor primeiro"));
+64: 
+65:         var dispositivo = await _db.Dispositivos.FirstAsync(d => d.AmbienteId == ambienteId);
+66:         var linhas = System.IO.File.ReadLines(ArquivosDemo.Achar(_ambiente.ContentRootPath, "leituras-simuladas.csv"))
+67:             .Skip(1)
+68:             .Select(l => l.Split(','))
+69:             .Where(c => c.Length >= 3)
+70:             .Select(c => (
+71:                 Minutos: int.Parse(c[0], CultureInfo.InvariantCulture),
+72:                 Temp: double.Parse(c[1], CultureInfo.InvariantCulture),
+73:                 Umid: int.Parse(c[2], CultureInfo.InvariantCulture)))
+74:             .Where(l => l.Minutos is > 0 and <= 180)
+75:             .OrderByDescending(l => l.Minutos)
+76:             .ToList();
+77:         if (linhas.Count == 0) return Conflict(new MotivoSaida("csv-vazio"));
+78: 
+79:         var ancora = linhas[^1];
+80:         var ultima = aoVivo[^1];
+81:         var dTemp = ultima.TemperaturaC - ancora.Temp;
+82:         var dUmid = ultima.UmidadePct - ancora.Umid;
+83:         var primeira = aoVivo[0].MedidoEm;
+84:         var velhas = _db.Leituras.Where(l => l.AmbienteId == ambienteId && l.Origem == Origem.simulada);
+85:         _db.Leituras.RemoveRange(velhas);
+86: 
+87:         var n = 0;
+88:         foreach (var linha in linhas)
+89:         {
+90:             var temp = Math.Clamp(linha.Temp + dTemp, -10, 60);
+91:             var umid = Math.Clamp(linha.Umid + dUmid, 0, 100);
+92:             var indice = IndiceCalor.Calcular(temp, umid);
+93:             _db.Leituras.Add(new Leitura
+94:             {
+95:                 AmbienteId = ambienteId,
+96:                 DispositivoId = dispositivo.Id,
+97:                 TemperaturaC = temp,
+98:                 UmidadePct = umid,
+99:                 IndiceCalor = indice,
+100:                 Nivel = IndiceCalor.Nivel(indice),
+101:                 MedidoEm = primeira.AddMinutes(-linha.Minutos),
+102:                 Origem = Origem.simulada,
+103:             });
+104:             n++;
+105:         }
+106:         await _db.SaveChangesAsync();
+107:         return Created("/demo/semear", new DemoSaida(n));
+108:     }
+109: 
+110: }
 
 api/TermometroDaSala.Api/Filtros/ExigeChaveCoordenacaoAttribute.cs
 1: using System.Security.Cryptography;
