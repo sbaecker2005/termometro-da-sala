@@ -147,7 +147,7 @@ local funciona: a leitura não é publicada com data inventada.
 
 ## Ensaio
 
-Roteiro do vídeo: [ROTEIRO-VIDEO.md](ROTEIRO-VIDEO.md). Prints em `evidencias/`.
+Roteiro do vídeo: [ROTEIRO-VIDEO.md](ROTEIRO-VIDEO.md). Prints em `evidencias/`. O vídeo (meta 3 min 30 s, limite 4 min) não inclui "Voltar a 33 °C e subir a 37 °C" nem "Sem Wi-Fi": o relógio fecha em 3:30. As duas linhas ficam neste ensaio.
 
 | Teste | Esperado | Resultado observado |
 |---|---|---|
@@ -160,7 +160,7 @@ Roteiro do vídeo: [ROTEIRO-VIDEO.md](ROTEIRO-VIDEO.md). Prints em `evidencias/`
 | Voltar a 33 °C e subir a 37 °C | o bip volta no novo Perigo | [preencher] |
 | Depois do NTP | “Leitura publicada” a cada 10 s | [preencher] |
 | API real | leitura na sala-03 com `"suspeita": false` e o mesmo índice | [preencher] |
-| Sem Wi-Fi (SSID inválido no `WiFi.begin`) | LED segue o sensor e nada é publicado | [preencher] |
+| Sem Wi-Fi (o E13 de `seguranca/EVIDENCIAS.md`: desconectar o Wi-Fi do simulado ou o MQTT, sem desligar o broker) | LED segue o sensor e nada é publicado; a interface fica sem leitura recente; ao reconectar, a leitura volta | [preencher] |
 
 Os índices esperados foram calculados com a fórmula do contrato
 (`ferramentas/indice_calor.py`). Passos de no máximo 5 °C evitam que a API
