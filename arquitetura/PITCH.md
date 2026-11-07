@@ -2,9 +2,9 @@
 
 Vídeo de até 4 minutos, enviado em Testing. Tempo total do roteiro: 3min30s, com 30 s de folga sobre o limite. O briefing pede a solução e as entregas que mais somaram: o bloco "Entregas" cumpre essa parte.
 
-Cada bloco tem menos fala do que tempo: a 150 palavras por minuto, as falas da equipe somam cerca de 2min15s, mais os 20 s da pessoa entrevistada, e o resto é tela. Cronometre o ensaio. Se passar de 3min40s, corte primeiro na demonstração, nunca no impacto nem na abertura.
+Cronometre o ensaio. Se passar de 3min40s, corte primeiro na demonstração, nunca no impacto, na abertura nem na frase da pessoa entrevistada. A frase entra inteira, sem completar o bloco com outra fala.
 
-Antes de gravar: os números do impacto estão na seção 7 do `DOCUMENTO.md`. Se um número mudar lá, ele muda aqui e no slide 6.
+Antes de gravar: os números de escola do impacto estão na seção 7 do `DOCUMENTO.md`. Se um número mudar lá, ele muda aqui e no slide 6. As informações do CRAS vêm do relato da coordenadora, não de medição no local. O aviso no celular é o que ela pediu e o próximo passo.
 
 | Tempo | Bloco | Slide |
 |---|---|---:|
@@ -19,15 +19,15 @@ Antes de gravar: os números do impacto estão na seção 7 do `DOCUMENTO.md`. S
 
 O slide 1 fica na tela com o nome e o RM de cada integrante. Ninguém lê os RMs em voz alta.
 
-> Nas tardes quentes, a sala de aula passa do limite seguro sem ninguém medir, e a escola só reage quando alguém passa mal. Somos o Termômetro da Sala, e a equipe está na tela.
+> Somos o Termômetro da Sala. A escola só reage quando alguém passa mal. No CRAS Santo Amaro passam no mínimo 150 pessoas por dia, sem climatização por orçamento, com calor de janeiro a março. Segundo a coordenadora, nenhuma escola ou CCA que ela saiba tem ar-condicionado.
 
 ## Fala da pessoa entrevistada (0:20 a 0:45)
 
-**[Espaço para a fala de até 20 segundos: nome e função de [pessoa entrevistada], da escola [nome da escola], [bairro].]**
+> "O conforto térmico não deve ser compreendido como um privilégio, mas como uma condição necessária para garantir dignidade, acolhimento e qualidade no atendimento à população que utiliza os serviços públicos."
 
-Peça autorização para usar a voz ou a imagem. Se a pessoa preferir, leia a frase dela com o crédito na tela. Sem alunos no vídeo. Trecho sugerido: em que horário a sala esquenta e o que acontece hoje quando isso ocorre.
+Crédito autorizado no slide 3: Monalisa Daniela Pereira Amaral, coordenadora do CRAS Santo Amaro (São Paulo).
 
-> Hoje, essa informação não existe em lugar nenhum.
+Se ela não aparecer, leia o crédito e a frase, com o crédito na tela. Sem alunos no vídeo.
 
 ## Demonstração no modo demonstração (0:45 a 2:15)
 
@@ -63,32 +63,32 @@ Contagem conferida em 07/11/2026: 81 testes da API, conforme `api/evidencias/dot
 
 ## Impacto (2:30 a 3:10)
 
-> A rede estadual de São Paulo tem cerca de 3,5 milhões de alunos. No Censo de 2024, quase 96 % das salas estaduais não tinham climatização. Se a proporção valer para os alunos, são cerca de 3,36 milhões.
->
-> Na capital, de 2022 a 2025, a rua chegou a 34 graus ou mais em 21 dias, e dentro da sala ninguém mede.
->
-> Nossa meta no piloto de quatro semanas: zero aula em Perigo sem ação registrada, com a ação em até 15 minutos depois do alerta.
+> A rede estadual de São Paulo: cerca de 3,5 milhões de alunos. Censo de 2024: quase 96 % das salas sem climatização; cerca de 3,36 milhões, se a proporção valer para os alunos. Na capital, de 2022 a 2025, 21 dias a 34 graus ou mais. No CRAS Santo Amaro passam no mínimo 150 pessoas por dia, sem climatização por orçamento, com calor de janeiro a março. Segundo ela, nenhuma escola ou CCA que ela saiba tem ar-condicionado. Meta em quatro semanas: zero aula em Perigo sem ação registrada, em até 15 minutos.
 
 As ressalvas ficam no slide 6: a base de 3 milhões da outra nota da Seduc, a premissa de 35 alunos por turma e o fato de os 21 dias não serem a contagem oficial de ondas de calor do INMET.
 
 ## Encerramento (3:10 a 3:30)
 
-> O Termômetro da Sala não climatiza a sala. Ele mostra o calor antes de alguém passar mal e registra o que foi feito. Esse histórico vira prova para pedir a obra. O próximo passo é o piloto de quatro semanas em uma escola, e pedimos apoio para isso. Obrigado.
+> O próximo passo é o aviso no celular de quem cuida do local, como ela pediu. As precauções: ventilador, janelas, água gelada e leques. O histórico é a prova para pedir a manutenção. O alerta de frio, no berçário e no dormitório. Obrigado.
+
+No slide 8, leia só a fala acima. O indicador do piloto e onde climatizar primeiro ficam na tela.
 
 ## Texto dos slides
 
 ### Slide 1: Termômetro da Sala
 - Samuel Baecker - RM [preencher]
-- [Demais integrantes - RM]
+- Demais integrantes e RMs: [preencher]
 - O calor da sala de aula, medido antes de alguém passar mal
 
 ### Slide 2: O problema
-- Nas tardes quentes, a sala passa do limite seguro sem que ninguém meça
 - A escola só reage quando alguém passa mal
+- CRAS Santo Amaro: no mínimo 150 pessoas por dia
+- Sem climatização por orçamento; calor de janeiro a março
+- Segundo a coordenadora, nenhuma escola ou CCA que ela saiba tem ar-condicionado
 
 ### Slide 3: Quem vive isso
-- "[Frase da pessoa entrevistada]"
-- [Nome], [função], [escola], [bairro]
+- "O conforto térmico não deve ser compreendido como um privilégio, mas como uma condição necessária para garantir dignidade, acolhimento e qualidade no atendimento à população que utiliza os serviços públicos."
+- Monalisa Daniela Pereira Amaral, coordenadora do CRAS Santo Amaro (São Paulo)
 
 ### Slide 4: Como funciona
 - Medir: sensor na porta da sala, com LED que funciona sem internet
@@ -104,6 +104,8 @@ As ressalvas ficam no slide 6: a base de 3 milhões da outra nota da Seduc, a pr
 - Cerca de 3,5 milhões de alunos na rede estadual (Seduc-SP). Notícia de 20/12/2024 fala em 3 milhões
 - 67.468 de 70.346 salas sem climatização, 95,91 % (Censo 2024, tabulação CIEPP) ≈ 3,36 milhões de alunos
 - 35 alunos por turma: premissa. Onda de calor (INMET/OMM): +5 °C por 5 dias. 21 dias a 34 °C na A701, 2022–2025, não são essa contagem
+- CRAS Santo Amaro: no mínimo 150 pessoas por dia; sem climatização por orçamento; calor de janeiro a março
+- Segundo ela, nenhuma escola ou CCA que ela saiba tem ar-condicionado
 
 ### Slide 7: A arquitetura
 - Motivação: nenhuma aula em Perigo sem ação (ODS 3.d, 4.a, 11.b, 13.1)
@@ -111,6 +113,10 @@ As ressalvas ficam no slide 6: a base de 3 milhões da outra nota da Seduc, a pr
 - Aplicação e tecnologia: API, app, terminal, painel, ESP32, Windows Server
 
 ### Slide 8: O que muda
+- Próximo passo: aviso no celular de quem cuida do local, como ela pediu
+- Precauções: ventilador, janelas, água gelada e leques
+- O histórico é a prova para pedir a manutenção
+- Alerta de frio: berçário e dormitório
 - Indicador: aulas em Perigo sem ação registrada. Meta do piloto (4 semanas): zero, com ação em até 15 min do alerta
 - O histórico por sala mostra onde climatizar primeiro
 - Termômetro da Sala
