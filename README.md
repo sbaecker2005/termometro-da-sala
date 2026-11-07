@@ -1,5 +1,7 @@
 # Termômetro da Sala
 
+O mesmo sensor avisa calor no verão (escolas) e frio no inverno (dormitórios e abrigos).
+
 Global Solution 2026.2 (CitizenTech) — Engenharia de Software, 3º ano, FIAP.
 
 ## Ficha da CitizenTech
@@ -32,6 +34,8 @@ Global Solution 2026.2 (CitizenTech) — Engenharia de Software, 3º ano, FIAP.
 | `docs/` | Plano e briefing | — |
 
 O contrato entre as partes está em [CONTRATO.md](CONTRATO.md). O plano completo está em [docs/PLANO.md](docs/PLANO.md).
+
+A referência de 18 °C como mínimo para ambiente interno é a recomendação da OMS para moradias. O alerta usa o índice: abaixo de 18 °C é Frio; de 18 até menos de 27 °C é Normal. As faixas de calor continuam iguais.
 
 ## Dados
 

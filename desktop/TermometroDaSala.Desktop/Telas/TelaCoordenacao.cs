@@ -30,6 +30,7 @@ public partial class TelaCoordenacao : Form
     /// <summary>Cor da célula por nível. A legenda do Designer usa as mesmas cores (o autoteste confere).</summary>
     internal static Color CorDoNivel(NivelCalor? nivel) => nivel switch
     {
+        NivelCalor.Frio => Color.LightBlue,
         NivelCalor.Normal => Color.LightGreen, NivelCalor.Atencao => Color.Khaki,
         NivelCalor.Cuidado => Color.LightSalmon, NivelCalor.Perigo => Color.LightPink, _ => SystemColors.Window
     };

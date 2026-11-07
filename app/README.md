@@ -1,5 +1,7 @@
 # Termômetro da Sala
 
+O mesmo sensor avisa calor no verão (escolas) e frio no inverno (dormitórios e abrigos).
+
 Global Solution 2026.2 (CitizenTech) — Engenharia de Software, 3º ano, FIAP.
 
 ## Ficha da CitizenTech

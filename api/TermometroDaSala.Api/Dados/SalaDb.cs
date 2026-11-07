@@ -8,6 +8,7 @@ public class SalaDb : DbContext
     public SalaDb(DbContextOptions<SalaDb> opcoes) : base(opcoes) { }
 
     public DbSet<Ambiente> Ambientes => Set<Ambiente>();
+    public DbSet<Lugar> Lugares => Set<Lugar>();
     public DbSet<Dispositivo> Dispositivos => Set<Dispositivo>();
     public DbSet<Leitura> Leituras => Set<Leitura>();
     public DbSet<LeituraRua> LeiturasRua => Set<LeituraRua>();
@@ -24,6 +25,10 @@ public class SalaDb : DbContext
         model.Entity<Ambiente>().Property(a => a.FaceSol).HasConversion<string>().HasMaxLength(5);
 
         model.Entity<Dispositivo>().Property(d => d.Id).HasMaxLength(64);
+        model.Entity<Dispositivo>().Property(d => d.Rotulo).HasMaxLength(80);
+        model.Entity<Lugar>().Property(l => l.Nome).HasMaxLength(80);
+        model.Entity<Lugar>().HasIndex(l => new { l.AmbienteId, l.Nome }).IsUnique();
+        model.Entity<Lugar>().HasOne(l => l.Ambiente).WithMany(a => a.Lugares).HasForeignKey(l => l.AmbienteId);
         model.Entity<Dispositivo>().Property(d => d.Segredo).HasMaxLength(128);
         model.Entity<Dispositivo>().HasOne(e => e.Ambiente).WithMany(a => a.Dispositivos).HasForeignKey(d => d.AmbienteId);
 
@@ -50,7 +55,9 @@ public class SalaDb : DbContext
         model.Entity<NivelAcao>().Property(n => n.Nivel).HasConversion<string>().HasMaxLength(7);
 
         model.Entity<NivelAcao>().HasData(
-            new NivelAcao { Nivel = Nivel.normal, IndiceMin = 0, Nome = "Normal", AcaoSugerida = "nenhuma" },
+            // Zero absoluto como início físico da faixa aberta de frio.
+            new NivelAcao { Nivel = Nivel.frio, IndiceMin = -273.15, Nome = "Frio", AcaoSugerida = "Fechar janelas, agasalhar e oferecer cobertor; à noite, avisar o plantão e levar quem estiver no cômodo mais frio para outro" },
+            new NivelAcao { Nivel = Nivel.normal, IndiceMin = 18, Nome = "Normal", AcaoSugerida = "nenhuma" },
             new NivelAcao { Nivel = Nivel.atencao, IndiceMin = 27, Nome = "Atenção", AcaoSugerida = "liberar água, abrir janelas e ligar ventiladores" },
             new NivelAcao { Nivel = Nivel.cuidado, IndiceMin = 32, Nome = "Cuidado extremo", AcaoSugerida = "pausa, troca de sala ou adiar a Educação Física" },
             new NivelAcao { Nivel = Nivel.perigo, IndiceMin = 41, Nome = "Perigo", AcaoSugerida = "tirar a turma da sala" });

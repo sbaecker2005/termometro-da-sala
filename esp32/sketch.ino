@@ -40,8 +40,8 @@ constexpr int PIN_DHT = 15, VERDE = 18, AMARELO = 19, VERMELHO = 4, BUZZER = 26,
 const char TOPICO[] = "fiap-gs/termometro-da-sala/leituras";
 
 // Níveis de calor do contrato (seção 3). SEM_LEITURA apaga todos os LEDs.
-enum Nivel { SEM_LEITURA = -1, NORMAL = 0, ATENCAO = 1, CUIDADO = 2, PERIGO = 3 };
-const char *const NOME_NIVEL[] = {"Normal", "Atencao", "Cuidado extremo", "Perigo"};
+enum Nivel { SEM_LEITURA = -1, NORMAL = 0, ATENCAO = 1, CUIDADO = 2, PERIGO = 3, FRIO = 4 };
+const char *const NOME_NIVEL[] = {"Normal", "Atencao", "Cuidado extremo", "Perigo", "FRIO"};
 
 DHT dht(PIN_DHT, DHT22);
 LiquidCrystal_I2C lcd(0x27, 16, 2);  // endereço padrão do LCD 1602 I2C do Wokwi
@@ -76,8 +76,9 @@ double indiceCalor(double tempC, double rh) {
   return round((hi - 32) * 5 / 9 * 10) / 10;
 }
 
-// Limites sem sobreposição: <27 Normal, <32 Atenção, <41 Cuidado extremo, senão Perigo.
+// Limites sem sobreposição: <18 Frio, <27 Normal, <32 Atenção, <41 Cuidado extremo, senão Perigo.
 Nivel nivel(double indice) {
+  if (indice < 18) return FRIO;
   if (indice < 27) return NORMAL;
   if (indice < 32) return ATENCAO;
   if (indice < 41) return CUIDADO;
@@ -97,6 +98,11 @@ bool assinar(const char *texto, const char *chave, char *hex) {
 // Buzzer: bip de 150 ms a cada 2 s em Perigo, até o professor apertar "Ciente".
 bool buzzerLigado(Nivel n, bool jaCiente, uint32_t ms) {
   return n == PERIGO && !jaCiente && ms % 2000 < 150;
+}
+
+// Reutiliza o amarelo: frio pisca a cada 500 ms, atenção continua fixa.
+bool amareloLigado(Nivel n, uint32_t ms) {
+  return n == ATENCAO || (n == FRIO && (ms / 500) % 2 == 0);
 }
 
 // Texto do LCD (16 colunas): temperatura e índice em cima, nível por extenso embaixo.
@@ -133,14 +139,20 @@ void conferirVetores() {
     assert(fabs(indice - c.indice) <= 0.1 && nivel(indice) == c.esperado);
   }
   // Bordas dos limites: o valor exato do limite já pertence ao nível de cima.
-  assert(nivel(26.9) == NORMAL && nivel(27) == ATENCAO &&
+  assert(nivel(17.9) == FRIO && nivel(18) == NORMAL &&
+         nivel(26.9) == NORMAL && nivel(27) == ATENCAO &&
          nivel(32) == CUIDADO && nivel(41) == PERIGO);
   // Buzzer só em Perigo sem "Ciente", e só nos primeiros 150 ms de cada 2 s.
   assert(buzzerLigado(PERIGO, false, 0) && buzzerLigado(PERIGO, false, 2149) &&
          !buzzerLigado(PERIGO, false, 150) && !buzzerLigado(PERIGO, true, 0) &&
-         !buzzerLigado(CUIDADO, false, 0) && !buzzerLigado(SEM_LEITURA, false, 0));
+         !buzzerLigado(CUIDADO, false, 0) && !buzzerLigado(SEM_LEITURA, false, 0) &&
+         !buzzerLigado(FRIO, false, 0));
+  assert(amareloLigado(FRIO, 0) && !amareloLigado(FRIO, 500) && amareloLigado(FRIO, 1000) &&
+         amareloLigado(ATENCAO, 500) && !amareloLigado(NORMAL, 0) && !amareloLigado(SEM_LEITURA, 0));
   // LCD: nível por extenso, cabe em 16 colunas e "(ciente)" só aparece em Perigo.
   char l1[17], l2[17];
+  textoLcd(FRIO, 17, 17.9, true, l1, l2);
+  assert(strcmp(l2, "FRIO") == 0);
   textoLcd(PERIGO, 37, 48.5, true, l1, l2);
   assert(strcmp(l1, "37.0C ind 48.5C") == 0 && strcmp(l2, "Perigo (ciente)") == 0);
   textoLcd(CUIDADO, 33, 37.8, true, l1, l2);
@@ -274,7 +286,7 @@ void loop() {
     bipando = bipar;
   }
   digitalWrite(VERDE, nivelAtual == NORMAL);
-  digitalWrite(AMARELO, nivelAtual == ATENCAO);
+  digitalWrite(AMARELO, amareloLigado(nivelAtual, agora));
   // Cuidado extremo: fixo. Perigo: 500 ms aceso e 500 ms apagado.
   digitalWrite(VERMELHO, nivelAtual == CUIDADO || (nivelAtual == PERIGO && (agora / 500) % 2 == 0));
   delay(10);

@@ -111,7 +111,8 @@ Referência: https://www.wpc.ncep.noaa.gov/html/heatindex_equation.shtml
 
 | Índice °C (limites sem sobreposição) | Nível / código | LED | Ação sugerida para sala |
 |---|---|---|---|
-| <27 | Normal / `normal` | verde | nenhuma |
+| <18 | Frio / `frio` | amarelo piscando (500 ms) | fechar janelas, agasalhar e oferecer cobertor; à noite, avisar o plantão e levar quem estiver no cômodo mais frio para outro |
+| ≥18 e <27 | Normal / `normal` | verde | nenhuma |
 | ≥27 e <32 | Atenção / `atencao` | amarelo | liberar água, abrir janelas e ligar ventiladores |
 | ≥32 e <41 | Cuidado extremo / `cuidado` | vermelho fixo | pausa, troca de sala ou adiar Educação Física |
 | ≥41 | Perigo / `perigo` | vermelho piscando (500 ms ligado/500 ms apagado) | tirar a turma da sala |

@@ -754,7 +754,7 @@
       "settingEncodeUrl": true,
       "settingRebuildPath": true,
       "settingFollowRedirects": "global",
-      "description": "As 4 faixas da tabela NiveisAcao com a ação sugerida.",
+      "description": "As 5 faixas da tabela NiveisAcao com a ação sugerida: frio, normal, atencao, cuidado e perigo.",
       "afterResponseScript": "insomnia.test('Status 200', () => {\n  insomnia.expect(insomnia.response.code).to.equal(200);\n});"
     },
     {
@@ -778,6 +778,70 @@
       "settingRebuildPath": true,
       "settingFollowRedirects": "global",
       "afterResponseScript": "insomnia.test('Status 201 ou 404 ou 409', () => {\n  insomnia.expect(insomnia.response.code).to.be.oneOf([201, 404, 409]);\n});"
-    }
+    },
+{
+    "headers":  [
+
+                ],
+    "method":  "GET",
+    "url":  "{{ _.base_url }}/ambientes/sala-07/mapa",
+    "name":  "Mapa termico",
+    "parentId":  "fld_ambientes",
+    "body":  {
+
+             },
+    "_type":  "request",
+    "_id":  "req_mapa_get"
+},
+{
+    "headers":  [
+                    {
+                        "value":  "application/json",
+                        "name":  "Content-Type"
+                    },
+                    {
+                        "value":  "{{ _.chave_coordenacao }}",
+                        "name":  "X-Chave-Coordenacao"
+                    }
+                ],
+    "method":  "PUT",
+    "url":  "{{ _.base_url }}/ambientes/sala-01/mapa",
+    "name":  "Configurar mapa (204; chave obrigatoria)",
+    "parentId":  "fld_ambientes",
+    "body":  {
+                 "mimeType":  "application/json",
+                 "text":  "{\"larguraM\":6,\"profundidadeM\":4,\"sensores\":[{\"id\":\"esp32-sala-01\",\"posX\":0,\"posY\":2,\"rotulo\":\"janela\"}],\"lugares\":[{\"nome\":\"Cadeira 1\",\"x\":1,\"y\":2,\"vulneravel\":true}]}"
+             },
+    "_type":  "request",
+    "_id":  "req_mapa_put"
+},
+{
+    "headers":  [
+
+                ],
+    "method":  "POST",
+    "url":  "{{ _.base_url }}/demo/mapa?periodo=tarde",
+    "name":  "Demo Sala 7 tarde (201; modo Demo)",
+    "parentId":  "wrk_termometro",
+    "body":  {
+
+             },
+    "_type":  "request",
+    "_id":  "req_mapa_demo_tarde"
+},
+{
+    "headers":  [
+
+                ],
+    "method":  "POST",
+    "url":  "{{ _.base_url }}/demo/mapa?periodo=madrugada",
+    "name":  "Demo Sala 7 madrugada (201; modo Demo)",
+    "parentId":  "wrk_termometro",
+    "body":  {
+
+             },
+    "_type":  "request",
+    "_id":  "req_mapa_demo_madrugada"
+}
   ]
 }

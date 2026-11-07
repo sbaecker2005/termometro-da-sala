@@ -51,6 +51,13 @@ public class VetoresTestes
         Assert.Equal(nivel, IndiceCalor.Nivel(indice).ToString());
     }
 
+    [Theory]
+    [InlineData(17.9, "frio")]
+    [InlineData(18.0, "normal")]
+    [InlineData(27.0, "atencao")]
+    public void LimitesDoFrio(double indice, string nivel) =>
+        Assert.Equal(nivel, IndiceCalor.Nivel(indice).ToString());
+
     [Fact]
     public void LimitesDaJanelaEDaFaixa()
     {

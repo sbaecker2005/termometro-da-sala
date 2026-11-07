@@ -188,7 +188,7 @@ public static class ValidacoesAutoteste
             // Sem arquivo (quem abre o ZIP sem a API): uma sala de exemplo por nível, tudo marcado como demonstração.
             var servico = new ServicoSalasLocal(caminho);
             var salas = await servico.Listar();
-            Exigir(salas.Count == 4 && salas.All(s => s.Demonstracao && s.Leitura is not null) &&
+            Exigir(salas.Count == 5 && salas.All(s => s.Demonstracao && s.Leitura is not null) &&
                 salas.Select(s => s.Leitura!.Nivel).Order().SequenceEqual(Enum.GetValues<NivelCalor>()), "Demonstração deveria ter uma sala por nível.");
             Exigir(salas.All(s => DateTimeOffset.UtcNow - s.UltimaLeituraEm!.Value < TimeSpan.FromMinutes(10)), "Demonstração com leitura antiga.");
             Exigir(await servico.Prever("sala-03") is { Demonstracao: true, NivelPrevisto: NivelCalor.Cuidado } previsao && previsao.Valida("sala-03"),

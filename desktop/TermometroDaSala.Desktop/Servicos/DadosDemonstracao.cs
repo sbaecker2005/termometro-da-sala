@@ -12,7 +12,8 @@ public static class DadosDemonstracao
         ("sala-01", "Sala 1 (exemplo)", 0, "sul", 25.8, NivelCalor.Normal, 27.5, NivelCalor.Atencao),
         ("sala-02", "Sala 2 (exemplo)", 1, "leste", 29.4, NivelCalor.Atencao, 31.0, NivelCalor.Atencao),
         ("sala-03", "Sala 3 (exemplo)", 1, "oeste", 35.1, NivelCalor.Cuidado, 38.6, NivelCalor.Cuidado),
-        ("sala-04", "Sala 4 (exemplo)", 2, "oeste", 41.6, NivelCalor.Perigo, 43.0, NivelCalor.Perigo)
+        ("sala-04", "Sala 4 (exemplo)", 2, "oeste", 41.6, NivelCalor.Perigo, 43.0, NivelCalor.Perigo),
+        ("sala-05", "Sala 5 (exemplo)", 0, "sul", 17.9, NivelCalor.Frio, 17.0, NivelCalor.Frio)
     ];
 
     public static DadosLocais Gerar(DateTimeOffset agora) => new()

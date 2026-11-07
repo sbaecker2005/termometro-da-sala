@@ -1,5 +1,7 @@
 # Termômetro da Sala — API
 
+O mesmo sensor avisa calor no verão (escolas) e frio no inverno (dormitórios e abrigos).
+
 Global Solution 2026.2 (CitizenTech) — Engenharia de Software, 3º ano, FIAP.
 
 ## Ficha da CitizenTech
@@ -69,7 +71,7 @@ Toda resposta leva `X-Content-Type-Options: nosniff`, para o navegador não inte
 | GET | `/ocorrencias/{id}/foto` | A foto da ocorrência pelo id. Exige `X-Chave-Coordenacao` (401 sem ela) |
 | GET | `/acoes?dia=AAAA-MM-DD` | Ações do dia civil de São Paulo; data ausente/inválida retorna 400 |
 | POST | `/acoes` | Ação tomada: `ambienteId`, `nivel`, `descricao`. 201 com `Location: /acoes?dia=` do dia; 400 `nivel` ou `descricao`. Exige `X-Chave-Coordenacao` |
-| GET | `/niveis` | As 4 faixas da tabela `NiveisAcao`: `nivel`, `nome`, `indiceMin` e `acaoSugerida` |
+| GET | `/niveis` | As 5 faixas da tabela `NiveisAcao`: `nivel`, `nome`, `indiceMin` e `acaoSugerida` |
 | POST | `/dispositivos/{id}/revogar` | Marca o dispositivo como inativo. É uma ação de estado (não apaga nem substitui o recurso), por isso POST com verbo em vez de PUT/DELETE. Exige `X-Chave-Coordenacao` |
 | POST | `/demo/semear?ambienteId=` | Só com `ASPNETCORE_ENVIRONMENT=Demo`. 409 sem leitura ao vivo |
 
@@ -87,7 +89,7 @@ A coleção do Insomnia está em [insomnia.json](insomnia.json).
 
 ## Previsão
 
-O índice de calor é o da NOAA (Rothfusz), em °C com 1 casa. Faixas: abaixo de 27 normal, 27 a 32 atenção, 32 a 41 cuidado, 41 ou mais perigo.
+O índice de calor é o da NOAA (Rothfusz), em °C com 1 casa. Faixas: abaixo de 18 frio, de 18 até menos de 27 normal, 27 a 32 atenção, 32 a 41 cuidado, 41 ou mais perigo. O mínimo interno de 18 °C é a recomendação da OMS para moradias. Na tabela, o início físico da faixa de frio é o zero absoluto (−273,15 °C); o limite superior é 18 °C. A nova migração `AlertaFrio` inclui a ação de frio e ajusta o início de Normal, preservando os registros existentes.
 
 O delta é a média de (índice da sala − índice da rua) nas últimas 3 h, com no mínimo 3 pares no mesmo instante UTC, sem as leituras suspeitas. A previsão da sala é o índice da rua daqui a 2 h mais o delta. Sem pares suficientes, `deltaSala` e `indiceSalaPrevisto` vêm `null` e `semLeiturasRecentes` vem `true`: mostra-se só a rua.
 
@@ -246,6 +248,7 @@ use `Banco__Migrar=false`.
 | 1 | `20261105025544_Inicial` | Cria as 8 tabelas, as chaves, os índices e a semente (4 salas, 4 dispositivos e as 4 faixas de `NiveisAcao`) |
 | 2 | `20261105033613_Enums` | Mantém os valores textuais dos enums e reduz as colunas ao tamanho deles: Tipo (4), FaceSol (5), Nivel/NivelPrevisto (7) e Origem (11). Como `NiveisAcao.Nivel` é chave primária, a migração solta a PK, altera a coluna e recria a PK (o SQL Server não altera coluna de PK). Não remove tabelas nem linhas |
 | 3 | `20261105050515_SegredosPorDispositivo` | Troca o segredo de demonstração das salas 01, 02 e 04 para um por dispositivo. A sala 03 mantém o vetor público do contrato |
+| 4 | `20261107033211_AlertaFrio` | Acrescenta Frio e sua ação; Normal passa a começar em 18 °C. As faixas e ações de calor permanecem iguais |
 
 Exclusão em cascata: apagar um ambiente apaga seus dispositivos, leituras, previsões,
 ocorrências e ações; a API apaga também os arquivos de foto das ocorrências. A FK `Leituras -> Dispositivos` é `NO ACTION` (`Restrict` no EF):

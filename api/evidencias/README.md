@@ -22,12 +22,16 @@ continuam divergentes porque faltou comprovar a ausência de gravação e criar 
 O [resumo integral](saidas/conferencia.tsv) inclui também as verificações auxiliares de segurança.
 Telas, IIS/HTTPS, ESP32, MQTT e revisão visual da foto real continuam com o coordenador.
 
+**Pendente: recapturar evidências antigas com SQL Server disponível**, após aplicar
+`AlertaFrio`: B1, B2, B3 e 24 devem comprovar a quarta migração e as cinco faixas.
+As saídas históricas abaixo não comprovam a migração de frio aplicada no banco.
+
 ## Saídas geradas por comando
 
 | Arquivo | Comando (a partir de `api/`) | O que mostra |
 |---|---|---|
-| [dotnet-test.txt](dotnet-test.txt) | `dotnet test --logger "console;verbosity=normal"` (só as linhas de resultado) | 47 testes aprovados, incluindo `EsquemaTestes` e `DemoAplicaOModeloAoDiaDoCsvEDaOMesmoValor` |
-| [migracoes-idempotente.sql](migracoes-idempotente.sql) | `dotnet ef migrations script --idempotent --project TermometroDaSala.Api -o evidencias/migracoes-idempotente.sql` | SQL das 3 migrações. Em `CREATE TABLE [Leituras]`, só a FK para `Ambientes` tem `ON DELETE CASCADE`; a FK para `Dispositivos` fica sem ação |
+| [dotnet-test.txt](dotnet-test.txt) | `dotnet test TermometroDaSala.Api.Tests/TermometroDaSala.Api.Tests.csproj --no-restore` | Resultado local com os testes de fronteira do frio e da migração |
+| [migracoes-idempotente.sql](migracoes-idempotente.sql) | `dotnet ef migrations script --idempotent --project TermometroDaSala.Api -o evidencias/migracoes-idempotente.sql` | SQL das 4 migrações, incluindo `AlertaFrio`. Em `CREATE TABLE [Leituras]`, só a FK para `Ambientes` tem `ON DELETE CASCADE`; a FK para `Dispositivos` fica sem ação |
 
 `dotnet ef migrations has-pending-model-changes --project TermometroDaSala.Api` responde
 "No changes have been made to the model since the last migration.": o modelo e as
@@ -37,9 +41,9 @@ migrações estão alinhados.
 
 | # | O que fazer | Resultado esperado | Print |
 |---|---|---|---|
-| B1 | `dotnet ef database update --project TermometroDaSala.Api` | As 3 migrações aplicadas, sem erro | [saida](saidas/B1.txt) - OK |
-| B2 | `SELECT * FROM __EFMigrationsHistory` | `20261105025544_Inicial`, `20261105033613_Enums`, `20261105050515_SegredosPorDispositivo` | [saida](saidas/B2.txt) - OK |
-| B3 | `SELECT * FROM Ambientes`, `Dispositivos` (sem a coluna `Segredo`) e `NiveisAcao` | 4 salas, 4 dispositivos e 4 faixas da semente | [saida](saidas/B3.txt) - OK |
+| B1 | `dotnet ef database update --project TermometroDaSala.Api` | As 4 migrações aplicadas, sem erro | [saida histórica](saidas/B1.txt) - recapturar após a migração de frio |
+| B2 | `SELECT * FROM __EFMigrationsHistory` | `20261105025544_Inicial`, `20261105033613_Enums`, `20261105050515_SegredosPorDispositivo`, `20261107033211_AlertaFrio` | [saida histórica](saidas/B2.txt) - recapturar após a migração de frio |
+| B3 | `SELECT * FROM Ambientes`, `Dispositivos` (sem a coluna `Segredo`) e `NiveisAcao` | 4 salas, 4 dispositivos e 5 faixas após `AlertaFrio` | [saida histórica](saidas/B3.txt) - recapturar após a migração de frio |
 | B4 | `dotnet run --project TermometroDaSala.Api --launch-profile http` | Log da API ligada ao SQL Server em `http://localhost:5080` | [saida](saidas/B4.txt) - OK |
 | B5 | `SELECT TOP 5 * FROM Leituras ORDER BY Id DESC` depois do roteiro | As leituras gravadas pela API | [saida](saidas/B5.txt) - OK |
 
@@ -72,7 +76,7 @@ A numeração é a dos nomes na coleção. A aba de testes de cada requisição 
 | 21 | `GET /ambientes/{id}/leituras` | 200 em JSON | [saida](saidas/21-resposta.txt) - OK |
 | 22 | `GET /ambientes/{id}/leituras?formato=csv` | 200 `text/csv` | [saida](saidas/22-resposta.txt) - OK |
 | 23 | `GET /ambientes/{id}/previsao` | 200 com nível previsto. No Demo, `indiceRuaPrevisto` vem do modelo. Sem rua carregada (fora do Demo): `ruaDisponivel: false` e o índice da última leitura válida da sala; sem rua e sem leitura válida recente: 503 | [saida](saidas/23-resposta.txt) - OK |
-| 24 | `GET /niveis` | 200 com as 4 faixas e a ação sugerida | [saida](saidas/24-resposta.txt) - OK |
+| 24 | `GET /niveis` | 200 com as 5 faixas e a ação sugerida | [saida histórica](saidas/24-resposta.txt) - recapturar após a migração de frio; coberto pelo teste `NiveisVemDaTabelaEBatemComAsFaixasDoCodigo` |
 | 25a | `POST /demo/semear` fora do ambiente Demo | 404 | [saida](saidas/25a-resposta.txt) - OK |
 | 25b | `POST /demo/semear` em Demo, sem leitura ao vivo | 409 | [saida](saidas/25b-resposta.txt) - OK |
 | 25c | `POST /demo/semear` em Demo, depois de uma leitura | 201 com `inseridas` | [saida](saidas/25c-resposta.txt) - OK |

@@ -574,7 +574,10 @@ public class ApiTestes
     {
         using var f = new ApiFabrica();
         var niveis = (await f.Cliente().GetFromJsonAsync<NivelSaida[]>("/niveis"))!;
-        Assert.Equal(new[] { "normal", "atencao", "cuidado", "perigo" }, niveis.Select(n => n.Nivel));
+        Assert.Equal(new[] { "frio", "normal", "atencao", "cuidado", "perigo" }, niveis.Select(n => n.Nivel));
+        Assert.Equal(18, niveis.Single(n => n.Nivel == "normal").IndiceMin);
+        Assert.Equal("Frio", niveis[0].Nome);
+        Assert.Equal("Fechar janelas, agasalhar e oferecer cobertor; à noite, avisar o plantão e levar quem estiver no cômodo mais frio para outro", niveis[0].AcaoSugerida);
         foreach (var n in niveis)
         {
             Assert.Equal(n.Nivel, IndiceCalor.Nivel(n.IndiceMin).ToString());
@@ -604,6 +607,8 @@ public class ApiTestes
     }
 
     [Theory]
+    [InlineData(13.949, 17.9, "frio")]
+    [InlineData(13.951, 18.0, "normal")]
     [InlineData(22.949, 26.9, "normal")]
     [InlineData(22.951, 27.0, "atencao")]
     [InlineData(27.949, 31.9, "atencao")]

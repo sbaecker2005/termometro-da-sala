@@ -469,3 +469,44 @@ GO
 COMMIT;
 GO
 
+BEGIN TRANSACTION;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261107033211_AlertaFrio'
+)
+BEGIN
+    EXEC(N'UPDATE [NiveisAcao] SET [IndiceMin] = 18.0E0
+    WHERE [Nivel] = N''normal'';
+    SELECT @@ROWCOUNT');
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261107033211_AlertaFrio'
+)
+BEGIN
+    IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Nivel', N'AcaoSugerida', N'IndiceMin', N'Nome') AND [object_id] = OBJECT_ID(N'[NiveisAcao]'))
+        SET IDENTITY_INSERT [NiveisAcao] ON;
+    EXEC(N'INSERT INTO [NiveisAcao] ([Nivel], [AcaoSugerida], [IndiceMin], [Nome])
+    VALUES (N''frio'', N''Fechar janelas, agasalhar e oferecer cobertor; à noite, avisar o plantão e levar quem estiver no cômodo mais frio para outro'', -273.14999999999998E0, N''Frio'')');
+    IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Nivel', N'AcaoSugerida', N'IndiceMin', N'Nome') AND [object_id] = OBJECT_ID(N'[NiveisAcao]'))
+        SET IDENTITY_INSERT [NiveisAcao] OFF;
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261107033211_AlertaFrio'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20261107033211_AlertaFrio', N'8.0.11');
+END;
+GO
+
+COMMIT;
+GO
+

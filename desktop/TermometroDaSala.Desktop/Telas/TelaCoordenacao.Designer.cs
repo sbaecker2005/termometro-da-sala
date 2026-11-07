@@ -39,6 +39,7 @@ partial class TelaCoordenacao
         this.botaoExportar = new System.Windows.Forms.Button();
         this.legenda = new System.Windows.Forms.FlowLayoutPanel();
         this.rotuloLegenda = new System.Windows.Forms.Label();
+        this.legendaFrio = new System.Windows.Forms.Label();
         this.legendaNormal = new System.Windows.Forms.Label();
         this.legendaAtencao = new System.Windows.Forms.Label();
         this.legendaCuidado = new System.Windows.Forms.Label();
@@ -169,6 +170,7 @@ partial class TelaCoordenacao
         this.legenda.AccessibleName = "Legenda de cores";
         this.legenda.AutoSize = true;
         this.legenda.Controls.Add(this.rotuloLegenda);
+        this.legenda.Controls.Add(this.legendaFrio);
         this.legenda.Controls.Add(this.legendaNormal);
         this.legenda.Controls.Add(this.legendaAtencao);
         this.legenda.Controls.Add(this.legendaCuidado);
@@ -185,6 +187,17 @@ partial class TelaCoordenacao
         this.rotuloLegenda.Padding = new System.Windows.Forms.Padding(0, 4, 0, 0);
         this.rotuloLegenda.TabIndex = 0;
         this.rotuloLegenda.Text = "Legenda:";
+        //
+        // legendaFrio
+        //
+        this.legendaFrio.AutoSize = true;
+        this.legendaFrio.BackColor = System.Drawing.Color.LightBlue;
+        this.legendaFrio.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+        this.legendaFrio.ForeColor = System.Drawing.Color.Black;
+        this.legendaFrio.Name = "legendaFrio";
+        this.legendaFrio.Padding = new System.Windows.Forms.Padding(6, 2, 6, 2);
+        this.legendaFrio.TabIndex = 7;
+        this.legendaFrio.Text = "Frio: agasalhar e oferecer cobertor";
         //
         // legendaNormal
         //
@@ -456,6 +469,7 @@ partial class TelaCoordenacao
     private System.Windows.Forms.Button botaoExportar;
     private System.Windows.Forms.FlowLayoutPanel legenda;
     private System.Windows.Forms.Label rotuloLegenda;
+    private System.Windows.Forms.Label legendaFrio;
     private System.Windows.Forms.Label legendaNormal;
     private System.Windows.Forms.Label legendaAtencao;
     private System.Windows.Forms.Label legendaCuidado;
