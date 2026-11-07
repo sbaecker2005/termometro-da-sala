@@ -136,6 +136,7 @@ public sealed class ServicoSalasLocal(string arquivo) : IServicoSalas
         var dados = Ler();
         if (!dados.Salas.Any(s => s.Id == acao.AmbienteId)) throw new ArgumentException("Sala não encontrada.");
         acao.Descricao = acao.Descricao.Trim();
+        acao.Id = dados.Acoes.Count == 0 ? 1 : dados.Acoes.Max(a => a.Id) + 1;
         dados.Acoes.Add(acao);
         Salvar(dados);
         return Task.CompletedTask;
