@@ -44,7 +44,7 @@ Gravar entre 12h e 17h, com a API no ambiente `Demo`. Deixe o Wokwi publicando a
 
 Com 55 % de umidade, a sala já vira Perigo no passo de 37 °C. Nesse caso, pare o slider ali. Arrastar 12 °C de uma vez gera uma leitura suspeita e atrapalha a cena.
 
-A fala da sala 3 não cita a conta: ela depende da hora da gravação. Os números da tela são os que valem, e o slide 5 traz o exemplo 34 + 4 = 38. Em novembro, entre 12h e 17h, a rua prevista pelo modelo fica entre 28 e 34 °C (a tabela por hora está em `ml/ROTEIRO-VIDEO.md`).
+A fala da sala 3 não cita a conta: ela depende da hora da gravação. Os números da tela são os que valem, e o slide 5 traz o exemplo 34 + 4 = 38. `ml/ROTEIRO-VIDEO.md` não tem tabela por hora: leia a rua prevista na tela.
 
 ## Entregas (2:15 a 2:30)
 

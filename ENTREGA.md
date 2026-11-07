@@ -117,7 +117,7 @@ Pasta de ML (README, dataset INMET A701, modelo.json): https://github.com/sbaeck
 | Preparação e análise | 2,0 | seções 2 e 3 do notebook |
 | Modelo e treino | 3,0 | seção 4 do notebook e `ml/modelo.json` |
 | Avaliação com métrica | 2,0 | tabela de MAE e F1 no README e no notebook |
-| Integração na solução | 1,0 | `api/TermometroDaSala.Api/modelo/modelo.json`, aplicado também no Demo ao dia do CSV; mostrar no sistema rodando `GET /ambientes/sala-03/previsao` com `indiceRuaPrevisto` calculado pelo modelo. Teste `DemoAplicaOModeloAoDiaDoCsvEDaOMesmoValor` (27,16 °C, igual à seção 6); previsão no app e no desktop |
+| Integração na solução | 1,0 | `api/TermometroDaSala.Api/modelo/modelo.json`, aplicado também no Demo ao dia do CSV; mostrar no sistema rodando `GET /ambientes/sala-03/previsao` com `indiceRuaPrevisto` calculado pelo modelo. Teste `DemoAplicaOModeloAoDiaDoCsvEDaOMesmoValor` (27,16 °C, igual à seção 6). O vídeo de ML para nesse GET e no `dotnet test --filter PrevisorModeloTestes` (`ml/ROTEIRO-VIDEO.md`, meta 1 min 50 s, limite 2 min). A previsão no app e no desktop fica no pitch |
 
 - [ ] Preencher o RM no README, no notebook e em `ml/gerar_notebook.py` (gerar o notebook de novo depois, para os dois não divergirem)
 - [ ] Gravar o vídeo e colar o link no texto acima
@@ -141,7 +141,7 @@ Pasta de ML (README, dataset INMET A701, modelo.json): https://github.com/sbaeck
 
 ## Operating Systems
 
-**Enviar:** pelo formulário da disciplina (não pelo Teams), um integrante, até 19/11 às 23h55. Vão o link do GitHub e o do vídeo de até 7 min, e as respostas do bloco "Respostas do formulário" abaixo. Roteiro do vídeo: `infra/ROTEIRO-VIDEO.md`.
+**Enviar:** pelo formulário da disciplina (não pelo Teams), um integrante, até 19/11 às 23h55. Vão o link do GitHub e o do vídeo de até 7 min, e as respostas do bloco "Respostas do formulário" abaixo. Roteiro do vídeo: `infra/ROTEIRO-VIDEO.md`. A sessão bruta não é o vídeo: scripts `01` a `10` em `infra/`, com os reinícios do README e do `TESTE-DE-FALHA.md` antes do rec e o `10-coletar-evidencias.ps1` depois, para os txt. O arquivo enviado é o corte de 6:30, sem instalação e sem reinício.
 
 | Item | Pontos | Onde |
 |---|---:|---|
@@ -152,9 +152,9 @@ Pasta de ML (README, dataset INMET A701, modelo.json): https://github.com/sbaeck
 | Logs de auditoria | 1 | `06-gpo.ps1` e a seção de auditoria do README |
 | Funcionamento completo | 2 | painel em `api/TermometroDaSala.Api/wwwroot/index.html` e `GET /ambientes`, no vídeo |
 
-- [ ] Montar a VM, executar `infra/10-coletar-evidencias.ps1` conforme `infra/README.md` e preencher `infra/EVIDENCIAS.md` com as saídas e os prints (PIDs, IP, data); não mostrar segredos
+- [ ] Montar a VM e rodar os scripts `01` a `10` em `infra/` conforme `infra/README.md` (reinícios antes do rec; `10-coletar-evidencias.ps1` depois do corte) e preencher `infra/EVIDENCIAS.md` com as saídas e os prints (PIDs, IP, data); não mostrar segredos
 - [ ] Preencher a equipe e os RMs no README e em `infra/EVIDENCIAS.md`
-- [ ] Gravar o vídeo de até 7 min e publicar o link com acesso liberado ao professor
+- [ ] Gravar o corte de 6:30 de `infra/ROTEIRO-VIDEO.md` (limite 7 min, sem instalação e sem reinício) e publicar o link com acesso liberado ao professor
 - [ ] Trocar os campos com o marcador de preencher do bloco abaixo pelos valores reais do `infra/EVIDENCIAS.md`
 - [ ] Preencher e enviar o formulário, um integrante
 

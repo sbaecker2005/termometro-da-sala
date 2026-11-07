@@ -282,6 +282,8 @@ Esperado: HTTPS acessível a usuários; HTTP somente se usado para redirecionar;
 
 ### 13. E13 — indisponibilidade do broker sem ataque
 
+É a linha "Sem Wi-Fi" da tabela Ensaio de `esp32/README.md`. Não trocar o SSID no `WiFi.begin`.
+
 Desconectar somente o Wi-Fi do ESP32 simulado ou a conexão MQTT do cliente de teste pela ferramenta já usada. Não desligar o broker público nem enviar volume de mensagens. Registrar medição e LED antes/depois e consultar:
 
 ```powershell
