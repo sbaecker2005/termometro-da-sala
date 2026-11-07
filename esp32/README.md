@@ -10,7 +10,7 @@ O mesmo sensor avisa calor no verão (escolas) e frio no inverno (dormitórios e
 | Cidade e bairro | São Paulo, [bairro da escola entrevistada] |
 | Cidadão beneficiado | Professor(a) e turma de uma sala sem climatização. Quem opera o sistema é a coordenação pedagógica |
 | Problema, em uma frase | Nas tardes quentes, a sala passa do limite seguro sem que ninguém meça, e a escola só reage quando alguém passa mal |
-| Como funciona | Um sensor na porta da sala mede o calor e acende verde, amarelo ou vermelho. O sistema prevê o nível da sala para daqui a 2 h. A coordenação vê todas as salas, decide e registra a ação tomada. O professor acompanha pelo app e registra ocorrências com foto |
+| Como funciona | Quatro sensores no mesmo ESP32 medem janela, fundo, porta e centro; LCD e LEDs avisam localmente. A coordenacao acompanha o mapa, decide e registra a acao; o professor acompanha pelo app |
 | O que cada parte faz | ESP32 (Wokwi) mede e envia a leitura assinada; API (ASP.NET Core + SQL Server) valida, grava e prevê; modelo (Python, dados do INMET) prevê o índice de calor da rua; app (React Native + Expo) para o professor; desktop (Windows Forms) para a coordenação; Windows Server hospeda a API e o painel web no IIS |
 | Link do repositório | https://github.com/sbaecker2005/termometro-da-sala |
 | Indicador de impacto | Aulas no nível "Perigo" sem ação registrada (meta: zero) e minutos entre o alerta e a ação |
@@ -24,162 +24,123 @@ O mesmo sensor avisa calor no verão (escolas) e frio no inverno (dormitórios e
 | Vídeo demonstrativo (até 4 min, não listado) | [preencher] |
 | Integrantes | [`integrantes.txt`](integrantes.txt) |
 
-## Como o circuito entra na solução
+## Como o circuito entra na solucao
 
-O ESP32 é o sensor da porta da sala. Não é um projeto à parte: a leitura dele
-é a mesma que o professor vê no app e que a coordenação usa no desktop para
-decidir e registrar a ação.
+Um ESP32 mede quatro DHT22: janela, fundo, porta e centro. Cada ponto publica
+um JSON separado a cada 10 s no mesmo topico do [contrato](../CONTRATO.md).
+O campo `dispositivo` ja identifica o sensor na API e no mapa; nao foi criado
+um campo novo. HMAC-SHA256, formato canonico, janela de tempo e antirreenvio
+continuam iguais. Cada sensor tem sua propria ordem, mesmo quando os quatro
+usam o mesmo segundo Unix. Mensagens antigas continuam aceitas.
 
-```text
-DHT22 ──> ESP32 ──> na porta: LED (verde / amarelo / vermelho fixo / vermelho piscando),
-            │        LCD com índice e nível por extenso, buzzer em Perigo e botão "Ciente"
-            │        funciona mesmo sem internet
-            │
-            └──> leitura assinada (HMAC-SHA256) ──MQTT──> broker.hivemq.com:1883
-                                                              │ tópico fiap-gs/termometro-da-sala/leituras
-                                                              v
-                     API (ASP.NET Core): confere assinatura, ordem, horário e faixa;
-                     recalcula o índice e grava a leitura na sala-03
-                                                              │
-                         ┌────────────────────┬───────────────┴──────────────┐
-                         v                    v                              v
-             previsão de 2 h           app do professor            desktop e painel web
-          (rua do INMET + delta       (nível e previsão da        (coordenação vê todas as
-             desta sala)                   sala 3)                 salas e registra a ação)
+O exemplo usa Sala 7 e os quatro dispositivos posicionados da M1. Na API em
+ambiente `Demo`, execute **antes de ligar o circuito**:
+
+```powershell
+Invoke-RestMethod -Method Post http://localhost:5080/demo/mapa
 ```
 
-- O LED dá o aviso imediato na porta, mesmo com a rede fora. O LCD escreve o
-  nível, para quem não distingue as cores, e o buzzer chama a atenção em Perigo
-  até o professor apertar "Ciente".
-- A API é a fonte oficial: recalcula o índice com a mesma fórmula e recusa
-  leitura com assinatura errada, reenviada, atrasada ou de dispositivo revogado
-  ([CONTRATO.md](../CONTRATO.md), seção 2).
-- O histórico da sala alimenta a previsão de 2 h que aparece no app e no desktop.
+Isso cria a planta 6 x 4 m, sensores e lugares; tambem insere leituras
+simuladas. Aguarde as primeiras publicacoes para ver os valores do circuito
+em `GET /ambientes/sala-07/mapa` e `GET /ambientes/sala-07/leituras`.
+Depois de receber leituras do circuito, repetir o POST retorna 409 para
+preservar os dados. Fora de Demo, os dispositivos precisam estar previamente
+cadastrados no ambiente com IDs, posicoes e segredo correspondentes.
 
-## Componentes
+| Ponto | `dispositivo` do exemplo | Posicao (m) | GPIO | Inicial |
+|---|---|---|---|---|
+| janela | demo-sala-07-janela | (0, 2) | 15 | 35 C / 60% |
+| fundo | demo-sala-07-fundo | (6, 4) | 32 | 24 C / 60% |
+| porta | demo-sala-07-porta | (6, 0) | 33 | 24 C / 60% |
+| centro | demo-sala-07-centro | (3, 2) | 25 | 24 C / 60% |
 
-| Qtd. | Componente (Wokwi) | Função |
+## Componentes e pinagem
+
+| Quantidade | Componente | Ligacao |
 |---|---|---|
-| 1 | ESP32 DevKit V1 (`wokwi-esp32-devkit-v1`) | Mede, calcula o nível, acende os LEDs e publica por Wi-Fi/MQTT |
-| 1 | Sensor de temperatura e umidade DHT22 (`wokwi-dht22`) | Temperatura e umidade da sala |
-| 1 | Resistor de 10 kΩ | Pull-up da linha de dados do DHT22 |
-| 3 | LEDs: verde, amarelo e vermelho (`wokwi-led`) | Nível de calor na porta da sala |
-| 3 | Resistores de 220 Ω | Limitam a corrente de cada LED |
-| 1 | LCD 16x2 com módulo I2C (`wokwi-lcd1602`, `pins: i2c`, endereço 0x27) | Índice e nível por extenso; não depende da cor |
-| 1 | Buzzer (`wokwi-buzzer`) | Bip curto a cada 2 s em Perigo |
-| 1 | Botão "Ciente" (`wokwi-pushbutton`) | O professor confirma que viu o Perigo e o buzzer silencia |
+| 1 | ESP32 DevKit V1 | Wi-Fi, calculo e publicacao |
+| 4 | DHT22 | VCC em 3V3, GND em GND; SDA nos GPIOs da tabela acima |
+| 4 | Resistor 10 kOhm | Um pull-up entre cada SDA e 3V3 |
+| 3 | LEDs e resistores 220 Ohm | Verde D18, amarelo D19, vermelho D4; resistor em serie no anodo, catodo no GND |
+| 1 | LCD 16x2 I2C, 0x27 | VCC VIN, GND, SDA D21, SCL D22 |
+| 1 | Buzzer | positivo D26, negativo GND |
+| 1 | Botao Ciente | 1.l D27 (pull-up interno), 2.l GND |
 
-Bibliotecas (`libraries.txt`): DHT sensor library, Adafruit Unified Sensor,
-PubSubClient e LiquidCrystal I2C. Wi-Fi, FreeRTOS, NTP, I2C (Wire), `tone()` e
-mbedTLS (HMAC) vêm do core Arduino ESP32.
+Bibliotecas em `libraries.txt`: DHT sensor library, Adafruit Unified Sensor,
+PubSubClient e LiquidCrystal I2C. Wi-Fi, FreeRTOS, NTP e HMAC vem do core ESP32.
+Os quatro GPIOs de dados sao distintos e nao conflitam com LCD, LEDs, buzzer
+ou botao. Confira sem abrir o Wokwi: `python esp32/conferir_circuito.py`.
 
-## Pinagem
+## LCD e alertas locais
 
-| Componente | Pino do componente | Pino do ESP32 (Wokwi) | GPIO no sketch |
+O LCD troca de pagina a cada 3 s. Para cada ponto mostra rotulo e temperatura,
+depois rotulo e indice (`I`), mantendo o nivel por extenso na segunda linha.
+Depois mostra `Quente <ponto>` e `Frio <ponto>` com as temperaturas extremas.
+O ciclo completo leva 30 s. Empates usam a ordem janela, fundo, porta, centro.
+Sensores invalidos aparecem como `Sem leitura` e nao participam dos extremos;
+sem nenhum valido, aparece `Sem extremos`. A medicao ocorre a cada 10 s.
+
+O alerta coletivo prioriza perigo, cuidado, atencao, frio e normal, nessa ordem.
+Assim, um ponto normal nao apaga um aviso de frio ou calor de outro ponto.
+
+| Indice | Nivel | LED | Buzzer |
 |---|---|---|---|
-| DHT22 | VCC | 3V3 | — |
-| DHT22 | SDA (dados) | D15, com pull-up de 10 kΩ para 3V3 | 15 (`PIN_DHT`) |
-| DHT22 | GND | GND | — |
-| LED verde | ânodo, via 220 Ω | D18 | 18 (`VERDE`) |
-| LED amarelo | ânodo, via 220 Ω | D19 | 19 (`AMARELO`) |
-| LED vermelho | ânodo, via 220 Ω | D4 | 4 (`VERMELHO`) |
-| LEDs | cátodo | GND | — |
-| LCD 16x2 I2C | VCC | VIN (5 V) | — |
-| LCD 16x2 I2C | SDA | D21 | 21 (I2C padrão do `Wire`) |
-| LCD 16x2 I2C | SCL | D22 | 22 (I2C padrão do `Wire`) |
-| LCD 16x2 I2C | GND | GND | — |
-| Buzzer | + (pino 2) | D26 | 26 (`BUZZER`) |
-| Buzzer | − (pino 1) | GND | — |
-| Botão "Ciente" | 1.l | D27, com pull-up interno | 27 (`BOTAO`) |
-| Botão "Ciente" | 2.l | GND | — |
+| < 18 C | FRIO | amarelo piscando, 500 ms | mudo |
+| >= 18 e < 27 C | Normal | verde | mudo |
+| >= 27 e < 32 C | Atencao | amarelo fixo | mudo |
+| >= 32 e < 41 C | Cuidado extremo | vermelho fixo | mudo |
+| >= 41 C | Perigo | vermelho piscando, 500 ms | bip de 150 ms a cada 2 s |
 
-O vermelho saiu do D21 porque o LCD usa o I2C padrão do ESP32 (D21 e D22).
-O DHT22 começa em 33 °C e 55 % (`diagram.json`); durante a simulação, os
-valores mudam clicando no sensor.
-
-Para conferir o circuito sem abrir o Wokwi: `python esp32/conferir_circuito.py`
-(na raiz do repositório). O script lê o `diagram.json`, o `sketch.ino` e o
-`libraries.txt` e confere peças, pinos, cada GPIO do sketch ligado à peça
-certa, retorno pelo GND, ausência de curto entre GPIOs e as bibliotecas. A
-compilação continua sendo feita pelo Wokwi.
-
-## Níveis, LEDs, LCD e buzzer
-
-| Índice de calor | Nível | LED | LCD (2ª linha) | Buzzer | Ação sugerida |
-|---|---|---|---|---|---|
-| < 18 °C | Frio | amarelo piscando (500 ms) | `FRIO` | mudo | fechar janelas, agasalhar e oferecer cobertor |
-| ≥ 18 e < 27 °C | Normal | verde | `Normal` | mudo | nenhuma |
-| ≥ 27 e < 32 °C | Atenção | amarelo | `Atencao` | mudo | água, janelas abertas, ventiladores |
-| ≥ 32 e < 41 °C | Cuidado extremo | vermelho fixo | `Cuidado extremo` | mudo | pausa, troca de sala, adiar Educação Física |
-| ≥ 41 °C | Perigo | vermelho piscando (500 ms) | `Perigo` | bip de 150 ms a cada 2 s | tirar a turma da sala |
-
-A 1ª linha do LCD mostra a temperatura e o índice (`33.0C ind 37.8C`). O LCD
-não tem acentos, por isso `Atencao`. Em Perigo, o botão "Ciente" silencia o
-buzzer e o LCD passa a `Perigo (ciente)`; o LED continua piscando. Quando o nível sai de
-Perigo, o "ciente" é zerado e um novo Perigo volta a bipar. O botão só vale em
-Perigo e é local: não entra na leitura assinada nem muda o contrato com a API.
-
-O frio reutiliza o LED amarelo piscando para manter o circuito do Wokwi; Atenção continua com amarelo fixo. O LCD escreve `FRIO`, e o buzzer continua exclusivo de Perigo. A referência de 18 °C como mínimo interno é a recomendação da OMS para moradias. À noite, a ação de frio inclui avisar o plantão e levar quem estiver no cômodo mais frio para outro.
-
-Todos apagados: ainda não mediu ou o sensor deu valor inválido (ver Serial);
-apagado não é Normal. Sensor inválido: o LCD mostra `Sem leitura` /
-`sensor invalido`; antes da primeira medição, `Medindo...`. O índice segue a
-fórmula NOAA/Rothfusz, a mesma da API.
-Medição e LED a cada 10 s, mesmo sem Wi-Fi. A conexão MQTT roda numa tarefa
-FreeRTOS separada para não travar a medição nem o pisca. Sem NTP, só o alerta
-local funciona: a leitura não é publicada com data inventada.
+Sem sensores validos, LEDs apagados; apagado nao significa normal.
+O botao Ciente silencia o perigo coletivo e as paginas dos pontos em perigo
+mostram `Perigo (ciente)`. O reconhecimento e local; zera quando nenhum ponto
+esta em perigo. O indice usa a mesma formula NOAA/Rothfusz da API e as mesmas
+entradas arredondadas. Sem NTP, os alertas funcionam e nada e publicado.
+A tarefa MQTT fica separada para DNS ou broker lentos nao travarem os alertas.
 
 ## Abrir no Wokwi
 
-1. Criar um projeto ESP32 (DevKit V1) no Wokwi e colar `sketch.ino`,
-   `diagram.json` e `libraries.txt` nas abas de mesmo nome.
-2. Criar a aba `secrets.h` copiando `secrets.exemplo.h`. Ele traz só a chave
-   pública de teste do dispositivo de demonstração; `secrets.h` não vai para o git.
-3. Iniciar a simulação e abrir o Serial (115200). Ao ligar, o ESP32 imprime o
-   HMAC `2f7c847dc59835d4a9bacbf9f4b642af0cc563cbf1bf90efb91d127f38297ba0` e
-   “Vetores de calor OK”. Se um vetor falhar, o assert para o arranque.
-4. A cada 10 s: temperatura, umidade, índice e nível no Serial, o LED do nível
-   e o LCD atualizado (antes da primeira medição, `Medindo...`).
-   Depois do NTP, “Leitura publicada”. Wi-Fi `Wokwi-GUEST`, sem senha.
-5. Com a API rodando (`api/README.md`), a leitura aparece em
-   `GET /ambientes/sala-03/leituras`, no painel web (`http://localhost:5080/`)
-   e no app com `EXPO_PUBLIC_API_MOCK=0`.
+1. Criar projeto ESP32 DevKit V1 e copiar `sketch.ino`, `diagram.json` e
+   `libraries.txt` para abas de mesmo nome.
+2. Criar `secrets.h` copiando **o exemplo atualizado** `secrets.exemplo.h`.
+   `DISPOSITIVO` identifica a conexao MQTT; `DISPOSITIVOS` contem os quatro IDs
+   assinados, na ordem da tabela. O segredo e publico e so de demonstracao.
+3. Preparar a API Demo pelo POST acima, iniciar a simulacao e abrir Serial
+   (115200). O arranque confere o vetor HMAC publico do contrato, limites,
+   LCD, extremos, prioridade de alertas e falhas de sensores com asserts.
+   Esperado: `Vetores de calor OK`. Um assert falho interrompe o arranque.
+4. A cada 10 s, conferir quatro linhas com rotulo, ID, temperatura, umidade,
+   indice e nivel; depois do NTP, quatro `Leitura publicada`.
+5. Conferir os quatro pontos no mapa e o LCD durante um ciclo completo.
 
 ## Ensaio
 
-Roteiro do vídeo: [ROTEIRO-VIDEO.md](ROTEIRO-VIDEO.md). Prints em `evidencias/`.
-
-| Teste | Esperado | Resultado observado |
+| Teste | Esperado | Observado |
 |---|---|---|
-| Ligar a simulação | HMAC do vetor e “Vetores de calor OK” no Serial; LCD `Termometro Sala` / `Medindo...` | [preencher] |
-| 24 °C / 40 % | índice 23,5 °C, Normal, LED verde, LCD `24.0C ind 23.5C` / `Normal` | [preencher] |
-| 29 °C / 50 % | índice 29,7 °C, Atenção, LED amarelo, LCD `Atencao` | [preencher] |
-| 33 °C / 55 % | índice 37,8 °C, Cuidado extremo, LED vermelho fixo, LCD `Cuidado extremo`, buzzer mudo | [preencher] |
-| 37 °C / 55 % | índice 48,5 °C, Perigo, LED vermelho piscando, LCD `Perigo`, bip a cada 2 s | [preencher] |
-| Apertar "Ciente" em Perigo | buzzer para, LCD `Perigo (ciente)`, Serial “Professor ciente do Perigo”, LED segue piscando | [preencher] |
-| Voltar a 33 °C e subir a 37 °C | o bip volta no novo Perigo | [preencher] |
-| Depois do NTP | “Leitura publicada” a cada 10 s | [preencher] |
-| API real | leitura na sala-03 com `"suspeita": false` e o mesmo índice | [preencher] |
-| Sem Wi-Fi (SSID inválido no `WiFi.begin`) | LED segue o sensor e nada é publicado | [preencher] |
+| Inicial, janela 35 C, demais 24 C | quente janela, frio fundo (empate); quatro IDs no mapa | [preencher] |
+| Fundo 15 C, demais 22 C, todos 60% | frio fundo; LED amarelo piscando; pagina FRIO | [preencher] |
+| Todos 24 C / 40% | indice 23,5 C, normal; verde | [preencher] |
+| Um ponto 37 C / 55% | indice 48,5 C; perigo, vermelho piscando e bip | [preencher] |
+| Ciente durante perigo; baixar todos, voltar ao perigo | silencia; novo perigo volta a bipar | [preencher] |
+| Um DHT22 invalido | pagina Sem leitura; demais seguem publicados e nos extremos | [preencher] |
+| Sem Wi-Fi ou NTP | LCD e alertas seguem; sem NTP nao publica | [preencher] |
+| Repetir mensagem assinada | API recusa reenvio so daquele ID | [preencher] |
 
-Os índices esperados foram calculados com a fórmula do contrato
-(`ferramentas/indice_calor.py`). Passos de no máximo 5 °C evitam que a API
-marque a leitura como `suspeita` (salto acima de 5 °C).
+Para repetir o cenario da madrugada, altere os quatro DHT22 no simulador;
+nao repita a semeadura sobre leituras do circuito. Saltos acima de 5 C sao
+marcados como suspeitos pela API. Roteiro anterior: [ROTEIRO-VIDEO.md](ROTEIRO-VIDEO.md);
+para quatro pontos, use o ensaio desta pagina.
 
-## Limitações
+## Limitacoes
 
-- MQTT em **QoS 0**, sem retenção: só a leitura mais recente espera a conexão.
-  Uma queda pode perder leituras, e a API mostra “sem leitura recente”.
-- Broker e tópico públicos, sem TLS: o HMAC garante integridade e autoria,
-  não sigilo nem disponibilidade.
-- A chave do Wokwi é de **demonstração** e fica visível a quem tem o link. O
-  dispositivo `esp32-sala-03` será **revogado após a avaliação**
-  (`POST /dispositivos/esp32-sala-03/revogar`). Nunca usar chave real aqui.
-- O sensor do Wokwi é simulado e o histórico de 3 h vem do gerador sintético
-  descrito no contrato. A previsão assume diferença constante entre sala e rua
-  nas próximas 2 h e pode superestimar no fim da tarde. Um aparelho real
-  precisa de calibração com termo-higrômetro de referência.
-- O "Ciente" fica só no aparelho: a coordenação não vê quem apertou nem quando.
-  Levar isso à API exige um campo novo no contrato (seção 2) e um novo vetor.
-- No Wokwi o LCD é ligado ao VIN (5 V). Num aparelho real, um módulo I2C com
-  pull-up para 5 V pede conversor de nível no SDA e no SCL do ESP32 (3,3 V).
+- MQTT QoS 0, sem retencao: apenas o lote mais recente dos quatro sensores
+  espera a conexao; quedas podem perder leituras. A API indica falta de leitura
+  recente depois de 15 minutos.
+- Broker e topico publicos, sem TLS: HMAC garante integridade, sem sigilo ou
+  garantia de disponibilidade. A chave publica do exemplo so serve para Demo.
+  Revogar os quatro IDs com `POST /dispositivos/{id}/revogar` apos a avaliacao.
+- Sensores simulados; aparelho real requer calibracao com termo-higrometro
+  de referencia. Previsao continua com as limitacoes descritas no contrato.
+- Ciente vale para o perigo coletivo, sem registro remoto de quem apertou.
+- LCD em VIN (5 V) no Wokwi; hardware com pull-ups I2C em 5 V requer conversor
+  de nivel para os GPIOs de 3,3 V.

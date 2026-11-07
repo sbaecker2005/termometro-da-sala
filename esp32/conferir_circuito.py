@@ -30,6 +30,9 @@ PINOS = {
 # Constante do sketch -> pino da peça que ela comanda.
 ALVO = {
     "PIN_DHT": "dht:SDA",
+    "PIN_FUNDO": "fundo:SDA",
+    "PIN_PORTA": "porta:SDA",
+    "PIN_CENTRO": "centro:SDA",
     "VERDE": "verde:A",
     "AMARELO": "amarelo:A",
     "VERMELHO": "vermelho:A",
@@ -38,7 +41,7 @@ ALVO = {
 }
 
 # Pinos que precisam voltar pelo GND (cátodos, buzzer, botão e alimentação).
-NO_GND = ["dht:GND", "verde:C", "amarelo:C", "vermelho:C", "lcd:GND", "buzzer:1", "ciente:2.l"]
+NO_GND = ["fundo:GND", "porta:GND", "centro:GND","dht:GND", "verde:C", "amarelo:C", "vermelho:C", "lcd:GND", "buzzer:1", "ciente:2.l"]
 
 # Cabeçalho incluído -> nome no libraries.txt (o resto vem do core ESP32).
 BIBLIOTECA = {
@@ -106,6 +109,16 @@ def conferir():
     for nome, gpio in pinos.items():
         assert ligado(f"esp:D{gpio}", ALVO[nome]), f"{nome} (GPIO {gpio}) nao chega em {ALVO[nome]}"
         feitas += 1
+
+    assert sum(t == "wokwi-dht22" for t in tipos.values()) == 4
+    for nome in ("dht", "fundo", "porta", "centro"):
+        assert "esp:3V3" in rede[nome + ":VCC"], f"{nome} sem 3V3"
+        resistores = [rid for rid, tipo in tipos.items() if tipo == "wokwi-resistor"
+                      and diagrama["parts"][list(tipos).index(rid)]["attrs"].get("value") == "10000"]
+        assert any((f"{r}:1" in rede[nome + ":SDA"] and "esp:3V3" in rede[f"{r}:2"])
+                   or (f"{r}:2" in rede[nome + ":SDA"] and "esp:3V3" in rede[f"{r}:1"])
+                   for r in resistores), f"{nome} sem pull-up de 10k"
+        feitas += 2
 
     # LCD no I2C padrão do ESP32 (Wire sem pinos no sketch) e no endereço do sketch.
     assert ligado("esp:D21", "lcd:SDA") and ligado("esp:D22", "lcd:SCL"), "LCD fora do I2C padrao"
