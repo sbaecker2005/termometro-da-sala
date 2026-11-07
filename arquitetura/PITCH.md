@@ -19,7 +19,7 @@ Antes de gravar: os números do impacto estão na seção 7 do `DOCUMENTO.md`. S
 
 O slide 1 fica na tela com o nome e o RM de cada integrante. Ninguém lê os RMs em voz alta.
 
-> Somos o Termômetro da Sala, e a equipe está na tela. Nas tardes quentes, a sala de aula passa do limite seguro sem ninguém medir, e a escola só reage quando alguém passa mal.
+> Nas tardes quentes, a sala de aula passa do limite seguro sem ninguém medir, e a escola só reage quando alguém passa mal. Somos o Termômetro da Sala, e a equipe está na tela.
 
 ## Fala da pessoa entrevistada (0:20 a 0:45)
 
@@ -37,7 +37,7 @@ Gravar entre 12h e 17h, com a API no ambiente `Demo`. Deixe o Wokwi publicando a
 |---|---|---|---|
 | 0:45 a 1:00 | Wokwi | O ESP32 na porta da sala, em 33 °C, com o LED vermelho e a publicação no Serial | "Este sensor fica na porta da sala. Mede o calor, acende a cor do nível mesmo sem internet e envia a leitura assinada." |
 | 1:00 a 1:10 | App, lista de salas | As salas com nível e índice, e a sala 3 em Cuidado extremo | "O professor vê as salas pelo app, sempre com a cor e o nome do nível." |
-| 1:10 a 1:35 | App, sala 3 | Nível de agora, previsão para 2 h, ação sugerida e a etiqueta DEMONSTRAÇÃO. A conta rua prevista + delta da sala, com os números que a tela mostrar: o número da rua é a saída do modelo, calculada pela API naquele instante | "A rua de agora vem de um dia quente real do INMET. O modelo treinado com dados do INMET prevê a rua daqui a 2 horas, e somamos quanto esta sala costuma passar da rua. O modelo errou em média 0,96 grau no teste, contra 1,44 de supor que nada muda. A etiqueta avisa que as leituras são de demonstração." |
+| 1:10 a 1:35 | App, sala 3 | Nível de agora, previsão para 2 h, ação sugerida e a etiqueta DEMONSTRAÇÃO. A conta rua prevista + delta da sala, com os números que a tela mostrar: o número da rua é a saída do modelo, calculada pela API naquele instante | "A rua de agora vem de um dia quente real do INMET. O modelo treinado com dados do INMET prevê a rua daqui a 2 horas, e somamos quanto esta sala costuma passar da rua. O modelo errou em média 0,91 grau no teste, contra 1,44 de supor que nada muda. A etiqueta avisa que as leituras são de demonstração." |
 | 1:35 a 1:50 | Wokwi + terminal | Subir o slider em passos de até 4 °C, esperando 10 s entre eles, até a sala virar Perigo no terminal | "A sala esquentou, e a coordenação vê isso em todas as salas ao mesmo tempo." |
 | 1:50 a 2:05 | Terminal da coordenação | Registrar a ação "tirar a turma da sala" | "Quem decide é a coordenação. A ação fica registrada, e é com esse registro que medimos o resultado." |
 | 2:05 a 2:15 | App, nova ocorrência | Descrição + foto da sala vazia, e o painel web por 2 s | "O professor registra a ocorrência com foto da sala, sem pessoas. Nenhum dado de aluno entra no sistema." |
@@ -71,7 +71,7 @@ As ressalvas ficam no slide 6: a base de 3 milhões da outra nota da Seduc, a pr
 
 ## Encerramento (3:10 a 3:30)
 
-> O Termômetro da Sala não climatiza a sala. Ele mostra o calor antes de alguém passar mal e registra o que foi feito, e esse histórico vira a prova para pedir a obra. Obrigado.
+> O Termômetro da Sala não climatiza a sala. Ele mostra o calor antes de alguém passar mal e registra o que foi feito. Esse histórico vira prova para pedir a obra. O próximo passo é o piloto de quatro semanas em uma escola, e pedimos apoio para isso. Obrigado.
 
 ## Texto dos slides
 
