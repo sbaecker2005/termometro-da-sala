@@ -80,7 +80,7 @@ Pelo Índice °C, <18 é Frio, usando como referência o mínimo interno de 18 �
 
 O modelo está em `termometro-da-sala.archimate`, o arquivo nativo do Archi (**File > Open**). O mesmo modelo está em `termometro-da-sala.xml`, no formato Open Exchange 3.1, para abrir em outra ferramenta ArchiMate (no Archi: **File > Import > Open Exchange XML Model**).
 
-O modelo tem 106 elementos, 178 relações e seis visões, todas sobre os mesmos elementos e relações. Todo elemento tem uma documentação de uma frase, que o Archi mostra na aba **Properties**.
+O modelo tem 111 elementos, 190 relações e seis visões, todas sobre os mesmos elementos e relações. Todo elemento tem uma documentação de uma frase, que o Archi mostra na aba **Properties**.
 
 | Visão no Archi | Camada da rubrica | Fase do TOGAF | Seção | Imagem |
 |---|---|---|---|---|
@@ -113,6 +113,8 @@ A visão em quatro camadas é um resumo: mostra os elementos principais de cada 
 ![Visão Motivação, exportada do Archi](visao-motivacao.png)
 
 Dois direcionadores explicam o problema: **ondas de calor** e **salas sem climatização**. A avaliação que os liga é que **ninguém mede o calor dentro da sala**. Daí sai o objetivo **"nenhuma aula em Perigo sem ação"**, sustentado por oito dos nove requisitos (R1 a R7 e R9) e pela restrição "Não acionar o ar nem guardar aluno", todos realizando o objetivo no modelo. O R8, "Sem leitura recente, não inventar o nível", realiza o princípio "Nunca inventar dado".
+
+O direcionador **"Frio no inverno em dormitórios e abrigos"** estende o uso do mesmo sensor ao frio e influencia o requisito "Alertar frio abaixo de 18 °C". O requisito **"Alertar frio abaixo de 18 °C"** pede ação sugerida e LED amarelo piscando a cada 500 ms, especializa "Mostrar nível, previsão e ação sugerida" e é realizado por "sketch.ino (firmware do ESP32)". O requisito **"Indicar precauções no mapa térmico"** pede sugestões de troca de lugar vulnerável e aviso de temperatura desigual entre sensores, especializa "Mostrar nível, previsão e ação sugerida" e é realizado por "Mapa térmico da sala".
 
 | ODS e meta | Contribuição | Ligação no modelo |
 |---|---|---|
@@ -164,7 +166,7 @@ A Fase C junta aplicação e dados. A visão mostra os processos de negócio no 
 | Terminal da coordenação | Salas, registro de ação, cadastro de sala e revogação de sensor | Windows Forms |
 | Painel web | Mural de só leitura para a TV da escola | Página estática no `wwwroot` da API |
 
-A API realiza cinco serviços de aplicação e expõe as "Rotas HTTP da API", usadas pelo app e pelo terminal:
+A API realiza seis serviços de aplicação e expõe as "Rotas HTTP da API", usadas pelo app e pelo terminal:
 
 | Serviço de aplicação | Rotas | Serve |
 |---|---|---|
@@ -173,8 +175,13 @@ A API realiza cinco serviços de aplicação e expõe as "Rotas HTTP da API", us
 | Registro de ação | `GET` e `POST /acoes` (escrita com a chave da coordenação) | Agir e Registrar |
 | Registro de ocorrência | `POST /ocorrencias`; a foto sai por `GET /ocorrencias/{id}/foto` | Registrar |
 | Cadastro de sala e revogação de sensor | `POST /ambientes` e `POST /dispositivos/{id}/revogar` (com a chave da coordenação) | Terminal da coordenação |
+| Mapa térmico da sala | `GET /ambientes/{id}/mapa` e `PUT /ambientes/{id}/mapa` (escrita com a chave da coordenação) | App do professor e terminal da coordenação |
+
+O serviço **"Mapa térmico da sala"**, realizado pela API, mostra sensores, lugares, grade interpolada de 0,5 m e precauções, serve o app e o terminal, acessa "Posições dos sensores e lugares da sala" e realiza "Indicar precauções no mapa térmico".
 
 **Dados (parte da Fase C).** No modelo, os objetos de dados são a "Leitura assinada", a "Previsão da sala" (calculada pela API a cada consulta e gravada na tabela `Previsoes`, no máximo uma por sala a cada 10 minutos, para comparar depois com o que a sala mediu), "Ambiente (sala)", "Dispositivo (sensor)", "Ocorrência", "Ação" e "Nível e ação sugerida". Os três últimos realizam os objetos de negócio "Ocorrência da sala", "Ação registrada" e "Protocolo de calor". No banco, as tabelas são `Ambientes` (salas), `Dispositivos`, `Leituras`, `LeiturasRua`, `Previsoes`, `Ocorrencias`, `Acoes` e `NiveisAcao` (`api/TermometroDaSala.Api/Dados/SalaDb.cs`). Nenhuma tabela tem campo de aluno.
+
+O objeto de dados **"Posições dos sensores e lugares da sala"** guarda dimensões da sala, posições e rótulos dos sensores e lugares com indicação de vulnerabilidade, é acessado pela API e pelo "Mapa térmico da sala" e se associa a "Dispositivo (sensor)" e "Ambiente (sala)"; seus dados ficam em `Ambientes`, `Dispositivos` e na tabela `Lugares`.
 
 **Resultado do modelo.** Dados reais do INMET (A701), treino em 2022–2023, validação em 2024 e teste em 2025. A árvore (profundidade 12, folha 24) foi a escolhida pelo menor MAE na validação. No teste, o MAE foi de 0,909 °C contra 1,442 °C da regra "daqui a 2 h igual a agora". O F1 macro dos níveis foi 0,730 contra 0,667 do baseline. Em 2025, o recall de cuidado passou de 14,6% na árvore anterior para 39,6% na revisada, contra 37,5% do baseline; a precisão da revisada foi de 52,8%, com 29 falsos negativos e 17 falsos positivos. Em 2024, o recall da revisada ainda ficou abaixo do baseline (34,0% contra 39,4%). Detalhes em `ml/README.md`.
 
