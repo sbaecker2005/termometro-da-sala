@@ -374,6 +374,91 @@ print('resíduo médio:', round(residuos.mean(), 3), '°C | 90% dos erros entre'
 - Os dados são públicos e reais (INMET). As leituras da sala no Wokwi e no modo demonstração são simuladas, e o README diz isso.
 - Próximo passo: com uma semana de leituras reais da sala (termo-higrômetro anotado pelo professor), avaliar a previsão completa da sala contra o que a sala realmente teve 2 h depois."""),
 ]
+celulas += [
+    md("""## 8. Mapa térmico da sala
+**Tudo nesta seção é simulado**, não é medição da escola. Sala 7 de 7 × 9 m,
+quatro sensores e seis lugares (dois vulneráveis, sem cadastro de pessoas).
+São 14 dias por estação, de hora em hora, seed 42: janela quente à tarde no verão
+e parede externa fria de madrugada no inverno, com variação diária e ruído de 0,2 °C.
+O índice usa a mesma fórmula acima; interpolamos temperatura e índice separadamente.
+Os lugares são estimativas derivadas dos quatro sensores, não novas observações.
+
+IDW usa potência 2 e grade de 0,5 m, preserva o valor sobre o sensor e ignora leituras
+ausentes. Em uso, selecionar só a última leitura por sensor com até 15 minutos.
+A média da sala é a média dos quatro sensores. As funções abaixo também estão em `mapa.py`;
+ficam incluídas para executar este notebook sozinho."""),
+    code(Path(__file__).with_name('mapa.py').read_text(encoding='utf-8')),
+    code("""simulados = simular(indice_calor_c)
+(PASTA / 'dados').mkdir(parents=True, exist_ok=True)
+simulados.to_csv(PASTA / 'dados/sala7-simulada.csv', index=False)
+print(len(simulados), 'registros simulados; sensores e lugares estimados')
+display(simulados.groupby(['estacao', 'tipo']).size().rename('registros'))
+grupos, silhuetas = agrupar(simulados)
+display(silhuetas)
+display(grupos)
+grupos.to_csv(PASTA / 'grupos-pontos.csv', index=False)
+silhuetas.to_csv(PASTA / 'silhuetas-pontos.csv', index=False)"""),
+    md("""### Agrupamento e pontos crônicos
+K-means compara perfis médios de 24 horas em °C, sem padronizar para preservar
+diferenças de temperatura. Escolhemos k de 2 a 4 pela maior silhueta, por estação.
+Crônico quente/frio significa desvio positivo/negativo em **todas as leituras individuais**
+da estação; qualquer inversão de sinal ou igualdade torna o ponto variável. Os lugares interpolados
+compartilham informação dos sensores e não são amostras independentes."""),
+    code("""for estacao, hora in [('verao', 15), ('inverno', 4)]:
+    retrato = simulados[(simulados.estacao == estacao) & (simulados.dia == 12) & (simulados.hora == hora)]
+    sensores = retrato[retrato.tipo == 'sensor'].to_dict('records')
+    superficie = grade(sensores)
+    pontos = retrato.merge(grupos, on=['estacao', 'nome'])
+    fig, ax = plt.subplots(figsize=(7, 7))
+    imagem = ax.pcolormesh(superficie.x.unique(), superficie.y.unique(),
+                           superficie.indice.to_numpy().reshape(19, 15), cmap='coolwarm', shading='auto')
+    fig.colorbar(imagem, ax=ax, label='índice estimado (°C)')
+    for grupo, parte in pontos.groupby('grupo'):
+        ax.scatter(parte.x, parte.y, c=parte.nivel.map(CORES), marker=['o', 's', '^', 'D'][grupo],
+                   s=110, edgecolors='black', label=f'grupo {grupo + 1}')
+    for p in pontos.to_dict('records'):
+        ax.annotate(p['nome'], (p['x'], p['y']), xytext=(4, 5), textcoords='offset points', fontsize=8)
+    for faixa, cor in CORES.items():
+        ax.scatter([], [], color=cor, label=faixa)
+    ax.set(xlim=(-.4, 7.8), ylim=(-.4, 9.7), xlabel='x (m)', ylabel='y (m)',
+           title=f'Sala 7 — SIMULADO — {estacao}, dia 12, {hora}h')
+    ax.set_aspect('equal'); ax.legend(loc='upper left', fontsize=8)
+    plt.tight_layout(); plt.show()
+    print(estacao, precaucoes(retrato.to_dict('records')))"""),
+    md("""### Previsão por ponto (+2 h)
+Reutilizamos a árvore de `modelo.json`, congelada. Uma regressão linear aprende
+o resíduo da árvore com os oito atributos originais e `desvio_ponto` (índice do
+ponto menos média dos sensores no mesmo instante). A correção fica em
+`modelo_pontos.json`, que contém a árvore base e seus coeficientes, sem substituir
+o arquivo original. Este formato separado ainda precisa de um consumidor próprio.
+Treino nos dias 1–10 de cada estação; teste nos dias 11–14, sem alvo atravessando
+a fronteira. Parâmetros fixos, sem escolher modelo no teste.
+Comparamos MAE, RMSE, R² e F1 macro com persistência e com a árvore original,
+também somando apenas o desvio atual. O teste é simulado e não valida uso real."""),
+    code("""modelo_pontos, metricas_pontos, paridade_pontos = treinar_pontos(simulados, exportado)
+exportar_modelo(modelo_pontos, PASTA / 'modelo_pontos.json')
+metricas_pontos.to_csv(PASTA / 'metricas-pontos.csv', index=False)
+print(modelo_pontos['divisao'])
+display(metricas_pontos)
+recarregado = json.loads((PASTA / 'modelo_pontos.json').read_text(encoding='utf-8'))
+erro_json = max(abs(prever_json(recarregado, r) - r['previsto'])
+                for r in paridade_pontos.to_dict('records'))
+assert erro_json < 1e-9, erro_json
+print('Diferença máxima JSON x regressão:', erro_json)
+ganho = (metricas_pontos.set_index('modelo').loc['persistencia', 'MAE'] -
+         metricas_pontos.set_index('modelo').loc['modelo_pontos', 'MAE'])
+print('Redução de MAE contra persistência (negativo = pior):', ganho)"""),
+    md("""### Precauções e limites
+Lugar vulnerável abaixo de 18 °C ou a partir de 32 °C recebe sugestão de troca
+para o lugar com índice mais próximo de [18, 27) °C, somente se houver melhora.
+Sem alternativa melhor, procurar outro ambiente. Diferença de pelo menos 4 °C
+entre pontos (sensores e lugares) gera aviso de ambiente desigual, indicando extremos calculados.
+Não estimamos ocupação nem identificamos moradores/alunos. A interpolação não
+modela paredes, obstáculos, radiação solar ou circulação de ar. Quatro sensores
+não validam todos os lugares: precisamos de mais sensores reais, calibrados e
+posicionados em diferentes alturas, e dados reais em outras épocas para avaliar
+os grupos, a previsão e as precauções. Nenhum resultado simulado comprova segurança."""),
+]
 nb = nbf.v4.new_notebook(cells=celulas, metadata={'kernelspec': {'name': 'python3', 'display_name': 'Python 3', 'language': 'python'}})
 nbf.write(nb, Path(__file__).with_name('termometro_da_sala.ipynb'))
 print('notebook gerado')

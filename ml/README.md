@@ -98,6 +98,20 @@ O aviso com 2 h de antecedência apoia a coordenação ao hidratar, ventilar ou 
 
 ## Como rodar
 
+O estudo **Mapa térmico da sala** está na seção 8 do mesmo notebook. Usa somente
+dados simulados da Sala 7 (14 dias por estação), IDW, agrupamento por perfil horário,
+previsão por ponto e precauções. O código compartilhado está em `mapa.py`, o caso
+calculado à mão em `caso-idw.json` e os testes em `test_mapa.py`.
+Os resultados e limites estão em [MAPA-TERMICO-ML.md](../docs/MAPA-TERMICO-ML.md).
+`modelo_pontos.json` guarda a árvore original congelada e uma correção linear;
+seu formato separado não substitui o `modelo.json` consumido pela aplicação.
+O notebook exporta `dados/sala7-simulada.csv`, `grupos-pontos.csv`,
+`silhuetas-pontos.csv` e `metricas-pontos.csv` para reproduzir a análise.
+
+```powershell
+python -m pytest ml -o cache_dir=ml/.pytest_cache
+```
+
 **Regressão offline**, a partir da raiz, no ambiente Python 3.11 já usado pelo notebook:
 
 ```powershell
