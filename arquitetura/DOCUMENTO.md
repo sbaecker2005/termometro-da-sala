@@ -9,7 +9,7 @@ Equipe: Samuel Baecker - RM [preencher]
 | Campo | Conteúdo |
 |---|---|
 | Nome da CitizenTech | Termômetro da Sala |
-| Cidade e bairro | São Paulo, [bairro da escola entrevistada] |
+| Cidade e bairro | São Paulo; escola do piloto a definir (a entrevista foi no CRAS Santo Amaro) |
 | Cidadão beneficiado | Professor(a) e turma de uma sala sem climatização. Quem opera o sistema é a coordenação pedagógica |
 | Problema, em uma frase | Nas tardes quentes, a sala passa do limite seguro sem que ninguém meça, e a escola só reage quando alguém passa mal |
 | Como funciona | Um sensor na porta da sala mede o calor e acende verde, amarelo ou vermelho. O sistema prevê o nível da sala para daqui a 2 h. A coordenação vê todas as salas, decide e registra a ação tomada. O professor acompanha pelo app e registra ocorrências com foto |
@@ -259,7 +259,7 @@ Com a base de 3 milhões da notícia de 20/12/2024, a mesma conta dá 2.877.263,
 
 **Turmas**, só com a premissa B: 3.500.000 ÷ 35 = **100.000 turmas**. A mesma parcela dá cerca de 95.900 turmas sem climatização. Contar 67.468 salas × 35 deixaria de fora quem estuda noutro turno.
 
-**O piloto:** uma escola com [nº de salas da escola entrevistada] salas × 35 alunos × [nº de turnos] = [alunos por dia na escola].
+**O piloto:** a escola do piloto ainda está a definir. O dimensionamento (salas × 35 alunos × turnos) é feito com ela; até lá, os números de escola deste documento vêm das fontes públicas da seção 7.
 
 Esta seção estima quantas pessoas estão expostas ao problema, e não quantas seriam protegidas. A redução real só pode ser medida num piloto, pelo indicador "aulas em Perigo sem ação".
 

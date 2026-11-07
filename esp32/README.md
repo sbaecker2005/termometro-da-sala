@@ -7,7 +7,7 @@ O mesmo sensor avisa calor no verão (escolas) e frio no inverno (dormitórios e
 | Campo | Conteúdo |
 |---|---|
 | Nome da CitizenTech | Termômetro da Sala |
-| Cidade e bairro | São Paulo, [bairro da escola entrevistada] |
+| Cidade e bairro | São Paulo; escola do piloto a definir (a entrevista foi no CRAS Santo Amaro) |
 | Cidadão beneficiado | Professor(a) e turma de uma sala sem climatização. Quem opera o sistema é a coordenação pedagógica |
 | Problema, em uma frase | Nas tardes quentes, a sala passa do limite seguro sem que ninguém meça, e a escola só reage quando alguém passa mal |
 | Como funciona | Quatro sensores no mesmo ESP32 medem janela, fundo, porta e centro; LCD e LEDs avisam localmente. A coordenacao acompanha o mapa, decide e registra a acao; o professor acompanha pelo app |

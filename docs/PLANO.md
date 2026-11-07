@@ -46,7 +46,7 @@ A p. 20 diz que a ficha responde às seis perguntas do briefing. A coluna da dir
 | Campo (p. 20) | Conteúdo | Pergunta |
 |---|---|---|
 | Nome da CitizenTech | Termômetro da Sala | |
-| Cidade e bairro | São Paulo, [bairro da escola entrevistada]. É uma escola estadual ou municipal do bairro de vocês ou do caminho até a FIAP, preenchida depois da conversa | |
+| Cidade e bairro | São Paulo; escola do piloto a definir. A conversa foi no CRAS Santo Amaro, com a coordenadora | |
 | Cidadão beneficiado | Professor(a) e turma de uma sala sem climatização. Quem opera o sistema é a coordenação pedagógica | 1 |
 | Problema, em uma frase | Nas tardes quentes, a sala passa do limite seguro sem que ninguém meça, e a escola só reage quando alguém passa mal | 2 |
 | Como funciona | Um sensor na porta da sala mede o calor e acende verde, amarelo ou vermelho. O sistema prevê o nível da sala para daqui a 2 h. A coordenação vê todas as salas, decide e registra a ação tomada (pausa para água, troca de sala, mudança na Educação Física). O professor acompanha pelo app e registra ocorrências com foto | 3 |
