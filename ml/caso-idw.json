@@ -1,0 +1,13 @@
+{
+ "sensores": [
+  {"nome": "A", "x": 0, "y": 0, "temperatura_c": 20},
+  {"nome": "B", "x": 2, "y": 0, "temperatura_c": 28},
+  {"nome": "sem leitura", "x": 1, "y": 0, "temperatura_c": null}
+ ],
+ "casos": [
+  {"x": 0, "y": 0, "esperado": 20},
+  {"x": 1, "y": 0, "esperado": 24},
+  {"x": 0.5, "y": 0, "esperado": 20.8}
+ ],
+ "calculo": "Em x=0.5: pesos 1/0.5²=4 e 1/1.5²=4/9; (20*4+28*4/9)/(4+4/9)=20.8"
+}
