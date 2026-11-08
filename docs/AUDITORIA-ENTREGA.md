@@ -2,6 +2,8 @@
 
 Conferência de 08/11/2026 sobre os arquivos desta pasta. Prazo final: **19/11/2026, 23h55** (`ENTREGA.md:3`); preparação concluída até **18/11** é a meta interna (`docs/PLANO.md:204`). Não há aprovação da entrega completa: faltam identificação da equipe, vídeos, publicação do circuito, evidências da VM e arquivos finais de envio.
 
+Atualização documental de 08/11: as incoerências locais abaixo foram reconciliadas em [RECONCILIACAO-08-11.md](RECONCILIACAO-08-11.md), com referências antes/depois. Este texto preserva o diagnóstico anterior às correções; resultados atuais informados pelo coordenador: API 85/0, desktop 18/0, app 20/0 e TypeScript sem erros. Ensaios e evidências externas continuam pendentes.
+
 ## Escopo e qualidade da prova
 
 Única escrita desta auditoria: este documento. Foram lidos plano, entrega, contrato, roteiros, código compartilhado, clientes, testes, exemplos, migrações, modelos e evidências locais. Nenhum código, chamador, teste, fixture, configuração ou exportação foi alterado. Não houve acesso à rede, instalação, comandos de versionamento nem leitura de arquivos de ambiente ou credenciais privadas. Nenhum banco foi aberto ou modificado.

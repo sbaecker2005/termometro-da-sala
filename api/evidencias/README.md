@@ -16,34 +16,18 @@ O EventLog é desabilitado somente durante a coleta; os logs do console ficam em
 Leituras, ações, ocorrências e fotos aceitas permanecem no banco/pasta local; a revogação da sala 01
 é restaurada ao estado ativo anterior. Nenhum banco é apagado; uma sala 05 preexistente interrompe a coleta.
 
-Coleta de 07/11/2026, às 08:51: interrompida em B1 por falha de criptografia no cliente SQL.
-Erro real: "The instance of SQL Server you attempted to connect to requires encryption but this machine does not support it."
-O [registro de B1](saidas/B1.txt) contém o erro completo. Nenhuma migração foi comprovada nesta rodada.
-B2, B3 e as chamadas HTTP não foram executadas; suas saídas e status abaixo são históricos.
-O [resumo desta tentativa](saidas/conferencia.tsv) contém somente B1: 0 OK e 1 DIVERGE.
-Na segunda tentativa de 07/11, o build passou (0 avisos, 0 erros) e a biblioteca nativa
-`Microsoft.Data.SqlClient.SNI.dll` estava presente para Windows x64. A factory do EF usa
-`ConnectionStrings__Sala` sobre o appsettings (teste `FactoryUsaConnectionStringDoAmbiente`).
-Com `Encrypt=False` somente no coletor local, B1 passou a falhar com
-"Failed to generate SSPI context." A conexão direta pelo cliente do Windows também falhou
-na autenticação, inclusive por memória compartilhada. A coleta parou antes de B2 e das chamadas.
-As saídas anteriores foram preservadas, incluindo B1 e o resumo: antes e depois,
-0 OK e 1 DIVERGE. O B1 vinculado acima registra a primeira tentativa, não a segunda.
-Falta autenticação Windows funcional no SQL Server nesta sessão para concluir a coleta;
-os status históricos não comprovam o frio nem o mapa no banco local.
-Telas, IIS/HTTPS, ESP32, MQTT e revisão visual da foto real continuam com o coordenador.
+Os relatos anteriores de falha de criptografia (08h51) e SSPI em 07/11 não descrevem as saídas atualmente vinculadas. B1, de 07/11 às 10h02, registra banco já atualizado; B2, do mesmo horário, lista as cinco migrações. `saidas/conferencia.tsv` contém 97 verificações OK e zero DIVERGE. São registros de coleta automática local, não testes unitários, prova de execução manual no Insomnia ou evidências da VM. Não é necessária recaptura só por causa do índice antigo; conferir visualmente os prints e repetir no laboratório os cenários exigidos. A disponibilidade atual de SQL/autenticação não foi testada nesta reconciliação.
 
-**Pendente: recapturar evidências antigas com SQL Server disponível**, após aplicar
-`AlertaFrio`: B1 e B2 devem comprovar as cinco migrações desta versão (incluindo `MapaTermico`);
-B3 e 24 devem comprovar as cinco faixas.
-As saídas históricas abaixo não comprovam a migração de frio aplicada no banco.
+Resultados de 08/11/2026 (~04h40), informados pelo coordenador nesta pasta: API 85 aprovados/0 falhas; desktop 18/0; app 20/0; `tsc --noEmit` do app sem erros. Não reexecutados nesta reconciliação.
+
+Telas, IIS/HTTPS, ESP32, MQTT e revisão visual da foto real continuam com o coordenador. B3 e a resposta 24 registram cinco faixas, incluindo Frio; B2 registra também MapaTermico.
 
 ## Saídas geradas por comando
 
 | Arquivo | Comando (a partir de `api/`) | O que mostra |
 |---|---|---|
-| [dotnet-test.txt](dotnet-test.txt) | `dotnet test api/TermometroDaSala.sln` e `dotnet test desktop/TermometroDaSala.Desktop.sln` | 81 testes da API e 9 do desktop aprovados em 07/11/2026, incluindo o alerta de frio e o mapa térmico |
-| [migracoes-idempotente.sql](migracoes-idempotente.sql) | `dotnet ef migrations script --idempotent --project TermometroDaSala.Api -o evidencias/migracoes-idempotente.sql` | SQL das 4 migrações, incluindo `AlertaFrio`. Em `CREATE TABLE [Leituras]`, só a FK para `Ambientes` tem `ON DELETE CASCADE`; a FK para `Dispositivos` fica sem ação |
+| [dotnet-test.txt](dotnet-test.txt) | `dotnet test api/TermometroDaSala.sln` e `dotnet test desktop/TermometroDaSala.Desktop.sln` | Resumo atual informado: 85 testes da API e 18 do desktop aprovados em 08/11/2026, zero falhas; registro histórico de 07/11 preservado abaixo da nota |
+| [migracoes-idempotente.sql](migracoes-idempotente.sql) | `dotnet ef migrations script --idempotent --project TermometroDaSala.Api -o evidencias/migracoes-idempotente.sql` | SQL histórico das 4 primeiras migrações, incluindo `AlertaFrio`; a quinta (`MapaTermico`) está em `mapa-termico-idempotente.sql` e no diretório de migrações. Em `CREATE TABLE [Leituras]`, só a FK para `Ambientes` tem `ON DELETE CASCADE`; a FK para `Dispositivos` fica sem ação |
 
 `dotnet ef migrations has-pending-model-changes --project TermometroDaSala.Api` responde
 "No changes have been made to the model since the last migration.": o modelo e as
@@ -99,8 +83,8 @@ A numeração é a dos nomes na coleção. A aba de testes de cada requisição 
 | 30 | Mais de 30 escritas em um minuto | 429 | [saida](saidas/30-limite.txt) - OK |
 | 31 | Cabeçalhos de qualquer resposta (aba Headers) | `X-Content-Type-Options: nosniff`; no IIS com HTTPS, também `Strict-Transport-Security` | [saida](saidas/31-resposta.txt) - OK |
 
-Os itens 26 a 29 aguardam nova coleta: o antigo `00-resposta.txt` sobrescreveu pedidos sem chave
-e não comprova o mapa. O Demo prepara com POST (201), sem devolver o mapa; cada GET (200)
+Os itens 26 a 29 têm saídas com `Conferencia: OK`, confirmadas em `saidas/conferencia.tsv`;
+restam a conferência visual e os ensaios de laboratório. O Demo prepara com POST (201), sem devolver o mapa; cada GET (200)
 é registrado antes de preparar o período seguinte. O PUT substitui a configuração do mapa
 da sala-01; o Demo substitui as leituras simuladas da Sala 7. Use o banco de demonstração.
 Limite e cabeçalhos passaram de 26/27 para 30/31 para não sobrescrever as evidências do mapa.

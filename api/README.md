@@ -39,10 +39,10 @@ A API e o painel sobem em `http://localhost:5080`. O painel é a raiz (`/`). Swa
 Modo demonstração (a rota `/demo/semear` só existe nesse ambiente; fora dele responde 404):
 
 ```bash
-ASPNETCORE_ENVIRONMENT=Demo dotnet run --project TermometroDaSala.Api --launch-profile http
+ASPNETCORE_ENVIRONMENT=Demo dotnet run --project TermometroDaSala.Api --no-launch-profile --urls http://localhost:5080
 ```
 
-No PowerShell: `$env:ASPNETCORE_ENVIRONMENT="Demo"`.
+No PowerShell: `$env:ASPNETCORE_ENVIRONMENT="Demo"; dotnet run --project TermometroDaSala.Api --no-launch-profile --urls http://localhost:5080`. Execute em `api/`, como os comandos acima.
 
 O assinante MQTT conecta em `broker.hivemq.com:1883`, tópico `fiap-gs/termometro-da-sala/leituras` (configurável em `Mqtt`). Para desligar: `Mqtt__Desligado=true`. Mensagem acima de 1024 bytes é descartada antes de ler o JSON (uma leitura assinada tem cerca de 250 bytes).
 
@@ -249,6 +249,7 @@ use `Banco__Migrar=false`.
 | 2 | `20261105033613_Enums` | Mantém os valores textuais dos enums e reduz as colunas ao tamanho deles: Tipo (4), FaceSol (5), Nivel/NivelPrevisto (7) e Origem (11). Como `NiveisAcao.Nivel` é chave primária, a migração solta a PK, altera a coluna e recria a PK (o SQL Server não altera coluna de PK). Não remove tabelas nem linhas |
 | 3 | `20261105050515_SegredosPorDispositivo` | Troca o segredo de demonstração das salas 01, 02 e 04 para um por dispositivo. A sala 03 mantém o vetor público do contrato |
 | 4 | `20261107033211_AlertaFrio` | Acrescenta Frio e sua ação; Normal passa a começar em 18 °C. As faixas e ações de calor permanecem iguais |
+| 5 | `20261107091447_MapaTermico` | Acrescenta dimensões, posições/rótulos dos sensores e a tabela `Lugares`, sem apagar leituras |
 
 Exclusão em cascata: apagar um ambiente apaga seus dispositivos, leituras, previsões,
 ocorrências e ações; a API apaga também os arquivos de foto das ocorrências. A FK `Leituras -> Dispositivos` é `NO ACTION` (`Restrict` no EF):
@@ -338,7 +339,7 @@ pessoais ou credenciais.
 dotnet test
 ```
 
-São 81 testes xUnit: vetores do contrato (HMAC, índice de calor, relógio de São Paulo),
+São 85 testes xUnit (85 aprovados e zero falhas em 08/11/2026, conforme resultado informado pelo coordenador): vetores do contrato (HMAC, índice de calor, relógio de São Paulo),
 leitura do modelo de previsão (no banco e no Demo, com o mesmo valor), rotas da API (CRUD de
 salas, ocorrências, foto com chave, níveis, cabeçalhos de segurança), previsão sem rua e
 histórico, alerta da sala com delta e arredondamento nos limites 18/27/32/41 °C (frio incluído), mapa térmico (IDW, precauções e autorização do PUT),
@@ -347,5 +348,5 @@ SQLite em memória, só no projeto de testes (a API referencia apenas o provedor
 Server). Como o SQLite não ordena `DateTimeOffset`, os testes gravam as datas como ticks UTC
 (`SqliteDeTeste.cs`), e as consultas com `WHERE` e `ORDER BY` por data rodam no banco do mesmo
 jeito que no SQL Server. `EsquemaTestes` monta o modelo com o provedor do SQL Server, sem
-conectar, e confere as FKs e o script das migrações. A saída da última execução está em
+conectar, e confere as FKs e o script das migrações. O resumo atual informado e o registro histórico estão em
 [evidencias/dotnet-test.txt](evidencias/dotnet-test.txt).

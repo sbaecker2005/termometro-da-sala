@@ -47,7 +47,7 @@ Dimensões são fornecidas juntas, de 0,5 a 50 m; posições devem estar dentro 
 
 ## Demonstração
 
-Somente no ambiente `Demo`, `POST /demo/mapa?periodo=tarde` cria Sala 7 (`sala-07`), 6 × 4 m, quatro sensores e seis cadeiras, duas vulneráveis. Janela: 35 °C; demais: 24 °C; umidade 60%. `periodo=madrugada` usa fundo a 15 °C e os demais a 22 °C. São cenários explícitos, com horário atual, para permanecerem recentes e reproduzíveis em qualquer horário. Execute novamente após 15 minutos. A resposta aponta para `/ambientes/sala-07/mapa`.
+Somente no ambiente `Demo`, `POST /demo/mapa?periodo=tarde` cria Sala 7 (`sala-07`), 6 × 4 m, quatro sensores e seis cadeiras, duas vulneráveis. Janela: 35 °C; demais: 24 °C; umidade 60%. `periodo=madrugada` usa fundo a 15 °C e os demais a 22 °C. São cenários explícitos, com horário atual, para permanecerem recentes e reproduzíveis em qualquer horário. No cenário apenas simulado, execute novamente após 15 minutos. Após qualquer leitura de dispositivo na sala, a rota retorna 409: pare circuito/API e recrie somente o banco descartável do ensaio, conforme `esp32/ROTEIRO-VIDEO.md`, antes de semear novamente. A resposta aponta para `/ambientes/sala-07/mapa`.
 
 Repetir substitui somente leituras simuladas dessa sala. Não semeia automaticamente em outros ambientes de execução. Sala 7 com leitura real ou configuração de dispositivos incompatível é recusada com 409. A demonstração anterior em `/demo/semear` continua disponível.
 

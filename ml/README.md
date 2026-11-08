@@ -2,7 +2,7 @@
 
 O mesmo sensor avisa calor no verão (escolas) e frio no inverno (dormitórios e abrigos).
 
-O classificador inclui Frio abaixo de 18 °C (mínimo interno recomendado pela OMS para moradias). O notebook foi regenerado e executado por completo: 15 células de código e 37 saídas, incluindo as métricas de frio. A execução reproduziu a mesma árvore exportada; o F1 macro foi recalculado com frio entre os níveis presentes, e as métricas de calor a partir de 32 °C permanecem iguais.
+O classificador inclui Frio abaixo de 18 °C (mínimo interno recomendado pela OMS para moradias). O notebook foi regenerado e executado por completo: 19 células de código e 49 saídas, incluindo as métricas de frio. A execução reproduziu a mesma árvore exportada; o F1 macro foi recalculado com frio entre os níveis presentes, e as métricas de calor a partir de 32 °C permanecem iguais.
 
 [![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sbaecker2005/termometro-da-sala/blob/main/ml/termometro_da_sala.ipynb)
 
@@ -105,6 +105,10 @@ calculado à mão em `caso-idw.json` e os testes em `test_mapa.py`.
 Os resultados e limites estão em [MAPA-TERMICO-ML.md](../docs/MAPA-TERMICO-ML.md).
 `modelo_pontos.json` guarda a árvore original congelada e uma correção linear;
 seu formato separado não substitui o `modelo.json` consumido pela aplicação.
+O estudo por ponto estima +2 h em dados simulados e não é servido pela API.
+A API serve previsão do ambiente em +2 h e mapa em +1 h por metade da variação
+do índice do ambiente, somada à temperatura e ao índice dos sensores recentes
+(ver `docs/MAPA-TERMICO.md`); não carrega `modelo_pontos.json`.
 O notebook exporta `dados/sala7-simulada.csv`, `grupos-pontos.csv`,
 `silhuetas-pontos.csv` e `metricas-pontos.csv` para reproduzir a análise.
 
@@ -141,4 +145,4 @@ O `gerar_notebook.py` monta as células e o comando seguinte executa todas, grav
 Na execução de 07/11/2026, o Windows negou a configuração de permissões do arquivo
 de conexão do Jupyter. Foi usado o kernel em processo já instalado
 (`ipykernel.inprocess.manager.InProcessKernelManager`), com histórico em memória
-e gráficos inline, preservando os eventos de saída das 15 células na ordem.
+e gráficos inline, preservando os eventos de saída das 19 células na ordem.

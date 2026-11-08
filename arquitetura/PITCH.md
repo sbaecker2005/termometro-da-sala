@@ -31,7 +31,7 @@ Se ela não aparecer, leia o crédito e a frase, com o crédito na tela. Sem alu
 
 ## Demonstração no modo demonstração (0:45 a 2:15)
 
-> O mapa térmico mostra onde cada sensor e cada lugar ficam na planta, com temperatura, nível e precauções também em texto. No verão, ajuda a escola a observar o calor perto da janela e avaliar a mudança de lugar; no inverno, ajuda o plantão do dormitório a observar regiões frias e orientar agasalho, cobertor e verificação de correntes de ar. O desktop permite exportar o mapa, e o app permite tocar nos pontos ou consultar a lista acessível. A alternância de agora para mais uma hora também consulta o servidor, usando uma estimativa por persistência da última leitura recente de cada sensor; o aviso informa que ela não antecipa mudanças.
+> O mapa térmico mostra onde cada sensor e cada lugar ficam na planta, com temperatura, nível e precauções também em texto. No verão, ajuda a escola a observar o calor perto da janela e avaliar a mudança de lugar; no inverno, ajuda o plantão do dormitório a observar regiões frias e orientar agasalho, cobertor e verificação de correntes de ar. O desktop permite exportar o mapa, e o app permite tocar nos pontos ou consultar a lista acessível. A alternância de agora para mais uma hora também consulta o servidor, somando à temperatura e ao índice de cada sensor recente metade da variação entre a previsão do ambiente em +2 h e a média dos índices atuais. O aviso explica a aproximação; não há modelo de temperatura por ponto.
 
 Gravar entre 12h e 17h, com a API no ambiente `Demo`. Antes de cada ensaio ou tomada, pare a API e o Wokwi e recrie **somente o banco local descartável abaixo**, reservado a este roteiro. Requer LocalDB e a ferramenta EF já disponíveis (ver `api/README.md`). Em PowerShell, dentro de `api/`, execute cada comando apenas se o anterior terminar sem erro:
 
@@ -100,16 +100,16 @@ Cortes rápidos de 3 s cada, gravados antes, com o nome da disciplina na tela.
 |---|---|
 | Archi com a "Visão em quatro camadas" aberta e as visões Motivação, Negócio, Aplicação, Tecnologia e Implementação e migração na árvore do modelo (`arquitetura/termometro-da-sala.archimate`) | Arquitetura (TOGAF) |
 | Notebook do modelo com a tabela de MAE de validação e teste | Machine Learning |
-| Saída do `dotnet test` da solução da API com os 81 testes passando | SOA e Testing |
+| Saída do `dotnet test` da solução da API com os 85 testes passando | SOA e Testing |
 | Windows Server com o IIS e o pool da API | Operating Systems |
 
-> Por trás disso: o modelo ArchiMate com uma visão por camada, o notebook com dados reais do INMET, a API com 81 testes passando e o servidor Windows que publica tudo.
+> Por trás disso: o modelo ArchiMate com uma visão por camada, o notebook com dados reais do INMET, a API com 85 testes passando e o servidor Windows que publica tudo.
 
-Contagem conferida em 07/11/2026: 81 testes da API, conforme `api/evidencias/dotnet-test.txt`. Os 9 testes do desktop foram executados separadamente e não entram nessa fala.
+Resultados informados pelo coordenador em 08/11/2026: 85 testes da API e 18 do desktop aprovados, zero falhas; desktop não entra na fala da API. Registro histórico e nota atual em `api/evidencias/dotnet-test.txt`.
 
 ## Impacto (2:30 a 3:10)
 
-> A rede estadual de São Paulo: cerca de 3,5 milhões de alunos. Censo de 2024: quase 96 % das salas sem climatização; cerca de 3,36 milhões, se a proporção valer para os alunos. Na capital, de 2022 a 2025, 21 dias a 34 graus ou mais. No CRAS Santo Amaro passam no mínimo 150 pessoas por dia, sem climatização por orçamento, com calor de janeiro a março. Segundo ela, nenhuma escola ou CCA que ela saiba tem ar-condicionado. Meta em quatro semanas: zero aula em Perigo sem ação registrada, em até 15 minutos.
+> A rede estadual de São Paulo: cerca de 3,5 milhões de alunos. Censo de 2024: quase 96 % das salas sem climatização; cerca de 3,36 milhões, se a proporção valer para os alunos. Na capital, de 2022 a 2025, 21 dias a 34 graus ou mais. No CRAS Santo Amaro passam no mínimo 150 pessoas por dia, sem climatização por orçamento, com calor de janeiro a março. Segundo ela, nenhuma escola ou CCA que ela saiba tem ar-condicionado. Meta em quatro semanas: zero aula em Perigo sem ação registrada, com mediana de até 15 minutos entre alerta e ação.
 
 As ressalvas ficam no slide 6: a base de 3 milhões da outra nota da Seduc, a premissa de 35 alunos por turma e o fato de os 21 dias não serem a contagem oficial de ondas de calor do INMET.
 
@@ -163,6 +163,6 @@ No slide 8, leia só a fala acima. O indicador do piloto e onde climatizar prime
 - Precauções: ventilador, janelas, água gelada e leques
 - O histórico é a prova para pedir a manutenção
 - Alerta de frio: berçário e dormitório
-- Indicador: aulas em Perigo sem ação registrada. Meta do piloto (4 semanas): zero, com ação em até 15 min do alerta
+- Indicador: aulas em Perigo sem ação registrada. Meta do piloto (4 semanas): zero; mediana de até 15 min entre alerta e ação
 - O histórico por sala mostra onde climatizar primeiro
 - Termômetro da Sala

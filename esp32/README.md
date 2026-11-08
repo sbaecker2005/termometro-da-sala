@@ -135,8 +135,8 @@ marcados como suspeitos pela API.
 ## Limitacoes
 
 - MQTT QoS 0, sem retencao: apenas o lote mais recente dos quatro sensores
-  espera a conexao; quedas podem perder leituras. A API indica falta de leitura
-  recente depois de 15 minutos.
+  espera a conexao; quedas podem perder leituras. O desktop marca leitura antiga
+  apos 10 minutos; o mapa usa somente leituras dos ultimos 15 minutos.
 - Broker e topico publicos, sem TLS: HMAC garante integridade, sem sigilo ou
   garantia de disponibilidade. A chave publica do exemplo so serve para Demo.
   Revogar os quatro IDs com `POST /dispositivos/{id}/revogar` apos a avaliacao.

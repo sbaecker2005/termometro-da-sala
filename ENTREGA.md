@@ -37,7 +37,7 @@ Antes de enviar, abra o ZIP e confira que existem `app/assets/icon.png`, `app/ap
 |---|---:|---|
 | Estruturação do domínio | 3,0 | `api/TermometroDaSala.Api/Dominio/` |
 | Conexão com banco de dados | 3,0 | `api/TermometroDaSala.Api/Dados/SalaDb.cs`, `appsettings.json` e a seção de banco em `api/README.md` |
-| Migrações | 2,5 | `api/TermometroDaSala.Api/Dados/Migrations/` (`Inicial`, `Enums`, `SegredosPorDispositivo`) |
+| Migrações | 2,5 | `api/TermometroDaSala.Api/Dados/Migrations/` (`Inicial`, `Enums`, `SegredosPorDispositivo`, `AlertaFrio`, `MapaTermico`) |
 | Testes manuais (Insomnia) | 1,5 | `api/insomnia.json` e o roteiro em `api/README.md` |
 
 README com execução, descrição e nomes: `api/README.md`.
@@ -69,17 +69,17 @@ O briefing desta disciplina não divide a nota em pontos. O que a página 29 ped
 
 | Item | Onde |
 |---|---|
-| Lógica, validação e persistência | `desktop/TermometroDaSala.Desktop/Form1.cs`, `Servicos.cs` |
-| POO do domínio | `desktop/TermometroDaSala.Desktop/Dominio.cs` |
-| Interface Windows Forms | `Form1.cs`, `Form1.Designer.cs` e `TelaCoordenacao.cs` |
+| Lógica, validação e persistência | `desktop/TermometroDaSala.Desktop/Telas/TelaCoordenacao.cs`, `desktop/TermometroDaSala.Desktop/Servicos/` |
+| POO do domínio | `desktop/TermometroDaSala.Desktop/Dominio/` |
+| Interface Windows Forms | `desktop/TermometroDaSala.Desktop/Telas/TelaCoordenacao.cs` e `desktop/TermometroDaSala.Desktop/Telas/TelaCoordenacao.Designer.cs` |
 | README (problema, pessoa real, como rodar, tecnologias, equipe) | `desktop/README.md` |
 | Versionamento semântico, tags e changelog | `desktop/CHANGELOG.md` (`v0.1.0`) |
 | Arquivo txt com RM, nome e link | `desktop/integrantes.txt` |
 
 - [ ] Preencher RM e link em `desktop/integrantes.txt` e o RM no README
-- [ ] Fazer a entrevista e escrever nome, escola e data no README
-- [ ] Abrir o pull request da versão e criar as tags no GitHub (`v0.1.0` em diante)
-- [ ] Gravar ou printar a `TelaCoordenacao`: chave sem valor visível, cadastro/edição/exclusão de sala, ocorrências e revogação; conferir os 9 testes do desktop
+- [ ] Validar o relato de entrevista já registrado no README; confirmar fidelidade e autorização, preservando os marcadores pendentes
+- [ ] Conferir os links de PR e tags já registrados no README, a revisão e a proteção do ramo; criar somente versões ainda necessárias
+- [ ] Gravar ou printar a `TelaCoordenacao`: chave sem valor visível, cadastro/edição/exclusão de sala, ocorrências e revogação; conferir os 18 testes do desktop (18 aprovados/0 falhas em 08/11, resultado informado pelo coordenador)
 - [ ] Gerar o ZIP e conferir numa pasta limpa (comandos abaixo)
 - [ ] Enviar ZIP e txt no Teams, um integrante
 
@@ -172,7 +172,7 @@ Os campos com valor fixo vêm dos scripts e do `infra/README.md`. Os que depende
 | Vídeo (link e duração) | [preencher] |
 | Sistema e virtualização | Windows Server 2022, avaliação, Desktop Experience; versão e hipervisor: [preencher] |
 | Hostname | `SRV-TERMOMETRO` |
-| IP fixo do servidor e do cliente | [preencher] (o mesmo de `infra/EVIDENCIAS.md:8`) |
+| IP fixo do servidor e do cliente | [preencher] (o mesmo de `infra/EVIDENCIAS.md:10`) |
 | Domínio do AD | `termometro.local` (NetBIOS `TERMOMETRO`), floresta nova criada pelo `02-ad-dns.ps1` |
 | DNS | DNS integrado ao AD no próprio servidor; registro A `api.termometro.local` apontando para o servidor; zona reversa e PTR do servidor; cliente com DNS no servidor e ingressado no domínio |
 | Comandos de diagnóstico (saídas em `infra/evidencias/`) | `hostname`, `ipconfig /all`, `nslookup api.termometro.local`, `nslookup` reverso do IP, `Test-NetConnection api.termometro.local -Port 443`, `Get-ADDomain` |
@@ -183,7 +183,7 @@ Os campos com valor fixo vêm dos scripts e do `infra/README.md`. Os que depende
 | Site no IIS | `Termometro`, pasta `C:\Sites\Termometro`, bindings HTTP 80 e HTTPS 443 com host `api.termometro.local` |
 | URL da aplicação | `https://api.termometro.local/` (painel) e `https://api.termometro.local/ambientes` (lista das salas) |
 | Pool de aplicativos | `TermometroPool`: No Managed Code, `ApplicationPoolIdentity`, `AlwaysRunning`, idle timeout 0, preload e Application Initialization ligados, Rapid-Fail Protection habilitado |
-| Dependências | Hosting Bundle .NET 8 (AspNetCoreModuleV2), SQL Server Express 2022 (instância `SQLEXPRESS`, banco `Termometro`, migrações `Inicial`, `Enums` e `SegredosPorDispositivo`) |
+| Dependências | Hosting Bundle .NET 8 (AspNetCoreModuleV2), SQL Server Express 2022 (instância `SQLEXPRESS`, banco `Termometro`, migrações `Inicial`, `Enums`, `SegredosPorDispositivo`, `AlertaFrio` e `MapaTermico`) |
 | Permissões NTFS | `IIS AppPool\TermometroPool` com leitura e execução em `C:\Sites\Termometro` e Modify em `C:\Dados\Termometro\Fotos`; SYSTEM e Administrators com controle total; herança desligada; usuários da escola sem acesso às fotos |
 | Banco | Login `IIS APPPOOL\TermometroPool` só com `db_datareader` e `db_datawriter`; a migração é aplicada pelo administrador (`Banco__Migrar=false` no pool) |
 | Monitor de Desempenho | Conjunto `Termometro-Alertas`, amostra a cada 15 s, registro no log Application |
@@ -235,7 +235,7 @@ Nenhum desses quatro pode ir com o marcador de preenchimento. O `.md` não subst
 | Nome do projeto, equipe (nome e RM) e problema | 10% | abertura de `arquitetura/DOCUMENTO.md` e `arquitetura/PITCH.md` |
 | Público e estimativa de impacto, com fonte | 10% | seção 7 de `arquitetura/DOCUMENTO.md` |
 
-- [ ] Fazer a entrevista e colocar a fala no pitch e o piloto da escola na seção 7
+- [ ] Validar a entrevista e a fala já registradas no pitch; preencher a seção 7 somente quando houver dados reais do piloto
 - [ ] Preencher os RMs em `arquitetura/DOCUMENTO.md` e `arquitetura/PITCH.md`
 - [ ] Abrir o `.archimate` no Archi, conferir as seis visões e exportar os PNGs com os nomes do item 2 e `diagrama-archi.png`
 - [ ] Conferir a legibilidade da "Visão em quatro camadas" e gravar as seis visões abertas no Archi para os cortes do pitch
@@ -261,11 +261,11 @@ Get-ChildItem -Recurse -File |
 |---|---|---|
 | Todas | `README.md` e o README de cada pasta | Bairro da escola entrevistada, na ficha |
 | SOA | `api/README.md`, `api/evidencias/README.md` | RM; prints do banco (B1 a B5), do Insomnia (01 a 27) e das telas (T1 e T2) |
-| Cybersecurity | `seguranca/RELATORIO-RISCOS.md`, `seguranca/EVIDENCIAS.md`, `seguranca/evidencias/osint.txt` | RMs dos integrantes; os 15 prints, de E01 a E15; a saída e a data da busca no histórico do repositório, em `osint.txt` |
-| C# Windows Forms | `desktop/README.md`, `desktop/integrantes.txt` | RM e demais integrantes; pessoa entrevistada e relato; prints das telas; link do pull request |
+| Cybersecurity | `seguranca/RELATORIO-RISCOS.md`, `seguranca/EVIDENCIAS.md`, `seguranca/evidencias/osint.txt` | RMs dos integrantes; os 15 prints, de E01 a E15; revalidar antes da entrega a busca histórica já registrada em 05/11 em `osint.txt` |
+| C# Windows Forms | `desktop/README.md`, `desktop/integrantes.txt` | RM e demais integrantes; validar o relato já registrado e os links de PR/tags; prints das telas |
 | Machine Learning | `ml/README.md`, `ml/gerar_notebook.py`, `ml/termometro_da_sala.ipynb` e o texto da tarefa, acima | RM (gerar o notebook de novo depois); link do vídeo |
 | Mobile e IoT | `app/package.json`, `app/README.md` | RM e demais integrantes |
 | Operating Systems | `infra/README.md`, `infra/EVIDENCIAS.md` e o bloco do formulário, acima | Equipe e RMs; data do ensaio, versão do Windows, hipervisor, IP, links do repositório e do vídeo, exigência de RDS; os prints e o que cada um anota (ACL, firewall, limites restaurados, PIDs, horários, Rapid-Fail, origem dos dados) |
 | Physical Computing | `esp32/integrantes.txt`, `esp32/README.md` | Nomes completos e RMs; link do Wokwi e do vídeo; resultado de cada passo do roteiro de simulação |
-| Testing (TOGAF) e pitch | `arquitetura/DOCUMENTO.md`, `arquitetura/PITCH.md`, `arquitetura/README.md` | RMs; salas, turnos e alunos por dia da escola do piloto; fala, frase, nome, função e escola da pessoa entrevistada; demais integrantes no slide 1 |
+| Testing (TOGAF) e pitch | `arquitetura/DOCUMENTO.md`, `arquitetura/PITCH.md`, `arquitetura/README.md` | RMs; salas, turnos e alunos por dia da escola do piloto; validar a fala da entrevista já registrada; demais integrantes no slide 1 |
 | Planejamento | `docs/PLANO.md` | Bairro da escola entrevistada |

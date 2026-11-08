@@ -192,7 +192,7 @@ Copie o arquivo para a VM e não o versione: ele repete o segredo HMAC de demons
 .\05-sql.ps1 -MigrationScript $env:TEMP\termometro-migracao.sql
 ```
 
-O script separa os lotes no `GO` e aplica no banco `Termometro` com a conta da sessão, não com o pool. A saída deve listar `20261105025544_Inicial`, `20261105033613_Enums` e `20261105050515_SegredosPorDispositivo`. Pode rodar de novo: o SQL é idempotente. O banco é criado num comando e o usuário do pool em outro, já conectado ao banco `Termometro` (`ChangeDatabase`): `USE` no mesmo lote do `CREATE DATABASE` falharia com o erro 911. Sem `-MigrationScript`, o 05 só cria o banco e o login.
+O script separa os lotes no `GO` e aplica no banco `Termometro` com a conta da sessão, não com o pool. A saída deve listar `20261105025544_Inicial`, `20261105033613_Enums`, `20261105050515_SegredosPorDispositivo`, `20261107033211_AlertaFrio` e `20261107091447_MapaTermico`. Pode rodar de novo: o SQL é idempotente. O banco é criado num comando e o usuário do pool em outro, já conectado ao banco `Termometro` (`ChangeDatabase`): `USE` no mesmo lote do `CREATE DATABASE` falharia com o erro 911. Sem `-MigrationScript`, o 05 só cria o banco e o login.
 
 ## 6. GPO, RDP e auditoria
 

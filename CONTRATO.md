@@ -75,6 +75,9 @@ de demonstração, com chave própria, revogável (`Dispositivo.ativo/segredo`),
 revogá-lo após a avaliação. Na API, chave em variável de ambiente do pool IIS,
 nunca em configuração versionada. NVS no aparelho real é evolução futura.
 O broker público não dá confidencialidade nem impede inundação de mensagens.
+Exceção didática: os quatro IDs da Sala 7 compartilham o valor público de
+demonstração; o preparo do pitch também replica o valor da porta nos quatro IDs.
+Revogação é individual, mas não há isolamento dos segredos nesses cenários.
 
 ## 3. Níveis de calor
 
@@ -174,22 +177,29 @@ Só em `ASPNETCORE_ENVIRONMENT=Demo`; em Production, `/demo/semear` deve retorna
 404. O dia quente do INMET é projetado no dia atual pela hora local: 17 UTC
 do CSV → hoje às 14h em São Paulo. Gravar entre 12h e 17h.
 
-Ligar o Wokwi primeiro (DHT22 inicial 33 °C/55%). Então chamar
+No pitch, ajustar os quatro DHT22 a 33 °C/55% antes de ligar o Wokwi (o diagrama inicia janela a 35 °C/60% e demais a 24 °C/60%). Seguir o banco descartável e o cadastro da Sala 3 em `arquitetura/PITCH.md`. Então chamar
 `POST /demo/semear?ambienteId=sala-03`: sem leitura ao vivo, 409 “ligue o sensor
 primeiro”. A rota não é mensagem de dispositivo e não usa HMAC. Grava histórico
-com `origem = "simulada"` antes da primeira leitura ao vivo, ancorado nela.
+com `origem = "simulada"` antes da primeira leitura ao vivo; horários e valores usam referências distintas, descritas abaixo.
 
 `python demo/gerador.py` gera `demo/leituras-simuladas.csv`, com colunas
 `minutos_antes,temperaturaC,umidadePct`, intervalos de 10 min, de 180 até 0.
-O ponto 0 é referência de ancoragem, não outra leitura a inserir no instante ao
-vivo: inserir os 18 pontos anteriores, deslocando temperatura e umidade pela
-diferença entre o ponto 0 e a leitura ao vivo (umidade limitada a 0–100%).
-Instante de cada ponto = instante da leitura de ancoragem − minutos_antes × 60.
+O código descarta o ponto 0 e conserva somente `0 < minutos_antes <= 180`,
+ordenados do maior para o menor. A âncora dos valores é o último dessa lista
+(o menor minuto positivo: 10 no CSV atual), comparado à última leitura ao vivo
+do ambiente. Insere os 18 pontos com esse deslocamento, limitando temperatura
+a −10–60 °C e umidade a 0–100%. O horário usa a primeira leitura ao vivo:
+instante do ponto = primeira leitura ao vivo − minutos_antes × 60.
+Limite conhecido: valor e horário usam leituras ao vivo distintas quando há mais
+de uma; a curva não é ancorada no ponto zero nem prevê individualmente cada sensor.
+As simuladas são atribuídas ao primeiro dispositivo encontrado no ambiente.
 A curva usa face oeste/andar 2, atraso de 1 h e ruído com semente 2026; não usa
 delta. `gerar(face, andar)` pode ser reutilizado no notebook; não serve para
 treinar o modelo da rua. São hipóteses sintéticas, sem calibração real.
 
-Subir o slider 33 → 37 → 41 °C, esperando uma publicação (10 s) a cada passo.
+No pitch, subir os quatro de 33 para 37 °C/55% e parar: já é Perigo. No Physical,
+seguir 24 → 29 → 33 → 37 °C e as umidades de `esp32/ROTEIRO-VIDEO.md`.
+Esperar uma publicação (10 s) entre passos e conferir a aceitação pela API.
 Para evidenciar plausibilidade, salto de 12 °C vira “suspeita” quando essa regra
 estiver habilitada. Enquanto houver leitura simulada na janela, app e desktop
 exibem “DEMONSTRAÇÃO”. Wokwi, histórico semeado e ocorrências da gravação são
@@ -211,7 +221,7 @@ Production, HTTPS com `Strict-Transport-Security`.
 | `DELETE /ambientes/{id}` | sim | 204, levando junto dispositivos, ocorrências (e as fotos delas no disco), ações e previsões da sala; 409 `ambiente-com-leituras` (o histórico não se apaga); 404 |
 | `GET /ambientes/{id}/ocorrencias` | não | 200 com `[{"id","ambienteId","descricao","criadaEm"}]`, da mais recente à mais antiga, sem a foto; 404 sala inexistente |
 | `GET /ocorrencias/{id}/foto` | sim | 200 `image/jpeg`; 401 sem chave; 404. A foto pode mostrar pessoas, então só a coordenação abre |
-| `GET /niveis` | não | 200 com as 4 faixas da tabela `NiveisAcao`: `nivel`, `nome`, `indiceMin`, `acaoSugerida` (seção 3) |
+| `GET /niveis` | não | 200 com as 5 faixas (Frio, Normal, Atenção, Cuidado extremo e Perigo) da tabela `NiveisAcao`: `nivel`, `nome`, `indiceMin`, `acaoSugerida` (seção 3) |
 | `POST /acoes` | sim | 201 com `Location: /acoes?dia=AAAA-MM-DD` (dia de São Paulo); 400 `nivel` ou `descricao`; 404 |
 
 O app do professor lista as ocorrências da sala e não abre fotos; o desktop da

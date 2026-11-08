@@ -2,7 +2,7 @@
 
 Nenhuma evidência foi coletada por este roteiro. Use somente dados simulados; recorte senhas, chaves, tokens e detalhes privados. Guarde prints em `infra/evidencias/` quando existirem; não crie prints vazios. Registre resultado real, inclusive falhas. Datas dos logs IIS são UTC.
 
-As saídas de comando de E01 a E12 saem prontas do `10-coletar-evidencias.ps1` (README, passo 10), um arquivo por item em `infra/evidencias/AAAA-MM-DD/`. Em cada "Print/saída" abaixo, coloque o link desse arquivo e o print de tela que o comando não cobre.
+As saídas de comando de E01 a E12 saem prontas do `10-coletar-evidencias.ps1` (README, passo 10), um arquivo por item em `infra/evidencias/AAAA-MM-DD/`. Em cada "Print/saída" abaixo, coloque o link desse arquivo e o print de tela que o comando não cobre. E13 exige prova própria do funcionamento completo; os TXT de E01 a E12 não a substituem.
 
 Equipe/RMs: [preencher]  
 Data/fuso do ensaio: [preencher]  
@@ -98,7 +98,7 @@ WHERE u.name = N'IIS APPPOOL\TermometroPool';
 SELECT MigrationId FROM __EFMigrationsHistory ORDER BY MigrationId;
 ```
 
-Esperado: ONLINE, login/usuário do pool, reader/writer sem db_owner, e as migrações `20261105025544_Inicial`, `20261105033613_Enums`, `20261105050515_SegredosPorDispositivo`. Print/saída: [colar].
+Esperado: ONLINE, login/usuário do pool, reader/writer sem db_owner, e as migrações `20261105025544_Inicial`, `20261105033613_Enums`, `20261105050515_SegredosPorDispositivo`, `20261107033211_AlertaFrio`, `20261107091447_MapaTermico`. Print/saída: [colar].
 
 ## E07 — GPO, RDP e auditoria (1 ponto com E12)
 
