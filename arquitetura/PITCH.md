@@ -33,18 +33,62 @@ Se ela não aparecer, leia o crédito e a frase, com o crédito na tela. Sem alu
 
 > O mapa térmico mostra onde cada sensor e cada lugar ficam na planta, com temperatura, nível e precauções também em texto. No verão, ajuda a escola a observar o calor perto da janela e avaliar a mudança de lugar; no inverno, ajuda o plantão do dormitório a observar regiões frias e orientar agasalho, cobertor e verificação de correntes de ar. O desktop permite exportar o mapa, e o app permite tocar nos pontos ou consultar a lista acessível. A alternância de agora para mais uma hora também consulta o servidor, usando uma estimativa por persistência da última leitura recente de cada sensor; o aviso informa que ela não antecipa mudanças.
 
-Gravar entre 12h e 17h, com a API no ambiente `Demo`. Deixe o Wokwi publicando antes de começar e rode `POST /demo/semear?ambienteId=sala-03`. A foto da ocorrência é gravada antes e entra cortada.
+Gravar entre 12h e 17h, com a API no ambiente `Demo`. Antes de cada ensaio ou tomada, pare a API e o Wokwi e recrie **somente o banco local descartável abaixo**, reservado a este roteiro. Requer LocalDB e a ferramenta EF já disponíveis (ver `api/README.md`). Em PowerShell, dentro de `api/`, execute cada comando apenas se o anterior terminar sem erro:
+
+```powershell
+$env:ConnectionStrings__Sala='Server=(localdb)\MSSQLLocalDB;Database=TermometroRoteiroPitch;Integrated Security=True;TrustServerCertificate=True'
+$env:ASPNETCORE_ENVIRONMENT='Demo'
+$env:Mqtt__Desligado='false'
+dotnet ef database drop --force --project TermometroDaSala.Api
+dotnet ef database update --project TermometroDaSala.Api
+dotnet run --project TermometroDaSala.Api --no-launch-profile --urls http://localhost:5080
+```
+
+O `drop` apaga todo o histórico desse banco de demonstração; não substitua a conexão pela de um banco com dados a preservar. O perfil `http` não é usado porque fixa Development.
+
+O circuito atual de `esp32/README.md:36` usa quatro dispositivos na Sala 7; não publica na Sala 3 sem esta preparação específica. Após cada reset, as migrações recriam a Sala 3 e `esp32-sala-03` (usado aqui como porta), mas não configuram a planta. Com o Wokwi ainda parado, execute o SQL abaixo em um editor SQL já disponível, conectado a `(localdb)\MSSQLLocalDB`. Ele cadastra os outros três pontos apenas no banco descartável do pitch, reutilizando internamente o valor público de demonstração do dispositivo existente, sem exibi-lo, e configura uma planta fictícia de 6 × 4 m com seis cadeiras, nas mesmas posições do exemplo da Sala 7:
+
+```sql
+USE [TermometroRoteiroPitch];
+INSERT INTO Dispositivos (Id, AmbienteId, Segredo, Ativo)
+SELECT ponto.Id, 'sala-03', porta.Segredo, 1
+FROM Dispositivos AS porta
+CROSS JOIN (VALUES ('esp32-sala-03-janela'), ('esp32-sala-03-fundo'), ('esp32-sala-03-centro')) AS ponto(Id)
+WHERE porta.Id = 'esp32-sala-03' AND porta.AmbienteId = 'sala-03';
+UPDATE Ambientes SET LarguraM = 6, ProfundidadeM = 4 WHERE Id = 'sala-03';
+UPDATE d SET Rotulo = p.Rotulo, PosX = p.X, PosY = p.Y
+FROM Dispositivos AS d
+JOIN (VALUES ('esp32-sala-03-janela', 'janela', 0, 2),
+             ('esp32-sala-03-fundo', 'fundo', 6, 4),
+             ('esp32-sala-03', 'porta', 6, 0),
+             ('esp32-sala-03-centro', 'centro', 3, 2)) AS p(Id, Rotulo, X, Y)
+ON d.Id = p.Id
+WHERE d.AmbienteId = 'sala-03';
+INSERT INTO Lugares (AmbienteId, Nome, X, Y, Vulneravel)
+VALUES ('sala-03', 'Cadeira 1', 0, 2, 1), ('sala-03', 'Cadeira 2', 3, 2, 0),
+       ('sala-03', 'Cadeira 3', 6, 2, 0), ('sala-03', 'Cadeira 4', 0, 4, 0),
+       ('sala-03', 'Cadeira 5', 3, 4, 0), ('sala-03', 'Cadeira 6', 6, 4, 1);
+SELECT Id, Ativo, Rotulo, PosX, PosY FROM Dispositivos WHERE AmbienteId = 'sala-03' ORDER BY Id;
+SELECT LarguraM, ProfundidadeM FROM Ambientes WHERE Id = 'sala-03';
+SELECT Nome, X, Y, Vulneravel FROM Lugares WHERE AmbienteId = 'sala-03' ORDER BY Nome;
+```
+
+Esperado: três dispositivos inseridos, quatro IDs ativos com rótulos e coordenadas acima, dimensões 6 × 4 m e seis cadeiras, com 1 e 6 vulneráveis. Confira também `Invoke-RestMethod 'http://localhost:5080/ambientes/sala-03/mapa' | ConvertTo-Json -Depth 6`: `larguraM=6`, `profundidadeM=4` e dez `pontos` (quatro sensores e seis lugares) nas posições cadastradas; sem leituras, `semLeitura` deve ser verdadeiro. Se não conferir, não ligue o circuito. Não repetir os INSERTs sem reset. `POST /ambientes` não cadastra sensores e `PUT /ambientes/{id}/mapa` só configura sensores existentes; não substituem esse cadastro. `/demo/semear` só grava leituras e não configura a planta.
+
+No projeto Wokwi reservado ao pitch, mantenha `sketch.ino`, `diagram.json` e `libraries.txt` atuais. Configure localmente `secrets.h`: `AMBIENTE_ID` como `sala-03`, `DISPOSITIVO` como `esp32-pitch-sala-03` (identificador da conexão MQTT) e os quatro itens de `DISPOSITIVOS`, na ordem janela, fundo, porta, centro, como `esp32-sala-03-janela`, `esp32-sala-03-fundo`, `esp32-sala-03`, `esp32-sala-03-centro`. Para `SEGREDO`, use somente o valor público do vetor de demonstração da Sala 3 em `CONTRATO.md`, que corresponde ao cadastro restaurado pelas migrações; o exemplo atualizado da Sala 7 usa outro valor. Não exiba esse arquivo na gravação.
+
+Antes da primeira publicação, ajuste **os quatro DHT22 para 33 °C / 55 %**; não deixe os valores iniciais do diagrama. Com a API pronta, inicie o Wokwi, aguarde NTP e as quatro publicações. Noutra janela, consulte `Invoke-RestMethod 'http://localhost:5080/ambientes/sala-03/leituras'` e confirme os quatro IDs com `origem` igual a `dispositivo`, 33 °C / 55 % e `suspeita` falsa: o Serial sozinho não prova aceitação. Só então rode `Invoke-RestMethod -Method Post "http://localhost:5080/demo/semear?ambienteId=sala-03"` (201; sem leitura de dispositivo nessa sala, 409). Não execute `/demo/mapa` neste preparo: ele cadastra a Sala 7. A foto da ocorrência é gravada antes e entra cortada.
 
 | Tempo | Tela | O que mostrar | Fala |
 |---|---|---|---|
 | 0:45 a 1:00 | Wokwi | O ESP32 na porta da sala, em 33 °C, com o LED vermelho e a publicação no Serial | "Este sensor fica na porta da sala. Mede o calor, acende a cor do nível mesmo sem internet e envia a leitura assinada." |
 | 1:00 a 1:10 | App, lista de salas | As salas com nível e índice, e a sala 3 em Cuidado extremo | "O professor vê as salas pelo app, sempre com a cor e o nome do nível." |
 | 1:10 a 1:35 | App, sala 3 | Nível de agora, previsão para 2 h, ação sugerida e a etiqueta DEMONSTRAÇÃO. A conta rua prevista + delta da sala, com os números que a tela mostrar: o número da rua é a saída do modelo, calculada pela API naquele instante | "A rua de agora vem de um dia quente real do INMET. O modelo treinado com dados do INMET prevê a rua daqui a 2 horas, e somamos quanto esta sala costuma passar da rua. O modelo errou em média 0,909 grau no teste de 2025, contra 1,442 de supor que nada muda. A etiqueta avisa que as leituras são de demonstração." |
-| 1:35 a 1:50 | Wokwi + terminal | Subir o slider em passos de até 4 °C, esperando 10 s entre eles, até a sala virar Perigo no terminal | "A sala esquentou, e a coordenação vê isso em todas as salas ao mesmo tempo." |
-| 1:50 a 2:05 | Terminal da coordenação | Registrar a ação "tirar a turma da sala" | "Quem decide é a coordenação. A ação fica registrada, e é com esse registro que medimos o resultado." |
-| 2:05 a 2:15 | App, nova ocorrência | Descrição + foto da sala vazia, e o painel web por 2 s | "O professor registra a ocorrência com foto da sala, sem pessoas. Nenhum dado de aluno entra no sistema." |
+| 1:35 a 1:50 | Wokwi + desktop da coordenação | Subir os quatro DHT22 de 33 para 37 °C, mantendo 55 % de umidade, e esperar as quatro publicações (cerca de 10 s); usar Atualizar no desktop para mostrar Perigo | "A sala esquentou, e a coordenação vê isso em todas as salas ao mesmo tempo." |
+| 1:50 a 2:05 | Desktop da coordenação | Registrar a ação "tirar a turma da sala" | "Quem decide é a coordenação. A ação fica registrada, e é com esse registro que medimos o resultado." |
+| 2:05 a 2:15 | App, nova ocorrência | Descrição + foto da sala vazia, e o painel web por 2 s, já atualizado antes do corte (mural só de leitura, atualização a cada 30 s) | "O professor registra a ocorrência com foto da sala, sem pessoas. Nenhum dado de aluno entra no sistema." |
 
-Com 55 % de umidade, a sala já vira Perigo no passo de 37 °C. Nesse caso, pare o slider ali. Arrastar 12 °C de uma vez gera uma leitura suspeita e atrapalha a cena.
+Com 55 % de umidade, a sala já vira Perigo no passo de 37 °C. Nesse caso, pare os quatro sliders ali. Mantenha os quatro pontos iguais neste ensaio: a lista de salas usa a última leitura da sala, que pode vir de qualquer um deles. Arrastar 12 °C de uma vez gera uma leitura suspeita e atrapalha a cena.
 
 A fala da sala 3 não cita a conta: ela depende da hora da gravação. Os números da tela são os que valem, e o slide 5 traz o exemplo 34 + 4 = 38. `ml/ROTEIRO-VIDEO.md` não tem tabela por hora: leia a rua prevista na tela.
 

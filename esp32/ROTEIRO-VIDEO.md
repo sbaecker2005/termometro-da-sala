@@ -4,7 +4,18 @@ Meta: **3 min 30 s** (o limite é 4 min; a folga evita perder ponto por estouro)
 
 ## Antes de gravar
 
-1. API em ambiente Demo, com o assinante MQTT ligado (sem `Mqtt__Desligado`) e o banco migrado: `dotnet run --project TermometroDaSala.Api --launch-profile http` dentro de `api/` (ver `api/README.md`). Antes de ligar o circuito: `Invoke-RestMethod -Method Post "http://localhost:5080/demo/mapa?periodo=tarde"`. Não repetir o POST depois que o circuito publicar (409).
+1. API em ambiente Demo, com o assinante MQTT ligado e o banco migrado. Antes de cada ensaio ou tomada, pare a API e o Wokwi e recrie **somente o banco local descartável abaixo**, reservado a este roteiro. Requer LocalDB e a ferramenta EF já disponíveis (ver `api/README.md`). Em PowerShell, dentro de `api/`, execute cada comando apenas se o anterior terminar sem erro:
+
+   ```powershell
+   $env:ConnectionStrings__Sala='Server=(localdb)\MSSQLLocalDB;Database=TermometroRoteiroEsp32;Integrated Security=True;TrustServerCertificate=True'
+   $env:ASPNETCORE_ENVIRONMENT='Demo'
+   $env:Mqtt__Desligado='false'
+   dotnet ef database drop --force --project TermometroDaSala.Api
+   dotnet ef database update --project TermometroDaSala.Api
+   dotnet run --project TermometroDaSala.Api --no-launch-profile --urls http://localhost:5080
+   ```
+
+   O `drop` apaga todo o histórico desse banco de demonstração; não substitua a conexão pela de um banco com dados a preservar. O perfil `http` não é usado porque fixa Development. Com a API pronta, noutra janela e antes de ligar o circuito: `Invoke-RestMethod -Method Post "http://localhost:5080/demo/mapa?periodo=tarde"` (201). Não repetir o POST depois que o circuito publicar (409).
 2. Wokwi e Serial (115200) lado a lado. Noutra janela, `http://localhost:5080/ambientes/sala-07/mapa` e `http://localhost:5080/ambientes/sala-07/leituras`.
 3. Passagem antes da tomada: os quatro DHT22 em **24 °C / 40 %** até as quatro linhas “Leitura publicada”, simulação parada. O diagrama abre a janela em 35 °C / 60 % e os outros três em 24 °C / 60 %. A API marca como suspeita um salto acima de 5 °C; sem essa passagem a janela sai de 35 °C para 24 °C. No play, pôr de novo os quatro em 24 °C / 40 % antes da primeira linha de temperatura. Se a janela publicar 35 °C, parar e repetir a passagem.
 4. Simulação parada, janela com Wokwi e Serial lado a lado.
