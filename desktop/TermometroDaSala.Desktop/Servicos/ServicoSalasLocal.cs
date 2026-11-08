@@ -57,6 +57,12 @@ public sealed class ServicoSalasLocal(string arquivo) : IServicoSalas
 
     public Task<List<Sala>> Listar() => Task.FromResult(Ler().Salas);
 
+    public Task<Mapa?> ObterMapa(string id, bool futuro)
+    {
+        if (!Ler().Salas.Any(s => s.Id == id)) throw new ArgumentException("Sala não encontrada.");
+        return Task.FromResult<Mapa?>(Mapa.Demonstracao(id, futuro));
+    }
+
     // Fora da demonstração, o modo local não tem sensor nem modelo: não inventa previsão.
     public Task<Previsao?> Prever(string id) => Task.FromResult(
         Ler().Salas.Any(s => s.Id == id && s.Demonstracao) ? DadosDemonstracao.Prever(id, DateTimeOffset.UtcNow) : null);

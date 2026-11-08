@@ -28,7 +28,13 @@ public class LugarEntrada
 
 public sealed record CelulaMapa(double X, double Y, double? TemperaturaC, double? IndiceCalor, string? Nivel);
 public sealed record PontoMapa(string Id, string Rotulo, string Tipo, double X, double Y, bool Vulneravel,
-    double? TemperaturaC, double? IndiceCalor, string? Nivel, double? DesvioC, bool SemLeitura);
+    double? TemperaturaC, double? IndiceCalor, string? Nivel, double? DesvioC, bool SemLeitura)
+{
+    public IReadOnlyList<string> Precaucoes { get; init; } = [];
+}
 public sealed record MapaSaida(string AmbienteId, double? LarguraM, double? ProfundidadeM, double PassoM,
     IReadOnlyList<CelulaMapa> Grade, IReadOnlyList<PontoMapa> Pontos, IReadOnlyList<string> Precaucoes,
-    DateTimeOffset? LeituraMaisAntigaEm);
+    DateTimeOffset? LeituraMaisAntigaEm)
+{
+    public DateTimeOffset? PrevistoPara { get; init; }
+}

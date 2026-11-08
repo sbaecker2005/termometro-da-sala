@@ -7,10 +7,26 @@ namespace TermometroDaSala.Api.Servicos;
 
 public static class MapaTermico
 {
-    public static MapaSaida Montar(Ambiente sala, IEnumerable<Leitura> leituras, DateTimeOffset agora)
+    public static MapaSaida Montar(Ambiente sala, IEnumerable<Leitura> leituras, DateTimeOffset agora, bool futuro = false, PrevisaoSaida? previsao = null)
     {
-        var recentes = leituras.Where(l => l.MedidoEm >= agora.AddMinutes(-15) && l.MedidoEm <= agora)
+        var recentes = leituras.Where(l => sala.Dispositivos.Any(d => d.Id == l.DispositivoId) && l.MedidoEm >= agora.AddMinutes(-15) && l.MedidoEm <= agora)
             .GroupBy(l => l.DispositivoId).ToDictionary(g => g.Key, g => g.OrderByDescending(l => l.MedidoEm).ThenByDescending(l => l.Id).First());
+        if (futuro)
+        {
+            if (previsao?.IndiceSalaPrevisto is not double previsto || recentes.Count == 0)
+                recentes.Clear();
+            else
+            {
+                // shortcut: interpola linearmente até +2 h e aproxima a variação térmica pela do índice; trocar quando houver previsão de temperatura por ponto.
+                var deslocamento = (previsto - recentes.Values.Average(l => l.IndiceCalor)) / 2;
+                recentes = recentes.ToDictionary(p => p.Key, p => new Leitura
+                {
+                    TemperaturaC = p.Value.TemperaturaC + deslocamento,
+                    IndiceCalor = p.Value.IndiceCalor + deslocamento,
+                    MedidoEm = p.Value.MedidoEm
+                });
+            }
+        }
         var sensores = sala.Dispositivos.OrderBy(d => d.Id).ToList();
         var fontes = sensores.Where(d => recentes.ContainsKey(d.Id)).ToList();
         var media = fontes.Count == 0 ? (double?)null : fontes.Average(d => recentes[d.Id].TemperaturaC);
@@ -34,9 +50,9 @@ public static class MapaTermico
         }
 
         var grade = new List<CelulaMapa>();
-        for (double y = 0; y <= (sala.ProfundidadeM ?? 0); y += 0.5)
-            for (double x = 0; x <= (sala.LarguraM ?? 0); x += 0.5)
-                grade.Add(Estimar(x, y));
+        for (var y = 0; y <= Math.Ceiling((sala.ProfundidadeM ?? 0) / 0.5); y++)
+            for (var x = 0; x <= Math.Ceiling((sala.LarguraM ?? 0) / 0.5); x++)
+                grade.Add(Estimar(Math.Min(x * 0.5, sala.LarguraM ?? 0), Math.Min(y * 0.5, sala.ProfundidadeM ?? 0)));
 
         var pontos = new List<PontoMapa>();
         foreach (var d in sensores)
@@ -54,18 +70,22 @@ public static class MapaTermico
                 lugar.Vulneravel, c.TemperaturaC, c.IndiceCalor, c.Nivel, c.TemperaturaC - media, c.TemperaturaC is null));
         }
         var horarios = fontes.Select(d => recentes[d.Id].MedidoEm).ToList();
-        return new(sala.Id, sala.LarguraM, sala.ProfundidadeM, 0.5, grade, pontos, Precaucoes(pontos),
-            horarios.Count == 0 ? null : horarios.Min());
+        var precaucoes = Precaucoes(pontos).ToList();
+        pontos = pontos.Select(p => p with { Precaucoes = Precaucoes(pontos, p) }).ToList();
+        if (futuro) precaucoes.Insert(0, fontes.Count == 0 ? "Previsão do ambiente indisponível para os pontos; sem valores futuros."
+            : "Previsão do ambiente aplicada aos pontos: +1 h estimada pela metade da variação do índice prevista para +2 h, somada à temperatura e ao índice de cada sensor; aproximação sem modelo de temperatura por ponto.");
+        return new(sala.Id, sala.LarguraM, sala.ProfundidadeM, 0.5, grade, pontos, precaucoes,
+            horarios.Count == 0 ? null : horarios.Min()) { PrevistoPara = futuro ? agora.AddHours(1) : null };
     }
 
-    public static IReadOnlyList<string> Precaucoes(IReadOnlyList<PontoMapa> pontos)
+    public static IReadOnlyList<string> Precaucoes(IReadOnlyList<PontoMapa> pontos, PontoMapa? ponto = null)
     {
         var textos = new List<string>();
         var lugares = pontos.Where(p => p.Tipo == "lugar" && !p.SemLeitura).ToList();
         static double DistanciaNormal(PontoMapa p) => p.IndiceCalor < 18 ? 18 - p.IndiceCalor.Value
             : p.IndiceCalor >= 27 ? p.IndiceCalor.Value - 27 : 0;
         static string Numero(double? v) => v!.Value.ToString("0.0", CultureInfo.InvariantCulture);
-        foreach (var p in lugares.Where(p => p.Vulneravel && p.Nivel is "frio" or "cuidado" or "perigo"))
+        foreach (var p in lugares.Where(p => (ponto is null || p == ponto) && p.Vulneravel && p.Nivel is "frio" or "cuidado" or "perigo"))
         {
             var destino = lugares.Where(q => q != p && DistanciaNormal(q) < DistanciaNormal(p))
                 .OrderBy(q => q.Nivel == "normal" ? 0 : 1).ThenBy(DistanciaNormal)
@@ -75,7 +95,8 @@ public static class MapaTermico
                 : $"trocar {p.Rotulo} para {destino.Rotulo} ({Numero(p.IndiceCalor)} → {Numero(destino.IndiceCalor)} °C de índice)");
         }
         var medidos = pontos.Where(p => p.Tipo == "sensor" && !p.SemLeitura).OrderBy(p => p.TemperaturaC).ToList();
-        if (medidos.Count > 1 && medidos[^1].TemperaturaC - medidos[0].TemperaturaC >= 4)
+        if (medidos.Count > 1 && medidos[^1].TemperaturaC - medidos[0].TemperaturaC >= 4
+            && (ponto is null || ponto == medidos[0] || ponto == medidos[^1]))
             textos.Add($"ambiente desigual: verificar janela, sol e corrente de ar perto de {medidos[0].Rotulo} e {medidos[^1].Rotulo} ({Numero(medidos[0].TemperaturaC)} a {Numero(medidos[^1].TemperaturaC)} °C)");
         return textos;
     }

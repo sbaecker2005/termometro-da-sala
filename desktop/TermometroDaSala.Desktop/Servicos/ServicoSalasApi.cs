@@ -30,6 +30,13 @@ public sealed class ServicoSalasApi(HttpClient http) : IServicoSalas
         return salas;
     }
 
+    public async Task<Mapa?> ObterMapa(string id, bool futuro)
+    {
+        var mapa = await Obter<Mapa>($"ambientes/{Uri.EscapeDataString(id)}/mapa{(futuro ? "?futuro=true" : "")}");
+        mapa.Conferir(id);
+        return mapa;
+    }
+
     // null: a API respondeu 503 "sem-dados-para-prever" (sem rua e sem leitura válida recente da sala). 404 sai como HttpRequestException.
     public async Task<Previsao?> Prever(string id)
     {

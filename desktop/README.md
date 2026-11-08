@@ -1,5 +1,11 @@
 # Termômetro da Sala — desktop da coordenação
 
+## Mapa térmico
+
+Selecione uma sala e clique em **Mapa térmico**, ou dê dois cliques na linha. A janela mostra a planta em escala com origem no canto inferior esquerdo, grade interpolada, bolas dos sensores e lugares, legenda, textos de todos os pontos e lista de precauções ao lado. Azul é frio, verde normal, amarelo atenção e vermelho cuidado extremo/perigo; cinza é sem leitura. O diâmetro cresce com o desvio absoluto da média, limitado visualmente a 8 °C.
+
+Use **Agora / Previsão +1 h** e **Exportar PNG** para salvar a janela, incluindo legenda e precauções, nos prints da entrega. No modo local, os mapas são exemplos identificados como **DEMONSTRAÇÃO**, inclusive em salas cadastradas: não representam sensores reais. No modo API, +1 h consulta `/ambientes/{id}/mapa?futuro=true`: previsão do ambiente aplicada aos pontos, usando metade da variação do índice prevista para +2 h como deslocamento da temperatura e do índice de cada sensor. A lista de precauções explica essa aproximação, que não tem modelo de temperatura por ponto. A previsão de +2 h do ambiente continua separada.
+
 O mesmo sensor avisa calor no verão (escolas) e frio no inverno (dormitórios e abrigos).
 
 ## Ficha da CitizenTech

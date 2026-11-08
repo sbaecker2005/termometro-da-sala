@@ -236,7 +236,7 @@ public static class ValidacoesAutoteste
                         $"Legenda de {nivel.Texto()} diferente da cor da grade.");
                 }
                 var botoes = tela.Controls.Find("comandos", true).Single().Controls.Cast<Control>().Select(c => c.Text);
-                Exigir(botoes.SequenceEqual(["&Atualizar", "&Cadastrar sala", "Re&vogar sensor", "&Exportar dia (CSV)"]), "Comandos da tela mudaram.");
+                Exigir(botoes.SequenceEqual(["&Atualizar", "&Cadastrar sala", "Re&vogar sensor", "&Exportar dia (CSV)", "&Mapa térmico"]), "Comandos da tela mudaram.");
 
                 using var cadastro = new CadastroSala();
                 cadastro.Controls.Find("id", true).Single().Text = " sala-3 ";

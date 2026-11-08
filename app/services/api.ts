@@ -1,4 +1,5 @@
 import Constants from 'expo-constants';
+import { lerMapa, mapaDemonstracao, type Mapa } from '../domain/mapa';
 import { lerOcorrencias, RESPOSTA_INESPERADA, type Ocorrencia } from '../domain/ocorrencia';
 import { ehNivel, type Nivel } from '../domain/nivel';
 import { lerPrevisao, semDadosParaPrever, type Previsao } from '../domain/previsao';
@@ -178,6 +179,14 @@ async function lerJson(resposta: Response): Promise<unknown> {
   } catch {
     throw new Error(RESPOSTA_INESPERADA);
   }
+}
+
+export async function obterMapa(ambienteId: string, futuro: boolean): Promise<Mapa | null> {
+  const { apiUrl, modo } = configuracao();
+  if (modo !== 'desligado') return simular(modo, () => mapaDemonstracao(ambienteId, futuro));
+  const resposta = await buscar(`${apiUrl}/ambientes/${encodeURIComponent(ambienteId)}/mapa${futuro ? '?futuro=true' : ''}`);
+  if (!resposta.ok) throw new Error(`Não foi possível carregar o mapa (${resposta.status}).`);
+  return lerMapa(await lerJson(resposta), ambienteId);
 }
 
 export async function listarAmbientes(): Promise<Ambiente[]> {

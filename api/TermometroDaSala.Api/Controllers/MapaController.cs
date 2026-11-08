@@ -10,16 +10,16 @@ using TermometroDaSala.Api.Servicos;
 namespace TermometroDaSala.Api.Controllers;
 
 [ApiController]
-public class MapaController(SalaDb db, TimeProvider tempo) : ControllerBase
+public class MapaController(SalaDb db, TimeProvider tempo, ConsultaPrevisao previsao) : ControllerBase
 {
     [HttpGet("/ambientes/{id}/mapa")]
-    public async Task<IActionResult> Obter(string id)
+    public async Task<IActionResult> Obter(string id, [FromQuery] bool futuro = false)
     {
         var sala = await db.Ambientes.AsNoTracking().Include(a => a.Dispositivos).Include(a => a.Lugares).AsSplitQuery().SingleOrDefaultAsync(a => a.Id == id);
         if (sala is null) return NotFound();
         var agora = tempo.GetUtcNow();
         var leituras = await db.Leituras.AsNoTracking().Where(l => l.AmbienteId == id && l.MedidoEm >= agora.AddMinutes(-15) && l.MedidoEm <= agora).ToListAsync();
-        return Ok(MapaTermico.Montar(sala, leituras, agora));
+        return Ok(MapaTermico.Montar(sala, leituras, agora, futuro, futuro ? await previsao.Montar(id) : null));
     }
 
     [HttpPut("/ambientes/{id}/mapa")]
