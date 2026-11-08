@@ -5,6 +5,7 @@ public interface IServicoSalas
 {
     Task<List<Sala>> Listar();
     Task<Previsao?> Prever(string id);
+    Task<Mapa?> ObterMapa(string id, bool futuro);
     Task Cadastrar(Sala sala);
     Task Registrar(Acao acao);
     Task<List<Acao>> AcoesDoDia(DateOnly dia);

@@ -13,6 +13,10 @@ public partial class TelaCoordenacao : Form
         InitializeComponent();
         this.api = api;
         this.local = local;
+        var mapa = new Button { Text = "&Mapa térmico", AutoSize = true };
+        comandos.Controls.Add(mapa);
+        mapa.Click += (_, _) => AbrirMapa();
+        salas.CellDoubleClick += (_, e) => { if (e.RowIndex >= 0) AbrirMapa(); };
         Icon = Icone();
         nivel.DataSource = Enum.GetValues<NivelCalor>().Select(n => new { Valor = n, Texto = n.Texto() }).ToList();
         nivel.DisplayMember = "Texto";
@@ -122,6 +126,14 @@ public partial class TelaCoordenacao : Form
     }
 
     private Sala Selecionada() => salas.CurrentRow?.Tag as Sala ?? throw new ArgumentException("Selecione uma sala na grade.");
+
+    private void AbrirMapa()
+    {
+        if (servico is null || salas.CurrentRow?.Tag is not Sala sala) return;
+        var origem = servico;
+        using var tela = new TelaMapa(sala.Nome, futuro => origem.ObterMapa(sala.Id, futuro));
+        tela.ShowDialog(this);
+    }
 
     private async Task Cadastrar()
     {

@@ -1,5 +1,11 @@
 # Termômetro da Sala
 
+## Mapa térmico
+
+Abra o detalhe de uma sala para ver a planta e a grade térmica. Toque em uma bola para mostrar nome, temperatura, nível e precaução do ponto; a lista acessível abaixo oferece o mesmo conteúdo ao leitor de tela. As precauções adicionais da API aparecem em lista separada. Azul indica frio, verde normal, amarelo atenção e vermelho cuidado extremo/perigo; cinza indica sem leitura. Bolas maiores indicam maior desvio absoluto da média, limitado visualmente a 8 °C.
+
+O desenho usa views, preserva a proporção da planta e tem origem no canto inferior esquerdo. O seletor **Agora / Previsão +1 h** troca os exemplos no modo simulado, identificados como **DEMONSTRAÇÃO**. No modo API, o estado atual vem de `/ambientes/{id}/mapa` e +1 h de `/ambientes/{id}/mapa?futuro=true`: previsão do ambiente aplicada aos pontos, usando metade da variação do índice prevista para +2 h como deslocamento da temperatura e do índice de cada sensor. As precauções explicam essa aproximação, que não tem modelo de temperatura por ponto. Toque e lista usam as precauções específicas de cada ponto retornadas pela API. A previsão de +2 h do ambiente permanece separada.
+
 O mesmo sensor avisa calor no verão (escolas) e frio no inverno (dormitórios e abrigos).
 
 Global Solution 2026.2 (CitizenTech) — Engenharia de Software, 3º ano, FIAP.

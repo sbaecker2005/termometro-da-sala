@@ -4,6 +4,7 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import { apresentarNivel } from '../../domain/nivel';
 import { RUA_INDISPONIVEL, SEM_DADOS_PARA_PREVER } from '../../domain/previsao';
 import { RotuloNivel } from '../../components/RotuloNivel';
+import { MapaTermico } from '../../components/MapaTermico';
 import type { RotaParams } from '../../rotas';
 import {
   listarAmbientes,
@@ -121,6 +122,7 @@ export default function DetalheSala() {
             </View>
           )}
 
+          <MapaTermico id={sala.id} />
           <Text style={styles.secao}>Ocorrências</Text>
           {ocorrencias.length === 0 ? (
             <Text style={styles.meta}>Nenhuma ocorrência nesta sala.</Text>

@@ -97,6 +97,67 @@ public class MapaTestes
     }
 
     [Fact]
+    public void PrecaucaoDoPontoPreservaOrigemMesmoComRotulosIguais()
+    {
+        var sala = Sala();
+        sala.Lugares = [new() { Id = 1, Nome = "a", X = 0, Y = 0, Vulneravel = true },
+            new() { Id = 2, Nome = "Centro", X = 2, Y = 0 }];
+        var mapa = MapaTermico.Montar(sala, [Leitura("a", 16, 16), Leitura("b", 23, 23)], Agora);
+        var lugar = mapa.Pontos.Single(p => p.Tipo == "lugar" && p.Id == "1");
+        Assert.StartsWith("trocar a para Centro", Assert.Single(lugar.Precaucoes));
+        Assert.Contains(lugar.Precaucoes[0], mapa.Precaucoes);
+        Assert.StartsWith("ambiente desigual", Assert.Single(mapa.Pontos.Single(p => p.Tipo == "sensor" && p.Id == "a").Precaucoes));
+        Assert.Empty(mapa.Pontos.Single(p => p.Id == "2").Precaucoes);
+    }
+
+    [Fact]
+    public void PrevisaoCrescenteMudaTemperaturaNivelEGradeSemInventarSensorAusente()
+    {
+        var sala = Sala();
+        sala.Lugares = [new() { Nome = "Cadeira", X = 1, Y = 0 }];
+        var leituras = new[] { Leitura("a", 16, 16), Leitura("b", 23, 23, 16) };
+        var previsao = new PrevisaoSaida(sala.Id, Agora.AddHours(2), 30, 0, 30, "atencao", false, false, true);
+        var atual = MapaTermico.Montar(sala, leituras, Agora);
+        var futuro = MapaTermico.Montar(sala, leituras, Agora, true, previsao);
+        Assert.Null(atual.PrevistoPara);
+        Assert.Equal(Agora.AddHours(1), futuro.PrevistoPara);
+        Assert.Equal(atual.Pontos.Select(p => (p.Id, p.X, p.Y)), futuro.Pontos.Select(p => (p.Id, p.X, p.Y)));
+        Assert.Equal(16, atual.Pontos[0].TemperaturaC);
+        Assert.Equal("frio", atual.Pontos[0].Nivel);
+        Assert.All(futuro.Pontos.Where(p => !p.SemLeitura), p => { Assert.Equal(23, p.TemperaturaC); Assert.Equal(23, p.IndiceCalor); Assert.Equal("normal", p.Nivel); });
+        Assert.All(futuro.Grade, c => { Assert.Equal(23, c.TemperaturaC); Assert.Equal("normal", c.Nivel); });
+        Assert.True(futuro.Pontos.Single(p => p.Id == "b").SemLeitura);
+        Assert.Null(futuro.Pontos.Single(p => p.Id == "b").Nivel);
+        Assert.StartsWith("Previsão do ambiente aplicada aos pontos", futuro.Precaucoes[0]);
+        Assert.All(MapaTermico.Montar(sala, leituras, Agora, true).Pontos, p => Assert.True(p.SemLeitura));
+        Assert.All(MapaTermico.Montar(sala, leituras, Agora, true, previsao with { IndiceSalaPrevisto = null }).Grade,
+            c => Assert.Null(c.TemperaturaC));
+    }
+
+    [Fact]
+    public void GradeCobreBordasFracionariasSemLacunas()
+    {
+        var sala = Sala();
+        sala.LarguraM = 6.4;
+        sala.ProfundidadeM = 1.3;
+        var mapa = MapaTermico.Montar(sala, [Leitura("a", 20, 20)], Agora);
+        Assert.Equal(56, mapa.Grade.Count);
+        Assert.Single(mapa.Grade.Where(c => c.X == 6.4 && c.Y == 1.3));
+        void Coberto(IEnumerable<double> eixo, double limite)
+        {
+            double fim = 0;
+            foreach (var centro in eixo.Distinct().Order())
+            {
+                Assert.True(Math.Max(0, centro - mapa.PassoM / 2) <= fim);
+                fim = Math.Min(limite, centro + mapa.PassoM / 2);
+            }
+            Assert.Equal(limite, fim);
+        }
+        Coberto(mapa.Grade.Select(c => c.X), 6.4);
+        Coberto(mapa.Grade.Select(c => c.Y), 1.3);
+    }
+
+    [Fact]
     public async Task PutExigeChaveValidaPosicoesEPreservaDadosAoRecusar()
     {
         using var f = new ApiFabrica();
@@ -148,7 +209,15 @@ public class MapaTestes
         Assert.Equal(2, mapa.Pontos.Count(p => p.Vulneravel));
         Assert.Equal(nivel, mapa.Pontos.Single(p => p.Tipo == "sensor" && p.Rotulo == rotulo).Nivel);
         Assert.Contains(mapa.Precaucoes, p => p.StartsWith("trocar"));
+        var futuro = (await c.GetFromJsonAsync<MapaSaida>("/ambientes/sala-07/mapa?futuro=true"))!;
+        Assert.Equal(Agora.AddHours(1), futuro.PrevistoPara);
+        Assert.StartsWith("Previsão do ambiente aplicada aos pontos", futuro.Precaucoes[0]);
+        Assert.Equal(mapa.Pontos.Select(p => (p.Id, p.X, p.Y)), futuro.Pontos.Select(p => (p.Id, p.X, p.Y)));
         using var escopo = f.Services.CreateScope();
+        var previsao = await escopo.ServiceProvider.GetRequiredService<ConsultaPrevisao>().Montar("sala-07");
+        var deslocamento = (previsao!.IndiceSalaPrevisto!.Value - mapa.Pontos.Where(p => p.Tipo == "sensor").Average(p => p.IndiceCalor!.Value)) / 2;
+        foreach (var p in futuro.Pontos)
+            Assert.Equal(mapa.Pontos.Single(a => a.Tipo == p.Tipo && a.Id == p.Id).TemperaturaC!.Value + deslocamento, p.TemperaturaC!.Value, 8);
         Assert.Equal(4, escopo.ServiceProvider.GetRequiredService<SalaDb>().Leituras.Count(l => l.AmbienteId == "sala-07"));
     }
 

@@ -31,6 +31,8 @@ Se ela não aparecer, leia o crédito e a frase, com o crédito na tela. Sem alu
 
 ## Demonstração no modo demonstração (0:45 a 2:15)
 
+> O mapa térmico mostra onde cada sensor e cada lugar ficam na planta, com temperatura, nível e precauções também em texto. No verão, ajuda a escola a observar o calor perto da janela e avaliar a mudança de lugar; no inverno, ajuda o plantão do dormitório a observar regiões frias e orientar agasalho, cobertor e verificação de correntes de ar. O desktop permite exportar o mapa, e o app permite tocar nos pontos ou consultar a lista acessível. A alternância de agora para mais uma hora também consulta o servidor, usando uma estimativa por persistência da última leitura recente de cada sensor; o aviso informa que ela não antecipa mudanças.
+
 Gravar entre 12h e 17h, com a API no ambiente `Demo`. Deixe o Wokwi publicando antes de começar e rode `POST /demo/semear?ambienteId=sala-03`. A foto da ocorrência é gravada antes e entra cortada.
 
 | Tempo | Tela | O que mostrar | Fala |
