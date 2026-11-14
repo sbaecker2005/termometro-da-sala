@@ -1,4 +1,4 @@
-2026-11-07T10:02:13.2126880-03:00
+2026-11-14T18:36:10.4521510-03:00
 SQL Server Express local; autenticacao Windows; conexao: ***
 SQL: SELECT * FROM __EFMigrationsHistory ORDER BY MigrationId
 

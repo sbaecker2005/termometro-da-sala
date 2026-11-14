@@ -1,4 +1,4 @@
-2026-11-07T10:02:13.2236957-03:00
+2026-11-14T18:36:10.4716623-03:00
 SQL Server Express local; autenticacao Windows; conexao: ***
 SQL: SELECT * FROM Ambientes ORDER BY Id; SELECT Id,AmbienteId,Ativo,UltimoMedidoEm FROM Dispositivos ORDER BY Id; SELECT * FROM NiveisAcao ORDER BY IndiceMin
 
@@ -8,6 +8,32 @@ sala-01 Sala 1 sala     0 leste            True        6             4
 sala-02 Sala 2 sala     0 norte            True                       
 sala-03 Sala 3 sala     1 oeste            True                       
 sala-04 Sala 4 sala     2 sul             False                       
+sala-07 Sala 7 sala     0 leste           False        6             4
+
+
+
+
+Id                  AmbienteId Ativo UltimoMedidoEm              
+--                  ---------- ----- --------------              
+demo-sala-07-centro sala-07     True                             
+demo-sala-07-fundo  sala-07     True                             
+demo-sala-07-janela sala-07     True                             
+demo-sala-07-porta  sala-07     True                             
+esp32-sala-01       sala-01     True                             
+esp32-sala-02       sala-02     True                             
+esp32-sala-03       sala-03     True 11/14/2026 9:35:10 PM +00:00
+esp32-sala-04       sala-04     True                             
+
+
+
+
+Nivel   Nome            AcaoSugerida                                                                                                                 IndiceMin
+-----   ----            ------------                                                                                                                 ---------
+frio    Frio            Fechar janelas, agasalhar e oferecer cobertor; à noite, avisar o plantão e levar quem estiver no cômodo mais frio para outro   -273.15
+normal  Normal          nenhuma                                                                                                                             18
+atencao Atenção         liberar água, abrir janelas e ligar ventiladores                                                                                    27
+cuidado Cuidado extremo pausa, troca de sala ou adiar a Educação Física                                                                                     32
+perigo  Perigo          tirar a turma da sala                                                                                                               41
 
 
 

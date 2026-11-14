@@ -1,15 +1,15 @@
-2026-11-07T10:02:15.2791353-03:00
+2026-11-14T18:36:12.2235934-03:00
 Ambiente: Development; MQTT desligado; conexao: ***
-GET http://localhost:5080/acoes?dia=2026-11-07
+GET http://localhost:5080/acoes?dia=2026-11-14
 
 Corpo enviado: 
 Esperado: HTTP 200; 
 HTTP 200 OK
 Transfer-Encoding: chunked
 X-Content-Type-Options: nosniff
-Date: Sat, 07 Nov 2026 13:02:14 GMT
+Date: Sat, 14 Nov 2026 21:36:11 GMT
 Server: Kestrel
 Content-Type: application/json; charset=utf-8
 
-[{"id":3,"ambienteId":"sala-03","nivel":"cuidado","descricao":"pausa para água","registradoEm":"2026-11-07T13:02:15.2621551+00:00"},{"id":2,"ambienteId":"sala-03","nivel":"cuidado","descricao":"pausa para água","registradoEm":"2026-11-07T12:18:05.9178182+00:00"}]
+[{"id":5,"ambienteId":"sala-03","nivel":"cuidado","descricao":"pausa para água","registradoEm":"2026-11-14T21:36:12.2057844+00:00"},{"id":4,"ambienteId":"sala-03","nivel":"cuidado","descricao":"pausa para água","registradoEm":"2026-11-14T21:35:06.9809685+00:00"}]
 Conferencia: OK

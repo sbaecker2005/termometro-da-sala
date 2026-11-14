@@ -1,4 +1,4 @@
-2026-11-07T10:02:15.4509289-03:00
+2026-11-14T18:36:12.3899103-03:00
 Ambiente: Development; MQTT desligado; conexao: ***
 GET http://localhost:5080/ambientes/sala-03/leituras?formato=csv
 
@@ -6,9 +6,9 @@ Corpo enviado:
 Esperado: HTTP 200; text/csv
 HTTP 200 OK
 X-Content-Type-Options: nosniff
-Date: Sat, 07 Nov 2026 13:02:14 GMT
+Date: Sat, 14 Nov 2026 21:36:11 GMT
 Server: Kestrel
-Content-Length: 1838
+Content-Length: 2276
 Content-Type: text/csv; charset=utf-8
 
 medidoEm,temperaturaC,umidadePct,indiceCalor,nivel,origem,suspeita
@@ -37,5 +37,11 @@ medidoEm,temperaturaC,umidadePct,indiceCalor,nivel,origem,suspeita
 2026-11-07T12:18:09.0000000+00:00,33.4,58,39.8,cuidado,dispositivo,False
 2026-11-07T12:18:09.0000000+00:00,33.4,58,39.8,cuidado,dispositivo,False
 2026-11-07T13:02:13.0000000+00:00,33.4,58,39.8,cuidado,dispositivo,False
+2026-11-07T13:02:18.0000000+00:00,33.4,58,39.8,cuidado,dispositivo,False
+2026-11-07T13:02:18.0000000+00:00,33.4,58,39.8,cuidado,dispositivo,False
+2026-11-14T21:35:05.0000000+00:00,33.4,58,39.8,cuidado,dispositivo,False
+2026-11-14T21:35:10.0000000+00:00,33.4,58,39.8,cuidado,dispositivo,False
+2026-11-14T21:35:10.0000000+00:00,33.4,58,39.8,cuidado,dispositivo,False
+2026-11-14T21:36:11.0000000+00:00,33.4,58,39.8,cuidado,dispositivo,False
 
 Conferencia: OK

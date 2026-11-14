@@ -1,4 +1,4 @@
-Resumo da execução local em 08/11/2026, ~04h50. Windows, .NET SDK 8.0.427.
+Resumo da execução local em 14/11/2026, ~18h50 (repetida; mesmos números de 08/11). Windows, .NET SDK 8.0.427.
 Comando na raiz (API):
 dotnet test api/TermometroDaSala.sln --nologo
 Passed! - Failed: 0, Passed: 85, Skipped: 0, Total: 85 - TermometroDaSala.Api.Tests.dll (net8.0)
@@ -9,7 +9,7 @@ Passed! - Failed: 0, Passed: 18, Skipped: 0, Total: 18 - TermometroDaSala.Deskto
 
 App (na pasta app): node --experimental-strip-types --test domain/*.test.ts -> 20 testes, 20 aprovados, 0 falhas; tsc --noEmit sem erros.
 
-A coleta SQL vinculada atualmente tem 97 verificações OK e 0 DIVERGE (conferencia.tsv); não são testes unitários nem prova da VM.
+A coleta SQL de 14/11/2026, no SQL Server Express local, tem 97 verificações OK (38 principais) e 0 DIVERGE (conferencia.tsv); não são testes unitários nem prova da VM.
 
 Registro histórico preservado abaixo (não representa a suíte atual):
 Resumo da execução local em 07/11/2026. Windows, .NET SDK 8.0.427.

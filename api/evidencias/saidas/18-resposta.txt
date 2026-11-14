@@ -1,13 +1,13 @@
-2026-11-07T10:02:15.3752902-03:00
+2026-11-14T18:36:12.3202265-03:00
 Ambiente: Development; MQTT desligado; conexao: ***
-GET http://localhost:5080/ocorrencias/1d94e306-18f8-48fd-80b8-e58368a0b965/foto
+GET http://localhost:5080/ocorrencias/3cabaa1c-2e79-4957-aec1-6a230837a56e/foto
 
 Corpo enviado: 
 Esperado: HTTP 401; 
 HTTP 401 Unauthorized
 Transfer-Encoding: chunked
 X-Content-Type-Options: nosniff
-Date: Sat, 07 Nov 2026 13:02:14 GMT
+Date: Sat, 14 Nov 2026 21:36:11 GMT
 Server: Kestrel
 Content-Type: application/json; charset=utf-8
 

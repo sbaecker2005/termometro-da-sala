@@ -1,4 +1,4 @@
-#requires -Version 5.1
+﻿#requires -Version 5.1
 param([string]$Foto, [switch]$Autoverificar)
 $ErrorActionPreference = 'Stop'
 $raiz = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
@@ -53,7 +53,7 @@ function Banco([string]$id, [string]$consulta, [scriptblock]$conferir) {
     $arquivo = "$id.txt"
     try {
         $dados = Sql $consulta
-        $texto = $dados.Tables[0] | Format-Table -AutoSize | Out-String -Width 240
+        $texto = $dados.Tables | ForEach-Object { $_ | Format-Table -AutoSize | Out-String -Width 240 }
         Gravar (Join-Path $saida $arquivo) "$(Get-Date -Format o)`r`nSQL Server Express local; autenticacao Windows; conexao: ***`r`nSQL: $consulta`r`n$($texto -join "`r`n")"
         $ok = & $conferir $dados
         Resultado $id $arquivo $ok 'conteudo SQL diferente do esperado (ver resultado acima)'
@@ -274,7 +274,8 @@ try {
     }
     $estado = Banco B3 'SELECT * FROM Ambientes ORDER BY Id; SELECT Id,AmbienteId,Ativo,UltimoMedidoEm FROM Dispositivos ORDER BY Id; SELECT * FROM NiveisAcao ORDER BY IndiceMin' {
         param($d)
-        $d.Tables[0].Rows.Count -eq 4 -and $d.Tables[1].Rows.Count -eq 4 -and $d.Tables[2].Rows.Count -eq 5
+        # 5 salas e 8 dispositivos desde o mapa termico (sala-07 com quatro DHT22)
+        $d.Tables[0].Rows.Count -eq 5 -and $d.Tables[1].Rows.Count -eq 8 -and $d.Tables[2].Rows.Count -eq 5
     }
     if ($estado) {
         if (@($estado.Tables[0].Rows | Where-Object Id -eq 'sala-05').Count) { throw 'sala-05 ja existe; interrompido para nao alterar dados anteriores.' }

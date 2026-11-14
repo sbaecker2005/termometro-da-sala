@@ -1,16 +1,16 @@
-2026-11-07T10:02:19.0532771-03:00
+2026-11-14T18:36:15.8831879-03:00
 Ambiente: Demo; MQTT desligado; conexao: ***
 POST http://localhost:5080/ocorrencias
-Content-Type: multipart/form-data; boundary="934f7715-ddb5-46f4-badc-73e49d9d22c8"
+Content-Type: multipart/form-data; boundary="ae63d634-3f58-4a03-b1fd-61a931a823ba"
 
-Corpo enviado: {"descricao":"Ventilador sem funcionar","foto":"D:\\projetos\\termometro-wt-frio\\api\\evidencias\\saidas\\temporario-81a668dc284c499d9fa57729d823249e\\sala-vazia-sintetica.jpg","ambienteId":"sala-inexistente"}; foto: bytes do JPEG/arquivo indicado, sem transcricao binaria
+Corpo enviado: {"descricao":"Ventilador sem funcionar","foto":"D:\\projetos\\termometro-da-sala\\api\\evidencias\\saidas\\temporario-c1113e1c241b45dc9e4261af8469fc13\\sala-vazia-sintetica.jpg","ambienteId":"sala-inexistente"}; foto: bytes do JPEG/arquivo indicado, sem transcricao binaria
 Esperado: HTTP 404; 
 HTTP 404 Not Found
 Transfer-Encoding: chunked
 X-Content-Type-Options: nosniff
-Date: Sat, 07 Nov 2026 13:02:18 GMT
+Date: Sat, 14 Nov 2026 21:36:15 GMT
 Server: Kestrel
 Content-Type: application/problem+json; charset=utf-8
 
-{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.5","title":"Not Found","status":404,"traceId":"00-7cd04a0eb8875ab92d99d785fc49c8dc-dbfc8302a3327c93-00"}
+{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.5","title":"Not Found","status":404,"traceId":"00-51819093b6d9eda137bcbb89290baeeb-f6882bc7485aa248-00"}
 Conferencia: OK

@@ -1,4 +1,4 @@
-2026-11-07T10:02:17.3759212-03:00
+2026-11-14T18:36:14.3399515-03:00
 Ambiente: Demo; MQTT desligado; conexao: ***
 GET http://localhost:5080/
 
@@ -7,12 +7,12 @@ Esperado: HTTP 200; X-Content-Type-Options: nosniff
 HTTP 200 OK
 X-Content-Type-Options: nosniff
 Accept-Ranges: bytes
-Date: Sat, 07 Nov 2026 13:02:16 GMT
-ETag: "1dd6e680b867345"
+Date: Sat, 14 Nov 2026 21:36:13 GMT
+ETag: "1dd6eb3e6b7f945"
 Server: Kestrel
 Content-Length: 3909
 Content-Type: text/html
-Last-Modified: Sat, 07 Nov 2026 03:28:24 GMT
+Last-Modified: Sat, 07 Nov 2026 12:31:24 GMT
 
 <!DOCTYPE html>
 <html lang="pt-BR">
