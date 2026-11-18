@@ -302,7 +302,7 @@ partial class TelaCoordenacao
         //
         // colunaPrevisto
         //
-        this.colunaPrevisto.HeaderText = "Nível previsto (+2 h)";
+        this.colunaPrevisto.HeaderText = "Nível previsto";
         this.colunaPrevisto.Name = "colunaPrevisto";
         this.colunaPrevisto.ReadOnly = true;
         //

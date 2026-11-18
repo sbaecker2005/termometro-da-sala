@@ -1,6 +1,6 @@
-2026-11-14T18:36:17.4899526-03:00
+2026-11-07T10:02:21.2426682-03:00
 Base informada: main 47a92d3; worktree gs/evidencias; sem alterar codigo da API.
-Windows Microsoft Windows NT 10.0.26200.0; PowerShell 5.1.26100.9818; SDK 8.0.427
+Windows Microsoft Windows NT 10.0.26200.0; PowerShell 5.1.26100.9711; SDK 8.0.427
 Development e Demo em HTTP local; SQL Server 2022 Express; MQTT desligado.
 C7/C8 (VM), C12 (TLS MQTT) nao comprovados localmente.
 

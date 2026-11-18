@@ -4,7 +4,7 @@ namespace TermometroDaSala.Api.Contratos;
 
 public class AmbienteEntrada
 {
-    [Required, RegularExpression(@"^sala-\d{2}$")]
+    [Required, RegularExpression(@"\Asala-[0-9]{2}\z")]
     public string Id { get; set; } = "";
     [Required, StringLength(80)]
     public string Nome { get; set; } = "";

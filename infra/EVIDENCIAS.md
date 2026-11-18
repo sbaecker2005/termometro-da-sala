@@ -4,7 +4,7 @@ Nenhuma evidência foi coletada por este roteiro. Use somente dados simulados; r
 
 As saídas de comando de E01 a E12 saem prontas do `10-coletar-evidencias.ps1` (README, passo 10), um arquivo por item em `infra/evidencias/AAAA-MM-DD/`. Em cada "Print/saída" abaixo, coloque o link desse arquivo e o print de tela que o comando não cobre. E13 exige prova própria do funcionamento completo; os TXT de E01 a E12 não a substituem.
 
-Equipe/RMs: [preencher]  
+Equipe/RMs: Samuel David Baecker - RM 559269; Lucas de Almeida Villar - RM 560005; Guilherme Augusto Caseiro - RM 559765  
 Data/fuso do ensaio: [preencher]  
 Versão Windows/avaliação e hipervisor: [preencher]  
 IP do servidor/cliente: [preencher]  

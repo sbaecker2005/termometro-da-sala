@@ -1,0 +1,46 @@
+[
+  {
+    "AmbienteId": "sala-08",
+    "PrevistoPara": "2026-11-17T18:19:30+00:00",
+    "IndiceRuaPrevisto": 31,
+    "DeltaSala": 4,
+    "IndiceSalaPrevisto": 35,
+    "NivelPrevisto": "cuidado",
+    "SemLeiturasRecentes": false,
+    "Demonstracao": true,
+    "RuaDisponivel": true
+  },
+  {
+    "AmbienteId": "sala-09",
+    "PrevistoPara": "2026-11-17T18:19:30+00:00",
+    "IndiceRuaPrevisto": 31,
+    "DeltaSala": -4,
+    "IndiceSalaPrevisto": 27,
+    "NivelPrevisto": "atencao",
+    "SemLeiturasRecentes": false,
+    "Demonstracao": true,
+    "RuaDisponivel": true
+  },
+  {
+    "AmbienteId": "sala-10",
+    "PrevistoPara": "2026-11-17T18:19:30+00:00",
+    "IndiceRuaPrevisto": 31,
+    "DeltaSala": null,
+    "IndiceSalaPrevisto": null,
+    "NivelPrevisto": "atencao",
+    "SemLeiturasRecentes": true,
+    "Demonstracao": true,
+    "RuaDisponivel": true
+  },
+  {
+    "AmbienteId": "sala-11",
+    "PrevistoPara": "2026-11-17T18:19:30+00:00",
+    "IndiceRuaPrevisto": 31,
+    "DeltaSala": null,
+    "IndiceSalaPrevisto": null,
+    "NivelPrevisto": "atencao",
+    "SemLeiturasRecentes": true,
+    "Demonstracao": true,
+    "RuaDisponivel": true
+  }
+]

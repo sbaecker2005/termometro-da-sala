@@ -104,6 +104,7 @@ public class AmbientesController(SalaDb _db, ConsultaPrevisao _previsao, IConfig
             Sala = s,
             Leitura = _db.Leituras.Where(l => l.AmbienteId == s.Id).OrderByDescending(l => l.MedidoEm).ThenByDescending(l => l.Id).FirstOrDefault(),
             DispositivoId = _db.Dispositivos.Where(d => d.AmbienteId == s.Id).OrderBy(d => d.Id).Select(d => d.Id).FirstOrDefault(),
+            SensorRevogado = _db.Dispositivos.Where(d => d.AmbienteId == s.Id).OrderBy(d => d.Id).Select(d => !d.Ativo).FirstOrDefault(),
         }).ToListAsync();
         return linhas.Select(x => new AmbienteSaida
         {
@@ -117,6 +118,7 @@ public class AmbientesController(SalaDb _db, ConsultaPrevisao _previsao, IConfig
             SemLeitura = x.Leitura is null,
             TemVentilador = x.Sala.TemVentilador,
             DispositivoId = x.DispositivoId,
+            SensorRevogado = x.SensorRevogado,
         }).ToList();
     }
 }

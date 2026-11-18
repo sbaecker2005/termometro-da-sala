@@ -792,7 +792,8 @@
 
              },
     "_type":  "request",
-    "_id":  "req_mapa_get"
+    "_id":  "req_mapa_get",
+    "afterResponseScript": "insomnia.test('Mapa consultado: 200 e pontos presentes', () => {\n  insomnia.expect(insomnia.response.code).to.equal(200);\n  insomnia.expect(insomnia.response.json().pontos.length).to.be.greaterThan(0);\n});"
 },
 {
     "headers":  [
@@ -815,7 +816,8 @@
                  "text":  "{\"larguraM\":6,\"profundidadeM\":4,\"sensores\":[{\"id\":\"esp32-sala-01\",\"posX\":0,\"posY\":2,\"rotulo\":\"janela\"}],\"lugares\":[{\"nome\":\"Cadeira 1\",\"x\":1,\"y\":2,\"vulneravel\":true}]}"
              },
     "_type":  "request",
-    "_id":  "req_mapa_put"
+    "_id":  "req_mapa_put",
+    "afterResponseScript": "insomnia.test('Mapa configurado: 204', () => {\n  insomnia.expect(insomnia.response.code).to.equal(204);\n});"
 },
 {
     "headers":  [
@@ -830,7 +832,8 @@
 
              },
     "_type":  "request",
-    "_id":  "req_mapa_demo_tarde"
+    "_id":  "req_mapa_demo_tarde",
+    "afterResponseScript": "insomnia.test('Cena de calor: 201 e quatro sensores', () => {\n  insomnia.expect(insomnia.response.code).to.equal(201);\n  insomnia.expect(insomnia.response.json().inseridas).to.equal(4);\n});"
 },
 {
     "headers":  [
@@ -845,7 +848,8 @@
 
              },
     "_type":  "request",
-    "_id":  "req_mapa_demo_madrugada"
+    "_id":  "req_mapa_demo_madrugada",
+    "afterResponseScript": "insomnia.test('Cena de frio: 201 e quatro sensores', () => {\n  insomnia.expect(insomnia.response.code).to.equal(201);\n  insomnia.expect(insomnia.response.json().inseridas).to.equal(4);\n});"
 }
   ]
 }

@@ -15,6 +15,7 @@ import {
   type Previsao,
 } from '../../services/api';
 import { horaSaoPaulo, indiceEmGraus } from '../../services/hora';
+import { cores, ui } from '../../components/tema';
 
 function idParam(valor: string | string[] | undefined): string {
   return typeof valor === 'string' ? valor : (valor?.[0] ?? '');
@@ -59,84 +60,94 @@ export default function DetalheSala() {
   const previsto = previsao ? apresentarNivel(previsao.nivelPrevisto) : null;
 
   return (
-    <ScrollView contentContainerStyle={styles.conteudo}>
+    <ScrollView contentContainerStyle={ui.pagina}>
       <Stack.Screen options={{ title: sala?.nome ?? 'Sala' }} />
       {carregando ? (
-        <View style={styles.centro}>
-          <ActivityIndicator color="#14532D" />
-          <Text>Carregando sala</Text>
+        <View style={ui.centro}>
+          <ActivityIndicator color={cores.turquesa} />
+          <Text style={ui.texto}>Carregando sala</Text>
         </View>
       ) : erro || !sala || !agora ? (
-        <View style={styles.centro}>
-          <Text style={styles.erro}>{erro ?? 'Sala não encontrada.'}</Text>
-          <Pressable style={styles.botao} onPress={carregar} accessibilityRole="button">
-            <Text style={styles.botaoTexto}>Tentar de novo</Text>
+        <View style={ui.centro}>
+          <Text accessibilityRole="alert" style={ui.erro}>{erro ?? 'Sala não encontrada.'}</Text>
+          <Pressable style={ui.botao} onPress={carregar} accessibilityRole="button">
+            <Text style={ui.botaoTexto}>Tentar de novo</Text>
           </Pressable>
         </View>
       ) : (
         <View style={styles.bloco}>
-          <Text style={styles.meta}>
-            {sala.andar}º andar · face {sala.faceSol}
-          </Text>
-          {previsao?.demonstracao ? <Text style={styles.etiqueta}>DEMONSTRAÇÃO</Text> : null}
+          <View style={styles.abertura}>
+            <Text style={ui.legenda}>VISÃO DA SALA</Text>
+            <Text accessibilityRole="header" style={ui.titulo}>{sala.nome}</Text>
+            <Text style={ui.texto}>{sala.andar}º andar · face {sala.faceSol}</Text>
+            {previsao?.demonstracao ? <Text style={styles.etiqueta}>DEMONSTRAÇÃO</Text> : null}
+          </View>
 
           {previsao?.semLeiturasRecentes ? (
-            <View style={styles.bloco}>
-              <Text style={styles.aviso}>sala sem leituras recentes</Text>
-              <Text style={styles.secao}>Previsão da rua, daqui a 2 h</Text>
+            <View style={ui.cartao}>
+              <Text style={ui.aviso}>Histórico insuficiente para ajustar a sala</Text>
+              <Text accessibilityRole="header" style={ui.secao}>Previsão da rua</Text>
               <RotuloNivel nivel={previsao.nivelPrevisto} />
               <Text style={styles.indice}>{indiceEmGraus(previsao.indiceRuaPrevisto)}</Text>
-              <Text style={styles.meta}>{horaSaoPaulo(previsao.previstoPara)}</Text>
+              <Text style={ui.texto}>{horaSaoPaulo(previsao.previstoPara)}</Text>
             </View>
           ) : (
             <View style={styles.bloco}>
-              <Text style={styles.secao}>Agora</Text>
+              <View style={[ui.cartao, styles.termico, { borderLeftColor: sala.semLeitura ? cores.borda : agora.cor }]}>
+              <Text style={ui.legenda}>CONDIÇÃO ATUAL</Text>
+              <Text accessibilityRole="header" style={ui.secao}>Agora</Text>
               {sala.semLeitura ? (
-                <Text style={styles.aviso}>Sem leitura: o sensor desta sala ainda não enviou dados.</Text>
+                <Text style={ui.aviso}>Sem leitura: o sensor desta sala ainda não enviou dados.</Text>
               ) : (
                 <>
                   <RotuloNivel nivel={sala.nivelAtual} />
                   <Text style={styles.indice}>{indiceEmGraus(sala.indiceAtual)}</Text>
-                  <Text style={styles.meta}>Última leitura {horaSaoPaulo(sala.ultimaLeituraEm)}</Text>
+                  <Text style={styles.unidade}>ÍNDICE DE CALOR</Text>
+                  <Text style={ui.texto}>Última leitura {horaSaoPaulo(sala.ultimaLeituraEm)}</Text>
                   <Text style={styles.acao}>Ação: {agora.acao}</Text>
                 </>
               )}
-              <Text style={styles.secao}>Daqui a 2 h</Text>
+              </View>
+              <View style={ui.cartao}>
+              <Text style={ui.legenda}>PREVISÃO</Text>
+              <Text accessibilityRole="header" style={ui.secao}>Previsão da sala</Text>
               {previsao === null ? (
-                <Text style={styles.aviso}>{SEM_DADOS_PARA_PREVER}</Text>
+                <Text style={ui.aviso}>{SEM_DADOS_PARA_PREVER}</Text>
               ) : (
                 <>
-                  {previsao.ruaDisponivel ? null : <Text style={styles.aviso}>{RUA_INDISPONIVEL}</Text>}
+                  {previsao.ruaDisponivel ? null : <Text style={ui.aviso}>{RUA_INDISPONIVEL}</Text>}
                   <RotuloNivel nivel={previsao.nivelPrevisto} />
                   <Text style={styles.indice}>
                     {previsao.indiceSalaPrevisto === null ? 'Sem índice da sala' : indiceEmGraus(previsao.indiceSalaPrevisto)}
                   </Text>
                   {/* Sem a rua, indiceRuaPrevisto vem 0 e não pode ir para a tela. */}
                   {previsao.ruaDisponivel ? (
-                    <Text style={styles.meta}>Rua {indiceEmGraus(previsao.indiceRuaPrevisto)}</Text>
+                    <Text style={ui.texto}>Rua {indiceEmGraus(previsao.indiceRuaPrevisto)}</Text>
                   ) : null}
-                  <Text style={styles.meta}>{horaSaoPaulo(previsao.previstoPara)}</Text>
+                  <Text style={ui.texto}>{horaSaoPaulo(previsao.previstoPara)}</Text>
                   <Text style={styles.acao}>Ação: {previsto?.acao}</Text>
                 </>
               )}
+              </View>
             </View>
           )}
 
           <MapaTermico id={sala.id} />
-          <Text style={styles.secao}>Ocorrências</Text>
+          <View style={ui.cartao}>
+          <Text accessibilityRole="header" style={ui.secao}>Ocorrências</Text>
           {ocorrencias.length === 0 ? (
-            <Text style={styles.meta}>Nenhuma ocorrência nesta sala.</Text>
+            <Text style={ui.texto}>Nenhuma ocorrência nesta sala.</Text>
           ) : (
             ocorrencias.map((item) => (
-              <View key={item.id} style={styles.bloco}>
-                <Text style={styles.acao}>{item.descricao}</Text>
-                <Text style={styles.meta}>{horaSaoPaulo(item.criadaEm)}</Text>
+              <View key={item.id} style={styles.ocorrencia}>
+                <Text style={styles.descricao}>{item.descricao}</Text>
+                <Text style={ui.texto}>{horaSaoPaulo(item.criadaEm)}</Text>
               </View>
             ))
           )}
 
           <Pressable
-            style={styles.botao}
+            style={ui.botao}
             onPress={() =>
               router.push({
                 pathname: '/salas/[id]/ocorrencia',
@@ -145,8 +156,9 @@ export default function DetalheSala() {
             }
             accessibilityRole="button"
           >
-            <Text style={styles.botaoTexto}>Registrar ocorrência</Text>
+            <Text style={ui.botaoTexto}>Registrar ocorrência</Text>
           </Pressable>
+          </View>
         </View>
       )}
     </ScrollView>
@@ -154,18 +166,18 @@ export default function DetalheSala() {
 }
 
 const styles = StyleSheet.create({
-  conteudo: { padding: 20, gap: 8 },
-  bloco: { gap: 8 },
-  centro: { alignItems: 'center', gap: 12, paddingVertical: 32 },
-  secao: { fontSize: 18, fontWeight: '700', marginTop: 12, color: '#18181B' },
-  indice: { fontSize: 28, fontWeight: '700', color: '#18181B' },
-  meta: { color: '#3F3F46' },
-  acao: { color: '#18181B' },
-  aviso: { backgroundColor: '#FEF3C7', color: '#92400E', padding: 12, borderRadius: 8, fontWeight: '700' },
+  bloco: { gap: 20 },
+  abertura: { gap: 8 },
+  termico: { borderLeftWidth: 5 },
+  indice: { fontSize: 40, fontWeight: '800', color: cores.texto, letterSpacing: -1 },
+  unidade: { fontSize: 11, fontWeight: '700', color: cores.secundario, letterSpacing: 1 },
+  acao: { color: cores.texto, backgroundColor: cores.fundo, padding: 14, borderRadius: 10, fontSize: 16, lineHeight: 25, fontWeight: '600' },
+  ocorrencia: { borderTopWidth: 1, borderTopColor: cores.borda, paddingTop: 12, gap: 5 },
+  descricao: { color: cores.texto, fontSize: 16, lineHeight: 24 },
   etiqueta: {
     alignSelf: 'flex-start',
-    backgroundColor: '#1E3A8A',
-    color: '#fff',
+    backgroundColor: cores.turquesaClaro,
+    color: cores.turquesa,
     fontWeight: '800',
     letterSpacing: 0.5,
     paddingHorizontal: 8,
@@ -173,7 +185,4 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     overflow: 'hidden',
   },
-  erro: { color: '#B91C1C', textAlign: 'center' },
-  botao: { backgroundColor: '#14532D', borderRadius: 8, padding: 14, marginTop: 16, alignItems: 'center' },
-  botaoTexto: { color: '#fff', fontWeight: '700' },
 });

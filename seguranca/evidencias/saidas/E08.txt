@@ -1,136 +1,136 @@
-2026-11-14T18:36:17.6203091-03:00
+2026-11-07T10:02:21.3568363-03:00
 E08 - parte local; prints e demais itens do roteiro permanecem pendentes.
-Antes/depois dos uploads invalidos e faixas: Ocorrencias 5/5; Leituras 37/37
-2026-11-14T18:36:15.8601877-03:00
+Antes/depois dos uploads invalidos e faixas: Ocorrencias 3/3; Leituras 31/31
+2026-11-07T10:02:19.0287728-03:00
 Ambiente: Demo; MQTT desligado; conexao: ***
 POST http://localhost:5080/ocorrencias
-Content-Type: multipart/form-data; boundary="3eda3eee-f362-43b5-aacc-c3098e691373"
+Content-Type: multipart/form-data; boundary="1bddbcf5-999a-4cac-a3db-b085abf3d680"
 
-Corpo enviado: {"descricao":"curta","foto":"D:\\projetos\\termometro-da-sala\\api\\evidencias\\saidas\\temporario-c1113e1c241b45dc9e4261af8469fc13\\sala-vazia-sintetica.jpg","ambienteId":"sala-03"}; foto: bytes do JPEG/arquivo indicado, sem transcricao binaria
+Corpo enviado: {"descricao":"curta","foto":"D:\\projetos\\termometro-wt-frio\\api\\evidencias\\saidas\\temporario-81a668dc284c499d9fa57729d823249e\\sala-vazia-sintetica.jpg","ambienteId":"sala-03"}; foto: bytes do JPEG/arquivo indicado, sem transcricao binaria
 Esperado: HTTP 400; descricao
 HTTP 400 Bad Request
 Transfer-Encoding: chunked
 X-Content-Type-Options: nosniff
-Date: Sat, 14 Nov 2026 21:36:15 GMT
+Date: Sat, 07 Nov 2026 13:02:18 GMT
 Server: Kestrel
 Content-Type: application/json; charset=utf-8
 
 {"motivo":"descricao"}
 Conferencia: OK
 
-2026-11-14T18:36:15.8921879-03:00
+2026-11-07T10:02:19.0622772-03:00
 Ambiente: Demo; MQTT desligado; conexao: ***
 POST http://localhost:5080/leituras
 Content-Type: application/json; charset=utf-8
 
-Corpo enviado: {"ambienteId":"sala-02","dispositivo":"esp32-sala-02","temperaturaC":-11,"umidadePct":58,"medidoEm":1794692175,"assinatura":"50fa4110399f56e231ed158d080070887ae36c7b9f41bc2bc79eb89146413096"}
+Corpo enviado: {"ambienteId":"sala-02","dispositivo":"esp32-sala-02","temperaturaC":-11,"umidadePct":58,"medidoEm":1794056539,"assinatura":"2b829334b2bb4ca53abdee75826cece0bd04db0d8273d044e34bc037b4668655"}
 Esperado: HTTP 400; fora-da-faixa
 HTTP 400 Bad Request
 Transfer-Encoding: chunked
 X-Content-Type-Options: nosniff
-Date: Sat, 14 Nov 2026 21:36:15 GMT
+Date: Sat, 07 Nov 2026 13:02:18 GMT
 Server: Kestrel
 Content-Type: application/json; charset=utf-8
 
 {"motivo":"fora-da-faixa"}
 Conferencia: OK
 
-2026-11-14T18:36:15.9131902-03:00
+2026-11-07T10:02:19.0812774-03:00
 Ambiente: Demo; MQTT desligado; conexao: ***
 POST http://localhost:5080/leituras
 Content-Type: application/json; charset=utf-8
 
-Corpo enviado: {"ambienteId":"sala-02","dispositivo":"esp32-sala-02","temperaturaC":33.4,"umidadePct":-1,"medidoEm":1794692175,"assinatura":"36515c1375fc263e9ade9609cfef5aaaba7892388d077ad437653d679c65c163"}
+Corpo enviado: {"ambienteId":"sala-02","dispositivo":"esp32-sala-02","temperaturaC":33.4,"umidadePct":-1,"medidoEm":1794056539,"assinatura":"10fc2c13d9fa9faddc22f7fc1fe2753af620315943f9ff6fc52ee3796b3d0529"}
 Esperado: HTTP 400; fora-da-faixa
 HTTP 400 Bad Request
 Transfer-Encoding: chunked
 X-Content-Type-Options: nosniff
-Date: Sat, 14 Nov 2026 21:36:15 GMT
+Date: Sat, 07 Nov 2026 13:02:18 GMT
 Server: Kestrel
 Content-Type: application/json; charset=utf-8
 
 {"motivo":"fora-da-faixa"}
 Conferencia: OK
 
-2026-11-14T18:36:15.9226955-03:00
+2026-11-07T10:02:19.0932772-03:00
 Ambiente: Demo; MQTT desligado; conexao: ***
 POST http://localhost:5080/leituras
 Content-Type: application/json; charset=utf-8
 
-Corpo enviado: {"ambienteId":"sala-02","dispositivo":"esp32-sala-02","temperaturaC":33.4,"umidadePct":101,"medidoEm":1794692175,"assinatura":"63e3eeb3a7fa4baae7e1226f52b674b6e467fb770337bd0bc2384fdbdc1b09a7"}
+Corpo enviado: {"ambienteId":"sala-02","dispositivo":"esp32-sala-02","temperaturaC":33.4,"umidadePct":101,"medidoEm":1794056539,"assinatura":"42fadb72715181741e6aa2a1d576dafe92a3f6c8b5f46b13ba124630852c2428"}
 Esperado: HTTP 400; fora-da-faixa
 HTTP 400 Bad Request
 Transfer-Encoding: chunked
 X-Content-Type-Options: nosniff
-Date: Sat, 14 Nov 2026 21:36:15 GMT
+Date: Sat, 07 Nov 2026 13:02:18 GMT
 Server: Kestrel
 Content-Type: application/json; charset=utf-8
 
 {"motivo":"fora-da-faixa"}
 Conferencia: OK
 
-2026-11-14T18:36:15.9031883-03:00
+2026-11-07T10:02:19.0712773-03:00
 Ambiente: Demo; MQTT desligado; conexao: ***
 POST http://localhost:5080/leituras
 Content-Type: application/json; charset=utf-8
 
-Corpo enviado: {"ambienteId":"sala-02","dispositivo":"esp32-sala-02","temperaturaC":61,"umidadePct":58,"medidoEm":1794692175,"assinatura":"62612232b27d8b91027f389f8ca2f243530869df3112ab8e91d87f0829cce8cf"}
+Corpo enviado: {"ambienteId":"sala-02","dispositivo":"esp32-sala-02","temperaturaC":61,"umidadePct":58,"medidoEm":1794056539,"assinatura":"575b5403767136119261f4ceaf33d58d8732c49459555362d845d403bfea90e0"}
 Esperado: HTTP 400; fora-da-faixa
 HTTP 400 Bad Request
 Transfer-Encoding: chunked
 X-Content-Type-Options: nosniff
-Date: Sat, 14 Nov 2026 21:36:15 GMT
+Date: Sat, 07 Nov 2026 13:02:18 GMT
 Server: Kestrel
 Content-Type: application/json; charset=utf-8
 
 {"motivo":"fora-da-faixa"}
 Conferencia: OK
 
-2026-11-14T18:36:15.8681884-03:00
+2026-11-07T10:02:19.0372749-03:00
 Ambiente: Demo; MQTT desligado; conexao: ***
 POST http://localhost:5080/ocorrencias
-Content-Type: multipart/form-data; boundary="b8e31a3f-1092-4cba-a720-1aec9d310309"
+Content-Type: multipart/form-data; boundary="d7c5d9ea-9750-474e-950d-c4c72fc1fffa"
 
-Corpo enviado: {"descricao":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","foto":"D:\\projetos\\termometro-da-sala\\api\\evidencias\\saidas\\temporario-c1113e1c241b45dc9e4261af8469fc13\\sala-vazia-sintetica.jpg","ambienteId":"sala-03"}; foto: bytes do JPEG/arquivo indicado, sem transcricao binaria
+Corpo enviado: {"descricao":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","foto":"D:\\projetos\\termometro-wt-frio\\api\\evidencias\\saidas\\temporario-81a668dc284c499d9fa57729d823249e\\sala-vazia-sintetica.jpg","ambienteId":"sala-03"}; foto: bytes do JPEG/arquivo indicado, sem transcricao binaria
 Esperado: HTTP 400; descricao
 HTTP 400 Bad Request
 Transfer-Encoding: chunked
 X-Content-Type-Options: nosniff
-Date: Sat, 14 Nov 2026 21:36:15 GMT
+Date: Sat, 07 Nov 2026 13:02:18 GMT
 Server: Kestrel
 Content-Type: application/json; charset=utf-8
 
 {"motivo":"descricao"}
 Conferencia: OK
 
-2026-11-14T18:36:15.8831879-03:00
+2026-11-07T10:02:19.0532771-03:00
 Ambiente: Demo; MQTT desligado; conexao: ***
 POST http://localhost:5080/ocorrencias
-Content-Type: multipart/form-data; boundary="ae63d634-3f58-4a03-b1fd-61a931a823ba"
+Content-Type: multipart/form-data; boundary="934f7715-ddb5-46f4-badc-73e49d9d22c8"
 
-Corpo enviado: {"descricao":"Ventilador sem funcionar","foto":"D:\\projetos\\termometro-da-sala\\api\\evidencias\\saidas\\temporario-c1113e1c241b45dc9e4261af8469fc13\\sala-vazia-sintetica.jpg","ambienteId":"sala-inexistente"}; foto: bytes do JPEG/arquivo indicado, sem transcricao binaria
+Corpo enviado: {"descricao":"Ventilador sem funcionar","foto":"D:\\projetos\\termometro-wt-frio\\api\\evidencias\\saidas\\temporario-81a668dc284c499d9fa57729d823249e\\sala-vazia-sintetica.jpg","ambienteId":"sala-inexistente"}; foto: bytes do JPEG/arquivo indicado, sem transcricao binaria
 Esperado: HTTP 404; 
 HTTP 404 Not Found
 Transfer-Encoding: chunked
 X-Content-Type-Options: nosniff
-Date: Sat, 14 Nov 2026 21:36:15 GMT
+Date: Sat, 07 Nov 2026 13:02:18 GMT
 Server: Kestrel
 Content-Type: application/problem+json; charset=utf-8
 
-{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.5","title":"Not Found","status":404,"traceId":"00-51819093b6d9eda137bcbb89290baeeb-f6882bc7485aa248-00"}
+{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.5","title":"Not Found","status":404,"traceId":"00-7cd04a0eb8875ab92d99d785fc49c8dc-dbfc8302a3327c93-00"}
 Conferencia: OK
 
-2026-11-14T18:36:15.8761877-03:00
+2026-11-07T10:02:19.0462773-03:00
 Ambiente: Demo; MQTT desligado; conexao: ***
 POST http://localhost:5080/ocorrencias
-Content-Type: multipart/form-data; boundary="0bf268cf-aa4c-421c-9d30-7fbd6fe812c5"
+Content-Type: multipart/form-data; boundary="bb667945-fb47-47a7-ab5b-66f9e7730d5a"
 
 Corpo enviado: {"ambienteId":"sala-03","descricao":"Ventilador sem funcionar"}; foto: bytes do JPEG/arquivo indicado, sem transcricao binaria
 Esperado: HTTP 400; arquivo
 HTTP 400 Bad Request
 Transfer-Encoding: chunked
 X-Content-Type-Options: nosniff
-Date: Sat, 14 Nov 2026 21:36:15 GMT
+Date: Sat, 07 Nov 2026 13:02:18 GMT
 Server: Kestrel
 Content-Type: application/json; charset=utf-8
 

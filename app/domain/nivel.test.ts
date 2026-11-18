@@ -2,6 +2,13 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { apresentarNivel, ehNivel, nivelDeIndice } from './nivel.ts';
 
+it('aceita apenas níveis próprios do contrato, nunca propriedades herdadas', () => {
+  for (const nivel of ['frio', 'normal', 'atencao', 'cuidado', 'perigo']) assert.ok(ehNivel(nivel));
+  for (const invalido of ['toString', 'constructor', '__proto__', 'hasOwnProperty', 'desconhecido']) {
+    assert.equal(ehNivel(invalido), false, invalido);
+  }
+});
+
 describe('nivelDeIndice', () => {
   it('separa as faixas nos limites do contrato', () => {
     assert.equal(nivelDeIndice(17.9), 'frio');

@@ -1,17 +1,17 @@
-2026-11-14T18:36:12.2586060-03:00
+2026-11-07T10:02:15.3162650-03:00
 Ambiente: Development; MQTT desligado; conexao: ***
 POST http://localhost:5080/ocorrencias
-Content-Type: multipart/form-data; boundary="70f76a15-0760-4f23-9362-9620a537eedb"
+Content-Type: multipart/form-data; boundary="fa077443-3482-4515-beef-0741c8305d68"
 
-Corpo enviado: {"descricao":"Sala muito quente no fim da aula","foto":"D:\\projetos\\termometro-da-sala\\api\\evidencias\\saidas\\temporario-c1113e1c241b45dc9e4261af8469fc13\\sala-vazia-sintetica.jpg","ambienteId":"sala-03"}; foto: bytes do JPEG/arquivo indicado, sem transcricao binaria
+Corpo enviado: {"descricao":"Sala muito quente no fim da aula","foto":"D:\\projetos\\termometro-wt-frio\\api\\evidencias\\saidas\\temporario-81a668dc284c499d9fa57729d823249e\\sala-vazia-sintetica.jpg","ambienteId":"sala-03"}; foto: bytes do JPEG/arquivo indicado, sem transcricao binaria
 Esperado: HTTP 201; 
 HTTP 201 Created
 Transfer-Encoding: chunked
 X-Content-Type-Options: nosniff
-Date: Sat, 14 Nov 2026 21:36:11 GMT
-Location: /ocorrencias/3cabaa1c-2e79-4957-aec1-6a230837a56e/foto
+Date: Sat, 07 Nov 2026 13:02:14 GMT
+Location: /ocorrencias/1d94e306-18f8-48fd-80b8-e58368a0b965/foto
 Server: Kestrel
 Content-Type: application/json; charset=utf-8
 
-{"id":"3cabaa1c-2e79-4957-aec1-6a230837a56e"}
+{"id":"1d94e306-18f8-48fd-80b8-e58368a0b965"}
 Conferencia: OK

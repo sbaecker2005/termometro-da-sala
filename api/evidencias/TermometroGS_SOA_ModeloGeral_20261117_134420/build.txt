@@ -1,0 +1,9 @@
+  Determining projects to restore...
+  Restored C:\Users\samue\Downloads\kit-windows-ml-soa-csharp\api\TermometroDaSala.Api\TermometroDaSala.Api.csproj (in 181 ms).
+  TermometroDaSala.Api -> C:\Users\samue\Downloads\kit-windows-ml-soa-csharp\api\TermometroDaSala.Api\bin\Release\net8.0\TermometroDaSala.Api.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.21

@@ -23,7 +23,7 @@ const APRESENTACAO: Record<Nivel, ApresentacaoNivel> = {
 };
 
 export function ehNivel(valor: string): valor is Nivel {
-  return valor in APRESENTACAO;
+  return Object.prototype.hasOwnProperty.call(APRESENTACAO, valor);
 }
 
 // 27 entra em atenção, 32 em cuidado e 41 em perigo. O topo da faixa anterior fica de fora.

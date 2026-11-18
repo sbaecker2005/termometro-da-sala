@@ -24,19 +24,37 @@ public class DemoController(SalaDb _db, IHostEnvironment _ambiente, ILogger<Demo
         if (sala is not null && (sala.Nome != "Sala 7" || await _db.Leituras.AnyAsync(l => l.AmbienteId == sala.Id && l.Origem == Origem.dispositivo)))
             return Conflict(new MotivoSaida("ambiente-em-uso"));
         var rotulos = new[] { "janela", "fundo", "porta", "centro" };
+        var xs = new double[] { 0, 6, 6, 3 };
+        var ys = new double[] { 2, 4, 0, 2 };
+        var lugares = Enumerable.Range(0, 20).Select(i => new Lugar { Nome = $"Cadeira {i + 1:00}",
+            X = 0.75 + 1.5 * (i % 4), Y = 0.4 + 0.8 * (i / 4), Vulneravel = i is 8 or 19 }).ToList();
+        static IEnumerable<(string, double, double, bool)> Layout(IEnumerable<Lugar> pontos) =>
+            pontos.OrderBy(l => l.Nome).Select(l => (l.Nome, l.X, l.Y, l.Vulneravel));
         if (sala is null)
         {
-            sala = new Ambiente { Id = "sala-07", Nome = "Sala 7", LarguraM = 6, ProfundidadeM = 4 };
-            var xs = new double[] { 0, 6, 6, 3 };
-            var ys = new double[] { 2, 4, 0, 2 };
+            sala = new Ambiente { Id = "sala-07", Nome = "Sala 7", LarguraM = 6, ProfundidadeM = 4, Lugares = lugares };
             for (var i = 0; i < 4; i++)
                 sala.Dispositivos.Add(new Dispositivo { Id = $"demo-sala-07-{rotulos[i]}", Rotulo = rotulos[i], PosX = xs[i], PosY = ys[i], Segredo = "somente-demonstracao-sala-07" });
-            for (var i = 0; i < 6; i++)
-                sala.Lugares.Add(new Lugar { Nome = $"Cadeira {i + 1}", X = i % 3 * 3, Y = i < 3 ? 2 : 4, Vulneravel = i is 0 or 5 });
             _db.Ambientes.Add(sala);
         }
-        if (sala.Dispositivos.Count != 4 || sala.Dispositivos.Any(d => !rotulos.Contains(d.Rotulo)))
-            return Conflict(new MotivoSaida("ambiente-em-uso"));
+        else
+        {
+            if (sala.LarguraM != 6 || sala.ProfundidadeM != 4 || sala.Tipo != TipoAmbiente.sala ||
+                sala.Andar != 0 || sala.FaceSol != FaceSol.leste || sala.TemVentilador ||
+                sala.Dispositivos.Count != 4 || rotulos.Where((rotulo, i) => !sala.Dispositivos.Any(d =>
+                    d.Id == $"demo-sala-07-{rotulo}" && d.Rotulo == rotulo && d.PosX == xs[i] && d.PosY == ys[i])).Any())
+                return Conflict(new MotivoSaida("ambiente-em-uso"));
+            var antigos = Enumerable.Range(0, 6).Select(i => new Lugar { Nome = $"Cadeira {i + 1}",
+                X = i % 3 * 3, Y = i < 3 ? 2 : 4, Vulneravel = i is 0 or 5 });
+            if (Layout(sala.Lugares).SequenceEqual(Layout(antigos)))
+            {
+                // Só o arranjo original da demonstração pode ser substituído automaticamente.
+                _db.Lugares.RemoveRange(sala.Lugares);
+                sala.Lugares = lugares;
+            }
+            else if (!Layout(sala.Lugares).SequenceEqual(Layout(lugares)))
+                return Conflict(new MotivoSaida("ambiente-em-uso"));
+        }
         _db.Leituras.RemoveRange(await _db.Leituras.Where(l => l.AmbienteId == sala.Id && l.Origem == Origem.simulada).ToListAsync());
         var agora = tempo.GetUtcNow();
         foreach (var d in sala.Dispositivos)
@@ -44,11 +62,13 @@ public class DemoController(SalaDb _db, IHostEnvironment _ambiente, ILogger<Demo
             var t = periodo == "tarde" ? (d.Rotulo == "janela" ? 35 : 24)
                 : (d.Rotulo == "fundo" ? 15 : 22);
             var indice = IndiceCalor.Calcular(t, 60);
-            _db.Leituras.Add(new Leitura { AmbienteId = sala.Id, DispositivoId = d.Id, TemperaturaC = t,
-                UmidadePct = 60, IndiceCalor = indice, Nivel = IndiceCalor.Nivel(indice), MedidoEm = agora, Origem = Origem.simulada });
+            for (var minuto = 0; minuto < 3; minuto++)
+                _db.Leituras.Add(new Leitura { AmbienteId = sala.Id, DispositivoId = d.Id, TemperaturaC = t,
+                    UmidadePct = 60, IndiceCalor = indice, Nivel = IndiceCalor.Nivel(indice),
+                    MedidoEm = agora.AddMinutes(-minuto), Origem = Origem.simulada });
         }
         await _db.SaveChangesAsync();
-        return Created("/ambientes/sala-07/mapa", new DemoSaida(4));
+        return Created("/ambientes/sala-07/mapa", new DemoSaida(12));
     }
 
     [HttpPost("/demo/semear")]
@@ -80,7 +100,6 @@ public class DemoController(SalaDb _db, IHostEnvironment _ambiente, ILogger<Demo
         var ultima = aoVivo[^1];
         var dTemp = ultima.TemperaturaC - ancora.Temp;
         var dUmid = ultima.UmidadePct - ancora.Umid;
-        var primeira = aoVivo[0].MedidoEm;
         var velhas = _db.Leituras.Where(l => l.AmbienteId == ambienteId && l.Origem == Origem.simulada);
         _db.Leituras.RemoveRange(velhas);
 
@@ -98,7 +117,7 @@ public class DemoController(SalaDb _db, IHostEnvironment _ambiente, ILogger<Demo
                 UmidadePct = umid,
                 IndiceCalor = indice,
                 Nivel = IndiceCalor.Nivel(indice),
-                MedidoEm = primeira.AddMinutes(-linha.Minutos),
+                MedidoEm = ultima.MedidoEm.AddMinutes(-linha.Minutos),
                 Origem = Origem.simulada,
             });
             n++;

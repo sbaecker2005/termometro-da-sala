@@ -1,4 +1,4 @@
-2026-11-14T18:36:12.4535332-03:00
+2026-11-07T10:02:15.5215423-03:00
 Ambiente: Development; MQTT desligado; conexao: ***
 PUT http://localhost:5080/ambientes/sala-01/mapa
 X-Chave-Coordenacao: ***
@@ -8,7 +8,7 @@ Corpo enviado: {"larguraM":6,"profundidadeM":4,"sensores":[{"id":"esp32-sala-01"
 Esperado: HTTP 204; 
 HTTP 204 No Content
 X-Content-Type-Options: nosniff
-Date: Sat, 14 Nov 2026 21:36:11 GMT
+Date: Sat, 07 Nov 2026 13:02:15 GMT
 Server: Kestrel
 
 

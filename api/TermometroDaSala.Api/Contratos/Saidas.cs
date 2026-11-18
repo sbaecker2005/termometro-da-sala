@@ -12,6 +12,7 @@ public class AmbienteSaida
     public bool SemLeitura { get; init; }
     public bool TemVentilador { get; init; }
     public string? DispositivoId { get; init; }
+    public bool SensorRevogado { get; init; }
 }
 
 public class LeituraSaida

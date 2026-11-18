@@ -5,14 +5,14 @@ info: Microsoft.Hosting.Lifetime[0]
 info: Microsoft.Hosting.Lifetime[0]
       Hosting environment: Development
 info: Microsoft.Hosting.Lifetime[0]
-      Content root path: D:\projetos\termometro-da-sala\api\TermometroDaSala.Api
+      Content root path: D:\projetos\termometro-wt-frio\api\TermometroDaSala.Api
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
       Executed DbCommand (15ms) [Parameters=[@__p_0='?' (Size = 64)], CommandType='Text', CommandTimeout='30']
       SELECT TOP(1) [d].[Id], [d].[AmbienteId], [d].[Ativo], [d].[PosX], [d].[PosY], [d].[Rotulo], [d].[Segredo], [d].[UltimoMedidoEm]
       FROM [Dispositivos] AS [d]
       WHERE [d].[Id] = @__p_0
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (6ms) [Parameters=[@__entrada_Dispositivo_0='?' (Size = 64)], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (5ms) [Parameters=[@__entrada_Dispositivo_0='?' (Size = 64)], CommandType='Text', CommandTimeout='30']
       SELECT TOP(1) [l].[TemperaturaC]
       FROM [Leituras] AS [l]
       WHERE [l].[DispositivoId] = @__entrada_Dispositivo_0
@@ -48,7 +48,7 @@ info: Microsoft.EntityFrameworkCore.Database.Command[20101]
 warn: TermometroDaSala.Api.Servicos.ServicoLeituras[0]
       leitura recusada: assinatura-invalida
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (0ms) [Parameters=[@__p_0='?' (Size = 64)], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (1ms) [Parameters=[@__p_0='?' (Size = 64)], CommandType='Text', CommandTimeout='30']
       SELECT TOP(1) [d].[Id], [d].[AmbienteId], [d].[Ativo], [d].[PosX], [d].[PosY], [d].[Rotulo], [d].[Segredo], [d].[UltimoMedidoEm]
       FROM [Dispositivos] AS [d]
       WHERE [d].[Id] = @__p_0
@@ -60,14 +60,14 @@ info: Microsoft.EntityFrameworkCore.Database.Command[20101]
       FROM [Dispositivos] AS [d]
       WHERE [d].[Id] = @__p_0
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (2ms) [Parameters=[@p1='?' (Size = 64), @p0='?' (DbType = Boolean)], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (4ms) [Parameters=[@p1='?' (Size = 64), @p0='?' (DbType = Boolean)], CommandType='Text', CommandTimeout='30']
       SET IMPLICIT_TRANSACTIONS OFF;
       SET NOCOUNT ON;
       UPDATE [Dispositivos] SET [Ativo] = @p0
       OUTPUT 1
       WHERE [Id] = @p1;
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (0ms) [Parameters=[@__p_0='?' (Size = 64)], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (1ms) [Parameters=[@__p_0='?' (Size = 64)], CommandType='Text', CommandTimeout='30']
       SELECT TOP(1) [d].[Id], [d].[AmbienteId], [d].[Ativo], [d].[PosX], [d].[PosY], [d].[Rotulo], [d].[Segredo], [d].[UltimoMedidoEm]
       FROM [Dispositivos] AS [d]
       WHERE [d].[Id] = @__p_0
@@ -89,7 +89,7 @@ info: Microsoft.EntityFrameworkCore.Database.Command[20101]
       INSERT INTO [Ambientes] ([Id], [Andar], [FaceSol], [LarguraM], [Nome], [ProfundidadeM], [TemVentilador], [Tipo])
       VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7);
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (0ms) [Parameters=[@__entrada_Id_0='?' (Size = 32)], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (1ms) [Parameters=[@__entrada_Id_0='?' (Size = 32)], CommandType='Text', CommandTimeout='30']
       SELECT CASE
           WHEN EXISTS (
               SELECT 1
@@ -121,14 +121,14 @@ info: Microsoft.EntityFrameworkCore.Database.Command[20101]
       FROM [Ambientes] AS [a]
       WHERE [a].[Id] = @__p_0
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (2ms) [Parameters=[@p2='?' (Size = 32), @p0='?' (Size = 80), @p1='?' (DbType = Boolean)], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (1ms) [Parameters=[@p2='?' (Size = 32), @p0='?' (Size = 80), @p1='?' (DbType = Boolean)], CommandType='Text', CommandTimeout='30']
       SET IMPLICIT_TRANSACTIONS OFF;
       SET NOCOUNT ON;
       UPDATE [Ambientes] SET [Nome] = @p0, [TemVentilador] = @p1
       OUTPUT 1
       WHERE [Id] = @p2;
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (0ms) [Parameters=[@__id_0='?' (Size = 32)], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (3ms) [Parameters=[@__id_0='?' (Size = 32)], CommandType='Text', CommandTimeout='30']
       SELECT [a].[Id], [a].[Andar], [a].[FaceSol], [a].[LarguraM], [a].[Nome], [a].[ProfundidadeM], [a].[TemVentilador], [a].[Tipo], (
           SELECT TOP(1) [d].[Id]
           FROM [Dispositivos] AS [d]
@@ -146,7 +146,7 @@ info: Microsoft.EntityFrameworkCore.Database.Command[20101]
       WHERE [a].[Id] = @__id_0
       ORDER BY [a].[Id]
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (0ms) [Parameters=[@__p_0='?' (Size = 32)], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (1ms) [Parameters=[@__p_0='?' (Size = 32)], CommandType='Text', CommandTimeout='30']
       SELECT TOP(1) [a].[Id], [a].[Andar], [a].[FaceSol], [a].[LarguraM], [a].[Nome], [a].[ProfundidadeM], [a].[TemVentilador], [a].[Tipo]
       FROM [Ambientes] AS [a]
       WHERE [a].[Id] = @__p_0
@@ -179,7 +179,7 @@ info: Microsoft.EntityFrameworkCore.Database.Command[20101]
       FROM [Ocorrencias] AS [o]
       WHERE [o].[AmbienteId] = @__id_0
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (4ms) [Parameters=[@p0='?' (Size = 32)], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (5ms) [Parameters=[@p0='?' (Size = 32)], CommandType='Text', CommandTimeout='30']
       SET IMPLICIT_TRANSACTIONS OFF;
       SET NOCOUNT ON;
       DELETE FROM [Ambientes]
@@ -226,7 +226,7 @@ info: Microsoft.EntityFrameworkCore.Database.Command[20101]
       WHERE [a].[RegistradaEm] >= @__inicio_0 AND [a].[RegistradaEm] < @__fim_1
       ORDER BY [a].[RegistradaEm] DESC, [a].[Id] DESC
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (0ms) [Parameters=[@__entrada_AmbienteId_0='?' (Size = 32)], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (1ms) [Parameters=[@__entrada_AmbienteId_0='?' (Size = 32)], CommandType='Text', CommandTimeout='30']
       SELECT CASE
           WHEN EXISTS (
               SELECT 1
@@ -278,7 +278,7 @@ info: Microsoft.EntityFrameworkCore.Database.Command[20101]
       ) AS [t0] ON [a].[Id] = [t0].[AmbienteId]
       ORDER BY [a].[Id]
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (0ms) [Parameters=[@__id_0='?' (Size = 32)], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (1ms) [Parameters=[@__id_0='?' (Size = 32)], CommandType='Text', CommandTimeout='30']
       SELECT CASE
           WHEN EXISTS (
               SELECT 1
@@ -347,6 +347,13 @@ info: Microsoft.EntityFrameworkCore.Database.Command[20101]
           ELSE CAST(0 AS bit)
       END
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@p0='?' (Size = 32), @p1='?' (DbType = DateTimeOffset), @p2='?' (DbType = Double), @p3='?' (DbType = Double), @p4='?' (DbType = Double), @p5='?' (Size = 7), @p6='?' (DbType = DateTimeOffset), @p7='?' (DbType = Boolean)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      INSERT INTO [Previsoes] ([AmbienteId], [CalculadaEm], [DeltaSala], [IndiceRuaPrevisto], [IndiceSalaPrevisto], [NivelPrevisto], [PrevistoPara], [SemLeiturasRecentes])
+      OUTPUT INSERTED.[Id]
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
       SELECT [n].[Nivel], [n].[AcaoSugerida], [n].[IndiceMin], [n].[Nome]
       FROM [NiveisAcao] AS [n]
@@ -368,7 +375,7 @@ info: Microsoft.EntityFrameworkCore.Database.Command[20101]
       INNER JOIN [Dispositivos] AS [d] ON [t].[Id] = [d].[AmbienteId]
       ORDER BY [t].[Id]
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (1ms) [Parameters=[@__id_0='?' (Size = 32)], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (2ms) [Parameters=[@__id_0='?' (Size = 32)], CommandType='Text', CommandTimeout='30']
       SELECT [l].[Id], [l].[AmbienteId], [l].[Nome], [l].[Vulneravel], [l].[X], [l].[Y], [t].[Id]
       FROM (
           SELECT TOP(1) [a].[Id]
@@ -378,13 +385,13 @@ info: Microsoft.EntityFrameworkCore.Database.Command[20101]
       INNER JOIN [Lugares] AS [l] ON [t].[Id] = [l].[AmbienteId]
       ORDER BY [t].[Id]
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (0ms) [Parameters=[@__id_0='?' (Size = 32)], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (1ms) [Parameters=[@__id_0='?' (Size = 32)], CommandType='Text', CommandTimeout='30']
       SELECT TOP(2) [a].[Id], [a].[Andar], [a].[FaceSol], [a].[LarguraM], [a].[Nome], [a].[ProfundidadeM], [a].[TemVentilador], [a].[Tipo]
       FROM [Ambientes] AS [a]
       WHERE [a].[Id] = @__id_0
       ORDER BY [a].[Id]
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (0ms) [Parameters=[@__id_0='?' (Size = 32)], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (1ms) [Parameters=[@__id_0='?' (Size = 32)], CommandType='Text', CommandTimeout='30']
       SELECT [d].[Id], [d].[AmbienteId], [d].[Ativo], [d].[PosX], [d].[PosY], [d].[Rotulo], [d].[Segredo], [d].[UltimoMedidoEm], [t].[Id]
       FROM (
           SELECT TOP(1) [a].[Id]
@@ -394,7 +401,7 @@ info: Microsoft.EntityFrameworkCore.Database.Command[20101]
       INNER JOIN [Dispositivos] AS [d] ON [t].[Id] = [d].[AmbienteId]
       ORDER BY [t].[Id]
 info: Microsoft.EntityFrameworkCore.Database.Command[20101]
-      Executed DbCommand (0ms) [Parameters=[@__id_0='?' (Size = 32)], CommandType='Text', CommandTimeout='30']
+      Executed DbCommand (1ms) [Parameters=[@__id_0='?' (Size = 32)], CommandType='Text', CommandTimeout='30']
       SELECT [l].[Id], [l].[AmbienteId], [l].[Nome], [l].[Vulneravel], [l].[X], [l].[Y], [t].[Id]
       FROM (
           SELECT TOP(1) [a].[Id]
@@ -411,4 +418,4 @@ info: Microsoft.EntityFrameworkCore.Database.Command[20101]
 warn: TermometroDaSala.Api.Controllers.DemoController[0]
       demo semear recusado: fora-do-ambiente
 
-Coleta: processo PID 37280 encerrado; HasExited=True; 2026-11-14T18:36:12.5901860-03:00
+Coleta: processo PID 10008 encerrado; HasExited=True; 2026-11-07T10:02:15.6415421-03:00

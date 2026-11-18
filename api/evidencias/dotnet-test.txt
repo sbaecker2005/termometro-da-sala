@@ -1,4 +1,24 @@
-Resumo da execução local em 14/11/2026, ~18h50 (repetida; mesmos números de 08/11). Windows, .NET SDK 8.0.427.
+Resumo da validação local em 17/11/2026 — base anterior à reformulação visual em andamento.
+Samuel autorizou a execução das suítes e a correção de falhas. Resultados conferidos nos registros abaixo:
+
+API (Release): 100 testes, 100 aprovados, 0 falhas, 0 não executados.
+Registro: docs/resultados-testes-2026-11-17/api-inicial-20261117.trx
+
+Desktop (Release; execução separada, não somar à API): 19 testes, 19 aprovados, 0 falhas, 0 não executados.
+Registro: docs/resultados-testes-2026-11-17/desktop-20261117.trx
+Cópia extraída do ZIP: os mesmos 19 testes aprovados, 0 falhas.
+Registro: docs/resultados-testes-2026-11-17/desktop-zip-20261117.trx
+Autoteste desktop: "Autoteste: 6 verificacoes passaram.", exit code 0, no workspace e na cópia extraída do ZIP, conforme saída de ferramenta informada pelo executor desta rodada; sem arquivo TXT separado.
+
+Mobile: instalação limpa na cópia isolada em D:, npm run typecheck sem erros e npm test com 22 testes aprovados, 8 suítes, 0 falhas; comandos com exit code 0.
+Registro: docs/resultados-testes-2026-11-17/mobile.txt
+Os hashes de package.json e package-lock.json conferem com o workspace; o registro documenta a comparação dos 39 arquivos, sem diferenças.
+
+Limites: a API usa SQLite/TestServer nos testes; isso não comprova o ensaio SQL Server/HTTP+MQTT no laboratório. Os testes Mobile não comprovam câmera física, Expo Go, navegação/persistência no aparelho ou ZIP extraído. Esta base não aprova a nova aparência do desktop ou Mobile, ainda em implementação e validação.
+
+Registros históricos preservados abaixo:
+
+Resumo da execução local em 08/11/2026, ~04h50. Windows, .NET SDK 8.0.427.
 Comando na raiz (API):
 dotnet test api/TermometroDaSala.sln --nologo
 Passed! - Failed: 0, Passed: 85, Skipped: 0, Total: 85 - TermometroDaSala.Api.Tests.dll (net8.0)
@@ -9,7 +29,7 @@ Passed! - Failed: 0, Passed: 18, Skipped: 0, Total: 18 - TermometroDaSala.Deskto
 
 App (na pasta app): node --experimental-strip-types --test domain/*.test.ts -> 20 testes, 20 aprovados, 0 falhas; tsc --noEmit sem erros.
 
-A coleta SQL de 14/11/2026, no SQL Server Express local, tem 97 verificações OK (38 principais) e 0 DIVERGE (conferencia.tsv); não são testes unitários nem prova da VM.
+A coleta SQL vinculada atualmente tem 97 verificações OK e 0 DIVERGE (conferencia.tsv); não são testes unitários nem prova da VM.
 
 Registro histórico preservado abaixo (não representa a suíte atual):
 Resumo da execução local em 07/11/2026. Windows, .NET SDK 8.0.427.

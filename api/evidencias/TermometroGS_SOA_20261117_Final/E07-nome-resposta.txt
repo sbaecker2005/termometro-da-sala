@@ -1,0 +1,16 @@
+2026-11-17T09:12:30.1922297-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5081/ocorrencias
+Content-Type: multipart/form-data; boundary="8b48b81f-1483-4198-bebc-cd825a460a89"
+
+Corpo enviado: {"descricao":"Teste de nome invalido","foto":"C:\\Users\\samue\\Downloads\\kit-windows-ml-soa-csharp\\api\\evidencias\\TermometroGS_SOA_20261117_Final\\temporario-563a9deb51774e429e0bfd53531c6085\\falsa.jpg","ambienteId":"sala-03","nomeFoto":"../../teste.jpg"}; foto: bytes do JPEG/arquivo indicado, sem transcricao binaria
+Esperado: HTTP 400; nome-invalido
+HTTP 400 Bad Request
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Tue, 17 Nov 2026 12:12:29 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"nome-invalido"}
+Conferencia: OK

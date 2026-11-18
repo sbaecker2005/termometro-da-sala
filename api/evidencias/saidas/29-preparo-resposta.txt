@@ -1,4 +1,4 @@
-2026-11-14T18:36:14.0680084-03:00
+2026-11-07T10:02:17.1052663-03:00
 Ambiente: Demo; MQTT desligado; conexao: ***
 POST http://localhost:5080/demo/mapa?periodo=madrugada
 
@@ -7,7 +7,7 @@ Esperado: HTTP 201; "inseridas":4
 HTTP 201 Created
 Transfer-Encoding: chunked
 X-Content-Type-Options: nosniff
-Date: Sat, 14 Nov 2026 21:36:13 GMT
+Date: Sat, 07 Nov 2026 13:02:16 GMT
 Location: /ambientes/sala-07/mapa
 Server: Kestrel
 Content-Type: application/json; charset=utf-8

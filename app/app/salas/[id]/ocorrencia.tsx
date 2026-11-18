@@ -5,6 +5,8 @@ import { Image, Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, Vie
 import { mensagemErroOcorrencia, validarOcorrencia } from '../../../domain/ocorrencia';
 import type { RotaParams } from '../../../rotas';
 import { registrarOcorrencia, type FotoOcorrencia } from '../../../services/api';
+import { retomarCamera } from '../../../services/camera';
+import { cores, ui } from '../../../components/tema';
 
 function idParam(valor: string | string[] | undefined): string {
   return typeof valor === 'string' ? valor : (valor?.[0] ?? '');
@@ -17,38 +19,35 @@ export default function NovaOcorrencia() {
   const [foto, setFoto] = useState<FotoOcorrencia | null>(null);
   const [erros, setErros] = useState<string[]>([]);
   const [avisoCamera, setAvisoCamera] = useState<string | null>(null);
-  const [abrirAjustes, setAbrirAjustes] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [protocolo, setProtocolo] = useState<string | null>(null);
 
   async function fotografar() {
     setAvisoCamera(null);
-    const permissao = await ImagePicker.requestCameraPermissionsAsync();
-    if (!permissao.granted) {
-      setAbrirAjustes(!permissao.canAskAgain);
-      setAvisoCamera(
-        permissao.canAskAgain
-          ? 'A câmera está sem permissão. Toque em tentar de novo para autorizar.'
-          : 'A câmera está sem permissão. Libere a câmera nos ajustes e toque em tentar de novo.',
-      );
-      return;
-    }
     try {
+      const permissao = await ImagePicker.requestCameraPermissionsAsync();
+      if (!permissao.granted) {
+        setAvisoCamera(
+          permissao.canAskAgain
+            ? 'A câmera está sem permissão. Toque em tentar de novo para autorizar.'
+            : 'A câmera está sem permissão. Libere a câmera nos ajustes e toque em tentar de novo.',
+        );
+        return;
+      }
       const resultado = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.7, exif: false });
       if (resultado.canceled || !resultado.assets[0]) return;
       setFoto({ uri: resultado.assets[0].uri, nome: 'foto.jpg', tipo: 'image/jpeg' });
-      setAbrirAjustes(false);
     } catch {
       setAvisoCamera('Não foi possível abrir a câmera. Tente de novo neste aparelho.');
     }
   }
 
   async function tentarCamera() {
-    if (abrirAjustes) {
-      await Linking.openSettings();
-      return;
+    try {
+      await retomarCamera(ImagePicker.getCameraPermissionsAsync, fotografar, Linking.openSettings);
+    } catch {
+      setAvisoCamera('Não foi possível consultar a permissão ou abrir os ajustes. Tente de novo.');
     }
-    await fotografar();
   }
 
   async function enviar() {
@@ -68,81 +67,84 @@ export default function NovaOcorrencia() {
 
   if (protocolo) {
     return (
-      <View style={styles.conteudo}>
+      <ScrollView contentContainerStyle={ui.pagina}>
         <Stack.Screen options={{ title: 'Nova ocorrência' }} />
-        <Text style={styles.titulo}>Ocorrência registrada</Text>
-        <Text style={styles.texto}>Protocolo {protocolo}</Text>
-        <Pressable style={styles.botao} onPress={() => router.back()} accessibilityRole="button">
-          <Text style={styles.botaoTexto}>Voltar à sala</Text>
+        <View style={[ui.cartao, styles.sucesso]}>
+        <Text style={ui.legenda}>REGISTRO CONCLUÍDO</Text>
+        <Text accessibilityRole="header" style={ui.titulo}>Ocorrência registrada</Text>
+        <Text style={ui.texto}>Protocolo</Text>
+        <Text selectable style={styles.protocolo}>{protocolo}</Text>
+        <Pressable style={ui.botao} onPress={() => router.back()} accessibilityRole="button">
+          <Text style={ui.botaoTexto}>Voltar à sala</Text>
         </Pressable>
-      </View>
+        </View>
+      </ScrollView>
     );
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.conteudo} keyboardShouldPersistTaps="handled">
+    <ScrollView contentContainerStyle={ui.pagina} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
       <Stack.Screen options={{ title: 'Nova ocorrência' }} />
-      <Text style={styles.aviso}>Fotografe a sala ou o equipamento, sem pessoas.</Text>
-      <Text style={styles.rotulo}>O que aconteceu</Text>
+      <View style={styles.bloco}>
+        <Text style={ui.legenda}>CUIDADO COM O AMBIENTE</Text>
+        <Text accessibilityRole="header" style={ui.titulo}>Registrar ocorrência</Text>
+        <Text style={ui.texto}>Conte o que aconteceu e acrescente uma foto.</Text>
+      </View>
+      <View style={ui.cartao}>
+      <Text accessibilityRole="header" style={ui.secao}>O que aconteceu</Text>
+      <Text style={ui.texto}>Descreva a situação em 10 a 500 caracteres.</Text>
       <TextInput
-        style={styles.campo}
+        style={[ui.campo, styles.campo]}
+        accessibilityLabel="Descrição da ocorrência"
         value={descricao}
         onChangeText={setDescricao}
         multiline
         placeholder="Descreva o que aconteceu, sem identificar aluno."
+        placeholderTextColor={cores.secundario}
         textAlignVertical="top"
       />
       <Text style={styles.contador}>{descricao.trim().length}/500</Text>
-      <Pressable style={styles.botaoSecundario} onPress={() => void fotografar()} accessibilityRole="button">
-        <Text style={styles.botaoSecundarioTexto}>{foto ? 'Tirar outra foto' : 'Fotografar com a câmera'}</Text>
+      </View>
+      <View style={ui.cartao}>
+      <Text accessibilityRole="header" style={ui.secao}>Foto do ambiente</Text>
+      <Text style={ui.aviso}>Fotografe a sala ou o equipamento, sem pessoas.</Text>
+      <Pressable style={ui.secundario} onPress={() => void fotografar()} accessibilityRole="button">
+        <Text style={ui.secundarioTexto}>{foto ? 'Tirar outra foto' : 'Fotografar com a câmera'}</Text>
       </Pressable>
       {foto ? <Image source={{ uri: foto.uri }} style={styles.foto} accessibilityLabel="Foto da sala ou do equipamento" /> : null}
       {avisoCamera ? (
         <View style={styles.bloco}>
-          <Text style={styles.erro}>{avisoCamera}</Text>
-          <Pressable style={styles.botaoSecundario} onPress={() => void tentarCamera()} accessibilityRole="button">
-            <Text style={styles.botaoSecundarioTexto}>Tentar de novo</Text>
+          <Text accessibilityRole="alert" style={ui.erro}>{avisoCamera}</Text>
+          <Pressable style={ui.secundario} onPress={() => void tentarCamera()} accessibilityRole="button">
+            <Text style={ui.secundarioTexto}>Tentar de novo</Text>
           </Pressable>
         </View>
       ) : null}
+      </View>
       {erros.map((erro) => (
-        <Text key={erro} style={styles.erro}>
+        <Text key={erro} accessibilityRole="alert" style={ui.erro}>
           {erro}
         </Text>
       ))}
       <Pressable
-        style={[styles.botao, enviando ? styles.botaoOff : null]}
+        style={[ui.botao, enviando ? styles.botaoOff : null]}
         disabled={enviando}
+        accessibilityState={{ disabled: enviando, busy: enviando }}
         onPress={() => void enviar()}
         accessibilityRole="button"
       >
-        <Text style={styles.botaoTexto}>{enviando ? 'Enviando' : 'Registrar'}</Text>
+        <Text style={ui.botaoTexto}>{enviando ? 'Enviando…' : 'Registrar ocorrência'}</Text>
       </Pressable>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  conteudo: { padding: 20, gap: 8 },
   bloco: { gap: 8 },
-  titulo: { fontSize: 22, fontWeight: '700', color: '#14532D' },
-  texto: { color: '#3F3F46' },
-  aviso: { backgroundColor: '#FEF3C7', color: '#92400E', padding: 12, borderRadius: 8, fontWeight: '600' },
-  rotulo: { fontWeight: '700', marginTop: 8 },
-  campo: {
-    minHeight: 120,
-    borderWidth: 1,
-    borderColor: '#D4D4D8',
-    borderRadius: 8,
-    padding: 12,
-    backgroundColor: '#fff',
-  },
-  contador: { color: '#71717A', alignSelf: 'flex-end' },
-  foto: { width: '100%', height: 220, borderRadius: 8, backgroundColor: '#E4E4E7' },
-  erro: { color: '#B91C1C' },
-  botao: { backgroundColor: '#14532D', borderRadius: 8, padding: 14, marginTop: 8, alignItems: 'center' },
+  campo: { minHeight: 150 },
+  contador: { color: cores.secundario, alignSelf: 'flex-end', fontSize: 13 },
+  foto: { width: '100%', height: 220, borderRadius: 12, backgroundColor: cores.fundo },
   botaoOff: { opacity: 0.6 },
-  botaoTexto: { color: '#fff', fontWeight: '700' },
-  botaoSecundario: { borderWidth: 1, borderColor: '#14532D', borderRadius: 8, padding: 12, alignItems: 'center' },
-  botaoSecundarioTexto: { color: '#14532D', fontWeight: '700' },
+  sucesso: { borderTopWidth: 5, borderTopColor: cores.turquesa },
+  protocolo: { color: cores.texto, fontWeight: '700', fontSize: 18 },
 });

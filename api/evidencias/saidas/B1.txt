@@ -1,4 +1,4 @@
-2026-11-14T18:36:10.3906320-03:00
+2026-11-07T10:02:13.1431749-03:00
 dotnet ef database update --no-build --project TermometroDaSala.Api
 Entity Framework Core .NET Command-line Tools
 8.0.11

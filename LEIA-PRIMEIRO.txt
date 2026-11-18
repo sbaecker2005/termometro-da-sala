@@ -1,0 +1,58 @@
+KIT PARA O COMPUTADOR WINDOWS
+
+1. Extraia TODO este ZIP numa pasta do Windows.
+2. Execute INICIAR-DESKTOP.cmd.
+   Ele verifica o SDK .NET 8 e instala pelo pacote oficial do winget se faltar.
+   Depois abre o executavel Windows x64 compilado nesta tarefa.
+3. Sem API, o desktop entra em MODO LOCAL/DEMONSTRACAO.
+   Isso nao comprova integracao com SQL Server.
+4. Para API, banco, previsao ML e testes, abra
+   docs\FECHAMENTO-ML-SOA-CSHARP.md. SQL Server/LocalDB e uma instalacao separada.
+
+Este kit foi preparado no cloud e continuado no Windows em 17/11/2026.
+Nao e o ZIP de envio da disciplina: para C#, envie somente o projeto desktop
+e integrantes.txt, conforme ENTREGA.md.
+
+Em 17/11/2026, a interface foi validada no Windows com API Demo e SQL Server
+Express: cadastro, acao, CSV, revogacao, mapa com 20 cadeiras, frio em azul,
+PNG completo e entrada/retorno do modo local. Evidencias e limites em:
+desktop\docs\VALIDACAO-WINDOWS-2026-11-17.md.
+
+O novo visual azul-escuro/turquesa foi conferido maximizado e em 958x707,
+com rolagem, cadastro, aviso local legivel, mapas e dois PNGs completos.
+Com autorizacao de Samuel, passaram API 101/101, desktop 19/19 e autoteste
+6/6, Mobile 23/23 e TypeScript sem erros. Resultados guardados em:
+docs\resultados-testes-2026-11-17.
+O ZIP desktop FINAL, com o novo visual, passou 19 testes e 6 verificacoes
+em copia extraida; veja desktop-zip-final-20261117.trx e os textos na pasta
+de resultados. Cadastro e acao locais persistiram apos reabrir o desktop
+com a API desligada; fixture retirada e retorno a API confirmados.
+A conferencia com DPI ampliado nao foi registrada; e limite de cobertura,
+nao exigencia explicita da entrega de C#.
+Checks Python: arquitetura 111 elementos/190 relacoes/6 visoes, autoteste
+12/12 e circuito 110 verificacoes aprovados. ML: 23 testes e 9 subtestes
+aprovados em Python 3.11 portatil isolado em D:, pins preservados, sem
+regenerar notebook/modelos. O bloqueio inicial de dependencias foi superado.
+
+PARA O GRUPO REVISAR
+Abra ENTREGA.md: checklist das oito disciplinas e comandos do Cerebro.
+Pacotes: entrega-desktop.zip e entrega-app.zip; hashes em entrega-pacotes.sha256.
+Os dois ZIPs finais foram extraidos em pastas novas e passaram seus testes.
+Para os colegas: output\revisao-grupo\Gui-pendencias.zip e
+output\revisao-grupo\Lucas-pendencias.zip. Cada um tem COMECE-AQUI.txt.
+Mensagem pronta: output\revisao-grupo\MENSAGEM-CHALLENGE.txt.
+PDFs de revisao: output\pdf\cybersecurity-revisao.pdf e
+output\pdf\arquitetura-togaf-revisao.pdf. Nao sao os PDFs finais.
+O enunciado oficial foi localizado e conferido para SOA (p.27), C# (p.29)
+e ML (p.30). Samuel confirmou o relato e a autorizacao da entrevista.
+SQL Express: 98 verificacoes aprovadas; HTTP/MQTT/SQL reais: 21 aprovadas.
+O iniciador ferramentas\abrir-apresentacao.ps1 passou: API/SQL em banco
+novo, previsao numerica e desktop aberto. Insomnia real: 29 requisicoes e
+29/29 assercoes aprovadas, zero falhas; veja api\evidencias\insomnia-2026-11-17.
+Previsao ML conferida na tela; mapa/PNG exportado tambem inspecionados,
+com C01-C20, S1-S4, frio azul, legenda e lista completas sem cortes.
+Para Samuel: gravar/publicar video ML de ate 2 minutos e enviar as entregas.
+O Cerebro publica as fontes/evidencias atuais e confere os pacotes finais.
+Magister e Salgueiro sao candidatas a piloto futuro, nao escolas confirmadas.
+VM, celular, Wokwi, videos e PDFs das outras disciplinas mantem pendencias
+proprias no checklist, sob os responsaveis ja combinados.

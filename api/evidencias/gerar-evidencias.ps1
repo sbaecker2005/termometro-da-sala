@@ -1,13 +1,19 @@
-﻿#requires -Version 5.1
-param([string]$Foto, [switch]$Autoverificar)
+#requires -Version 5.1
+param(
+    [string]$Foto,
+    [switch]$Autoverificar,
+    [ValidatePattern('^TermometroGS_SOA_[A-Za-z0-9_]+$')]
+    [string]$Banco = ('TermometroGS_SOA_' + (Get-Date -Format 'yyyyMMdd_HHmmss')),
+    [ValidateRange(1024,65535)][int]$Porta = 5081
+)
 $ErrorActionPreference = 'Stop'
 $raiz = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
-$saida = Join-Path $PSScriptRoot 'saidas'
-$seguranca = Join-Path $raiz 'seguranca/evidencias/saidas'
+$saida = Join-Path $PSScriptRoot $Banco
+$seguranca = Join-Path $saida 'seguranca'
 $projeto = Join-Path $raiz 'api/TermometroDaSala.Api'
-$urlBase = 'http://localhost:5080'
+$urlBase = "http://localhost:$Porta"
 # O cliente exige TLS por padrao; somente esta coleta local usa a instancia sem criptografia.
-$conexao = 'Server=localhost\SQLEXPRESS;Database=TermometroDaSala;Trusted_Connection=True;TrustServerCertificate=True;Encrypt=False'
+$conexao = "Server=.\SQLEXPRESS;Database=$Banco;Trusted_Connection=True;TrustServerCertificate=True;Encrypt=False"
 $utf8 = New-Object Text.UTF8Encoding($false)
 $resultados = [ordered]@{}
 $arquivos = @{}
@@ -16,7 +22,7 @@ $processo = $null
 $ambiente = 'Development'
 $chave = [guid]::NewGuid().ToString('N')
 $temporario = Join-Path $saida ('temporario-' + [guid]::NewGuid().ToString('N'))
-$variaveis = @('ConnectionStrings__Sala','ChaveCoordenacao','Mqtt__Desligado','Banco__Migrar','DOTNET_ENVIRONMENT','Fotos__Pasta','Logging__EventLog__LogLevel__Default')
+$variaveis = @('ConnectionStrings__Sala','ChaveCoordenacao','Mqtt__Desligado','Banco__Migrar','DOTNET_ENVIRONMENT','ASPNETCORE_ENVIRONMENT','Fotos__Pasta','Logging__EventLog__LogLevel__Default')
 $anteriores = @{}
 foreach ($nome in $variaveis) { $anteriores[$nome] = [Environment]::GetEnvironmentVariable($nome, 'Process') }
 
@@ -53,7 +59,7 @@ function Banco([string]$id, [string]$consulta, [scriptblock]$conferir) {
     $arquivo = "$id.txt"
     try {
         $dados = Sql $consulta
-        $texto = $dados.Tables | ForEach-Object { $_ | Format-Table -AutoSize | Out-String -Width 240 }
+        $texto = $dados.Tables[0] | Format-Table -AutoSize | Out-String -Width 240
         Gravar (Join-Path $saida $arquivo) "$(Get-Date -Format o)`r`nSQL Server Express local; autenticacao Windows; conexao: ***`r`nSQL: $consulta`r`n$($texto -join "`r`n")"
         $ok = & $conferir $dados
         Resultado $id $arquivo $ok 'conteudo SQL diferente do esperado (ver resultado acima)'
@@ -75,8 +81,8 @@ function Parar {
         $arquivo = Join-Path $saida ("api-$script:ambiente.log")
         Gravar $arquivo $log
         if ($script:ambiente -eq 'Development') {
-            Gravar (Join-Path $saida 'B4.txt') "$(Get-Date -Format o)`r`nPerfil http de Properties/launchSettings.json aplicado ao binario compilado (mesma URL e ambiente; processo direto para encerramento pelo handle).`r`ndotnet bin/Debug/net8.0/TermometroDaSala.Api.dll --urls http://localhost:5080`r`nDOTNET_ENVIRONMENT=Development; Mqtt__Desligado=true; Banco__Migrar=false (migracao em B1)`r`n$log"
-            Resultado B4 'B4.txt' ($log -match 'Now listening on: http://localhost:5080' -and $resultados['B1'] -eq 'OK') 'listener HTTP iniciado, mas conexao SQL/migracao nao comprovada (B1)'
+            Gravar (Join-Path $saida 'B4.txt') "$(Get-Date -Format o)`r`nBinario compilado, banco novo exclusivo e processo direto para encerramento pelo handle.`r`ndotnet bin/Release/net8.0/TermometroDaSala.Api.dll --urls $urlBase`r`nDOTNET_ENVIRONMENT=Development; Mqtt__Desligado=true; Banco__Migrar=false (migracao em B1)`r`n$log"
+            Resultado B4 'B4.txt' ($log.Contains("Now listening on: $urlBase") -and $resultados['B1'] -eq 'OK') 'listener HTTP iniciado, mas conexao SQL/migracao nao comprovada (B1)'
         }
         $script:processo.Dispose()
         $script:processo = $null
@@ -86,11 +92,10 @@ function Iniciar([string]$nome) {
     Parar
     $script:ambiente = $nome
     $env:DOTNET_ENVIRONMENT = $nome
+    $env:ASPNETCORE_ENVIRONMENT = $nome
     $info = New-Object Diagnostics.ProcessStartInfo
     $info.FileName = (Get-Command dotnet.exe).Source
-    $perfil = (Get-Content (Join-Path $projeto 'Properties/launchSettings.json') -Raw -Encoding UTF8 | ConvertFrom-Json).profiles.http
-    if ($perfil.applicationUrl -ne $urlBase) { throw 'URL do perfil http mudou; revisar roteiro.' }
-    $info.Arguments = 'bin/Debug/net8.0/TermometroDaSala.Api.dll --urls ' + $perfil.applicationUrl
+    $info.Arguments = 'bin/Release/net8.0/TermometroDaSala.Api.dll --urls ' + $urlBase
     $info.WorkingDirectory = $projeto
     $info.UseShellExecute = $false
     $info.CreateNoWindow = $true
@@ -103,11 +108,11 @@ function Iniciar([string]$nome) {
         if ($script:processo.HasExited) { Parar; throw "API nao iniciou em $nome; veja o log" }
         $tcp = [Net.Sockets.TcpClient]::new()
         try {
-            $tcp.Connect('localhost',5080)
+            $tcp.Connect('localhost',$Porta)
             return
         } catch { Start-Sleep -Milliseconds 200 } finally { $tcp.Dispose() }
     }
-    throw 'API nao abriu a porta 5080 em tempo'
+    throw "API nao abriu a porta $Porta em tempo"
 }
 function Leitura([string]$sala, [double]$temperatura = 33.4, [int]$umidade = 58, [long]$instante = 0) {
     if (!$instante) { $instante = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds() }
@@ -222,6 +227,16 @@ if ($Autoverificar) {
     Write-Output 'Autoverificacao OK: HMAC, canonico, redacao e colecao (ausente, nula, zero e duplicada). Sem coleta.'
     return
 }
+# Recusa banco e pasta existentes antes de qualquer escrita; nunca apaga ensaios anteriores.
+if (Test-Path -LiteralPath $saida) { throw 'Pasta da coleta ja existe; escolha outro -Banco.' }
+$master = New-Object Data.SqlClient.SqlConnection ($conexao.Replace("Database=$Banco", 'Database=master'))
+try {
+    $master.Open()
+    $consulta = $master.CreateCommand()
+    $consulta.CommandText = 'SELECT COUNT(*) FROM sys.databases WHERE name=@nome'
+    [void]$consulta.Parameters.AddWithValue('@nome', $Banco)
+    if ([int]$consulta.ExecuteScalar() -ne 0) { throw 'Banco ja existe; escolha outro -Banco.' }
+} finally { $master.Dispose() }
 New-Item -ItemType Directory -Force $saida,$seguranca,$temporario | Out-Null
 $handler = [Net.Http.HttpClientHandler]::new()
 $handler.UseProxy = $false
@@ -230,28 +245,28 @@ $cliente = [Net.Http.HttpClient]::new($handler)
 $cliente.Timeout = [TimeSpan]::FromSeconds(20)
 $estado = $null
 try {
-    $listener = Get-NetTCPConnection -LocalPort 5080 -State Listen -ErrorAction SilentlyContinue
-    if ($listener) { throw 'Porta 5080 ocupada: nenhum processo existente sera encerrado.' }
+    $listener = Get-NetTCPConnection -LocalPort $Porta -State Listen -ErrorAction SilentlyContinue
+    if ($listener) { throw "Porta $Porta ocupada: nenhum processo existente sera encerrado." }
     $env:ConnectionStrings__Sala = $conexao
     $env:ChaveCoordenacao = $chave
     $env:Mqtt__Desligado = 'true'
     $env:Banco__Migrar = 'false'
     # Console guarda os logs; EventLog do Windows nao e gravavel no executor restrito.
     $env:Logging__EventLog__LogLevel__Default = 'None'
-    $env:Fotos__Pasta = Join-Path $projeto 'fotos'
+    $env:Fotos__Pasta = Join-Path $saida 'fotos'
     # Restauracao somente pelo cache instalado: nenhuma fonte de rede e nenhum pacote novo.
     $build = & dotnet restore $projeto --source $temporario --verbosity minimal 2>&1 | Out-String
     if ($LASTEXITCODE) { throw "Restore offline falhou: $build" }
-    $build += & dotnet build $projeto --no-restore --verbosity minimal 2>&1 | Out-String
+    $build += & dotnet build $projeto -c Release --no-restore --verbosity minimal 2>&1 | Out-String
     Gravar (Join-Path $saida 'build.txt') $build
     if ($LASTEXITCODE) { throw 'Build falhou; veja build.txt' }
     Push-Location (Join-Path $raiz 'api')
     try {
         $ef = & dotnet ef --version 2>&1 | Out-String
         if ($LASTEXITCODE -eq 0) {
-            $migracao = & dotnet ef database update --no-build --project TermometroDaSala.Api 2>&1 | Out-String
+            $migracao = & dotnet ef database update --no-build --configuration Release --project TermometroDaSala.Api 2>&1 | Out-String
             $migrado = $LASTEXITCODE -eq 0
-            Gravar (Join-Path $saida 'B1.txt') "$(Get-Date -Format o)`r`ndotnet ef database update --no-build --project TermometroDaSala.Api`r`n$ef`r`n$migracao"
+            Gravar (Join-Path $saida 'B1.txt') "$(Get-Date -Format o)`r`ndotnet ef database update --no-build --configuration Release --project TermometroDaSala.Api`r`n$ef`r`n$migracao"
             Resultado B1 'B1.txt' $migrado 'migracao falhou; ver erro real'
         } else {
             $env:Banco__Migrar = 'true'
@@ -274,8 +289,7 @@ try {
     }
     $estado = Banco B3 'SELECT * FROM Ambientes ORDER BY Id; SELECT Id,AmbienteId,Ativo,UltimoMedidoEm FROM Dispositivos ORDER BY Id; SELECT * FROM NiveisAcao ORDER BY IndiceMin' {
         param($d)
-        # 5 salas e 8 dispositivos desde o mapa termico (sala-07 com quatro DHT22)
-        $d.Tables[0].Rows.Count -eq 5 -and $d.Tables[1].Rows.Count -eq 8 -and $d.Tables[2].Rows.Count -eq 5
+        $d.Tables[0].Rows.Count -eq 4 -and $d.Tables[1].Rows.Count -eq 4 -and $d.Tables[2].Rows.Count -eq 5
     }
     if ($estado) {
         if (@($estado.Tables[0].Rows | Where-Object Id -eq 'sala-05').Count) { throw 'sala-05 ja existe; interrompido para nao alterar dados anteriores.' }
@@ -330,7 +344,7 @@ try {
     Chamar '23-demo' GET '/ambientes/sala-03/previsao' 200 '' $false $null '"indiceRuaPrevisto":'
     foreach ($n in 28..29) {
         # POST prepara (201); GET comprova o mapa (200) antes de trocar o periodo.
-        Colecao ($colecao | Where-Object metaSortKey -eq $n) "$n-preparo" 201 '"inseridas":4'
+        Colecao ($colecao | Where-Object metaSortKey -eq $n) "$n-preparo" 201 '"inseridas":12'
         $ponto = if ($n -eq 28) { '"rotulo":"janela"[^}]*"temperaturaC":35[^}]*"nivel":"perigo"' } else { '"rotulo":"fundo"[^}]*"temperaturaC":15[^}]*"nivel":"frio"' }
         $padrao = '(?s)"ambienteId":"sala-07".*"grade":\[\{.*"pontos":\[\{.*' + $ponto + '.*"precaucoes":\[".*trocar.*ambiente desigual'
         $impedir = if ($respostas["$n-preparo"] -and $respostas["$n-preparo"].Status -eq 201) { '' } else { 'preparo do periodo nao confirmado' }
@@ -363,7 +377,7 @@ try {
             } catch { $concorrencia += "ERRO REAL: $($_.Exception.Message)`r`n" }
         }
         Gravar (Join-Path $saida 'E03-concorrencia.txt') $concorrencia
-        $arquivos['E03-concorrencia'] = 'E03-concorrencia.txt'
+        Resultado 'E03-concorrencia' 'E03-concorrencia.txt' (([regex]::Matches($concorrencia, 'HTTP 201').Count -eq 1) -and ([regex]::Matches($concorrencia, 'HTTP 400').Count -eq 1) -and $concorrencia.Contains('"motivo":"reenvio"')) 'concorrencia deveria produzir um 201 e um 400 reenvio'
     } finally { foreach ($conteudo in $conteudos) { $conteudo.Dispose() } }
     foreach ($offset in @(-660,120)) {
         Chamar "E04-tempo-$offset" POST '/leituras' 400 (Leitura 'sala-02' 33.4 58 ([DateTimeOffset]::UtcNow.ToUnixTimeSeconds()+$offset) | ConvertTo-Json -Compress) $false $null 'atrasada'
@@ -403,6 +417,7 @@ try {
     Parar
 
     # Somente leitura do git: imprime metadados dos commits, nunca valores das linhas encontradas.
+    if (Test-Path -LiteralPath (Join-Path $raiz '.git')) {
     Push-Location $raiz
     try {
         $historico = @("Data da busca: $(Get-Date -Format o)", 'Escopo: historico local de todos os refs, sem rede; sem ler .env* ou contas/.', (& git log -1 --format='Versao: %H %cI'))
@@ -420,13 +435,10 @@ try {
         if ($nomes.Count) { $historico += $nomes } else { $historico += '(nenhuma linha)' }
         $historico += "`r`nLimite: metadados identificam commits a revisar; nao atestam ausencia de credenciais reais no conteudo. Wokwi nao acessado."
         Gravar (Join-Path $seguranca 'osint-historico.txt') ($historico -join "`r`n")
-        $osint = Join-Path $raiz 'seguranca/evidencias/osint.txt'
-        $conteudoOsint = Get-Content $osint -Raw -Encoding UTF8
-        $conteudoOsint = [regex]::Replace($conteudoOsint, '(?s)\r?\n8a\. Recoleta local.*?(?=\r?\n9\.)', '')
-        $adendo = "`r`n8a. Recoleta local em $(Get-Date -Format o)`r`n" + ($historico -join "`r`n") + "`r`nSaida integral desta busca: saidas/osint-historico.txt`r`n"
-        $conteudoOsint = $conteudoOsint.Replace('9. Link do Wokwi', $adendo + "`r`n9. Link do Wokwi")
-        [IO.File]::WriteAllText($osint, $conteudoOsint, $utf8)
     } finally { Pop-Location }
+    } else {
+        Gravar (Join-Path $seguranca 'osint-historico.txt') 'Kit extraido sem .git: historico nao examinado nesta coleta.'
+    }
 
     $fontes = @('api/TermometroDaSala.Api/Program.cs','api/TermometroDaSala.Api/Dominio/Contrato.cs','api/TermometroDaSala.Api/Servicos/ServicoLeituras.cs','api/TermometroDaSala.Api/Servicos/AssinanteMqtt.cs','api/TermometroDaSala.Api/Controllers/LeiturasController.cs','api/TermometroDaSala.Api/Controllers/OcorrenciasController.cs','api/TermometroDaSala.Api/Controllers/DemoController.cs','api/TermometroDaSala.Api/Filtros/ExigeChaveCoordenacaoAttribute.cs')
     $trechos = foreach ($fonte in $fontes) {
@@ -434,7 +446,7 @@ try {
         "`r`n$fonte"
         Get-Content (Join-Path $raiz $fonte) -Encoding UTF8 | ForEach-Object { $linha++; '{0}: {1}' -f $linha,$_ }
     }
-    Gravar (Join-Path $seguranca 'E01.txt') "$(Get-Date -Format o)`r`nBase informada: main 47a92d3; worktree gs/evidencias; sem alterar codigo da API.`r`nWindows $([Environment]::OSVersion.VersionString); PowerShell $($PSVersionTable.PSVersion); SDK $(& dotnet --version)`r`nDevelopment e Demo em HTTP local; SQL Server 2022 Express; MQTT desligado.`r`nC7/C8 (VM), C12 (TLS MQTT) nao comprovados localmente.`r`n$($trechos -join "`r`n")"
+    Gravar (Join-Path $seguranca 'E01.txt') "$(Get-Date -Format o)`r`nFontes locais do kit; banco exclusivo $Banco; sem afirmar equivalencia com commit remoto.`r`nWindows $([Environment]::OSVersion.VersionString); PowerShell $($PSVersionTable.PSVersion); SDK $(& dotnet --version)`r`nDevelopment e Demo em HTTP local; SQL Server 2022 Express; MQTT desligado.`r`nC7/C8 (VM), C12 (TLS MQTT) nao comprovados localmente.`r`n$($trechos -join "`r`n")"
     $mapa = [ordered]@{
         E02=@('01','21'); E03=@('02','03','E03-*'); E04=@('05','06','E04-tempo-*');
         E05=@('E05-*'); E06=@('16','18','19','E06-*'); E07=@('E07-*'); E08=@('E08-*');
@@ -472,19 +484,8 @@ try {
 }
 $resumo = foreach ($id in $resultados.Keys) { "$id`t$($resultados[$id])`t$($arquivos[$id])" }
 Gravar (Join-Path $saida 'conferencia.tsv') ($resumo -join "`r`n")
-$readme = Join-Path $PSScriptRoot 'README.md'
-$texto = Get-Content $readme -Raw -Encoding UTF8
-foreach ($id in $resultados.Keys | Where-Object { $_ -match '^(B[1-5]|0[1-9]|1[0-9]|2[0-9][abc]?|3[01])$' }) {
-    $link = "[saida](saidas/$($arquivos[$id])) - $($resultados[$id])"
-    $texto = [regex]::Replace($texto, ('(?m)^(\| '+[regex]::Escape($id)+' \|[^\r\n]*\| )[^|\r\n]*( \|)\r?$'), ('$1'+$link+'$2'))
-}
-[IO.File]::WriteAllText($readme, $texto, $utf8)
-$documento = Join-Path $raiz 'seguranca/EVIDENCIAS.md'
-$texto = Get-Content $documento -Raw -Encoding UTF8
-foreach ($id in @('E01','E02','E03','E04','E05','E06','E07','E08','E09','E10','E14','E15')) {
-    $texto = [regex]::Replace($texto, ('(?m)^(\*\*Print '+$id+':\*\* \[inserir[^\r\n]*?\])[^\r\n]*'), ('$1 [saida local](evidencias/saidas/'+$id+'.txt)'))
-}
-[IO.File]::WriteAllText($documento, $texto, $utf8)
+# O indice e atualizado somente apos revisar os resultados; preserva a coleta historica.
 $principais = @($resultados.Keys | Where-Object { $_ -match '^(B[1-5]|0[1-9]|1[0-9]|2[0-9][abc]?|3[01])$' })
 $ok = @($principais | Where-Object { $resultados[$_] -eq 'OK' }).Count
-Write-Output "Evidencias principais: $ok OK; $($principais.Count-$ok) DIVERGE. Ver saidas/conferencia.tsv."
+Write-Output "Evidencias principais: $ok OK; $($principais.Count-$ok) DIVERGE. Ver $Banco/conferencia.tsv."
+if (@($resultados.Values | Where-Object { $_ -ne 'OK' }).Count) { throw 'Ha resultados divergentes; confira conferencia.tsv.' }

@@ -10,14 +10,14 @@ export type Previsao = {
   nivelPrevisto: Nivel;
   semLeiturasRecentes: boolean;
   demonstracao: boolean;
-  // false: sem previsão da rua, a sala fica no índice da última leitura válida e indiceRuaPrevisto vem 0.
+  // false: persiste a média dos sensores recentes da sala e indiceRuaPrevisto vem 0.
   ruaDisponivel: boolean;
 };
 
 export const SEM_DADOS_PARA_PREVER =
   'Sem dados para prever: não há previsão da rua nem leitura válida recente desta sala para calcular.';
 export const RUA_INDISPONIVEL =
-  'A previsão da rua não está disponível. A previsão usa a última leitura válida da sala.';
+  'A previsão da rua não está disponível. A previsão usa a média recente dos sensores da sala.';
 
 function numeroOuNulo(valor: unknown): valor is number | null {
   return valor === null || typeof valor === 'number';

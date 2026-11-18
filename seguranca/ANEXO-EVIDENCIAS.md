@@ -5,6 +5,7 @@ Anexo do [RELATORIO-RISCOS.md](RELATORIO-RISCOS.md). Para cada evidência: o con
 Há duas colunas de resultado porque há dois ambientes:
 
 - **Local (05/11/2026):** Windows 11, .NET SDK 8.0.427, API com o pipeline dos testes automatizados e banco SQLite em memória com a semente das quatro salas. Arquivos em [evidencias/](evidencias/).
+- **Coleta local posterior (07/11/2026):** respostas em [evidencias/saidas/](evidencias/saidas/) e prints em [evidencias/prints/](evidencias/prints/), com a data e o ambiente de cada execução. E15 registra Development/Kestrel, MQTT desligado; não é evidência de IIS/Production.
 - **Laboratório Windows Server:** API publicada no IIS em Production, com SQL Server, GPO e firewall do roteiro `infra/`. Cada linha recebe o print com data e hora quando a equipe executar. Enquanto a célula diz "a executar", o relatório não conta o controle como comprovado no laboratório.
 
 A saída antiga de `cenarios-ataque.txt` precede a correção de R12. Repetir o script atualizado; o download de S3.3 agora exige a chave. A suíte atual comprova R12 e C11.
@@ -25,9 +26,9 @@ Comando: `.\seguranca\cenarios-ataque.ps1 -Api https://api.termometro.local`, co
 
 | ID | Controle e risco | Comando (roteiro) | Esperado | Obtido local (data indicada no registro) | Laboratório (print, data) |
 |---|---|---|---|---|---|
-| E01 | Versão e local dos controles | Seção 1 do roteiro | Arquivo e linha de C1–C12 iguais aos da seção 6 do relatório | Histórico de 05/11: suíte 55/55 e seleção de 20 testes de segurança (`evidencias/dotnet-test-seguranca.txt`). Atual: API 85/85 em 08/11, informado pelo coordenador (`../api/evidencias/dotnet-test.txt`); não reexecutado aqui | A executar |
+| E01 | Versão e local dos controles | Seção 1 do roteiro | Arquivo e linha de C1–C12 iguais aos da seção 6 do relatório | Histórico de 05/11: suíte 55/55 e seleção de 20 testes de segurança (`evidencias/dotnet-test-seguranca.txt`). Histórico de 08/11: API 85/85, informado pelo coordenador (`../api/evidencias/dotnet-test.txt`). Atual, 17/11: API 100/100, zero falhas e zero casos não executados ([TRX](../docs/resultados-testes-2026-11-17/api-inicial-20261117.trx)), em SQLite/TestServer | A executar |
 | E02 | C1, leitura legítima (R1) | Seção 2: `POST /leituras` assinada | 2xx e leitura gravada | 201 nos passos S1.1 e S3.1 (`evidencias/cenarios-ataque.txt`) | A executar |
-| E03 | C1, assinatura inválida e reenvio (R1, R2) | Seção 3 | 4xx com `assinatura-invalida` e `reenvio`, sem gravar | Os dois motivos no log (`evidencias/recusas-log.txt`); duplicata concorrente sem trava continua como lacuna declarada (C1 parcial) | A executar, com reinício da API e ingestão MQTT |
+| E03 | C1, assinatura inválida e reenvio (R1, R2) | Seção 3 | 4xx com `assinatura-invalida` e `reenvio`, sem gravar | Histórico: os dois motivos no log (`evidencias/recusas-log.txt`), sem comprovação de concorrência. Correção de 17/11 no código: `ExecuteUpdateAsync` condicional reserva `UltimoMedidoEm` na mesma transação da leitura (`ServicoLeituras.cs:48–84`). Cinco casos de regressão de intercalação/rollback aprovados em SQLite em 17/11 ([TRX](../docs/resultados-testes-2026-11-17/api-inicial-20261117.trx)): duplicata, timestamps mais novo/mais antigo, revogação intermediária e rollback. C1 continua parcial na comprovação de laboratório; risco residual mantido | A executar, com reinício da API, ingestão MQTT e duas cópias paralelas |
 | E04 | C1 e C6, revogação e janela (R2, R7) | Seção 4 | `dispositivo-revogado` e `atrasada` | `dispositivo-revogado` no S3.6; `atrasada` no log (`evidencias/recusas-log.txt`) | A executar, com o relógio do Wokwi |
 | E05 | C2, SQLi (R3) | Seção 5 e cenário S1 | 404 para o id com apóstrofo; SQL com parâmetro | 404 e `@__id_0` (S1 e `evidencias/consulta-parametrizada.txt`) | A executar |
 | E06 | C3, LFI (R4) | Seção 6 e cenário S2 | Foto legítima 200 com nome GUID; travessias 4xx | S2.1 a S2.5 e S2.9 conferem | A executar, com o nome em disco e a ACL da pasta |
@@ -39,7 +40,7 @@ Comando: `.\seguranca\cenarios-ataque.ps1 -Api https://api.termometro.local`, co
 | E12 | C8, portas mínimas com nmap (R9, R14) | Seção 12 | 443 com certificado do laboratório, 80 só redirecionando, 1433 e 3389 fechadas à rede comum | Sem saída local: depende do Windows Server | A executar, de duas origens |
 | E13 | C8, broker indisponível (R8) | Seção 13 | LED reage sem internet; a API não inventa leitura atual | `semLeiturasRecentes` verdadeiro sem pares (`ApiTestes.DeltaSemTresParesENuloEComTresFechaOExemplo`) | A executar, com o LED no Wokwi |
 | E14 | C9, OSINT e dados de aluno (R6) | Seção 14 e passos S3.2 e S3.3 | Foto devolvida sem APP1; aviso no app; nenhuma pessoa nas fotos | APP1 com `GPS-TESTE` removido (S3.3 e `ApiTestes.UploadRemoveSegmentoApp1`) | A executar: aviso do app e revisão humana das fotos |
-| E15 | C10, acesso sem chave (R12) | Seção 15 e passos S3.4 e S2.10 | Escrita da coordenação sem chave em 401; foto sem chave em 401 | 401 `chave-invalida` no S3.4; 200 histórico no S2.10; agora 401 comprovado por `OcorrenciaCriadaVoltaNaListaDaSalaEFotoSoComChave` | A executar pelo desktop |
+| E15 | C10, acesso sem chave (R12) | Seção 15 e passos S3.4 e S2.10 | Escrita da coordenação sem chave em 401; foto sem chave em 401 | Histórico: 401 `chave-invalida` no S3.4 e 200 no S2.10, anterior à correção. Coleta local de 07/11/2026: GET da foto sem chave em 401 `chave-invalida` ([saída E15](evidencias/saidas/E15.txt), linhas 27–41; [print E15](evidencias/prints/E15.png)), em Development/Kestrel; teste correspondente: `OcorrenciaCriadaVoltaNaListaDaSalaEFotoSoComChave` | A executar pelo desktop contra o IIS |
 
 ## Como fechar o anexo
 

@@ -65,7 +65,7 @@ public class ApiTestes
         var c = f.Cliente();
         using var escopo = f.Services.CreateScope();
         var db = escopo.ServiceProvider.GetRequiredService<SalaDb>();
-        var t0 = DateTimeOffset.UtcNow.AddMinutes(-20);
+        var t0 = DateTimeOffset.UtcNow.AddMinutes(-10);
         InserirPar(db, t0, 36, 32);
         InserirPar(db, t0.AddMinutes(1), 37, 33);
         db.SaveChanges();
@@ -141,6 +141,39 @@ public class ApiTestes
     }
 
     [Fact]
+    public async Task DemoRepetidoAncoraNaUltimaLeituraSemApagarHistoricoReal()
+    {
+        var agora = new DateTimeOffset(2026, 11, 17, 12, 0, 0, TimeSpan.Zero);
+        using var f = new ApiFabrica("Demo", new RelogioFixo(agora));
+        var c = f.Cliente();
+        using var escopo = f.Services.CreateScope();
+        var db = escopo.ServiceProvider.GetRequiredService<SalaDb>();
+        foreach (var quando in new[] { agora.AddDays(-1), agora })
+            db.Leituras.Add(new Leitura { AmbienteId = "sala-03", DispositivoId = "esp32-sala-03",
+                TemperaturaC = 33.4, UmidadePct = 58, IndiceCalor = IndiceCalor.Calcular(33.4, 58),
+                Nivel = Nivel.cuidado, MedidoEm = quando, Origem = Origem.dispositivo });
+        await db.SaveChangesAsync();
+
+        for (var repeticao = 0; repeticao < 2; repeticao++)
+        {
+            Assert.Equal(HttpStatusCode.Created,
+                (await c.PostAsync("/demo/semear?ambienteId=sala-03", new StringContent(""))).StatusCode);
+            var simuladas = await db.Leituras.AsNoTracking().Where(l => l.Origem == Origem.simulada).ToListAsync();
+            Assert.Equal(18, simuladas.Count);
+            Assert.Equal(agora.AddMinutes(-10), simuladas.Max(l => l.MedidoEm));
+            Assert.All(simuladas, l => Assert.InRange(l.MedidoEm, agora.AddHours(-3), agora));
+            var reais = await db.Leituras.AsNoTracking().Where(l => l.Origem == Origem.dispositivo).ToListAsync();
+            Assert.Equal(2, reais.Count);
+            Assert.Contains(reais, l => l.MedidoEm == agora.AddDays(-1));
+            Assert.Contains(reais, l => l.MedidoEm == agora);
+            using var previsao = JsonDocument.Parse(await c.GetStringAsync("/ambientes/sala-03/previsao"));
+            Assert.False(previsao.RootElement.GetProperty("semLeiturasRecentes").GetBoolean());
+            Assert.Equal(JsonValueKind.Number, previsao.RootElement.GetProperty("deltaSala").ValueKind);
+            Assert.Equal(JsonValueKind.Number, previsao.RootElement.GetProperty("indiceSalaPrevisto").ValueKind);
+        }
+    }
+
+    [Fact]
     public async Task UploadRecusaOQueNaoEJpegENomeComDoisPontos()
     {
         using var f = new ApiFabrica();
@@ -199,6 +232,11 @@ public class ApiTestes
 
     [Theory]
     [InlineData("invalido", "Sala", 0, "leste")]
+    [InlineData("sala-3", "Sala", 0, "leste")]
+    [InlineData("sala-０３", "Sala", 0, "leste")]
+    [InlineData("sala-٠٣", "Sala", 0, "leste")]
+    [InlineData("sala-03\n", "Sala", 0, "leste")]
+    [InlineData("\nsala-03", "Sala", 0, "leste")]
     [InlineData("sala-05", " ", 0, "leste")]
     [InlineData("sala-05", "Sala", -1, "leste")]
     [InlineData("sala-05", "Sala", 21, "leste")]
@@ -583,11 +621,17 @@ public class ApiTestes
         StringContent Acao(string nivel, string descricao) =>
             new(JsonSerializer.Serialize(new { ambienteId = "sala-03", nivel, descricao }), Encoding.UTF8, "application/json");
         Assert.Equal("nivel", await Motivo(await c.PostAsync("/acoes", Acao("quente", "pausa para água"))));
-        Assert.Equal("descricao", await Motivo(await c.PostAsync("/acoes", Acao("cuidado", "  "))));
-        var criada = await c.PostAsync("/acoes", Acao("cuidado", "pausa para água"));
+        foreach (var descricao in new[] { "", "  ", "abcd", "  abcd  ", new string('a', 301) })
+            Assert.Equal("descricao", await Motivo(await c.PostAsync("/acoes", Acao("cuidado", descricao))));
+        Assert.Empty((await c.GetFromJsonAsync<AcaoSaida[]>("/acoes?dia=2026-11-05"))!);
+        var criada = await c.PostAsync("/acoes", Acao("cuidado", "  pausa para água  "));
         Assert.Equal(HttpStatusCode.Created, criada.StatusCode);
         Assert.Equal("/acoes?dia=2026-11-05", criada.Headers.Location!.OriginalString);
-        Assert.Single((await c.GetFromJsonAsync<AcaoSaida[]>("/acoes?dia=2026-11-05"))!);
+        Assert.Equal("pausa para água", Assert.Single((await c.GetFromJsonAsync<AcaoSaida[]>("/acoes?dia=2026-11-05"))!).Descricao);
+        foreach (var descricao in new[] { "12345", new string('a', 300) })
+            Assert.Equal(HttpStatusCode.Created, (await c.PostAsync("/acoes", Acao("cuidado", $"  {descricao}  "))).StatusCode);
+        var acoes = (await c.GetFromJsonAsync<AcaoSaida[]>("/acoes?dia=2026-11-05"))!;
+        Assert.Equal(new[] { "pausa para água", "12345", new string('a', 300) }, acoes.OrderBy(a => a.Id).Select(a => a.Descricao));
     }
 
     [Fact]

@@ -11,7 +11,7 @@ O classificador inclui Frio abaixo de 18 °C (mínimo interno recomendado pela O
 | Campo | Conteúdo |
 |---|---|
 | Nome da CitizenTech | Termômetro da Sala |
-| Cidade e bairro | São Paulo; escola do piloto a definir (a entrevista foi no CRAS Santo Amaro) |
+| Cidade e bairro | São Paulo; Magister e Salgueiro são candidatas ao piloto, indicadas por Samuel em 17/11/2026. Unidade, bairro e autorização a confirmar; a entrevista foi no CRAS Santo Amaro |
 | Cidadão beneficiado | Professor(a) e turma de uma sala sem climatização. Quem opera o sistema é a coordenação pedagógica |
 | Problema, em uma frase | Nas tardes quentes, a sala passa do limite seguro sem que ninguém meça, e a escola só reage quando alguém passa mal |
 | Como funciona | Um sensor na porta da sala mede o calor e acende verde, amarelo ou vermelho. O sistema prevê o nível da sala para daqui a 2 h. A coordenação vê todas as salas, decide e registra a ação tomada. O professor acompanha pelo app e registra ocorrências com foto |
@@ -20,7 +20,7 @@ O classificador inclui Frio abaixo de 18 °C (mínimo interno recomendado pela O
 | Indicador de impacto | Aulas no nível "Perigo" sem ação registrada (meta: zero) e minutos entre o alerta e a ação |
 | ODS conectados | 3 (meta 3.d), 4 (meta 4.a), 11 (meta 11.b) e 13 (meta 13.1) |
 
-Integrantes: Samuel Baecker — RM [preencher]
+Integrantes: Samuel David Baecker — RM 559269; Lucas de Almeida Villar — RM 560005; Guilherme Augusto Caseiro — RM 559765
 
 ## Arquivos
 
@@ -35,7 +35,108 @@ Integrantes: Samuel Baecker — RM [preencher]
 | `modelo.json` | O modelo exportado, que a API em C# carrega |
 | `paridade-api.json` | 200 entradas de 2025 e previsões do scikit-learn, exportadas pelo notebook para o teste da API |
 | `test_alertas.py` | Teste offline de precisão/recall antes e depois, com o CSV real e o JSON exportado |
+| `ocupantes.py` | Estimador experimental em watts por grupos, com demonstração do 3º ano; separado da previsão atual |
+| `test_ocupantes.py` | Cálculo de referência, presença variável, dados ausentes e validação das entradas do estimador |
+| `salas.py` | Modelo de rua compartilhado com ajuste observacional isolado por sala e demonstração do terceirão |
+| `test_salas.py` e `casos-ajuste-salas.json` | Casos temporais, isolamento, paridade com C# e cálculo sem retreinar o modelo |
 | `requirements.txt` | Versões usadas na execução local (Python 3.11) |
+
+## V1 de ocupação e referência fechada em 17 de novembro
+
+A demonstração usa **somente uma turma do 3º ano do ensino médio, 20 alunos
+aproximadamente de 17–18 anos e 1 professor**. Esse perfil é hipotético.
+CRAS, escolas públicas e privadas, do berçário ao ensino médio, continuam como
+público-alvo; o exemplo não valida todos esses públicos. Magister e Salgueiro
+continuam candidatas, sem piloto confirmado. Cada sala precisa de seu próprio
+perfil e histórico. Um modelo independente por sala só deve ser treinado quando
+houver dados suficientes para avaliação temporal; hoje o modelo de rua é
+compartilhado e a API calcula o delta de cada ambiente.
+
+**Referência operacional:** EnergyPlus 26.2, *Input Output Reference*, tabela 1.30,
+coluna W/pessoa: **108 W sentado em repouso e 126 W em pé relaxado**.
+São valores de referência adulta, baseados em superfície corporal de 1,8 m².
+O ganho é total, incluindo calor convectivo, radiante e latente.
+[Fonte primária e valores](https://energyplus.readthedocs.io/en/v26.2.0/guides/input-output-reference/1.14-group-internal-gains-people-lights-other-internal-zone-equipment.html).
+Usamos diretamente essa coluna; não recalculamos pelos valores arredondados de met.
+
+O cálculo do cenário é `20 × 108 + 1 × 126 = 2286 W` (**2,286 kW**).
+É uma hipótese adulta equivalente para demonstrar o método, não uma medição nem
+uma calibração dos adolescentes. A idade não escolhe watts automaticamente.
+O berçário e outros perfis não recebem esses coeficientes por padrão.
+
+`estimar_ocupantes(grupos)` exige rótulo do grupo, perfil etário agregado, atividade,
+quantidade presente e, quando disponível, potência por pessoa com sua referência.
+Uma lista vazia representa sala explicitamente vazia. Presença desconhecida é
+recusada. Grupo presente sem potência deixa o total como `None`, nunca zero.
+Não são necessários nomes, temperatura corporal, peso ou altura individuais.
+
+```powershell
+python -B -m ml.ocupantes
+python -B -m unittest discover -s ml -p test_ocupantes.py -v
+```
+
+Execute da raiz do projeto; o módulo usa só a biblioteca padrão. A saída JSON
+identifica `origem: estimativa`, `validado_em_campo: false`, os grupos e a fonte.
+O coeficiente se refere à atividade registrada; falar ou caminhar não é a mesma
+atividade do professor em pé relaxado adotada no exemplo.
+
+**Integração técnica:** este primeiro módulo funciona offline. Ele ainda não é
+atributo de `modelo.json`, não altera a API e não soma watts a graus Celsius.
+O INMET não contém ocupação das salas: treinar com os novos fatores exige coleta
+interna, com horário da observação e do registro, ambiente, grupos presentes,
+atividade e referência utilizada. Atualizar presença/atividade por evento, conforme
+o plano V1. Coeficientes, registros ausentes e mudanças de perfil devem continuar
+identificados na preparação do dataset. Só promover o fator ao modelo após comparar
+o resultado com a previsão atual em períodos posteriores e separados do treino.
+Não foram atribuídas frações arbitrárias de calor sensível/latente, intervalos de
+confiança, nem efeitos em °C. Computadores e eletrônicos continuam fora da V1.
+
+## Modelo geral com ajuste por sala
+
+`salas.py` reutiliza a árvore de `modelo.json`, o avaliador de `mapa.py` e o cálculo
+do índice de calor de `ferramentas/indice_calor.py`. A API aplica a mesma regra de
+ajuste; nenhuma árvore por idade, escola ou turma foi treinada nesta etapa.
+
+- Histórico de até três horas, isolado por `ambiente_id`, sem futuros ou suspeitas.
+- Última leitura por sensor/minuto UTC, com desempate pelo maior `id`.
+- Observação externa anterior ou igual com no máximo 60 minutos, nunca a posterior.
+- Média das diferenças por minuto entre sensores; depois, média entre minutos.
+  Três minutos distintos e último par com até 15 minutos são o mínimo operacional.
+- Sem rua disponível, persistência da média dos sensores recentes (15 minutos),
+  com igual peso por sensor; sem dados suficientes, a ausência é explícita.
+
+Os limites acima são escolhas do projeto, não uma calibração comprovada. A média
+não representa o ponto mais quente da sala; o mapa continua mostrando diferenças
+espaciais. Reutilizar a rua horária não cria observações independentes.
+
+O alvo é **duas horas após a observação externa usada**. Se a consulta ocorre
+30 minutos depois, restam 90 minutos até o alvo. `base_rua_em` e `previsto_para`
+explicam isso na saída Python, e `previstoPara` informa o alvo no contrato da API.
+O mapa +1 h interpola proporcionalmente ao horizonte restante, sem extrapolá-lo.
+
+```powershell
+python -B -m ml.salas
+python -B -m unittest discover -s ml -p test_salas.py -v
+```
+
+Executar da raiz com o ambiente de `requirements.txt`, já utilizado pelo estudo.
+A demonstração tem 4 sensores em 3 minutos, dados internos **simulados**, perfil
+do 3º ano e 20 alunos +1 professor. Ela informa 2286 W separadamente e usa o modelo
+exportado sem alterá-lo. Mudar a ocupação não muda essa previsão enquanto não
+houver dados internos para treinar e validar esse efeito.
+
+Entrada de `ajuste_por_sala`: lista de leituras com `ambiente_id`, `sensor`,
+`instante` com fuso, `indice`, `suspeita` opcional e `id` para desempates;
+lista externa com `instante`, `indice` e `id`. `prever_sala` também exige
+`temperatura_c` e `umidade_pct` externos. Sem `id`, a ordem recebida desempata.
+Campos opcionais de temperatura/umidade inválidos são descartados. Para exportar
+leituras da API, prefira JSON: o CSV atual não contém a identificação do sensor.
+
+Os vetores compartilhados são sintéticos, não métricas de acurácia. A conferência
+temporal considera o instante medido; ainda não existe histórico de recebimento
+para auditar atrasos de transmissão. A próxima coleta deve registrar ambos e
+buscar o alvo pelo timestamp exato, sem confundir duas linhas com duas horas.
+As métricas de 2025 abaixo continuam referentes apenas ao modelo externo original.
 
 ## Decisões
 
@@ -92,7 +193,8 @@ A seção 6 do notebook repete o vetor do teste da API e mostra a previsão do j
 | Sala prevista para +2 h | 31,16 °C, nível **atenção** |
 | Ação sugerida (`CONTRATO.md`) | liberar água, abrir janelas e ligar ventiladores |
 
-Em produção, o delta é a média da diferença sala − rua nas últimas 3 h, medida pelo ESP32.
+Na execução integrada, o delta usa o histórico recente da sala e o pareamento
+externo descritos em “Modelo geral com ajuste por sala”.
 
 O aviso com 2 h de antecedência apoia a coordenação ao hidratar, ventilar ou realocar a turma, ligado ao **ODS 3.d** (alerta precoce e redução de riscos à saúde). O indicador de aulas em Perigo sem ação ainda não foi medido; faltam dados reais da sala e validação do delta. A previsão não substitui a leitura atual nem os procedimentos da escola.
 

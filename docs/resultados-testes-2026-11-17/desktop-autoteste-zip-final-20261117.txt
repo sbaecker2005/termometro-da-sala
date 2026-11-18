@@ -1,0 +1,2 @@
+Autoteste: 6 verificacoes passaram.
+Exit code: 0

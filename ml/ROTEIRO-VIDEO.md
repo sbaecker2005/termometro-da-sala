@@ -2,7 +2,25 @@
 
 Meta: **1 min 50 s**. O modelo prevê o índice de calor da rua daqui a 2 h; a sala entra pelo delta medido pelo ESP32 e a previsão aparece no app. Grave o notebook já executado e, no trecho final, a API ligada devolvendo o número calculado pelo modelo, mais o teste que chega ao mesmo valor do notebook. Não mostre chave, segredo HMAC nem connection string.
 
-Antes de gravar: notebook aberto nas seções 1, 4, 5 e 6 (previsão em uso e gráfico de previsto contra real); `ml/modelo.json` e `api/TermometroDaSala.Api/modelo/modelo.json` no mesmo conteúdo; a API ligada no ambiente `Demo` (`ASPNETCORE_ENVIRONMENT=Demo`), com o Wokwi publicando na sala 3, e um navegador ou o Insomnia em `GET /ambientes/sala-03/previsao`; um terminal em `api` pronto para `dotnet test --filter PrevisorModeloTestes`.
+## Preparação no computador já validado
+
+Na raiz do kit, execute `powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\ferramentas\abrir-apresentacao.ps1`. O script compila a API, cria um banco novo no SQL Server Express, prepara a previsão e abre o desktop com a mesma chave temporária mantida apenas em memória. Se a porta 5080 estiver ocupada, ele para sem encerrar outro processo. Os registros e o comando para encerrar a API criada ficam em `output/apresentacao/`. O mapa frio com vinte cadeiras é uma cena simulada; o trecho de ML deve mostrar a **Sala 3 e sua previsão de +2 h**.
+
+## Fala pronta para ensaiar
+
+Leia com pausas e use os cortes da tabela abaixo. Cronometre uma vez; mantenha o vídeo inteiro abaixo de dois minutos.
+
+“O Termômetro da Sala ajuda a coordenação a antecipar situações de calor. O sensor mede a sala; nosso modelo prevê o índice de calor da rua duas horas à frente. A API combina essa previsão com a diferença recente entre sala e rua.
+
+Usamos dados públicos do INMET, da estação A701, entre 2022 e 2025, convertendo o horário para São Paulo. Separamos os dados por tempo: 2022 e 2023 para treino, 2024 para escolher os parâmetros e 2025 para avaliação.
+
+Comparamos persistência, árvore e floresta. Exportamos uma árvore de profundidade 12 e folha mínima 24, escolhida na validação. Ela teve erro absoluto médio de 0,909 grau, contra 1,442 do baseline. O alerta identificou 19 de 48 horas de cuidado: melhorou, mas ainda perde casos. Um período novo é necessário para uma avaliação independente após a auditoria.
+
+Este é o modelo exportado, e aqui está a API calculando a previsão em uso. A resposta mostra a rua prevista, o delta e o resultado para a sala. No desktop, a coordenação vê esse alerta e pode registrar uma ação. O teste de paridade confirma que notebook e API calculam o mesmo vetor de referência.
+
+Esta demonstração usa leituras simuladas por HTTP. Magister e Salgueiro são candidatas para os próximos testes, sujeitos à autorização. Ainda precisamos validar o comportamento em campo, especialmente os alertas e a diferença térmica da sala.”
+
+Antes de gravar: notebook aberto nas seções 1, 4, 5 e 6 (previsão em uso e gráfico de previsto contra real); `ml/modelo.json` e `api/TermometroDaSala.Api/modelo/modelo.json` no mesmo conteúdo; a API ligada no ambiente `Demo` (`ASPNETCORE_ENVIRONMENT=Demo`), com leituras recentes na sala 3, e um navegador ou o Insomnia em `GET /ambientes/sala-03/previsao`; um terminal em `api` pronto para `dotnet test --filter PrevisorModeloTestes`. O Wokwi pode fornecer as leituras; para este vídeo de ML, também é possível usar o ensaio HTTP identificado como simulado em [FECHAMENTO-ML-SOA-CSHARP.md](../docs/FECHAMENTO-ML-SOA-CSHARP.md). Ele não comprova funcionamento de um sensor físico ou do Wokwi.
 
 No Demo, a API aplica o `modelo.json` à hora atual do dia quente de `demo/rua-dia-quente.csv` (temperatura, umidade, índice de calor atual (`indice_agora`) e variação desde a hora anterior, com a hora local e o mês de hoje), e o `indiceRuaPrevisto` da resposta é a saída do modelo. O número depende da hora e do mês da gravação; compare a resposta com a entrada atual do CSV, sem prometer um valor fixo. O teste `DemoAplicaOModeloAoDiaDoCsvEDaOMesmoValor` põe o vetor da seção 6 (15/01/2026, 14h em São Paulo, rua a 30 °C, 28,5 °C uma hora antes) no CSV do Demo e chega a 27,16 °C, o mesmo número do notebook e do previsor do banco. Não use o modo simulado do app, em que a previsão é fixa no código.
 

@@ -1,0 +1,16 @@
+2026-11-17T09:12:28.5574655-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5081/acoes
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {}
+Esperado: HTTP 401; 
+HTTP 401 Unauthorized
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Tue, 17 Nov 2026 12:12:27 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"chave-invalida"}
+Conferencia: OK

@@ -13,24 +13,63 @@ public interface IPrevisorRua
     double? IndiceNoInstante(DateTimeOffset utc);
     double? TemperaturaNoInstante(DateTimeOffset utc);
     double? PreverDaquiA2h(DateTimeOffset utc);
+    DateTimeOffset InstanteBase(DateTimeOffset utc) => utc;
+    IReadOnlyDictionary<DateTimeOffset, double?> IndicesNosInstantes(IEnumerable<DateTimeOffset> instantes) =>
+        instantes.Distinct().ToDictionary(t => t, IndiceNoInstante);
 }
 
 public class PrevisorRuaBaseline : IPrevisorRua
 {
     private readonly SalaDb _db;
+    private DateTimeOffset? _instanteBase;
     public PrevisorRuaBaseline(SalaDb db) => _db = db;
 
-    public double? IndiceNoInstante(DateTimeOffset utc) =>
-        _db.LeiturasRua.Where(r => r.MedidoEm == utc).Select(r => (double?)r.IndiceCalor).FirstOrDefault();
+    public double? IndiceNoInstante(DateTimeOffset utc) => Ultima(_db, utc)?.IndiceCalor;
+
+    public IReadOnlyDictionary<DateTimeOffset, double?> IndicesNosInstantes(IEnumerable<DateTimeOffset> instantes)
+    {
+        var horarios = instantes.Distinct().OrderBy(t => t).ToArray();
+        var resultado = new Dictionary<DateTimeOffset, double?>();
+        if (horarios.Length == 0) return resultado;
+        var desde = horarios[0].AddHours(-1);
+        var ate = horarios[^1];
+        var leituras = _db.LeiturasRua.AsNoTracking().Where(r => r.MedidoEm >= desde && r.MedidoEm <= ate)
+            .OrderBy(r => r.MedidoEm).ThenBy(r => r.Id).ToList().Where(Valida).ToArray();
+        var posicao = 0;
+        LeituraRua? ultima = null;
+        foreach (var horario in horarios)
+        {
+            while (posicao < leituras.Length && leituras[posicao].MedidoEm <= horario)
+                ultima = leituras[posicao++];
+            resultado[horario] = ultima is not null && ultima.MedidoEm >= horario.AddHours(-1)
+                ? ultima.IndiceCalor : null;
+        }
+        return resultado;
+    }
 
     public double? TemperaturaNoInstante(DateTimeOffset utc) =>
         _db.LeiturasRua.Where(r => r.MedidoEm == utc).Select(r => (double?)r.TemperaturaC).FirstOrDefault();
 
     // shortcut: sem modelo.json válido, a rua daqui a 2 h repete o índice de agora
-    public double? PreverDaquiA2h(DateTimeOffset utc) => Ultima(_db, utc)?.IndiceCalor;
+    public double? PreverDaquiA2h(DateTimeOffset utc)
+    {
+        var ultima = Ultima(_db, utc);
+        _instanteBase = ultima?.MedidoEm;
+        return ultima?.IndiceCalor;
+    }
 
-    internal static LeituraRua? Ultima(SalaDb db, DateTimeOffset utc) =>
-        db.LeiturasRua.Where(r => r.MedidoEm <= utc).OrderByDescending(r => r.MedidoEm).FirstOrDefault();
+    public DateTimeOffset InstanteBase(DateTimeOffset utc) => _instanteBase ?? utc;
+
+    internal static LeituraRua? Ultima(SalaDb db, DateTimeOffset utc)
+    {
+        var desde = utc.AddHours(-1);
+        return db.LeiturasRua.Where(r => r.MedidoEm >= desde && r.MedidoEm <= utc)
+            .OrderByDescending(r => r.MedidoEm).ThenByDescending(r => r.Id).AsEnumerable().FirstOrDefault(Valida);
+    }
+
+    internal static bool Valida(LeituraRua leitura) =>
+        double.IsFinite(leitura.IndiceCalor) && double.IsFinite(leitura.TemperaturaC)
+        && leitura.TemperaturaC is >= -10 and <= 60 && leitura.UmidadePct is >= 0 and <= 100;
 }
 
 public class PrevisorRuaModelo : IPrevisorRua
@@ -39,6 +78,7 @@ public class PrevisorRuaModelo : IPrevisorRua
     private readonly ILogger<PrevisorRuaModelo> _log;
     private readonly PrevisorRuaBaseline _provisorio;
     private readonly Func<Dictionary<string, double>, double>? _modelo; // linear ou arvore, conforme ml/modelo.json
+    private DateTimeOffset? _instanteBase;
 
     public PrevisorRuaModelo(SalaDb db, ILogger<PrevisorRuaModelo> log, string caminho)
     {
@@ -50,17 +90,29 @@ public class PrevisorRuaModelo : IPrevisorRua
 
     public double? IndiceNoInstante(DateTimeOffset utc) => _provisorio.IndiceNoInstante(utc);
     public double? TemperaturaNoInstante(DateTimeOffset utc) => _provisorio.TemperaturaNoInstante(utc);
+    public DateTimeOffset InstanteBase(DateTimeOffset utc) => _instanteBase ?? utc;
+    public IReadOnlyDictionary<DateTimeOffset, double?> IndicesNosInstantes(IEnumerable<DateTimeOffset> instantes) =>
+        _provisorio.IndicesNosInstantes(instantes);
 
     public double? PreverDaquiA2h(DateTimeOffset utc)
     {
-        if (_modelo is null) return _provisorio.PreverDaquiA2h(utc);
+        _instanteBase = null;
+        if (_modelo is null)
+        {
+            var provisoria = _provisorio.PreverDaquiA2h(utc);
+            _instanteBase = _provisorio.InstanteBase(utc);
+            return provisoria;
+        }
         var agora = PrevisorRuaBaseline.Ultima(_db, utc);
         if (agora is null) return null;
+        _instanteBase = agora.MedidoEm;
 
         // shortcut: só casa a leitura no mesmo segundo; janela de minutos quando a rua não for horária
         var inicio = DateTimeOffset.FromUnixTimeSeconds(agora.MedidoEm.AddHours(-1).ToUnixTimeSeconds());
         var fim = inicio.AddSeconds(1);
-        var antes = _db.LeiturasRua.Where(r => r.MedidoEm >= inicio && r.MedidoEm < fim).Select(r => (double?)r.TemperaturaC).FirstOrDefault();
+        var antes = _db.LeiturasRua.Where(r => r.MedidoEm >= inicio && r.MedidoEm < fim)
+            .OrderByDescending(r => r.MedidoEm).ThenByDescending(r => r.Id)
+            .AsEnumerable().FirstOrDefault(PrevisorRuaBaseline.Valida)?.TemperaturaC;
         if (antes is null)
             _log.LogInformation("variacao_1h sem leitura de 1 h antes de {Instante}", agora.MedidoEm);
 
@@ -216,39 +268,54 @@ public class ConsultaPrevisao
         var leituras = await _db.Leituras
             .Where(l => l.AmbienteId == ambienteId && !l.Suspeita && l.MedidoEm >= desde && l.MedidoEm <= agora)
             .ToListAsync();
-        var pares = new List<double>();
-        foreach (var leitura in leituras)
+        var amostras = leituras.Where(l => double.IsFinite(l.IndiceCalor) && double.IsFinite(l.TemperaturaC))
+            .GroupBy(l => (l.DispositivoId, Minuto: l.MedidoEm.UtcTicks / TimeSpan.TicksPerMinute))
+            .Select(g => g.OrderByDescending(l => l.MedidoEm).ThenByDescending(l => l.Id).First()).ToArray();
+        var ruaPorInstante = _rua.IndicesNosInstantes(amostras.Select(l => l.MedidoEm));
+        var pares = new List<(DateTimeOffset Instante, double Delta)>();
+        foreach (var leitura in amostras)
         {
-            var rua = _rua.IndiceNoInstante(leitura.MedidoEm);
-            if (rua is null) continue;
-            pares.Add(leitura.IndiceCalor - rua.Value);
+            var rua = ruaPorInstante[leitura.MedidoEm];
+            if (rua is null || !double.IsFinite(rua.Value)) continue;
+            var diferenca = leitura.IndiceCalor - rua.Value;
+            if (double.IsFinite(diferenca)) pares.Add((leitura.MedidoEm, diferenca));
         }
-        return pares.Count < 3 ? null : Math.Round(pares.Average(), 1);
+        var minutos = pares.GroupBy(p => p.Instante.UtcTicks / TimeSpan.TicksPerMinute)
+            .Select(g => g.Average(p => p.Delta)).ToArray();
+        if (minutos.Length < 3 || pares.Max(p => p.Instante) < agora.AddMinutes(-15)) return null;
+        var media = minutos.Average();
+        return double.IsFinite(media) ? Math.Round(media, 1) : null;
     }
 
-    // null: sem rua e sem leitura válida da sala nas últimas 3 h, não há o que prever sem inventar
+    // null: sem rua e sem leitura válida da sala nos últimos 15 min, não há o que prever sem inventar
     public async Task<PrevisaoSaida?> Montar(string ambienteId)
     {
         var agora = _tempo.GetUtcNow();
         var desde = agora.AddHours(-3);
         var demonstracao = _ambiente.IsEnvironment("Demo")
-            || await _db.Leituras.AnyAsync(l => l.AmbienteId == ambienteId && l.Origem == Origem.simulada && l.MedidoEm >= desde);
+            || await _db.Leituras.AnyAsync(l => l.AmbienteId == ambienteId && l.Origem == Origem.simulada && l.MedidoEm >= desde && l.MedidoEm <= agora);
         var rua = _rua.PreverDaquiA2h(agora);
-        if (rua is not null)
+        if (rua is not null && double.IsFinite(rua.Value))
         {
             var delta = await Delta(ambienteId, agora);
             double? sala = delta is null ? null : Math.Round(rua.Value + delta.Value, 1);
-            return await Gravar(new PrevisaoSaida(ambienteId, agora.AddHours(2), Math.Round(rua.Value, 1),
+            return await Gravar(new PrevisaoSaida(ambienteId, _rua.InstanteBase(agora).AddHours(2), Math.Round(rua.Value, 1),
                 delta, sala, IndiceCalor.Nivel(sala ?? rua.Value).ToString(), delta is null, demonstracao, true), agora);
         }
 
-        // Sem rua (fora do Demo nada grava LeiturasRua): a sala se mantém no índice da última leitura válida.
-        var ultima = await _db.Leituras
-            .Where(l => l.AmbienteId == ambienteId && !l.Suspeita && l.MedidoEm >= desde && l.MedidoEm <= agora)
-            .OrderByDescending(l => l.MedidoEm).FirstOrDefaultAsync();
-        if (ultima is null) return null;
+        // Sem rua: persistência da média dos sensores recentes, sem favorecer o que envia mais.
+        var recentesDesde = agora.AddMinutes(-15);
+        var recentes = await _db.Leituras
+            .Where(l => l.AmbienteId == ambienteId && !l.Suspeita && l.MedidoEm >= recentesDesde && l.MedidoEm <= agora)
+            .ToListAsync();
+        var sensores = recentes.Where(l => double.IsFinite(l.IndiceCalor) && double.IsFinite(l.TemperaturaC))
+            .GroupBy(l => l.DispositivoId)
+            .Select(g => g.OrderByDescending(l => l.MedidoEm).ThenByDescending(l => l.Id).First()).ToArray();
+        if (sensores.Length == 0) return null;
+        var indice = Math.Round(sensores.Average(l => l.IndiceCalor), 1);
+        if (!double.IsFinite(indice)) return null;
         return await Gravar(new PrevisaoSaida(ambienteId, agora.AddHours(2), 0,
-            null, ultima.IndiceCalor, IndiceCalor.Nivel(ultima.IndiceCalor).ToString(), false, demonstracao, false), agora);
+            null, indice, IndiceCalor.Nivel(indice).ToString(), false, demonstracao, false), agora);
     }
 
     // A previsão servida entra no histórico (tabela Previsoes), para comparar depois com o que a sala mediu.

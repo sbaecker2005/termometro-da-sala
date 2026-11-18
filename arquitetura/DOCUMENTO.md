@@ -2,7 +2,7 @@
 
 Global Solution 2026.2 (CitizenTech). Disciplina: Testing, Compliance & Quality Assurance, Arquitetura de Soluções baseada no TOGAF.
 
-Equipe: Samuel Baecker - RM [preencher]
+Equipe: Samuel David Baecker - RM 559269; Lucas de Almeida Villar - RM 560005; Guilherme Augusto Caseiro - RM 559765
 
 ## Ficha da CitizenTech
 

@@ -14,6 +14,16 @@
 | Indicador de impacto | Aulas no nível "Perigo" sem ação registrada (meta: zero) e minutos entre o alerta e a ação |
 | ODS conectados | 3 (meta 3.d), 4 (meta 4.a), 11 (meta 11.b) e 13 (meta 13.1) |
 
+## Equipe
+
+| Nome completo | RM |
+|---|---|
+| Samuel David Baecker | 559269 |
+| Lucas de Almeida Villar | 560005 |
+| Guilherme Augusto Caseiro | 559765 |
+
+## Arquivos
+
 | Arquivo | Conteúdo |
 |---|---|
 | [RELATORIO-RISCOS.md](RELATORIO-RISCOS.md) | Relatório de gestão de riscos: ativos, agentes de ameaça, fluxo de dados, riscos, cenários de ataque e controles |

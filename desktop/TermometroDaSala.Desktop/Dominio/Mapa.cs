@@ -14,6 +14,17 @@ public record PontoMapa(string Id, string Rotulo, string Tipo, double X, double 
 public record Mapa(string AmbienteId, double? LarguraM, double? ProfundidadeM, double PassoM,
     List<CelulaMapa> Grade, List<PontoMapa> Pontos, List<string> Precaucoes)
 {
+    public IEnumerable<(string Codigo, PontoMapa Ponto)> PontosIdentificados()
+    {
+        var sensores = 0;
+        var cadeiras = 0;
+        foreach (var ponto in Pontos)
+        {
+            var codigo = ponto.Tipo == "sensor" ? $"S{++sensores}" : $"C{++cadeiras:00}";
+            yield return (codigo, ponto);
+        }
+    }
+
     public void Conferir(string id)
     {
         bool Numero(double? n) => n is null || double.IsFinite(n.Value);
@@ -55,8 +66,15 @@ public record Mapa(string AmbienteId, double? LarguraM, double? ProfundidadeM, d
         for (double x = 0; x <= 6; x += .5)
             for (double y = 0; y <= 4; y += .5) grade.Add(new(x, y, Valor(x), Valor(x), Nivel(Valor(x))));
         var pontos = new List<PontoMapa>();
-        foreach (var (nome, tipo, x, y) in new[] { ("Janela", "sensor", 0d, 2d), ("Fundo", "sensor", 6d, 2d), ("Cadeira 1", "lugar", 1d, 1d), ("Cadeira 2", "lugar", 5d, 3d) })
+        foreach (var (nome, tipo, x, y) in new[] { ("Janela", "sensor", 0d, 2d), ("Fundo", "sensor", 6d, 2d) })
             pontos.Add(new(nome, nome, tipo, x, y, tipo == "lugar", Valor(x), Valor(x), Nivel(Valor(x)), Valor(x) - Valor(3), false));
+        for (var i = 0; i < 20; i++)
+        {
+            var x = .75 + 1.5 * (i % 4);
+            var y = .4 + .8 * (i / 4);
+            var nome = $"Cadeira {i + 1:00}";
+            pontos.Add(new(nome, nome, "lugar", x, y, i is 8 or 19, Valor(x), Valor(x), Nivel(Valor(x)), Valor(x) - Valor(3), false));
+        }
         return new(id, 6, 4, .5, grade, pontos, ["DEMONSTRAÇÃO: valores simulados, inclusive a previsão +1 h.", "Verificar janela, sol e corrente de ar; avaliar presencialmente os lugares vulneráveis."]);
     }
 }

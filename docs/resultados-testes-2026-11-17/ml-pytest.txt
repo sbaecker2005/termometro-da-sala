@@ -1,0 +1,62 @@
+Validação ML — 17/11/2026
+
+Resultado final: 23 testes e 9 subtests aprovados em 20,62 s; exit code 0.
+Saída original: ml-pytest-python311.txt.
+A tentativa inicial no runtime 3.12 sem dependências está preservada em
+ml-pytest-runtime312-historico.txt. Esse bloqueio foi superado.
+
+Ambiente isolado
+- Python 3.11.9 oficial Windows embeddable x64, sem instalador, PATH ou registro.
+- Pasta: D:/codex-validacao-termometro-20261117-c0ce77f9efc54ab2885d0268d0cbb51c/ml-python311
+- D: tinha 6,07 GiB livres antes da preparação; ambiente final 336,95 MiB.
+- Cerca de 114 MB baixados entre runtime e wheels; cache e temporários em D:.
+- numpy 1.24.3, pandas 2.0.3, scikit-learn 1.3.0 e matplotlib 3.7.2 preservam os pins de ml/requirements.txt.
+- scipy 1.15.3, pytest 9.2.0; lista completa em ml-dependencias.txt.
+- Apenas dependências usadas pelos testes foram instaladas, incluindo IPython; sem kernel, nbclient ou nbformat.
+- Nenhuma instalação global ou dependência grande em C:.
+
+Origem do runtime
+https://www.python.org/downloads/release/python-3119/
+https://www.python.org/ftp/python/3.11.9/python-3.11.9-embed-amd64.zip
+SHA256: 009D6BF7E3B2DDCA3D784FA09F90FE54336D5B60F0E0F305C37F400BF83CFD3B
+O MD5 do ZIP também foi comparado ao publicado na página oficial.
+
+Preparação executada, na raiz do kit, com pastas próprias em D:
+$mlBase = 'D:/codex-validacao-termometro-20261117-c0ce77f9efc54ab2885d0268d0cbb51c/ml-python311'
+$pythonBootstrap = 'C:/Program Files/WindowsApps/OpenAI.CodexPrimaryRuntime.v26-1112-611-0_26.1112.611.0_x64__3k8sg7r9htsxt/dependencies/python/python.exe'
+if ((Get-PSDrive -Name D).Free -lt 2GB) { throw 'D: precisa de pelo menos 2 GB livres.' }
+New-Item -ItemType Directory -Path $mlBase,(Join-Path $mlBase 'tmp'),(Join-Path $mlBase 'cache')
+$runtimeZip = Join-Path $mlBase 'python-3.11.9-embed-amd64.zip'
+$runtimeDir = Join-Path $mlBase 'runtime'
+Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.11.9/python-3.11.9-embed-amd64.zip' -OutFile $runtimeZip
+if ((Get-FileHash -LiteralPath $runtimeZip -Algorithm SHA256).Hash -ne '009D6BF7E3B2DDCA3D784FA09F90FE54336D5B60F0E0F305C37F400BF83CFD3B') { throw 'Runtime divergente.' }
+Expand-Archive -LiteralPath $runtimeZip -DestinationPath $runtimeDir
+Set-Content -LiteralPath (Join-Path $runtimeDir 'python311._pth') -Encoding ASCII -Value @('python311.zip','.','../packages','C:/Users/samue/Downloads/kit-windows-ml-soa-csharp','import site')
+$env:TEMP = Join-Path $mlBase 'tmp'
+$env:TMP = $env:TEMP
+$env:PIP_CONFIG_FILE = 'NUL'
+& $pythonBootstrap -B -m pip install --ignore-installed --no-compile --only-binary=:all: --python-version 3.11 --platform win_amd64 --implementation cp --abi cp311 --index-url https://pypi.org/simple --disable-pip-version-check --no-cache-dir --report (Join-Path $mlBase 'instalacao.json') --target (Join-Path $mlBase 'packages') -c ml/requirements.txt numpy pandas scikit-learn matplotlib pytest ipython
+
+python311._pth da cópia portátil em D: contém:
+python311.zip
+.
+../packages
+C:/Users/samue/Downloads/kit-windows-ml-soa-csharp
+import site
+
+Execução aprovada:
+$env:MPLCONFIGDIR = Join-Path $mlBase 'matplotlib'
+$env:IPYTHONDIR = Join-Path $mlBase 'ipython'
+$env:PYTEST_DISABLE_PLUGIN_AUTOLOAD = '1'
+$env:OMP_NUM_THREADS = '2'
+$env:OPENBLAS_NUM_THREADS = '2'
+& (Join-Path $mlBase 'runtime/python.exe') -B -m pytest ml -q -p no:cacheprovider --basetemp 'D:/codex-validacao-termometro-20261117-c0ce77f9efc54ab2885d0268d0cbb51c/ml-python311/pytest-a2c173985f53418eaab807a7b2f9025c'
+
+Para preparar outro ambiente, escolha uma pasta mlBase inexistente em D: e ajuste o caminho do kit em python311._pth. O ambiente acima já está preparado. Para repetir somente os testes, escolha outro basetemp inexistente em D:, pois pytest gerencia e limpa esse diretório.
+
+Escopo e preservação
+- Somente os testes existentes foram executados; sem regenerar notebook ou exportações do produto.
+- Os próprios casos treinam referências em memória e exportam arquivos temporários em D:.
+- Sete arquivos conferidos por SHA256 antes/depois, zero divergências: notebook, modelo.json, modelo_pontos.json, alertas.csv, metricas-pontos.csv, grupos-pontos.csv e dados/inmet_a701.csv.
+- Hashes anteriores em ml-hashes-antes.json. Nenhuma alteração de código foi necessária.
+- Esse resultado não comprova sensor físico, Wokwi, calibração, vídeo ou integração em campo.

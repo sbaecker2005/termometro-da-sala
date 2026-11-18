@@ -9,7 +9,7 @@ Global Solution 2026.2 (CitizenTech) — Engenharia de Software, 3º ano, FIAP.
 | Campo | Conteúdo |
 |---|---|
 | Nome da CitizenTech | Termômetro da Sala |
-| Cidade e bairro | São Paulo; escola do piloto a definir (a entrevista foi no CRAS Santo Amaro) |
+| Cidade e bairro | São Paulo; Magister e Salgueiro são candidatas ao piloto, indicadas por Samuel em 17/11/2026. Unidade, bairro e autorização a confirmar; a entrevista foi no CRAS Santo Amaro |
 | Cidadão beneficiado | Professor(a) e turma de uma sala sem climatização. Quem opera o sistema é a coordenação pedagógica |
 | Problema, em uma frase | Nas tardes quentes, a sala passa do limite seguro sem que ninguém meça, e a escola só reage quando alguém passa mal |
 | Como funciona | Um sensor na porta da sala mede o calor e acende verde, amarelo ou vermelho. O sistema prevê o nível da sala para daqui a 2 h. A coordenação vê todas as salas, decide e registra a ação tomada. O professor acompanha pelo app e registra ocorrências com foto |
@@ -20,9 +20,13 @@ Global Solution 2026.2 (CitizenTech) — Engenharia de Software, 3º ano, FIAP.
 
 ## Integrantes
 
-- Samuel Baecker - RM [preencher]
+- Samuel David Baecker - RM 559269
+- Lucas de Almeida Villar - RM 560005
+- Guilherme Augusto Caseiro - RM 559765
 
 ## Como rodar
+
+Para preparar o computador Windows da equipe, validar API/desktop e montar a demonstração de ML, siga [FECHAMENTO-ML-SOA-CSHARP.md](../docs/FECHAMENTO-ML-SOA-CSHARP.md). O SDK .NET e o SQL Server/LocalDB são instalações separadas.
 
 Requisitos: .NET 8 e SQL Server (a conexão está em `TermometroDaSala.Api/appsettings.json`). Os testes não precisam de SQL Server: usam SQLite em memória.
 
@@ -91,9 +95,29 @@ A coleção do Insomnia está em [insomnia.json](insomnia.json).
 
 O índice de calor é o da NOAA (Rothfusz), em °C com 1 casa. Faixas: abaixo de 18 frio, de 18 até menos de 27 normal, 27 a 32 atenção, 32 a 41 cuidado, 41 ou mais perigo. O mínimo interno de 18 °C é a recomendação da OMS para moradias. Na tabela, o início físico da faixa de frio é o zero absoluto (−273,15 °C); o limite superior é 18 °C. A nova migração `AlertaFrio` inclui a ação de frio e ajusta o início de Normal, preservando os registros existentes.
 
-O delta é a média de (índice da sala − índice da rua) nas últimas 3 h, com no mínimo 3 pares no mesmo instante UTC, sem as leituras suspeitas. A previsão da sala é o índice da rua daqui a 2 h mais o delta. Sem pares suficientes, `deltaSala` e `indiceSalaPrevisto` vêm `null` e `semLeiturasRecentes` vem `true`: mostra-se só a rua.
+O modelo de rua é compartilhado e o delta é separado por sala. Nas últimas 3 h,
+seleciona-se a última leitura por sensor/minuto, excluindo futuros, suspeitas e
+valores não finitos. A rua é a última observação anterior ou igual, com até 60
+minutos. A média das diferenças é feita por minuto entre sensores e depois entre
+minutos, exigindo ao menos três minutos distintos e último par com até 15 minutos.
+Assim, um sensor que envia mais não recebe mais peso. Sem histórico suficiente,
+`deltaSala` e `indiceSalaPrevisto` são `null`, `semLeiturasRecentes` é `true` e
+mostra-se só a rua. Esses limites são escolhas operacionais para validar em campo.
+O histórico externo é consultado em lote, sem uma consulta por amostra interna.
 
-Fora do Demo nenhuma rotina grava `LeiturasRua`, então pode não haver rua. Nesse caso a API não inventa a rua nem devolve "normal" por falta de dado: `ruaDisponivel` vem `false`, `indiceSalaPrevisto` é o índice da última leitura válida da sala nas últimas 3 h (a hipótese é que a sala se mantenha), `nivelPrevisto` é o nível desse índice, `deltaSala` vem `null`, `semLeiturasRecentes` vem `false` e `indiceRuaPrevisto` vem `0`, sem significado. Sem rua e sem leitura válida recente, a rota responde 503 `{"motivo":"sem-dados-para-prever"}`. Testes: `SemRuaForaDoDemoAPrevisaoSegueASalaENaoDizNormal` e `DemoComRuaQuenteNaoMarcaSalaFrescaComoSuspeita`.
+A previsão externa também exige observação com até 60 minutos; `previstoPara`
+preserva duas horas desde a observação usada, e não desde o GET. O Demo mantém
+agora +2 h. App, desktop e painel mostram o horário-alvo recebido. A lista de
+campos do contrato permanece igual. A temperatura externa usada na regra de
+plausibilidade da ingestão continua exigindo correspondência exata de horário.
+
+Fora do Demo nenhuma rotina grava `LeiturasRua`, então pode não haver rua. Nesse
+caso, ou quando a rua expira, `ruaDisponivel` é `false`: persiste-se a média da
+última leitura válida de cada sensor nos últimos 15 minutos. `indiceSalaPrevisto`
+é essa média, `nivelPrevisto` seu nível, `deltaSala` é `null`,
+`semLeiturasRecentes` é `false` e `indiceRuaPrevisto` é `0`, sem significado.
+Sem rua e sem sensor recente, responde 503 `{"motivo":"sem-dados-para-prever"}`.
+O contrato detalhado e os limites estão em [CONTRATO.md](../CONTRATO.md#4-previsão-da-sala).
 
 A rua daqui a 2 h vem da árvore de regressão em `TermometroDaSala.Api/modelo/modelo.json` (cópia de `ml/modelo.json`, profundidade 12 e folha mínima 24, treinada no notebook com o horário do INMET, estação A701, 2022–2025). No teste de 2025 o MAE foi 0,909 °C, contra 1,442 °C do baseline "daqui a 2 h = agora". O recall do nível "cuidado" ainda é baixo; a análise está em `ml/README.md`. O caminho fica em `Modelo:Caminho`. `ModeloRua` lê o arquivo, confere a árvore e monta os mesmos atributos do notebook (temperatura, umidade, hora e mês em seno e cosseno, variação da última hora e índice de calor atual (`indice_agora`)). Sem o arquivo, ou com JSON inválido, a API registra no log e cai na regra provisória.
 
@@ -301,7 +325,7 @@ e o simulador durante o roteiro para não disputar os timestamps.
 
 As requisições estão em pastas por recurso (Leituras, Dispositivos, Ambientes, Ações e
 níveis, Ocorrências, Demonstração) e numeradas na ordem do roteiro. Cada uma confere o
-status esperado na aba de testes do Insomnia (after-response com `insomnia.expect`).
+status esperado na aba de testes do Insomnia (after-response com `insomnia.expect`), incluindo os quatro pedidos de mapa 26–29. Execute pela numeração: um runner que percorre as pastas por recurso pode colocar a leitura 06 antes da revogação 05. Nesse caso ajuste a ordem no runner ou execute a revogação 05 antes da rodada. Não confunda a ordem visual das pastas com a ordem do roteiro.
 
 1. `01 POST /leituras - sucesso`: o pre-request script gera `medidoEm` atual, assina o
    texto canônico com a chave pública de teste e guarda o corpo em `leitura_aceita`.
@@ -320,8 +344,10 @@ status esperado na aba de testes do Insomnia (after-response com `insomnia.expec
    pode ser repetido.
 8. `14 POST /acoes` e `15 GET /acoes?dia=AAAA-MM-DD`, ajustando `dia` para hoje em
    São Paulo: 201 e 200 com a ação registrada.
-9. No multipart de `16 POST /ocorrencias`, selecione um JPEG real de uma sala vazia,
-   sem alunos ou dados pessoais (até 5 MB; nome simples, por exemplo `sala.jpg`).
+9. No multipart de `16 POST /ocorrencias`, selecione um JPEG de até 5 MB, sem alunos
+   ou dados pessoais (nome simples, por exemplo `sala.jpg`). Uma ilustração sintética
+   identificada como tal serve para o ensaio técnico. Se o Insomnia bloquear a leitura
+   local, permita somente a pasta da fixture em Preferences > General > Security.
    Espere 201. O script guarda `id` em `ocorrencia_id`. `17 GET /ambientes/{id}/ocorrencias`
    mostra a ocorrência no topo. `18` pede a foto sem a chave (401) e `19` com a chave
    (200, `image/jpeg`).
@@ -330,8 +356,8 @@ status esperado na aba de testes do Insomnia (after-response com `insomnia.expec
     uma leitura ao vivo: 404 fora de Demo, 409 sem leitura, 201 após ela.
 
 As fotos locais ficam em `TermometroDaSala.Api/fotos/`, ignorada pelo repositório.
-Cada passo tem o print correspondente em [evidencias/](evidencias/README.md), sem dados
-pessoais ou credenciais.
+O [índice de evidências](evidencias/README.md) separa capturas manuais, respostas do
+coletor automático e registros históricos; não os apresenta como a mesma prova.
 
 ## Testes automatizados
 
@@ -339,7 +365,7 @@ pessoais ou credenciais.
 dotnet test
 ```
 
-São 85 testes xUnit (85 aprovados e zero falhas em 08/11/2026, conforme resultado informado pelo coordenador): vetores do contrato (HMAC, índice de calor, relógio de São Paulo),
+São **134 testes xUnit aprovados, zero falhas e zero ignorados em 17/11/2026**: vetores do contrato (HMAC, índice de calor, relógio de São Paulo),
 leitura do modelo de previsão (no banco e no Demo, com o mesmo valor), rotas da API (CRUD de
 salas, ocorrências, foto com chave, níveis, cabeçalhos de segurança), previsão sem rua e
 histórico, alerta da sala com delta e arredondamento nos limites 18/27/32/41 °C (frio incluído), mapa térmico (IDW, precauções e autorização do PUT),
@@ -348,5 +374,16 @@ SQLite em memória, só no projeto de testes (a API referencia apenas o provedor
 Server). Como o SQLite não ordena `DateTimeOffset`, os testes gravam as datas como ticks UTC
 (`SqliteDeTeste.cs`), e as consultas com `WHERE` e `ORDER BY` por data rodam no banco do mesmo
 jeito que no SQL Server. `EsquemaTestes` monta o modelo com o provedor do SQL Server, sem
-conectar, e confere as FKs e o script das migrações. O resumo atual informado e o registro histórico estão em
-[evidencias/dotnet-test.txt](evidencias/dotnet-test.txt).
+conectar, e confere as FKs e o script das migrações. A suíte inclui o contrato do cliente desktop, concorrência/replay/rollback e a regressão que ancora as leituras simuladas na leitura ao vivo mais recente ao repetir o Demo em outro dia.
+
+Resultado atual: [134 testes aprovados](../docs/resultados-testes-2026-11-17/api-modelo-geral-v1.trx), incluindo os ajustes por sala e o horizonte do mapa. Reprodução a partir da raiz do kit, com as dependências restauradas:
+
+```powershell
+dotnet test .\api\TermometroDaSala.Api.Tests\TermometroDaSala.Api.Tests.csproj -c Validacao --no-restore --nologo -v minimal -m:1 /nodeReuse:false
+```
+
+SQL Server foi revalidado com esta revisão: [98 verificações do coletor](evidencias/TermometroGS_SOA_ModeloGeral_20261117_134420/conferencia.tsv) e [33 verificações HTTP/MQTT/SQL](../docs/resultados-testes-2026-11-17/TermometroGS_ModeloGeral_20261117_135412_6ef80b60/resultado.txt), com broker local real, dez corridas, rollback após falha controlada e 12 verificações do modelo por sala/horizonte/mapa. [Comandos, cenários e limites](../docs/resultados-testes-2026-11-17/sql-modelo-geral-v1.txt). As contagens não são somadas à suíte xUnit. O registro de 85 testes em 08/11 permanece histórico em [dotnet-test.txt](evidencias/dotnet-test.txt).
+
+A origem do modelo também foi revalidada: [19/19 células do notebook](../docs/resultados-testes-2026-11-17/ml-notebook-integral.txt) executadas em 31,95 s, saída 0, com Python 3.11.9/IPython.display/Agg em cópia isolada. Os modelos JSON foram estruturalmente idênticos; os 12 originais mantiveram seus hashes. Esse ensaio executou as células sequencialmente, sem kernel Jupyter/nbclient e sem conferir visualmente figuras regeneradas.
+
+O iniciador `ferramentas/abrir-apresentacao.ps1` teve a proteção de porta corrigida: uma consulta de rede que falhasse não podia ser interpretada como porta livre. A reserva TCP exclusiva agora interrompe a abertura quando indisponível; [recusa comprovada no host e sandbox](../output/apresentacao/TermometroGS_Apresentacao_20261117_094533/protecao-porta.txt), saída 1 e API original preservada. A tentativa anterior teve seus processos adicionais encerrados e seus registros/banco preservados; não há pendência de correção.

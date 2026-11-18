@@ -21,6 +21,7 @@ public partial class TelaCoordenacao : Form
         nivel.DataSource = Enum.GetValues<NivelCalor>().Select(n => new { Valor = n, Texto = n.Texto() }).ToList();
         nivel.DisplayMember = "Texto";
         nivel.ValueMember = "Valor";
+        AplicarVisual();
     }
 
     /// <summary>O mesmo termometro.ico do executável, embutido no assembly para não depender do caminho do .exe.</summary>
@@ -69,6 +70,7 @@ public partial class TelaCoordenacao : Form
         servico = null;
         salas.Rows.Clear();
         acoes.Rows.Clear();
+        totalSalas.Text = totalAlertas.Text = totalAcoes.Text = "—";
         status.Text = "Atualizando — aguarde. Em caso de erro, use Atualizar para tentar novamente.";
         try
         {
@@ -102,9 +104,9 @@ public partial class TelaCoordenacao : Form
             catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or System.Text.Json.JsonException)
             { aviso = "Previsão indisponível"; }
             if (sala.Demonstracao || previsao?.Demonstracao == true) aviso += " DEMONSTRAÇÃO";
-            if (previsao?.RuaDisponivel == false) aviso += " Previsão da rua indisponível; previsão usa a última leitura válida da sala";
-            else if (previsao?.SemLeiturasRecentes == true) aviso += " Sala sem leituras recentes; previsão da rua";
-            if (sala.SensorRevogado) aviso += " Sensor revogado";
+            if (previsao?.RuaDisponivel == false) aviso += " Previsão da rua indisponível; usa a média recente dos sensores da sala";
+            else if (previsao?.SemLeiturasRecentes == true) aviso += " Histórico insuficiente para ajustar a sala; previsão da rua";
+            if (sala.SensorRevogado) aviso = "Sensor revogado; " + aviso.Trim();
             if (sala.UltimaLeituraEm is { } hora && DateTimeOffset.UtcNow - hora > TimeSpan.FromMinutes(10)) aviso += " Leitura antiga";
             var linha = salas.Rows[salas.Rows.Add(sala.Id, sala.Nome,
                 sala.Leitura is { } atual ? atual.Nivel.Texto() : "Sem leitura",
@@ -116,6 +118,8 @@ public partial class TelaCoordenacao : Form
             if (sala.Id == selecionada) salas.CurrentCell = linha.Cells[0];
         }
         if (lista.Count == 0) status.Text += " Nenhuma sala cadastrada.";
+        totalSalas.Text = lista.Count.ToString();
+        totalAlertas.Text = lista.Count(s => s.Leitura is { Nivel: not NivelCalor.Normal }).ToString();
         await CarregarAcoes();
     }
 
@@ -123,6 +127,8 @@ public partial class TelaCoordenacao : Form
     {
         celula.Style.BackColor = CorDoNivel(nivel);
         celula.Style.ForeColor = Color.Black;
+        celula.Style.SelectionBackColor = CorDoNivel(nivel);
+        celula.Style.SelectionForeColor = Color.Black;
     }
 
     private Sala Selecionada() => salas.CurrentRow?.Tag as Sala ?? throw new ArgumentException("Selecione uma sala na grade.");
@@ -160,6 +166,7 @@ public partial class TelaCoordenacao : Form
         acoes.Rows.Clear();
         foreach (var acao in lista.OrderByDescending(a => a.RegistradoEm))
             acoes.Rows.Add(acao.AmbienteId, acao.Nivel.Texto(), acao.Descricao, HorarioEscola.Hora(acao.RegistradoEm).ToString("HH:mm:ss"));
+        totalAcoes.Text = lista.Count.ToString();
     }
 
     private async Task Revogar()

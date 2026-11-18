@@ -1,0 +1,702 @@
+2026-11-17T09:17:12.8068182-03:00
+Fontes locais do kit; banco exclusivo TermometroGS_SOA_20261117_Validado; sem afirmar equivalencia com commit remoto.
+Windows Microsoft Windows NT 10.0.26200.0; PowerShell 5.1.26100.9818; SDK 8.0.427
+Development e Demo em HTTP local; SQL Server 2022 Express; MQTT desligado.
+C7/C8 (VM), C12 (TLS MQTT) nao comprovados localmente.
+
+api/TermometroDaSala.Api/Program.cs
+1: using System.Threading.RateLimiting;
+2: using Microsoft.AspNetCore.RateLimiting;
+3: using Microsoft.EntityFrameworkCore;
+4: using TermometroDaSala.Api.Dados;
+5: using TermometroDaSala.Api.Servicos;
+6: 
+7: var builder = WebApplication.CreateBuilder(args);
+8: 
+9: builder.Services.AddControllers();
+10: builder.Services.AddEndpointsApiExplorer();
+11: builder.Services.AddSwaggerGen();
+12: builder.Services.AddRateLimiter(o =>
+13: {
+14:     o.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+15:     o.AddPolicy("escrita", http =>
+16:         RateLimitPartition.GetFixedWindowLimiter(
+17:             http.Connection.RemoteIpAddress?.ToString() ?? "sem-ip",
+18:             _ => new FixedWindowRateLimiterOptions
+19:             {
+20:                 PermitLimit = 30,
+21:                 Window = TimeSpan.FromMinutes(1),
+22:                 QueueLimit = 0,
+23:             }));
+24: });
+25: 
+26: var cs = builder.Configuration.GetConnectionString("Sala")
+27:     ?? throw new InvalidOperationException("Configure ConnectionStrings:Sala.");
+28: builder.Services.AddDbContext<SalaDb>(o => o.UseSqlServer(cs));
+29: builder.Services.AddSingleton(TimeProvider.System);
+30: 
+31: string CaminhoModelo(IServiceProvider sp) =>
+32:     Path.GetFullPath(builder.Configuration["Modelo:Caminho"] ?? Path.Combine("modelo", "modelo.json"),
+33:         sp.GetRequiredService<IHostEnvironment>().ContentRootPath);
+34: 
+35: if (builder.Environment.IsEnvironment("Demo"))
+36:     builder.Services.AddScoped<IPrevisorRua>(sp => new PrevisorRuaDemo(sp.GetRequiredService<IHostEnvironment>().ContentRootPath,
+37:         CaminhoModelo(sp), sp.GetRequiredService<ILogger<PrevisorRuaDemo>>()));
+38: else
+39:     builder.Services.AddScoped<IPrevisorRua>(sp =>
+40:         new PrevisorRuaModelo(sp.GetRequiredService<SalaDb>(), sp.GetRequiredService<ILogger<PrevisorRuaModelo>>(), CaminhoModelo(sp)));
+41: 
+42: builder.Services.AddScoped<ServicoLeituras>();
+43: builder.Services.AddScoped<ConsultaPrevisao>();
+44: 
+45: if (!builder.Configuration.GetValue("Mqtt:Desligado", false))
+46:     builder.Services.AddHostedService<AssinanteMqtt>();
+47: 
+48: var app = builder.Build();
+49: 
+50: if (app.Configuration.GetValue("Banco:Migrar", true))
+51: {
+52:     using var escopo = app.Services.CreateScope();
+53:     escopo.ServiceProvider.GetRequiredService<SalaDb>().Database.Migrate();
+54: }
+55: 
+56: if (!app.Environment.IsProduction())
+57: {
+58:     app.UseSwagger();
+59:     app.UseSwaggerUI();
+60: }
+61: 
+62: if (app.Environment.IsProduction())
+63: {
+64:     app.UseHsts();
+65:     app.UseHttpsRedirection();
+66: }
+67: 
+68: app.Use((contexto, proximo) =>
+69: {
+70:     contexto.Response.Headers.XContentTypeOptions = "nosniff";
+71:     return proximo(contexto);
+72: });
+73: 
+74: app.UseDefaultFiles();
+75: app.UseStaticFiles();
+76: app.UseRateLimiter();
+77: app.UseAuthorization();
+78: app.MapControllers();
+79: app.Run();
+80: 
+81: public partial class Program { }
+
+api/TermometroDaSala.Api/Dominio/Contrato.cs
+1: using System.Globalization;
+2: using System.Security.Cryptography;
+3: using System.Text;
+4: using TermometroDaSala.Api.Dominio.Entidades;
+5: 
+6: namespace TermometroDaSala.Api.Dominio;
+7: 
+8: public static class IndiceCalor
+9: {
+10:     // Faixas iguais à semente de NivelAcao; 18 °C é o mínimo interno recomendado pela OMS para moradias.
+11:     public static Nivel Nivel(double indice)
+12:     {
+13:         if (indice < 18) return Entidades.Nivel.frio;
+14:         if (indice < 27) return Entidades.Nivel.normal;
+15:         if (indice < 32) return Entidades.Nivel.atencao;
+16:         if (indice < 41) return Entidades.Nivel.cuidado;
+17:         return Entidades.Nivel.perigo;
+18:     }
+19: 
+20:     public static bool EhNivel(string nivel) => Enum.IsDefined(typeof(Nivel), nivel);
+21: 
+22:     public static double Calcular(double tempC, double umidade)
+23:     {
+24:         var t = tempC * 9 / 5 + 32;
+25:         var rh = umidade;
+26:         var simples = 0.5 * (t + 61.0 + (t - 68.0) * 1.2 + rh * 0.094);
+27:         double hi;
+28:         if ((simples + t) / 2 < 80)
+29:         {
+30:             hi = simples;
+31:         }
+32:         else
+33:         {
+34:             hi = -42.379 + 2.04901523 * t + 10.14333127 * rh - 0.22475541 * t * rh
+35:                 - 0.00683783 * t * t - 0.05481717 * rh * rh + 0.00122874 * t * t * rh
+36:                 + 0.00085282 * t * rh * rh - 0.00000199 * t * t * rh * rh;
+37:             if (rh < 13 && t is >= 80 and <= 112)
+38:                 hi -= ((13 - rh) / 4) * Math.Sqrt((17 - Math.Abs(t - 95)) / 17);
+39:             else if (rh > 85 && t is >= 80 and <= 87)
+40:                 hi += ((rh - 85) / 10) * ((87 - t) / 5);
+41:         }
+42:         return Math.Round((hi - 32) * 5 / 9, 1);
+43:     }
+44: }
+45: 
+46: public static class Relogio
+47: {
+48:     public static readonly TimeZoneInfo SaoPaulo =
+49:         TimeZoneInfo.FindSystemTimeZoneById("E. South America Standard Time");
+50: 
+51:     public static DateTimeOffset HoraLocal(DateTimeOffset utc) => TimeZoneInfo.ConvertTime(utc, SaoPaulo);
+52: }
+53: 
+54: public static class Assinatura
+55: {
+56:     public static string Canonico(string ambienteId, string dispositivo, double temperaturaC, int umidadePct, long medidoEm) =>
+57:         string.Join('|',
+58:             ambienteId,
+59:             dispositivo,
+60:             temperaturaC.ToString("0.0", CultureInfo.InvariantCulture),
+61:             umidadePct.ToString(CultureInfo.InvariantCulture),
+62:             medidoEm.ToString(CultureInfo.InvariantCulture));
+63: 
+64:     public static string Hex(string segredo, string ambienteId, string dispositivo, double temperaturaC, int umidadePct, long medidoEm)
+65:     {
+66:         var hash = HMACSHA256.HashData(
+67:             Encoding.UTF8.GetBytes(segredo),
+68:             Encoding.UTF8.GetBytes(Canonico(ambienteId, dispositivo, temperaturaC, umidadePct, medidoEm)));
+69:         return Convert.ToHexString(hash).ToLowerInvariant();
+70:     }
+71: 
+72:     public static bool Confere(string segredo, string ambienteId, string dispositivo, double temperaturaC, int umidadePct, long medidoEm, string assinaturaHex)
+73:     {
+74:         byte[] informado;
+75:         try { informado = Convert.FromHexString(assinaturaHex); }
+76:         catch (FormatException) { return false; }
+77:         var hash = HMACSHA256.HashData(
+78:             Encoding.UTF8.GetBytes(segredo),
+79:             Encoding.UTF8.GetBytes(Canonico(ambienteId, dispositivo, temperaturaC, umidadePct, medidoEm)));
+80:         return informado.Length == hash.Length && CryptographicOperations.FixedTimeEquals(hash, informado);
+81:     }
+82: }
+83: 
+84: public static class ValidadorLeitura
+85: {
+86:     public static string? Motivo(
+87:         string? ambienteDoDispositivo,
+88:         bool? ativo,
+89:         string segredo,
+90:         string ambienteId,
+91:         string dispositivo,
+92:         double temperaturaC,
+93:         int umidadePct,
+94:         long medidoEm,
+95:         string assinatura,
+96:         DateTimeOffset agora,
+97:         long? ultimoMedidoEm)
+98:     {
+99:         if (ambienteDoDispositivo is null
+100:             || ambienteDoDispositivo != ambienteId
+101:             || !Assinatura.Confere(segredo, ambienteId, dispositivo, temperaturaC, umidadePct, medidoEm, assinatura))
+102:             return "assinatura-invalida";
+103:         if (ativo == false) return "dispositivo-revogado";
+104:         if (ultimoMedidoEm is not null && medidoEm <= ultimoMedidoEm) return "reenvio";
+105:         var quando = DateTimeOffset.FromUnixTimeSeconds(medidoEm);
+106:         if (quando < agora.AddMinutes(-10) || quando > agora.AddMinutes(1)) return "atrasada";
+107:         if (temperaturaC is < -10 or > 60 || umidadePct is < 0 or > 100) return "fora-da-faixa";
+108:         return null;
+109:     }
+110: 
+111:     public static bool Suspeita(double temperaturaC, double? temperaturaAnterior, double? temperaturaRua) =>
+112:         (temperaturaAnterior is not null && Math.Abs(temperaturaC - temperaturaAnterior.Value) > 5)
+113:         || (temperaturaRua is > 30 && temperaturaC < temperaturaRua.Value - 8);
+114: }
+
+api/TermometroDaSala.Api/Servicos/ServicoLeituras.cs
+1: using TermometroDaSala.Api.Dominio.Entidades;
+2: using TermometroDaSala.Api.Contratos;
+3: using Microsoft.EntityFrameworkCore;
+4: using TermometroDaSala.Api.Dados;
+5: using TermometroDaSala.Api.Dominio;
+6: 
+7: namespace TermometroDaSala.Api.Servicos;
+8: 
+9: public sealed record ResultadoLeitura(int Status, string? Motivo, long? Id, bool Suspeita, double Indice, string Nivel);
+10: 
+11: public class ServicoLeituras
+12: {
+13:     private readonly SalaDb _db;
+14:     private readonly TimeProvider _tempo;
+15:     private readonly IPrevisorRua _rua;
+16:     private readonly ILogger<ServicoLeituras> _log;
+17: 
+18:     public ServicoLeituras(SalaDb db, TimeProvider tempo, IPrevisorRua rua, ILogger<ServicoLeituras> log)
+19:     {
+20:         _db = db;
+21:         _tempo = tempo;
+22:         _rua = rua;
+23:         _log = log;
+24:     }
+25: 
+26:     public async Task<ResultadoLeitura> Receber(LeituraEntrada entrada, Origem origem = Origem.dispositivo)
+27:     {
+28:         var dispositivo = await _db.Dispositivos.AsNoTracking()
+29:             .SingleOrDefaultAsync(d => d.Id == entrada.Dispositivo);
+30:         var motivo = ValidadorLeitura.Motivo(
+31:             dispositivo?.AmbienteId,
+32:             dispositivo?.Ativo,
+33:             dispositivo?.Segredo ?? "",
+34:             entrada.AmbienteId,
+35:             entrada.Dispositivo,
+36:             entrada.TemperaturaC,
+37:             entrada.UmidadePct,
+38:             entrada.MedidoEm,
+39:             entrada.Assinatura,
+40:             _tempo.GetUtcNow(),
+41:             dispositivo?.UltimoMedidoEm?.ToUnixTimeSeconds());
+42:         if (motivo is not null)
+43:         {
+44:             _log.LogWarning("leitura recusada: {Motivo}", motivo);
+45:             return new ResultadoLeitura(400, motivo, null, false, 0, "");
+46:         }
+47: 
+48:         var quando = DateTimeOffset.FromUnixTimeSeconds(entrada.MedidoEm);
+49:         // Reserva e leitura são atômicas, inclusive entre HTTP e MQTT em processos diferentes.
+50:         await using var transacao = await _db.Database.BeginTransactionAsync();
+51:         var reservados = await _db.Dispositivos
+52:             .Where(d => d.Id == entrada.Dispositivo && d.Ativo
+53:                 && (d.UltimoMedidoEm == null || d.UltimoMedidoEm < quando))
+54:             .ExecuteUpdateAsync(s => s.SetProperty(d => d.UltimoMedidoEm, quando));
+55:         if (reservados == 0)
+56:         {
+57:             var ativo = await _db.Dispositivos.Where(d => d.Id == entrada.Dispositivo)
+58:                 .Select(d => (bool?)d.Ativo).SingleOrDefaultAsync();
+59:             motivo = ativo is null ? "assinatura-invalida" : ativo.Value ? "reenvio" : "dispositivo-revogado";
+60:             _log.LogWarning("leitura recusada: {Motivo}", motivo);
+61:             return new ResultadoLeitura(400, motivo, null, false, 0, "");
+62:         }
+63: 
+64:         var anterior = await _db.Leituras.Where(l => l.DispositivoId == entrada.Dispositivo)
+65:             .OrderByDescending(l => l.MedidoEm).Select(l => (double?)l.TemperaturaC).FirstOrDefaultAsync();
+66:         var suspeita = ValidadorLeitura.Suspeita(entrada.TemperaturaC, anterior, _rua.TemperaturaNoInstante(quando));
+67:         if (suspeita) _log.LogWarning("leitura marcada: {Motivo}", "suspeita");
+68: 
+69:         var indice = IndiceCalor.Calcular(entrada.TemperaturaC, entrada.UmidadePct);
+70:         var leitura = new Leitura
+71:         {
+72:             AmbienteId = entrada.AmbienteId,
+73:             DispositivoId = entrada.Dispositivo,
+74:             TemperaturaC = entrada.TemperaturaC,
+75:             UmidadePct = entrada.UmidadePct,
+76:             IndiceCalor = indice,
+77:             Nivel = IndiceCalor.Nivel(indice),
+78:             MedidoEm = quando,
+79:             Origem = origem,
+80:             Suspeita = suspeita,
+81:         };
+82:         _db.Leituras.Add(leitura);
+83:         await _db.SaveChangesAsync();
+84:         await transacao.CommitAsync();
+85:         _log.LogInformation("leitura aceita {Ambiente} {Nivel}", entrada.AmbienteId, leitura.Nivel);
+86:         return new ResultadoLeitura(201, null, leitura.Id, suspeita, indice, leitura.Nivel.ToString());
+87:     }
+88: }
+
+api/TermometroDaSala.Api/Servicos/AssinanteMqtt.cs
+1: using TermometroDaSala.Api.Dominio.Entidades;
+2: using TermometroDaSala.Api.Contratos;
+3: using System.Text.Json;
+4: using MQTTnet;
+5: using MQTTnet.Client;
+6: 
+7: namespace TermometroDaSala.Api.Servicos;
+8: 
+9: public class AssinanteMqtt : BackgroundService
+10: {
+11:     // uma leitura assinada tem cerca de 250 bytes; acima disso a mensagem é descartada antes do JSON
+12:     public const int MaximoBytes = 1024;
+13:     private readonly IServiceScopeFactory _escopos;
+14:     private readonly IConfiguration _config;
+15:     private readonly ILogger<AssinanteMqtt> _log;
+16: 
+17:     public AssinanteMqtt(IServiceScopeFactory escopos, IConfiguration config, ILogger<AssinanteMqtt> log)
+18:     {
+19:         _escopos = escopos;
+20:         _config = config;
+21:         _log = log;
+22:     }
+23: 
+24:     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+25:     {
+26:         var broker = _config["Mqtt:Broker"] ?? "broker.hivemq.com";
+27:         var porta = _config.GetValue("Mqtt:Porta", 1883);
+28:         var topico = _config["Mqtt:Topico"] ?? "fiap-gs/termometro-da-sala/leituras";
+29:         var fabrica = new MqttFactory();
+30:         using var cliente = fabrica.CreateMqttClient();
+31:         cliente.ApplicationMessageReceivedAsync += e => Tratar(e.ApplicationMessage.PayloadSegment);
+32:         var opcoes = new MqttClientOptionsBuilder()
+33:             .WithTcpServer(broker, porta)
+34:             .WithClientId("tds-" + Guid.NewGuid().ToString("N")[..12])
+35:             .Build();
+36: 
+37:         while (!stoppingToken.IsCancellationRequested)
+38:         {
+39:             try
+40:             {
+41:                 if (!cliente.IsConnected)
+42:                 {
+43:                     await cliente.ConnectAsync(opcoes, stoppingToken);
+44:                     await cliente.SubscribeAsync(fabrica.CreateSubscribeOptionsBuilder().WithTopicFilter(topico).Build(), stoppingToken);
+45:                     _log.LogInformation("mqtt conectado em {Broker} {Topico}", broker, topico);
+46:                 }
+47:             }
+48:             catch (Exception ex) when (ex is not OperationCanceledException)
+49:             {
+50:                 _log.LogWarning("mqtt indisponivel, nova tentativa: {Mensagem}", ex.Message);
+51:             }
+52: 
+53:             try { await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken); }
+54:             catch (OperationCanceledException) { break; }
+55:         }
+56:     }
+57: 
+58:     public async Task Tratar(ArraySegment<byte> carga)
+59:     {
+60:         if (carga.Count > MaximoBytes)
+61:         {
+62:             _log.LogWarning("leitura mqtt ignorada: {Mensagem}", "acima-do-limite");
+63:             return;
+64:         }
+65:         try
+66:         {
+67:             var entrada = JsonSerializer.Deserialize<LeituraEntrada>(carga.AsSpan(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+68:             if (entrada is null) return;
+69:             using var escopo = _escopos.CreateScope();
+70:             await escopo.ServiceProvider.GetRequiredService<ServicoLeituras>().Receber(entrada);
+71:         }
+72:         catch (Exception ex)
+73:         {
+74:             _log.LogWarning("leitura mqtt ignorada: {Mensagem}", ex.Message);
+75:         }
+76:     }
+77: }
+
+api/TermometroDaSala.Api/Controllers/LeiturasController.cs
+1: using System.Globalization;
+2: using System.Text;
+3: using Microsoft.AspNetCore.Mvc;
+4: using Microsoft.AspNetCore.RateLimiting;
+5: using Microsoft.EntityFrameworkCore;
+6: using TermometroDaSala.Api.Dados;
+7: using TermometroDaSala.Api.Contratos;
+8: using TermometroDaSala.Api.Servicos;
+9: 
+10: namespace TermometroDaSala.Api.Controllers;
+11: 
+12: [ApiController]
+13: public class LeiturasController(SalaDb _db, ServicoLeituras _leituras) : ControllerBase
+14: {
+15:     [HttpGet("/ambientes/{id}/leituras")]
+16:     public async Task<IActionResult> Leituras(string id, [FromQuery] string? formato)
+17:     {
+18:         if (!await _db.Ambientes.AnyAsync(a => a.Id == id)) return NotFound();
+19:         var linhas = await _db.Leituras.Where(l => l.AmbienteId == id).OrderBy(l => l.MedidoEm).ThenBy(l => l.Id).ToListAsync();
+20:         if (!string.Equals(formato, "csv", StringComparison.OrdinalIgnoreCase))
+21:             return Ok(linhas.Select(l => new LeituraSaida
+22:             {
+23:                 MedidoEm = l.MedidoEm,
+24:                 TemperaturaC = l.TemperaturaC,
+25:                 UmidadePct = l.UmidadePct,
+26:                 IndiceCalor = l.IndiceCalor,
+27:                 Nivel = l.Nivel.ToString(),
+28:                 Origem = l.Origem.ToString(),
+29:                 Suspeita = l.Suspeita,
+30:                 DispositivoId = l.DispositivoId,
+31:             }));
+32: 
+33:         var csv = new StringBuilder("medidoEm,temperaturaC,umidadePct,indiceCalor,nivel,origem,suspeita\n");
+34:         foreach (var l in linhas)
+35:             csv.Append(CultureInfo.InvariantCulture, $"{l.MedidoEm:o},{l.TemperaturaC:0.0},{l.UmidadePct},{l.IndiceCalor:0.0},{l.Nivel},{l.Origem},{l.Suspeita}\n");
+36:         return Content(csv.ToString(), "text/csv; charset=utf-8");
+37:     }
+38: 
+39:     [HttpPost("/leituras")]
+40:     [EnableRateLimiting("escrita")]
+41:     public async Task<IActionResult> PostLeitura(LeituraEntrada entrada)
+42:     {
+43:         var r = await _leituras.Receber(entrada);
+44:         if (r.Status != 201) return BadRequest(new MotivoSaida(r.Motivo!));
+45:         return Created($"/ambientes/{entrada.AmbienteId}/leituras", new LeituraCriadaSaida(r.Id!.Value, r.Suspeita, r.Indice, r.Nivel));
+46:     }
+47: 
+48: }
+
+api/TermometroDaSala.Api/Controllers/OcorrenciasController.cs
+1: using Microsoft.AspNetCore.Mvc;
+2: using Microsoft.AspNetCore.RateLimiting;
+3: using Microsoft.EntityFrameworkCore;
+4: using TermometroDaSala.Api.Dados;
+5: using TermometroDaSala.Api.Dominio.Entidades;
+6: using TermometroDaSala.Api.Contratos;
+7: using TermometroDaSala.Api.Filtros;
+8: 
+9: namespace TermometroDaSala.Api.Controllers;
+10: 
+11: [ApiController]
+12: public class OcorrenciasController(SalaDb _db, IHostEnvironment _ambiente, IConfiguration _config, TimeProvider _tempo, ILogger<OcorrenciasController> _log) : ControllerBase
+13: {
+14:     [HttpPost("/ocorrencias")]
+15:     [EnableRateLimiting("escrita")]
+16:     [RequestSizeLimit(6 * 1024 * 1024)]
+17:     public async Task<IActionResult> Ocorrencia([FromForm] OcorrenciaEntrada entrada)
+18:     {
+19:         if (!await _db.Ambientes.AnyAsync(a => a.Id == entrada.AmbienteId)) return NotFound();
+20:         var texto = (entrada.Descricao ?? "").Trim();
+21:         if (texto.Length is < 10 or > 500) return BadRequest(new MotivoSaida("descricao"));
+22:         if (entrada.Foto is null || entrada.Foto.Length is 0 or > 5 * 1024 * 1024) return BadRequest(new MotivoSaida("arquivo"));
+23:         if (string.IsNullOrWhiteSpace(entrada.Foto.FileName) || entrada.Foto.FileName.Contains("..") || entrada.Foto.FileName.Contains('/') || entrada.Foto.FileName.Contains('\\'))
+24:             return Recusar("nome-invalido");
+25:         if (!await Jpeg(entrada.Foto)) return BadRequest(new MotivoSaida("nao-jpeg"));
+26: 
+27:         await using var bruto = new MemoryStream();
+28:         await entrada.Foto.CopyToAsync(bruto);
+29:         var limpo = SemApp1(bruto.ToArray());
+30:         if (limpo.Length < 3 || limpo[0] != 0xFF || limpo[1] != 0xD8) return BadRequest(new MotivoSaida("nao-jpeg"));
+31: 
+32:         var nome = Guid.NewGuid().ToString("N") + ".jpg";
+33:         var pasta = PastaFotos();
+34:         Directory.CreateDirectory(pasta);
+35:         await System.IO.File.WriteAllBytesAsync(Path.Combine(pasta, nome), limpo);
+36: 
+37:         var id = Guid.NewGuid();
+38:         _db.Ocorrencias.Add(new Ocorrencia { Id = id, AmbienteId = entrada.AmbienteId, Descricao = texto, CaminhoFoto = nome, CriadaEm = _tempo.GetUtcNow() });
+39:         await _db.SaveChangesAsync();
+40:         return Created($"/ocorrencias/{id}/foto", new IdSaida(id.ToString()));
+41:     }
+42: 
+43:     // A foto pode mostrar pessoas: só a coordenação abre (R12). A lista da sala não leva a foto.
+44:     [HttpGet("/ocorrencias/{id:guid}/foto")]
+45:     [ExigeChaveCoordenacao]
+46:     public async Task<IActionResult> Foto(Guid id)
+47:     {
+48:         var ocorrencia = await _db.Ocorrencias.FindAsync(id);
+49:         if (ocorrencia is null) return NotFound();
+50:         var nome = Path.GetFileName(ocorrencia.CaminhoFoto);
+51:         var caminho = Path.Combine(PastaFotos(), nome);
+52:         if (!System.IO.File.Exists(caminho)) return NotFound();
+53:         return PhysicalFile(caminho, "image/jpeg");
+54:     }
+55: 
+56:     private string PastaFotos() => PastaFotos(_config, _ambiente);
+57: 
+58:     internal static string PastaFotos(IConfiguration config, IHostEnvironment ambiente) =>
+59:         Path.IsPathRooted(config["Fotos:Pasta"] ?? "")
+60:             ? config["Fotos:Pasta"]!
+61:             : Path.Combine(ambiente.ContentRootPath, config["Fotos:Pasta"] ?? "fotos");
+62: 
+63:     private static async Task<bool> Jpeg(IFormFile foto)
+64:     {
+65:         if (foto.ContentType is not ("image/jpeg" or "image/jpg" or "image/pjpeg")) return false;
+66:         var cabeca = new byte[3];
+67:         await using var fluxo = foto.OpenReadStream();
+68:         var lidos = await fluxo.ReadAsync(cabeca.AsMemory(0, 3));
+69:         return lidos == 3 && cabeca[0] == 0xFF && cabeca[1] == 0xD8 && cabeca[2] == 0xFF;
+70:     }
+71: 
+72:     // shortcut: não junta 0xFF de preenchimento antes do marcador; reescrever se uma câmera gravar padding.
+73:     // Devolve vazio se faltar quadro (SOF com altura e largura) ou varredura (SOS): confere a estrutura, não decodifica os pixels.
+74:     private static byte[] SemApp1(byte[] jpeg)
+75:     {
+76:         var temQuadro = false;
+77:         var entrada = new MemoryStream(jpeg);
+78:         var saida = new MemoryStream(jpeg.Length);
+79:         var marcador = new byte[2];
+80:         var tam = new byte[2];
+81:         if (entrada.Read(marcador, 0, 2) != 2 || marcador[0] != 0xFF || marcador[1] != 0xD8) return [];
+82:         saida.Write(marcador, 0, 2);
+83:         while (true)
+84:         {
+85:             if (entrada.Read(marcador, 0, 2) != 2 || marcador[0] != 0xFF) break;
+86:             var m = marcador[1];
+87:             if (m == 0xD9) return []; // fim antes da varredura: não há imagem
+88:             if (m == 0xDA)
+89:             {
+90:                 if (!temQuadro) return [];
+91:                 saida.Write(marcador, 0, 2);
+92:                 entrada.CopyTo(saida);
+93:                 return saida.ToArray();
+94:             }
+95:             if (m == 0x01 || m is >= 0xD0 and <= 0xD8)
+96:             {
+97:                 saida.Write(marcador, 0, 2);
+98:                 continue;
+99:             }
+100:             if (entrada.Read(tam, 0, 2) != 2) break;
+101:             var n = (tam[0] << 8) | tam[1];
+102:             if (n < 2 || entrada.Length - entrada.Position < n - 2) break;
+103:             var dados = new byte[n - 2];
+104:             if (entrada.Read(dados, 0, dados.Length) != dados.Length) break;
+105:             if (m == 0xE1) continue;
+106:             // SOF0..SOF15 (C4 é DHT, C8 é reservado, CC é DAC): precisão, altura (2), largura (2)
+107:             if (m is >= 0xC0 and <= 0xCF and not (0xC4 or 0xC8 or 0xCC) && dados.Length >= 5)
+108:                 temQuadro = ((dados[1] << 8) | dados[2]) > 0 && ((dados[3] << 8) | dados[4]) > 0;
+109:             saida.Write(marcador, 0, 2);
+110:             saida.Write(tam, 0, 2);
+111:             saida.Write(dados, 0, dados.Length);
+112:         }
+113:         return [];
+114:     }
+115: 
+116:     private BadRequestObjectResult Recusar(string motivo)
+117:     {
+118:         _log.LogWarning("ocorrencia recusada: {Motivo}", motivo);
+119:         return BadRequest(new MotivoSaida(motivo));
+120:     }
+121: }
+
+api/TermometroDaSala.Api/Controllers/DemoController.cs
+1: using System.Globalization;
+2: using Microsoft.AspNetCore.Mvc;
+3: using Microsoft.AspNetCore.RateLimiting;
+4: using Microsoft.EntityFrameworkCore;
+5: using TermometroDaSala.Api.Dados;
+6: using TermometroDaSala.Api.Dominio;
+7: using TermometroDaSala.Api.Dominio.Entidades;
+8: using TermometroDaSala.Api.Contratos;
+9: using TermometroDaSala.Api.Servicos;
+10: 
+11: namespace TermometroDaSala.Api.Controllers;
+12: 
+13: [ApiController]
+14: public class DemoController(SalaDb _db, IHostEnvironment _ambiente, ILogger<DemoController> _log, TimeProvider tempo) : ControllerBase
+15: {
+16:     [HttpPost("/demo/mapa")]
+17:     [EnableRateLimiting("escrita")]
+18:     public async Task<IActionResult> SemearMapa([FromQuery] string periodo = "tarde")
+19:     {
+20:         if (!_ambiente.IsEnvironment("Demo")) return NotFound();
+21:         if (periodo is not ("tarde" or "madrugada")) return BadRequest(new MotivoSaida("periodo-invalido"));
+22:         var sala = await _db.Ambientes.Include(a => a.Dispositivos).Include(a => a.Lugares)
+23:             .AsSplitQuery().SingleOrDefaultAsync(a => a.Id == "sala-07");
+24:         if (sala is not null && (sala.Nome != "Sala 7" || await _db.Leituras.AnyAsync(l => l.AmbienteId == sala.Id && l.Origem == Origem.dispositivo)))
+25:             return Conflict(new MotivoSaida("ambiente-em-uso"));
+26:         var rotulos = new[] { "janela", "fundo", "porta", "centro" };
+27:         var xs = new double[] { 0, 6, 6, 3 };
+28:         var ys = new double[] { 2, 4, 0, 2 };
+29:         var lugares = Enumerable.Range(0, 20).Select(i => new Lugar { Nome = $"Cadeira {i + 1:00}",
+30:             X = 0.75 + 1.5 * (i % 4), Y = 0.4 + 0.8 * (i / 4), Vulneravel = i is 8 or 19 }).ToList();
+31:         static IEnumerable<(string, double, double, bool)> Layout(IEnumerable<Lugar> pontos) =>
+32:             pontos.OrderBy(l => l.Nome).Select(l => (l.Nome, l.X, l.Y, l.Vulneravel));
+33:         if (sala is null)
+34:         {
+35:             sala = new Ambiente { Id = "sala-07", Nome = "Sala 7", LarguraM = 6, ProfundidadeM = 4, Lugares = lugares };
+36:             for (var i = 0; i < 4; i++)
+37:                 sala.Dispositivos.Add(new Dispositivo { Id = $"demo-sala-07-{rotulos[i]}", Rotulo = rotulos[i], PosX = xs[i], PosY = ys[i], Segredo = "somente-demonstracao-sala-07" });
+38:             _db.Ambientes.Add(sala);
+39:         }
+40:         else
+41:         {
+42:             if (sala.LarguraM != 6 || sala.ProfundidadeM != 4 || sala.Tipo != TipoAmbiente.sala ||
+43:                 sala.Andar != 0 || sala.FaceSol != FaceSol.leste || sala.TemVentilador ||
+44:                 sala.Dispositivos.Count != 4 || rotulos.Where((rotulo, i) => !sala.Dispositivos.Any(d =>
+45:                     d.Id == $"demo-sala-07-{rotulo}" && d.Rotulo == rotulo && d.PosX == xs[i] && d.PosY == ys[i])).Any())
+46:                 return Conflict(new MotivoSaida("ambiente-em-uso"));
+47:             var antigos = Enumerable.Range(0, 6).Select(i => new Lugar { Nome = $"Cadeira {i + 1}",
+48:                 X = i % 3 * 3, Y = i < 3 ? 2 : 4, Vulneravel = i is 0 or 5 });
+49:             if (Layout(sala.Lugares).SequenceEqual(Layout(antigos)))
+50:             {
+51:                 // Só o arranjo original da demonstração pode ser substituído automaticamente.
+52:                 _db.Lugares.RemoveRange(sala.Lugares);
+53:                 sala.Lugares = lugares;
+54:             }
+55:             else if (!Layout(sala.Lugares).SequenceEqual(Layout(lugares)))
+56:                 return Conflict(new MotivoSaida("ambiente-em-uso"));
+57:         }
+58:         _db.Leituras.RemoveRange(await _db.Leituras.Where(l => l.AmbienteId == sala.Id && l.Origem == Origem.simulada).ToListAsync());
+59:         var agora = tempo.GetUtcNow();
+60:         foreach (var d in sala.Dispositivos)
+61:         {
+62:             var t = periodo == "tarde" ? (d.Rotulo == "janela" ? 35 : 24)
+63:                 : (d.Rotulo == "fundo" ? 15 : 22);
+64:             var indice = IndiceCalor.Calcular(t, 60);
+65:             _db.Leituras.Add(new Leitura { AmbienteId = sala.Id, DispositivoId = d.Id, TemperaturaC = t,
+66:                 UmidadePct = 60, IndiceCalor = indice, Nivel = IndiceCalor.Nivel(indice), MedidoEm = agora, Origem = Origem.simulada });
+67:         }
+68:         await _db.SaveChangesAsync();
+69:         return Created("/ambientes/sala-07/mapa", new DemoSaida(4));
+70:     }
+71: 
+72:     [HttpPost("/demo/semear")]
+73:     [EnableRateLimiting("escrita")]
+74:     public async Task<IActionResult> Semear([FromQuery] string ambienteId)
+75:     {
+76:         if (!_ambiente.IsEnvironment("Demo")) { _log.LogWarning("demo semear recusado: fora-do-ambiente"); return NotFound(); }
+77:         if (!await _db.Ambientes.AnyAsync(a => a.Id == ambienteId)) return NotFound();
+78:         var aoVivo = await _db.Leituras.Where(l => l.AmbienteId == ambienteId && l.Origem == Origem.dispositivo)
+79:             .OrderBy(l => l.MedidoEm)
+80:             .ToListAsync();
+81:         if (aoVivo.Count == 0) return Conflict(new MotivoSaida("ligue o sensor primeiro"));
+82: 
+83:         var dispositivo = await _db.Dispositivos.FirstAsync(d => d.AmbienteId == ambienteId);
+84:         var linhas = System.IO.File.ReadLines(ArquivosDemo.Achar(_ambiente.ContentRootPath, "leituras-simuladas.csv"))
+85:             .Skip(1)
+86:             .Select(l => l.Split(','))
+87:             .Where(c => c.Length >= 3)
+88:             .Select(c => (
+89:                 Minutos: int.Parse(c[0], CultureInfo.InvariantCulture),
+90:                 Temp: double.Parse(c[1], CultureInfo.InvariantCulture),
+91:                 Umid: int.Parse(c[2], CultureInfo.InvariantCulture)))
+92:             .Where(l => l.Minutos is > 0 and <= 180)
+93:             .OrderByDescending(l => l.Minutos)
+94:             .ToList();
+95:         if (linhas.Count == 0) return Conflict(new MotivoSaida("csv-vazio"));
+96: 
+97:         var ancora = linhas[^1];
+98:         var ultima = aoVivo[^1];
+99:         var dTemp = ultima.TemperaturaC - ancora.Temp;
+100:         var dUmid = ultima.UmidadePct - ancora.Umid;
+101:         var primeira = aoVivo[0].MedidoEm;
+102:         var velhas = _db.Leituras.Where(l => l.AmbienteId == ambienteId && l.Origem == Origem.simulada);
+103:         _db.Leituras.RemoveRange(velhas);
+104: 
+105:         var n = 0;
+106:         foreach (var linha in linhas)
+107:         {
+108:             var temp = Math.Clamp(linha.Temp + dTemp, -10, 60);
+109:             var umid = Math.Clamp(linha.Umid + dUmid, 0, 100);
+110:             var indice = IndiceCalor.Calcular(temp, umid);
+111:             _db.Leituras.Add(new Leitura
+112:             {
+113:                 AmbienteId = ambienteId,
+114:                 DispositivoId = dispositivo.Id,
+115:                 TemperaturaC = temp,
+116:                 UmidadePct = umid,
+117:                 IndiceCalor = indice,
+118:                 Nivel = IndiceCalor.Nivel(indice),
+119:                 MedidoEm = primeira.AddMinutes(-linha.Minutos),
+120:                 Origem = Origem.simulada,
+121:             });
+122:             n++;
+123:         }
+124:         await _db.SaveChangesAsync();
+125:         return Created("/demo/semear", new DemoSaida(n));
+126:     }
+127: 
+128: }
+
+api/TermometroDaSala.Api/Filtros/ExigeChaveCoordenacaoAttribute.cs
+1: using System.Security.Cryptography;
+2: using System.Text;
+3: using Microsoft.AspNetCore.Mvc;
+4: using Microsoft.AspNetCore.Mvc.Filters;
+5: using TermometroDaSala.Api.Contratos;
+6: 
+7: namespace TermometroDaSala.Api.Filtros;
+8: 
+9: [AttributeUsage(AttributeTargets.Method)]
+10: public sealed class ExigeChaveCoordenacaoAttribute : Attribute, IAsyncAuthorizationFilter
+11: {
+12:     public const string Cabecalho = "X-Chave-Coordenacao";
+13: 
+14:     public Task OnAuthorizationAsync(AuthorizationFilterContext context)
+15:     {
+16:         var esperada = context.HttpContext.RequestServices.GetRequiredService<IConfiguration>()["ChaveCoordenacao"] ?? "";
+17:         var enviada = context.HttpContext.Request.Headers[Cabecalho].ToString();
+18:         var a = Encoding.UTF8.GetBytes(esperada);
+19:         var b = Encoding.UTF8.GetBytes(enviada);
+20:         if (a.Length == 0 || a.Length != b.Length || !CryptographicOperations.FixedTimeEquals(a, b))
+21:             context.Result = new UnauthorizedObjectResult(new MotivoSaida("chave-invalida"));
+22:         return Task.CompletedTask;
+23:     }
+24: }

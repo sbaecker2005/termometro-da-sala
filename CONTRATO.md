@@ -140,20 +140,38 @@ e o previsor do banco devolvem o mesmo valor para o vetor da seção 6 do notebo
 (15/01/2026 14h, 30 °C, 50%, +1,5 °C na última hora: 27,16 °C). Busca ao vivo A701
 e reserva Open-Meteo são evolução opcional.
 
-Delta = média de (índice da sala − índice da rua), comparados no mesmo instante
-UTC, nas últimas 3 h, com pelo menos 3 leituras válidas. Exemplo: sala
-36/37/37 e rua 32/33/33 dão delta +4. Previsão da sala = rua prevista + delta;
-34 + 4 = 38 °C, “Cuidado extremo” daqui a 2 h.
-Com menos de 3 leituras recentes, mostrar só a rua e “sala sem leituras recentes”.
-Não inventar delta. A hipótese é que a diferença das últimas 3 h se mantenha
-nas próximas 2 h; no fim da tarde pode superestimar.
+O modelo de rua é compartilhado. O ajuste é calculado separadamente por ambiente,
+sem coeficientes escolhidos pelo tipo de escola, idade ou ocupação:
+
+1. Nas últimas 3 h, excluir leituras futuras, suspeitas e valores não finitos.
+2. Selecionar a última leitura de cada sensor em cada minuto UTC; em empate,
+   usar o maior ID. Mais envios do mesmo sensor não aumentam seu peso.
+3. Parear cada leitura com a última observação externa anterior ou igual,
+   com no máximo 60 minutos de idade. Empates externos também usam o maior ID.
+4. Calcular a média das diferenças sala − rua por minuto e depois a média
+   dos minutos. Exigir três minutos distintos e último par com até 15 minutos.
+
+Exemplo: diferenças +4 em três minutos dão delta +4; rua prevista 34 + delta 4
+= sala 38 °C de índice. Os limites 3 h/60 min/15 min e o mínimo de minutos são
+regras operacionais iniciais, não uma garantia estatística ou de segurança.
+Quatro sensores simultâneos não formam três minutos de histórico. A mesma
+observação externa pode servir a vários minutos, sem virar novas medições.
+Sem histórico suficiente, `deltaSala` e `indiceSalaPrevisto` são `null`;
+mostrar só a rua e “Histórico insuficiente para ajustar a sala”. A hipótese
+do ajuste é que a diferença recente se mantenha até o alvo; precisa de validação.
+
+Fora do Demo, a observação externa usada na previsão também expira em 60 minutos.
+`previstoPara` é o horário dessa observação **mais 2 h**, preservando o horizonte
+do treino: consultando às 12h35 uma observação de 12h, o alvo é 14h, não 14h35.
+As interfaces exibem o horário recebido. No Demo e na persistência sem rua,
+o alvo continua sendo agora +2 h. Não há mudança nos campos do JSON.
 
 `GET /ambientes/{id}/previsao` responde:
 
 - 200 com a previsão (exemplo abaixo);
 - 404 quando o ambiente não existe;
 - 503 com `{"motivo":"sem-dados-para-prever"}` quando não há previsão da rua
-  nem leitura válida da sala nas últimas 3 h. Não é queda da API: app e desktop
+  nem leitura válida da sala nos últimos 15 minutos. Não é queda da API: app e desktop
   mostram “sem dados para prever” no lugar da previsão, sem tela de erro.
 
 ```json
@@ -161,15 +179,25 @@ nas próximas 2 h; no fim da tarde pode superestimar.
 ```
 
 Sem previsão da rua (fora do Demo nada grava a rua), `ruaDisponivel` vem
-`false`: a sala fica no índice da última leitura válida das últimas 3 h,
-`indiceSalaPrevisto` é esse índice, `deltaSala` é `null` e `indiceRuaPrevisto`
+`false`: a sala persiste a média da última leitura válida de cada sensor nos
+últimos 15 minutos, com peso igual por sensor. `indiceSalaPrevisto` é essa média,
+`deltaSala` é `null` e `indiceRuaPrevisto`
 é `0`, que não vai para a tela. App, desktop e painel avisam que a previsão
-usa a última leitura válida da sala porque a previsão da rua não está disponível.
+usa a média dos sensores recentes porque a previsão da rua não está disponível.
 Uma leitura suspeita aparece em “agora”, mas não entra na previsão.
 Cada previsão devolvida com 200 é gravada na tabela `Previsoes` (com `CalculadaEm`),
 para comparar depois o previsto com o que a sala mediu. A rota é anônima e painel,
 app e desktop a consultam a cada 30 s, então grava no máximo uma por sala a cada
 10 min; as consultas seguintes só leem (teste `PrevisaoServidaEntraNoHistorico`).
+
+`ml/salas.py` reproduz o modelo compartilhado e a regra de ajuste. Os vetores
+`ml/casos-ajuste-salas.json` são executados por Python e C#, incluindo dados
+ausentes, isolamento, frequências, limites temporais e arredondamento.
+Ocupação em watts permanece um metadado experimental; não é somada ao índice.
+O cadastro e a coleta dos fatores adicionais continuam planejados. O sistema
+ainda não guarda o instante de recebimento de cada leitura: uma análise histórica
+pode excluir medições futuras, mas não provar disponibilidade à época quando
+houve transmissão atrasada.
 
 ## 5. Demonstração
 
@@ -206,6 +234,16 @@ exibem “DEMONSTRAÇÃO”. Wokwi, histórico semeado e ocorrências da gravaç
 simulados; a rua vem de dado real histórico reproduzido.
 
 ## 6. Salas, ocorrências e níveis
+
+O ID de ambiente é exatamente `sala-` seguido por dois dígitos ASCII (`0`–`9`),
+sem espaços ou quebras de linha. A descrição de `POST /acoes` deve ter de 5 a
+300 caracteres após remover espaços nas pontas; é esse texto aparado que fica gravado.
+
+`GET /ambientes` e `GET /ambientes/{id}` incluem `dispositivoId` e
+`sensorRevogado`. Ambos descrevem o primeiro dispositivo da sala em ordem
+crescente de ID: `sensorRevogado` é `true` quando esse dispositivo está inativo.
+Sem dispositivo, os valores são `null` e `false`, respectivamente. A revogação
+de outro sensor da mesma sala não muda esse indicador.
 
 Escritas da coordenação levam o cabeçalho `X-Chave-Coordenacao`; sem ele, ou com
 valor errado, 401 `{"motivo":"chave-invalida"}` e nada é gravado. Recusas 400 da

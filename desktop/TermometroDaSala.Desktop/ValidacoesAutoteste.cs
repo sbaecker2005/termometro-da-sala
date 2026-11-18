@@ -159,7 +159,7 @@ public static class ValidacoesAutoteste
             "Sala sem leitura deveria aparecer como Sem leitura, não como Normal.");
         Exigir((await api.Prever(sala.Id))?.SemLeiturasRecentes == true, "Previsão sem delta recusada.");
         Exigir(await api.Prever("sala-04") is { RuaDisponivel: false, IndiceSalaPrevisto: 31.5, NivelPrevisto: NivelCalor.Atencao },
-            "Previsão sem a rua (última leitura válida da sala) recusada.");
+            "Previsão sem a rua (média dos sensores recentes da sala) recusada.");
         Exigir(await api.Prever("sala-sem-dados") is null, "503 sem-dados-para-prever deveria virar 'sem previsão', não erro.");
         try { await api.Prever("sala-proxy"); throw new InvalidOperationException("503 sem motivo tratado como falta de dados."); }
         catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.ServiceUnavailable) { }
@@ -228,7 +228,7 @@ public static class ValidacoesAutoteste
                 Exigir(tela.Text.StartsWith("Termômetro da Sala") && tela.Icon is { Width: > 0 }, "Tela sem título ou ícone.");
                 var grade = (DataGridView)tela.Controls.Find("salas", true).Single();
                 Exigir(grade.Columns.Cast<DataGridViewColumn>().Select(c => c.HeaderText).SequenceEqual(
-                    ["Sala", "Nome", "Nível atual", "Última leitura (SP)", "Nível previsto (+2 h)", "Avisos / sensor"]), "Colunas da grade mudaram.");
+                    ["Sala", "Nome", "Nível atual", "Última leitura (SP)", "Nível previsto", "Avisos / sensor"]), "Colunas da grade mudaram.");
                 foreach (var nivel in Enum.GetValues<NivelCalor>())
                 {
                     var rotulo = tela.Controls.Find("legenda" + nivel, true).Single();

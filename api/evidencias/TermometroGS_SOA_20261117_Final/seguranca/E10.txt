@@ -1,0 +1,71 @@
+2026-11-17T09:12:31.1948107-03:00
+E10 - parte local; prints e demais itens do roteiro permanecem pendentes.
+# .NET
+bin/
+obj/
+*.user
+.vs/
+appsettings.*.local.json
+
+# Node / Expo
+node_modules/
+.expo/
+dist/
+
+# Python
+__pycache__/
+.ipynb_checkpoints/
+.venv/
+.dotnet-runtime/
+.ipython-runtime/
+dotnet-restore-local.log
+nuget-offline.config
+
+# Segredos
+secrets.h
+*.env
+.env*
+
+# Sistema
+.DS_Store
+Thumbs.db
+docs/briefing-fiap.txt
+
+# Fotos de ocorrencias
+api/TermometroDaSala.Api/fotos/
+
+Kit extraido sem .git: historico nao examinado nesta coleta.
+ACL do IIS pendente.
+2026-11-17T09:12:26.0354384-03:00
+Ambiente: Development; MQTT desligado; conexao: ***
+POST http://localhost:5081/dispositivos/esp32-sala-01/revogar
+X-Chave-Coordenacao: ***
+
+Corpo enviado: 
+Esperado: HTTP 200; "ativo":false
+HTTP 200 OK
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Tue, 17 Nov 2026 12:12:25 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"id":"esp32-sala-01","ativo":false}
+Conferencia: OK
+
+2026-11-17T09:12:26.0754417-03:00
+Ambiente: Development; MQTT desligado; conexao: ***
+POST http://localhost:5081/leituras
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {"ambienteId":"sala-01","dispositivo":"esp32-sala-01","temperaturaC":33.4,"umidadePct":58,"medidoEm":1794917546,"assinatura":"e5b7d9b0b58e216db72e8e17f58ff767c836864dcb77abffac9cc58875b3bbd9"}
+Esperado: HTTP 400; dispositivo-revogado
+HTTP 400 Bad Request
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Tue, 17 Nov 2026 12:12:25 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"dispositivo-revogado"}
+Conferencia: OK

@@ -19,7 +19,7 @@ celulas = [
 | Dados | Reais e públicos: INMET, estação automática A701 (São Paulo, Mirante de Santana), dados horários de 2022 a 2025 |
 | Métricas | MAE do índice (°C) e F1 macro dos níveis, comparados com o baseline "daqui a 2 h = agora" |
 
-Integrantes: Samuel Baecker — RM [preencher]"""),
+Integrantes: Samuel David Baecker — RM 559269; Lucas de Almeida Villar — RM 560005; Guilherme Augusto Caseiro — RM 559765"""),
     md("""## 1. Dados e origem
 Fonte: [dados históricos públicos do INMET](https://portal.inmet.gov.br/dadoshistoricos),
 arquivos anuais `2022.zip`, `2023.zip`, `2024.zip` e `2025.zip`; estação automática

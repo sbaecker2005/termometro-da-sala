@@ -24,6 +24,14 @@ O mesmo sensor avisa calor no verão (escolas) e frio no inverno (dormitórios e
 | Vídeo demonstrativo (até 4 min, não listado) | [preencher] |
 | Integrantes | [`integrantes.txt`](integrantes.txt) |
 
+## Equipe
+
+| Nome completo | RM |
+|---|---|
+| Samuel David Baecker | 559269 |
+| Lucas de Almeida Villar | 560005 |
+| Guilherme Augusto Caseiro | 559765 |
+
 ## Como o circuito entra na solucao
 
 Um ESP32 mede quatro DHT22: janela, fundo, porta e centro. Cada ponto publica

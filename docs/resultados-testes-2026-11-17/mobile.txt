@@ -1,0 +1,78 @@
+Validação Mobile — 17/11/2026
+Horário da conferência final dos fontes: 2026-11-17T02:47:43.7600210-03:00
+
+Autorização: Samuel autorizou a execução dos testes API/desktop/Mobile e correção de falhas.
+Escopo deste registro: instalação limpa, TypeScript, testes Node e compilação web do app.
+
+Ambiente
+- Windows; Node.js v24.20.0; npm 11.6.2.
+- Cópia isolada: D:/codex-validacao-termometro-20261117-c0ce77f9efc54ab2885d0268d0cbb51c/app
+- Cache npm: D:/codex-validacao-termometro-20261117-c0ce77f9efc54ab2885d0268d0cbb51c/npm-cache
+- TEMP/TMP da execução: D:/codex-validacao-termometro-20261117-c0ce77f9efc54ab2885d0268d0cbb51c/tmp
+- 40 arquivos do app copiados; arquivos .env*, node_modules, .expo, dist e .git excluídos.
+- Nenhuma dependência instalada no workspace em C:.
+- Projeto do coordenador consultado somente para metadados públicos de pacotes; não alterado nem reutilizado.
+
+Comandos executados na pasta app da cópia isolada
+$env:NPM_CONFIG_CACHE = 'D:/codex-validacao-termometro-20261117-c0ce77f9efc54ab2885d0268d0cbb51c/npm-cache'
+$env:TEMP = 'D:/codex-validacao-termometro-20261117-c0ce77f9efc54ab2885d0268d0cbb51c/tmp'
+$env:TMP = $env:TEMP
+npm ci --no-audit --no-fund
+npm run typecheck
+npm test
+
+Resultados finais, após o acabamento visual e a correção ehNivel
+- npm ci: exit code 0; 500 pacotes instalados em 31 s; package.json e package-lock.json preservados.
+- npm run typecheck (tsc --noEmit): exit code 0; nenhum erro.
+- npm test (node --experimental-strip-types --test domain/*.test.ts): exit code 0.
+  tests 23
+  suites 8
+  pass 23
+  fail 0
+  cancelled 0
+  skipped 0
+  todo 0
+- Passaram os dois casos novos de câmera:
+  reconsulta a permissão ao voltar dos ajustes e abre a câmera depois da autorização;
+  segue para o pedido de permissão da câmera quando ainda pode perguntar.
+- Passou a regressão que aceita os cinco níveis do contrato e recusa propriedades herdadas como toString, constructor e __proto__.
+- As verificações ocorreram depois da reinstalação limpa do lock original; os renderers opcionais de prévia não integravam esta execução final.
+- Baseline anterior ao novo visual: npm ci (500 pacotes, 29 s), typecheck e 22/22 testes aprovados às 02:28; a suíte final acrescenta a regressão ehNivel.
+- O acabamento visual preserva serviços, contratos, persistência e lógica de câmera. Revisão independente estática aprovada após ajuste do turquesa para #007077 (contraste 5,14:1 ou maior nos três fundos usados).
+
+Avisos sem falha
+- npm avisou sobre configurações herdadas build-from-source e msvs-version.
+- Node emitiu MODULE_TYPELESS_PACKAGE_JSON e interpretou os testes TypeScript como módulos ES.
+- Nenhuma configuração foi alterada apenas para suprimir avisos.
+
+Vínculo com os fontes
+- Após a execução final, os 40 arquivos da cópia foram comparados por SHA-256 com app/ do workspace: zero diferenças.
+- SHA-256 app/package.json: 8F37AC6BC808A0667172648259C6CC43B4409665EEF3D1E3871EA33D06816E35
+- SHA-256 app/package-lock.json: FB56BA818CE29AEFE70B6F74E273256D4858304E029D10E0D1080B6E448A6DA8
+
+Compilação da prévia web (infraestrutura temporária somente em D:)
+- Nenhum emulador/ADB ou renderer web estava disponível. Foram instalados somente na cópia isolada os renderers opcionais indicados pelo bundledNativeModules do Expo:
+  npm install --no-save --package-lock=false --no-audit --no-fund react-dom@19.3.0 react-native-web@~0.21.4 @expo/metro-runtime@~58.0.17
+- Manifests/lock do produto não foram alterados. A instalação temporária modificou a árvore node_modules da cópia; por isso npm ci foi repetido antes dos testes finais acima.
+- Com CI=1 e EXPO_NO_TELEMETRY=1, o comando abaixo terminou com exit code 0:
+  npx expo export --platform web --output-dir ../preview-web-final
+- Export final: D:/codex-validacao-termometro-20261117-c0ce77f9efc54ab2885d0268d0cbb51c/preview-web-final
+- Estados existentes do app também compilaram com exit code 0:
+  $env:EXPO_PUBLIC_API_MOCK = 'erro'
+  npx expo export --platform web --clear --output-dir ../preview-web-erro
+  $env:EXPO_PUBLIC_API_MOCK = 'vazio'
+  npx expo export --platform web --clear --output-dir ../preview-web-vazio
+- Os valores apiMock=1/erro/vazio foram conferidos nos respectivos bundles. Sem --clear, Metro reutilizou a configuração anterior; as variantes foram recompiladas corretamente antes de serem disponibilizadas.
+- A primeira atualização do export encontrou EBUSY porque o servidor HTTP usava a pasta como diretório de trabalho. O export final foi gerado em outra pasta e o servidor passou a usar o diretório pai.
+- A inspeção encontrou posteriormente resposta HTTP interrompida no helper Python e referências antigas no navegador. O helper foi substituído por servidor Node sem dependências e sem cache; os fontes do app não mudaram.
+- Prévias finais servidas somente em 127.0.0.1:18083 (normal), 18084 (erro) e 18085 (vazio), sem publicação externa. Os três índices e nove scripts referenciados responderam HTTP 200, com MIME JavaScript correto e Cache-Control no-store; a conferência foi feita por CLI antes de retomar a inspeção visual.
+- Este registro comprova a compilação da prévia, não a inspeção visual das telas.
+- A inspeção interativa concluída está documentada separadamente em mobile-visual.txt.
+- Após essa validação, uma tentativa de captura com o helper desligado gerou AsyncRequireError em 17/11/2026 às 06:09:08 UTC. Reabrir o helper e recarregar restaurou a lista; a captura final foi salva e o servidor foi encerrado. O incidente posterior está separado da sessão aprovada em mobile-visual.txt; não alterou fontes, ZIP ou resultados dos testes.
+
+Limites
+- Estes resultados comprovam as verificações automatizadas descritas, não câmera física, teclado/fontes ampliadas nativos, persistência no aparelho, Expo Go, integração HTTP real ou vídeo final.
+- Prévia React Native web não equivale a execução em aparelho. O ajuste automaticallyAdjustKeyboardInsets dos formulários ainda precisa ser observado no iOS.
+- Permanecem os ensaios em aparelho. O ZIP final extraído foi validado separadamente em mobile-zip.txt.
+- Não foram inspecionados ou copiados arquivos de credenciais; nenhum segredo ou configuração privada integra este registro.
+

@@ -1,6 +1,6 @@
 namespace TermometroDaSala.Desktop;
 
-/// <summary>Previsão do nível da sala para daqui a 2 h. Imutável: chega pronta da API (ou da demonstração).</summary>
+/// <summary>Previsão do nível da sala para o horário informado. Imutável: chega pronta da API (ou da demonstração).</summary>
 public sealed class Previsao
 {
     public required string AmbienteId { get; init; }
@@ -11,7 +11,7 @@ public sealed class Previsao
     public required NivelCalor NivelPrevisto { get; init; }
     public required bool SemLeiturasRecentes { get; init; }
     public required bool Demonstracao { get; init; }
-    // false: sem previsão da rua, a API repete o índice da última leitura válida da sala e manda IndiceRuaPrevisto 0.
+    // false: a API persiste a média dos sensores recentes da sala e manda IndiceRuaPrevisto 0.
     public required bool RuaDisponivel { get; init; }
 
     /// <summary>Confere a previsão recebida para a sala pedida; as regras dependem de haver previsão da rua.</summary>

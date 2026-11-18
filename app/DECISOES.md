@@ -34,11 +34,11 @@ A API manda UTC. A tela formata com `Intl` no fuso `America/Sao_Paulo`. Desde 20
 
 A validação mora em `domain/ocorrencia.ts` e não importa React. Descrição com 10 a 500 caracteres, já sem espaço nas pontas, e foto obrigatória. O rótulo do campo é "O que aconteceu". Não existe campo de aluno: a ocorrência é da sala. Os testes cobrem os limites 9, 10, 500 e 501, o recorte de espaço e a foto faltando.
 
-A foto usa `expo-image-picker`, que abre a câmera do sistema e já vem no Expo Go. Qualidade 0,7 gera JPEG, que é o arquivo do `POST`, e o EXIF fica desligado para a foto não levar localização. Se a permissão é negada, a tela explica. "Tentar de novo" pede a permissão outra vez ou, se o sistema não deixa perguntar de novo, abre os ajustes do aparelho.
+A foto usa `expo-image-picker`, que abre a câmera do sistema e já vem no Expo Go. Qualidade 0,7 gera JPEG, que é o arquivo do `POST`, e o EXIF fica desligado para a foto não levar localização. Se a permissão é negada, a tela explica. "Tentar de novo" consulta a permissão atual: abre os ajustes somente se ela continua negada e o sistema não deixa perguntar de novo. Ao voltar dos ajustes com autorização, segue para a câmera. O teste de `services/camera.ts` cobre essa mudança de permissão e a nova tentativa quando o sistema ainda pode perguntar.
 
 ## Testes sem biblioteca nova
 
-A validação e a conversão de nível rodam com `node --test` e a leitura de TypeScript que o Node já tem (`--experimental-strip-types`, a partir do 22.6). Jest exigiria preset, transformador e mais dependências para a mesma asserção.
+A validação, a conversão de nível e a retomada da câmera rodam com `node --test` e a leitura de TypeScript que o Node já tem (`--experimental-strip-types`). O teste do serviço HTTP usa `module.registerHooks`, disponível desde Node 22.15; o lock do Expo/React Native aceita 22.x desde 22.13, 24.x desde 24.3 ou 26 e posteriores. Para instalar e testar, usamos 22.x desde 22.15, 24.x desde 24.3 ou 26 e posteriores. Jest exigiria preset, transformador e mais dependências para a mesma asserção.
 
 ## O que ficou de fora
 

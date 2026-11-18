@@ -4,7 +4,63 @@ Prazo: **19/11/2026, 23h55**. Um integrante envia cada disciplina no Teams, meno
 
 O briefing pede ZIP só em C# e em Mobile. Nas outras, o envio é link, PDF, vídeo ou formulário, e não há arquivo para compactar.
 
-O comando abaixo gera o ZIP com a pasta e as subpastas. Ele deixa de fora só `bin`, `obj`, `.vs`, `node_modules`, `.expo`, `dist`, a pasta `fotos`, os arquivos `.env*` e o `*.user`; o `app/assets` (ícones e splash) entra. Rode na raiz do repositório, no Windows PowerShell. Na disciplina de C#, troque `app` por `desktop` na primeira linha.
+## Revisão do grupo - 17/11/2026
+
+**Atualização do modelo geral:** as fontes locais aplicam ajuste por sala ao modelo compartilhado, com o terceirão apenas na demonstração. Rodada atual: API **134/134**, ML **46 testes e 53 subtestes**, desktop **19/19 + 6 autotestes**, Mobile **23/23** e TypeScript sem erros. [Registro técnico](docs/resultados-testes-2026-11-17/ml-modelo-geral-v1.txt); [documento V1](output/especificacao-v1/Termometro-da-Sala-V1.docx). **Tela e PNGs conferidos nesta versão**, com [evidências atuais](desktop/docs/modelo-geral-v1/VALIDACAO.md). SQL real: **98/98 + 33/33 HTTP/MQTT/SQL**, [registro](docs/resultados-testes-2026-11-17/sql-modelo-geral-v1.txt). Pacotes atualizados com configurações públicas e [verificação das cópias](docs/resultados-testes-2026-11-17/pacotes-modelo-geral-v1.txt); hashes nos manifestos externos ligados abaixo. Insomnia 29/29 permanece como evidência manual anterior.
+
+Meta: nota 10 em todas as disciplinas. Este kit prepara a revisão; os itens abaixo só ficam concluídos com a evidência indicada, sem promessa de nota. O enunciado oficial `GS CitizenTech - 3ES Ago- FIAP 2026 .pdf` foi localizado em Downloads; suas páginas 27, 29 e 30 foram conferidas para SOA, C# e ML. SHA-256 `70AB581A0F9C914DC3E6A528BA30B35283779030C2B791A29D4AD0DE5D2A7201`. O [fechamento de Samuel](docs/FECHAMENTO-ML-SOA-CSHARP.md) relaciona os critérios às provas.
+
+| Disciplina | Preparado para revisar | O grupo ainda precisa concluir |
+|---|---|---|
+| SOA | API 134/134; cinco migrações; SQL Express 98/98 e MQTT/HTTP/SQL 33/33 nesta revisão. Insomnia anterior com 29/29 asserções | Revisar/publicar código e evidências pelo Cérebro, conferir acesso e enviar link |
+| C# | Fontes/cópia isolada: 19/19 testes e seis autotestes; tela e horário, mapa C01-C20/S1-S4, frio azul, PNG Agora/+1 h e rolagem conferidos na versão atual; entrevista, PR e versões já conferidos | Revisão final do grupo, publicação pelo Cérebro e envio do ZIP + TXT atuais |
+| ML | 46 testes e 53 subtestes; modelo geral com ajuste por sala e casos compartilhados com a API; modelos/notebook preservados. Histórico: 19/19 células reexecutadas, 31,95 s, modelos estruturalmente idênticos e integração visível no desktop | Gravar vídeo de até 2 min mostrando a integração atual; conferir links e enviar. Precisão real por sala depende de dados de campo |
+| Mobile | Instalação limpa em D:, 23/23 testes e TypeScript sem erros, também no ZIP final extraído; prévia web conferida em 390 × 844 e 320 × 740, incluindo mapa, formulário, erro/vazio e identificação persistida após recarregar | Ensaiar Expo Go, câmera e retorno dos Ajustes no aparelho, teclado/fontes ampliadas, persistência nativa e integração HTTP real; gravar até 2 min e enviar ZIP + vídeo |
+| Operating Systems | Scripts e roteiros de instalação, coleta de evidências e vídeo | Montar/ensaiar VM e cliente; comprovar AD/DNS/IIS, monitoramento, recuperação, auditoria e fluxo; preencher evidências e formulário; gravar até 7 min e enviar |
+| Cybersecurity | Relatório/anexo reconciliados, PDF de revisão inspecionado e cinco regressões SQLite de replay/rollback aprovadas; riscos e limites preservados | Repetir cenários no laboratório; coletar IIS/GPO/RDP/NTFS, nmap de duas origens e funcionamento sem broker; completar evidências, aprovar PDF final e enviar |
+| TOGAF | Modelo validado: 111 elementos, 190 relações, seis visões e 12 autotestes; seis diagramas e PDF de revisão inspecionados | Conferir abertura no Archi, entrevista e fontes de impacto; aprovar PDF final; gravar pitch de até 4 min, liberar acesso e enviar |
+| Physical Computing | Firmware, contrato, roteiro e 110 verificações estruturais do circuito aprovadas | Compilar/ensaiar no Wokwi, preencher resultados e URL real; gravar até 4 min e enviar link + txt |
+
+Samuel autorizou executar as suítes e corrigir falhas em 17/11. Resultados atuais: API 134/134, desktop 19/19 e seis verificações do autoteste, Mobile 23/23 e TypeScript sem erros, ML 46 testes e 53 subtestes aprovados. Commit e merge continuam com o Cérebro. Os resultados anteriores ficam como histórico. Na consulta anterior, a `main` estava em `7a8e4e35eeb3827200c27efc085f5158898879eb` (08/11), sem os ajustes locais; as releases consultadas não continham pacotes anexos. Não houve nova consulta/publicação nesta revisão do modelo.
+
+Provas da rodada: [API](docs/resultados-testes-2026-11-17/api-fechamento-101.trx), [desktop após o novo visual](docs/resultados-testes-2026-11-17/desktop-visual-20261117.trx), [autoteste](docs/resultados-testes-2026-11-17/desktop-autoteste-visual-20261117.txt), [Mobile](docs/resultados-testes-2026-11-17/mobile.txt), [ML](docs/resultados-testes-2026-11-17/ml-pytest-python311.txt), [modelo ArchiMate](docs/resultados-testes-2026-11-17/arquitetura-modelo.txt), [12 autotestes do modelo](docs/resultados-testes-2026-11-17/arquitetura-autoteste.txt) e [circuito](docs/resultados-testes-2026-11-17/esp32-circuito.txt). A [validação Windows](desktop/docs/VALIDACAO-WINDOWS-2026-11-17.md) e a [fixture local após reabrir](docs/resultados-testes-2026-11-17/desktop-persistencia-local.json) documentam os ensaios do desktop. Os resultados locais não comprovam IIS/VM, Wokwi ou câmera física. O [registro do ambiente ML](docs/resultados-testes-2026-11-17/ml-pytest.txt) contém os comandos reproduzíveis; a tentativa inicial sem pytest foi preservada no histórico. A execução final em Python 3.11.9 portátil no D: terminou com código 0, em 20,62 s, sem alterar notebook, modelo ou dados.
+
+A inspeção visual da prévia web Mobile em 17/11 aprovou a identificação e suas validações, lista de seis salas, detalhe em Frio, mapa Agora/+1 h com carregamento e seleção pela lista, descrição e foto obrigatórias no formulário, persistência da identificação após recarregar, erro com nova tentativa e lista vazia. Os três cenários terminaram sem erros de console observados. A prévia usa o mock de dois sensores e duas cadeiras; não comprova o cenário API de 20 cadeiras/quatro sensores, HTTP real, câmera, teclado ou persistência nativa.
+
+Os PDFs de revisão preservam pendências reais: não são os PDFs finais para envio. Os vídeos, a implantação de laboratório e a submissão não são substituídos por revisão de código. Os pacotes foram atualizados para esta revisão; novas mudanças nas fontes exigem regeneração e conferência. PDFs de Cyber/TOGAF dependem da revisão do grupo e das evidências dessas disciplinas.
+
+Artefatos desta versão; usar os manifestos atuais como referência de integridade:
+
+- [entrega-desktop.zip](entrega-desktop.zip): projeto, integrantes e provas visuais desta versão; configuração pública gerada sem ler arquivos privados. Desktop da cópia isolada: **19/19 + seis autotestes**. [Conferência e relação das entradas](output/fechamento-samuel/CONFERENCIA-PACOTES.txt).
+- [Handoff de ML/SOA/C#](output/fechamento-samuel/COMECE-AQUI.txt): instruções para Samuel/Cérebro, TXT de integrantes e [fontes/evidências atuais](output/fechamento-samuel/fontes-ml-soa-csharp.zip). API com configuração pública para testes, fixture de salas compartilhada, modelo geral, documento V1, provas SQL e PNGs. Cópia isolada: API **134/134**, ML **46 + 53 subtestes**, desktop **19 + seis autotestes**; harness SQL compilado. [Integridade](output/fechamento-samuel/SHA256SUMS.txt).
+- [entrega-app.zip](entrega-app.zip): inclui os textos de previsão atualizados; Mobile **23/23** e TypeScript sem erros na cópia isolada. Dependências em D: reutilizadas somente após igualdade dos arquivos de pacote/lock; não houve nova instalação nesta rodada. [Registro atual](docs/resultados-testes-2026-11-17/pacotes-modelo-geral-v1.txt).
+- [entrega-pacotes.sha256](entrega-pacotes.sha256): hashes atuais dos dois ZIPs de disciplina. Fontes sem `bin`, `obj`, dependências instaladas ou configurações privadas; configuração pública e evidências sintéticas selecionadas estão identificadas nos manifestos.
+- [Gui-pendencias.zip](output/revisao-grupo/Gui-pendencias.zip): COMECE-AQUI, Cyber/OS, API e fixture atuais, provas de apoio e PDF de revisão; tarefas que exigem laboratório permanecem explícitas.
+- [Lucas-pendencias.zip](output/revisao-grupo/Lucas-pendencias.zip): COMECE-AQUI, Mobile/IoT, API de apoio atual e ZIP atualizado do app. [Hashes dos pacotes do grupo](output/revisao-grupo/pacotes-grupo.sha256).
+- [Mensagem para o grupo](output/revisao-grupo/MENSAGEM-CHALLENGE.txt): divisão confirmada por Samuel e pergunta sobre quem consolida TOGAF e grava/publica o pitch após a revisão conjunta. O envio no WhatsApp é registrado separadamente quando observado.
+- [Cybersecurity - PDF de revisão](output/pdf/cybersecurity-revisao.pdf): relatório e anexo atualizados, 29 páginas, 596.582 bytes, com riscos e evidências de laboratório pendentes preservados.
+- [TOGAF - PDF de revisão](output/pdf/arquitetura-togaf-revisao.pdf): documento e seis diagramas, 26 páginas, 530.247 bytes. As 55 páginas dos dois PDFs foram inspecionadas em folhas de contato; capas, trechos atualizados, tabelas e diagramas foram ampliados na revisão independente, sem cortes ou sobreposições observados.
+
+Para regenerar os PDFs depois de completar as evidências, use `python ferramentas/gerar-pdfs-revisao.py --runtime "CAMINHO_DO_RUNTIME/dependencies"` em Python com as bibliotecas do runtime. O gerador mantém a identificação **de revisão**: a versão final depende da aprovação dos conteúdos pelo grupo e deve passar por nova inspeção visual.
+
+Comandos de verificação, na raiz de uma cópia revisada (execuções autorizadas por Samuel em 17/11; para o Mobile e o ambiente Python, usar D: para as dependências):
+
+```powershell
+dotnet test .\api\TermometroDaSala.sln -c Release -m:1
+dotnet test .\desktop\TermometroDaSala.Desktop.sln -c Release -m:1
+dotnet run --project .\desktop\TermometroDaSala.Desktop -c Release -- --autoteste
+npm --prefix .\app ci
+npm --prefix .\app run typecheck
+npm --prefix .\app test
+python -m pytest ml -o cache_dir=ml/.pytest_cache
+python arquitetura/conferir_modelo.py
+python arquitetura/conferir_modelo.py --autoteste
+python esp32/conferir_circuito.py
+```
+
+Esperado ao repetir: todos os comandos com código 0; API incluindo os casos de intercalação/rollback e as regressões de contrato, ajuste por sala e mapa; Mobile incluindo a lógica de retomada da permissão e a recusa de níveis herdados; ML com 46 testes e 53 subtestes aprovados no ambiente compatível. Os comandos aprovados estão ligados aos registros acima. Testes de funções não comprovam o retorno real dos Ajustes ou a câmera no aparelho. A conferência estrutural do circuito não substitui compilação e execução no Wokwi. Requisitos de Node e Python estão nos READMEs correspondentes. Guardar o resultado real, sem substituir falha por contagem histórica.
+
+O comando abaixo regenera o ZIP com a pasta e as subpastas. Ele deixa de fora artefatos de compilação, dependências instaladas, fotos, logs e configurações privadas; o `app/assets` (ícones e splash) entra. Rode na raiz do repositório, no Windows PowerShell. Na disciplina de C#, troque `app` por `desktop` na primeira linha. Depois, atualize o hash e repita a conferência.
 
 ```powershell
 $pasta = 'app'
@@ -15,9 +71,11 @@ Add-Type -AssemblyName System.IO.Compression, System.IO.Compression.FileSystem
 $arquivo = [IO.Compression.ZipFile]::Open($zip, 'Create')
 try {
   [IO.Directory]::GetFiles((Join-Path $raiz $pasta), '*', 'AllDirectories') | Where-Object {
-    $_ -notmatch '\\(bin|obj|\.vs|node_modules|\.expo|dist|fotos)\\' -and
+    $_ -notmatch '\\(bin|obj|\.vs|node_modules|\.expo|dist|fotos|\.git|\.codex|\.agents)\\' -and
     [IO.Path]::GetFileName($_) -notlike '.env*' -and
-    [IO.Path]::GetExtension($_) -ne '.user'
+    [IO.Path]::GetFileName($_) -notlike 'appsettings.*.local.json' -and
+    [IO.Path]::GetFileName($_) -ne 'secrets.h' -and
+    [IO.Path]::GetExtension($_) -notin @('.user', '.log')
   } | ForEach-Object {
     $nome = $_.Substring($raiz.Length + 1).Replace('\', '/')
     [void][IO.Compression.ZipFileExtensions]::CreateEntryFromFile($arquivo, $_, $nome)
@@ -42,8 +100,10 @@ Antes de enviar, abra o ZIP e confira que existem `app/assets/icon.png`, `app/ap
 
 README com execução, descrição e nomes: `api/README.md`.
 
-- [ ] Preencher o RM em `api/README.md`
-- [ ] Rodar o banco e a coleção do Insomnia e colar cada print no campo dele em `api/evidencias/README.md` (a pasta já tem `dotnet-test.txt` e o script das migrações)
+- [x] Preencher os nomes completos e RMs em `api/README.md`
+- [x] Exercitar SQL Server Express e cinco migrações em banco exclusivo; 98 verificações automáticas OK e ensaio HTTP/MQTT/SQL com 21 verificações aprovadas
+- [x] Executar a coleção no Insomnia real: 29 requisições, 29/29 asserções e zero falhas; [captura e condições](api/evidencias/insomnia-2026-11-17/README.md)
+- [ ] Publicar pelo Cérebro o código e as evidências atuais no GitHub
 - [ ] Enviar o link no Teams
 
 ## Cybersecurity
@@ -57,7 +117,7 @@ README com execução, descrição e nomes: `api/README.md`.
 | Definição de controles | 2,5 | seção 6 |
 | Evidências técnicas | 2,0 | seção 8, `seguranca/EVIDENCIAS.md` e `seguranca/evidencias/` |
 
-- [ ] Preencher o RM no relatório
+- [x] Preencher os nomes completos e RMs no relatório
 - [ ] Na VM: rodar `seguranca/cenarios-ataque.ps1` em banco descartável, com a chave da coordenação definida sem exibi-la; coletar nmap, IIS e GPO e preencher os prints e resultados em `seguranca/ANEXO-EVIDENCIAS.md` pelo roteiro `seguranca/EVIDENCIAS.md`
 - [ ] Exportar o PDF e enviar no Teams
 
@@ -73,21 +133,22 @@ O briefing desta disciplina não divide a nota em pontos. O que a página 29 ped
 | POO do domínio | `desktop/TermometroDaSala.Desktop/Dominio/` |
 | Interface Windows Forms | `desktop/TermometroDaSala.Desktop/Telas/TelaCoordenacao.cs` e `desktop/TermometroDaSala.Desktop/Telas/TelaCoordenacao.Designer.cs` |
 | README (problema, pessoa real, como rodar, tecnologias, equipe) | `desktop/README.md` |
-| Versionamento semântico, tags e changelog | `desktop/CHANGELOG.md` (`v0.1.0`) |
+| Versionamento semântico com pull request | `desktop/CHANGELOG.md`, releases `v0.1.0`/`v0.2.0` e [PR 1](https://github.com/sbaecker2005/termometro-da-sala/pull/1) |
 | Arquivo txt com RM, nome e link | `desktop/integrantes.txt` |
 
-- [ ] Preencher RM e link em `desktop/integrantes.txt` e o RM no README
-- [ ] Validar o relato de entrevista já registrado no README; confirmar fidelidade e autorização, preservando os marcadores pendentes
-- [ ] Conferir os links de PR e tags já registrados no README, a revisão e a proteção do ramo; criar somente versões ainda necessárias
-- [ ] Gravar ou printar a `TelaCoordenacao`: chave sem valor visível, cadastro/edição/exclusão de sala, ocorrências e revogação; conferir os 18 testes do desktop (18 aprovados/0 falhas em 08/11, resultado informado pelo coordenador)
-- [ ] Gerar o ZIP e conferir numa pasta limpa (comandos abaixo)
+- [x] Preencher nomes completos, RMs e link em `desktop/integrantes.txt` e a equipe no README
+- [x] Relato de entrevista e autorização para citar nome/falas confirmados por Samuel em 17/11/2026
+- [x] Conferir PR e versões: PR 1 aberto (`desktop/v0.2.0` para `desktop/v0.1.0`), sem reviews/merge; releases v0.1.0 e v0.2.0 existentes sem anexos
+- [ ] Publicar os ajustes atuais pelo Cérebro e conferir correspondência entre fontes publicadas e pacote; a página 29 não exige proteção de branch, aprovação/merge do PR nem vídeo de C#
+- [x] Conferir visualmente a `TelaCoordenacao` no Windows: chave sem valor visível, cadastro validado, ação registrada, CSV, mapa, revogação e retorno da API; ver relatório de 17/11
+- [x] Executar a suíte atual (19/19) e o autoteste do desktop (seis verificações); validar sala-99 e ação persistidas após fechar e reabrir no modo local, conforme fixture da rodada. Edição/exclusão ficam na API, no ensaio de SOA; não são comandos da interface desktop nem exigência explícita do enunciado de C#
+- [x] Gerar o ZIP final e conferir numa pasta limpa: 19 testes e seis autotestes aprovados; hashes conferidos
 - [ ] Enviar ZIP e txt no Teams, um integrante
 
 Conferência do ZIP do desktop: extrair numa pasta vazia, fora do repositório, compilar e rodar o autoteste. O resultado tem que ser `0`. Rode na raiz do repositório, depois de gerar o `entrega-desktop.zip`.
 
 ```powershell
-$teste = Join-Path $env:TEMP 'conferencia-desktop'
-if (Test-Path $teste) { Remove-Item $teste -Recurse -Force }
+$teste = Join-Path $env:TEMP ('conferencia-desktop-' + [Guid]::NewGuid().ToString('N'))
 Expand-Archive .\entrega-desktop.zip -DestinationPath $teste
 $proj = Join-Path $teste 'desktop\TermometroDaSala.Desktop\TermometroDaSala.Desktop.csproj'
 dotnet build $proj
@@ -101,6 +162,10 @@ Se o build falhar, ou se o autoteste não devolver `0`, ou se o `integrantes.txt
 ## Inteligência Artificial & Machine Learning
 
 **Enviar:** o notebook `ml/termometro_da_sala.ipynb`, o link do vídeo de até 2 min e o link do repositório, na mesma tarefa. Roteiro: `ml/ROTEIRO-VIDEO.md`.
+
+Reexecução integral de 17/11: **19/19 células, 31,95 s, saída 0**, com Python 3.11.9, IPython.display e Matplotlib Agg, em cópia isolada no D:. Modelos JSON estruturalmente idênticos, artefatos textuais iguais após normalizar CRLF/LF e 12 originais preservados por hash. [Relatório e comando](docs/resultados-testes-2026-11-17/ml-notebook-integral.txt). O ensaio não utilizou kernel Jupyter/nbclient nem inspeção visual das figuras regeneradas; o notebook original e suas saídas permaneceram intactos.
+
+O iniciador da apresentação também passou a [recusar uma segunda abertura com a porta ocupada](output/apresentacao/TermometroGS_Apresentacao_20261117_094533/protecao-porta.txt), preservando a API original; a falha de consulta silenciosa de porta foi corrigida com reserva TCP exclusiva. Não resta essa correção para o grupo.
 
 O briefing pede, além do notebook, o dataset com a origem, o modelo treinado, a métrica e o README com as decisões. Esses arquivos estão no repositório, então o link vai junto. Texto para a tarefa:
 
@@ -119,7 +184,7 @@ Pasta de ML (README, dataset INMET A701, modelo.json): https://github.com/sbaeck
 | Avaliação com métrica | 2,0 | tabela de MAE e F1 no README e no notebook |
 | Integração na solução | 1,0 | `api/TermometroDaSala.Api/modelo/modelo.json`, aplicado também no Demo ao dia do CSV; mostrar no sistema rodando `GET /ambientes/sala-03/previsao` com `indiceRuaPrevisto` calculado pelo modelo. Teste `DemoAplicaOModeloAoDiaDoCsvEDaOMesmoValor` (27,16 °C, igual à seção 6). O vídeo de ML para nesse GET e no `dotnet test --filter PrevisorModeloTestes` (`ml/ROTEIRO-VIDEO.md`, meta 1 min 50 s, limite 2 min). A previsão no app e no desktop fica no pitch |
 
-- [ ] Preencher o RM no README, no notebook e em `ml/gerar_notebook.py` (gerar o notebook de novo depois, para os dois não divergirem)
+- [x] Preencher nomes completos e RMs no README, no notebook e em `ml/gerar_notebook.py` (identificação sincronizada, preservando as saídas já executadas)
 - [ ] Gravar o vídeo e colar o link no texto acima
 - [ ] Enviar notebook, link do vídeo e link do repositório
 
@@ -135,9 +200,10 @@ Pasta de ML (README, dataset INMET A701, modelo.json): https://github.com/sbaeck
 | `services/`, validação, README e DECISOES | 10% | `app/services/`, `app/domain/`, `app/README.md`, `app/DECISOES.md` |
 | Array `authors` com nome e RM | porta de entrada | `app/package.json` |
 
-- [ ] Preencher o RM em `app/package.json`
+- [x] Preencher os nomes completos e RMs em `app/package.json` e `app/README.md`
 - [ ] Gravar o vídeo no Expo Go
-- [ ] Gerar o ZIP e enviar ZIP e vídeo no Teams
+- [x] Gerar o ZIP final e conferir nova extração em D: com instalação limpa, TypeScript e 23 testes aprovados
+- [ ] Enviar ZIP e vídeo no Teams
 
 ## Operating Systems
 
@@ -153,7 +219,7 @@ Pasta de ML (README, dataset INMET A701, modelo.json): https://github.com/sbaeck
 | Funcionamento completo | 2 | painel em `api/TermometroDaSala.Api/wwwroot/index.html` e `GET /ambientes`, no vídeo |
 
 - [ ] Montar a VM e rodar os scripts `01` a `10` em `infra/` conforme `infra/README.md` (reinícios antes do rec; `10-coletar-evidencias.ps1` depois do corte) e preencher `infra/EVIDENCIAS.md` com as saídas e os prints (PIDs, IP, data); não mostrar segredos
-- [ ] Preencher a equipe e os RMs no README e em `infra/EVIDENCIAS.md`
+- [x] Preencher os nomes completos e RMs no README, em `infra/EVIDENCIAS.md` e no bloco do formulário
 - [ ] Gravar o corte de 6:30 de `infra/ROTEIRO-VIDEO.md` (limite 7 min, sem instalação e sem reinício) e publicar o link com acesso liberado ao professor
 - [ ] Trocar os campos com o marcador de preencher do bloco abaixo pelos valores reais do `infra/EVIDENCIAS.md`
 - [ ] Preencher e enviar o formulário, um integrante
@@ -165,7 +231,7 @@ Os campos com valor fixo vêm dos scripts e do `infra/README.md`. Os que depende
 | Campo | Resposta |
 |---|---|
 | Projeto | Termômetro da Sala |
-| Equipe (nome e RM) | [preencher] |
+| Equipe (nome e RM) | Samuel David Baecker - RM 559269; Lucas de Almeida Villar - RM 560005; Guilherme Augusto Caseiro - RM 559765 |
 | Repositório | https://github.com/sbaecker2005/termometro-da-sala |
 | Roteiro de configuração | https://github.com/sbaecker2005/termometro-da-sala/tree/main/infra (README, scripts `01` a `10` e `TESTE-DE-FALHA.md`) |
 | Evidências (prints e saídas) | https://github.com/sbaecker2005/termometro-da-sala/blob/main/infra/EVIDENCIAS.md e a pasta `infra/evidencias/` |
@@ -211,7 +277,7 @@ Os campos com valor fixo vêm dos scripts e do `infra/README.md`. Os que depende
 | Nomes dos integrantes | `esp32/integrantes.txt` |
 
 - [ ] Publicar o projeto no Wokwi (o link ainda não está no repositório) e não versionar `secrets.h`
-- [ ] Preencher o RM em `esp32/integrantes.txt`
+- [x] Preencher os nomes completos e RMs em `esp32/integrantes.txt` e `esp32/README.md`
 - [ ] Gravar o vídeo de até 4 min mostrando LCD (temperatura e nível), buzzer em Perigo e botão de reconhecimento no Wokwi, além do LED e da publicação assinada
 - [ ] Enviar os dois links e o txt no Teams
 
@@ -235,12 +301,13 @@ Nenhum desses quatro pode ir com o marcador de preenchimento. O `.md` não subst
 | Nome do projeto, equipe (nome e RM) e problema | 10% | abertura de `arquitetura/DOCUMENTO.md` e `arquitetura/PITCH.md` |
 | Público e estimativa de impacto, com fonte | 10% | seção 7 de `arquitetura/DOCUMENTO.md` |
 
-- [ ] Validar a entrevista e a fala já registradas no pitch; preencher a seção 7 somente quando houver dados reais do piloto
-- [ ] Preencher os RMs em `arquitetura/DOCUMENTO.md` e `arquitetura/PITCH.md`
+- [x] Samuel confirmou a entrevista e a autorização das falas em 17/11/2026
+- [ ] Revisar as fontes de impacto da seção 7; Magister e Salgueiro são candidatas ao piloto, sem autorização/execução confirmadas. Não apresentar estimativas como resultados medidos
+- [x] Preencher os nomes completos e RMs em `arquitetura/DOCUMENTO.md`, `arquitetura/PITCH.md` e `arquitetura/README.md`
 - [ ] Abrir o `.archimate` no Archi, conferir as seis visões e exportar os PNGs com os nomes do item 2 e `diagrama-archi.png`
 - [ ] Conferir a legibilidade da "Visão em quatro camadas" e gravar as seis visões abertas no Archi para os cortes do pitch
-- [ ] Conferir as seis imagens no `DOCUMENTO.md`, incluindo Implementação e migração na seção 9
-- [ ] Exportar o PDF do documento com os PNGs
+- [x] Conferir as seis imagens no `DOCUMENTO.md`, incluindo Implementação e migração na seção 9; PDF de revisão exportado e inspecionado em 17/11
+- [ ] Aprovar o conteúdo final e exportar o PDF definitivo do documento com os PNGs após completar as pendências
 - [ ] Cronometrar o ensaio do pitch (meta 3min30s; se passar de 3min40s, cortar na demonstração), gravar e publicar no YouTube como não listado
 - [ ] Enviar `.archimate`, PNGs, PDF e link do YouTube no Teams
 
@@ -259,13 +326,13 @@ Get-ChildItem -Recurse -File |
 
 | Disciplina | Arquivos | O que falta |
 |---|---|---|
-| Todas | `README.md` e o README de cada pasta | Bairro da escola entrevistada, na ficha |
-| SOA | `api/README.md`, `api/evidencias/README.md` | RM; prints do banco (B1 a B5), do Insomnia (01 a 27) e das telas (T1 e T2) |
-| Cybersecurity | `seguranca/RELATORIO-RISCOS.md`, `seguranca/EVIDENCIAS.md`, `seguranca/evidencias/osint.txt` | RMs dos integrantes; os 15 prints, de E01 a E15; revalidar antes da entrega a busca histórica já registrada em 05/11 em `osint.txt` |
-| C# Windows Forms | `desktop/README.md`, `desktop/integrantes.txt` | RM e demais integrantes; validar o relato já registrado e os links de PR/tags; prints das telas |
-| Machine Learning | `ml/README.md`, `ml/gerar_notebook.py`, `ml/termometro_da_sala.ipynb` e o texto da tarefa, acima | RM (gerar o notebook de novo depois); link do vídeo |
-| Mobile e IoT | `app/package.json`, `app/README.md` | RM e demais integrantes |
-| Operating Systems | `infra/README.md`, `infra/EVIDENCIAS.md` e o bloco do formulário, acima | Equipe e RMs; data do ensaio, versão do Windows, hipervisor, IP, links do repositório e do vídeo, exigência de RDS; os prints e o que cada um anota (ACL, firewall, limites restaurados, PIDs, horários, Rapid-Fail, origem dos dados) |
-| Physical Computing | `esp32/integrantes.txt`, `esp32/README.md` | Nomes completos e RMs; link do Wokwi e do vídeo; resultado de cada passo do roteiro de simulação |
-| Testing (TOGAF) e pitch | `arquitetura/DOCUMENTO.md`, `arquitetura/PITCH.md`, `arquitetura/README.md` | RMs; salas, turnos e alunos por dia da escola do piloto; validar a fala da entrevista já registrada; demais integrantes no slide 1 |
-| Planejamento | `docs/PLANO.md` | Bairro da escola entrevistada |
+| Todas | `README.md` e o README de cada pasta | Unidade/bairro/autorização apenas se houver piloto futuro; a entrevista foi no CRAS Santo Amaro e está confirmada |
+| SOA | `api/README.md`, `api/evidencias/README.md` | Publicar evidências/código pelo Cérebro e enviar link; índice manual Insomnia e ensaios SQL/broker concluídos |
+| Cybersecurity | `seguranca/RELATORIO-RISCOS.md`, `seguranca/EVIDENCIAS.md`, `seguranca/evidencias/osint.txt` | Os 15 prints, de E01 a E15; revalidar antes da entrega a busca histórica já registrada em 05/11 em `osint.txt` |
+| C# Windows Forms | `desktop/README.md`, `desktop/integrantes.txt` | Publicar ajustes e conferir pacote final; relato, PR/tags e telas já conferidos |
+| Machine Learning | `ml/README.md`, `ml/gerar_notebook.py`, `ml/termometro_da_sala.ipynb` e o texto da tarefa, acima | Link do vídeo |
+| Mobile e IoT | `app/package.json`, `app/README.md` | Identificação e ZIP validados; ensaio nativo e gravação no celular seguem no checklist da disciplina |
+| Operating Systems | `infra/README.md`, `infra/EVIDENCIAS.md` e o bloco do formulário, acima | Data do ensaio, versão do Windows, hipervisor, IP, links do repositório e do vídeo, exigência de RDS; os prints e o que cada um anota (ACL, firewall, limites restaurados, PIDs, horários, Rapid-Fail, origem dos dados) |
+| Physical Computing | `esp32/integrantes.txt`, `esp32/README.md` | Link do Wokwi e do vídeo; resultado de cada passo do roteiro de simulação |
+| Testing (TOGAF) e pitch | `arquitetura/DOCUMENTO.md`, `arquitetura/PITCH.md`, `arquitetura/README.md` | Revisão conjunta das fontes/estimativas de impacto e pitch; números do piloto somente quando medidos |
+| Planejamento | `docs/PLANO.md` | Confirmar unidade/bairro/autorização antes de futuro piloto, sem tratar as candidatas como parceiras confirmadas |

@@ -1,0 +1,17 @@
+2026-11-17T09:12:26.3635102-03:00
+Ambiente: Development; MQTT desligado; conexao: ***
+POST http://localhost:5081/ocorrencias
+Content-Type: multipart/form-data; boundary="42d90b52-ee62-487e-9fe2-c383529879c7"
+
+Corpo enviado: {"descricao":"Sala muito quente no fim da aula","foto":"C:\\Users\\samue\\Downloads\\kit-windows-ml-soa-csharp\\api\\evidencias\\TermometroGS_SOA_20261117_Final\\temporario-563a9deb51774e429e0bfd53531c6085\\sala-vazia-sintetica.jpg","ambienteId":"sala-03"}; foto: bytes do JPEG/arquivo indicado, sem transcricao binaria
+Esperado: HTTP 201; 
+HTTP 201 Created
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Tue, 17 Nov 2026 12:12:25 GMT
+Location: /ocorrencias/f14356e4-b90d-46c1-b456-22f859ee6c40/foto
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"id":"f14356e4-b90d-46c1-b456-22f859ee6c40"}
+Conferencia: OK

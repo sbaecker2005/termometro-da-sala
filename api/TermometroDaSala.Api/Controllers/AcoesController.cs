@@ -35,12 +35,13 @@ public class AcoesController(SalaDb _db, TimeProvider _tempo) : ControllerBase
     {
         if (!await _db.Ambientes.AnyAsync(a => a.Id == entrada.AmbienteId)) return NotFound();
         if (!IndiceCalor.EhNivel(entrada.Nivel)) return BadRequest(new MotivoSaida("nivel"));
-        if (string.IsNullOrWhiteSpace(entrada.Descricao)) return BadRequest(new MotivoSaida("descricao"));
+        var descricao = (entrada.Descricao ?? "").Trim();
+        if (descricao.Length is < 5 or > 300) return BadRequest(new MotivoSaida("descricao"));
         var acao = new Acao
         {
             AmbienteId = entrada.AmbienteId,
             Nivel = Enum.Parse<Nivel>(entrada.Nivel),
-            Descricao = entrada.Descricao.Trim(),
+            Descricao = descricao,
             RegistradaEm = _tempo.GetUtcNow(),
         };
         _db.Acoes.Add(acao);

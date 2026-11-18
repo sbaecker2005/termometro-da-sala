@@ -1,0 +1,16 @@
+2026-11-17T09:17:11.8478182-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5081/leituras
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {"ambienteId":"sala-02","dispositivo":"esp32-sala-02","temperaturaC":33.4,"umidadePct":58,"medidoEm":1794917951,"assinatura":"0078d3c40789884a298546cab0c4c414c5c449ddda300d7390906e9ea92a7c74"}
+Esperado: HTTP 400; atrasada
+HTTP 400 Bad Request
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Tue, 17 Nov 2026 12:17:11 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"atrasada"}
+Conferencia: OK

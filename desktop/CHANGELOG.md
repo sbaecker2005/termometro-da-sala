@@ -11,16 +11,27 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 - Campo `ruaDisponivel` na previsão. Quando é falso, o aviso da linha diz que a previsão usa a última leitura válida da sala.
 - Previsão com 503 `sem-dados-para-prever` aparece como "Sem dados para prever", sem tratar como falha; 404 aparece como sala não encontrada.
 - Casos de teste de contrato para previsão sem a rua, 503 com e sem o motivo e 404.
-- Modo DEMONSTRAÇÃO no modo local: sem API e sem arquivo de dados, a tela mostra quatro salas de exemplo (uma por nível), previsões e duas ações, tudo marcado como DEMONSTRAÇÃO. Os exemplos nunca são gravados.
+- Modo DEMONSTRAÇÃO no modo local: sem API e sem arquivo de dados, a tela mostra cinco salas de exemplo (uma por nível), previsões e duas ações, tudo marcado como DEMONSTRAÇÃO. Os exemplos nunca são gravados.
 - Cabeçalho com o nome do sistema, legenda de cores na tela e ícone do termômetro na janela e no executável.
 - Casos de teste do encapsulamento do domínio, da demonstração e das telas montadas pelo Designer (6 no total).
+- Legenda colorida fixa no mapa, incluindo Frio em azul; cadeiras quadradas e sensores circulares, com códigos C01–C20 e S1–S4 consistentes na planta, lista e PNG.
 
 ### Alterado
 
+- Visual nativo com cabeçalho azul-escuro, ações principais turquesa, cartões claros de salas/alertas/ações, grades com avisos legíveis e rolagem em janela menor. Cadastro e mapa usam o mesmo tema; eventos, atalhos e cores térmicas foram preservados.
 - `Form1` virou `TelaCoordenacao`, com o layout inteiro no `TelaCoordenacao.Designer.cs`, para abrir no Designer do Visual Studio. O cadastro (`CadastroSala`) ganhou arquivo e Designer próprios.
 - Domínio encapsulado: `Sala.Criar` e o construtor de `Acao` validam, as propriedades têm `private set`, e a sala muda só por `Revogar()` e `ReceberLeitura()`. A classe estática `Validacoes` saiu; cada regra ficou na sua entidade.
 - `NivelCalor` em PascalCase (`Normal`, `Atencao`, `Cuidado`, `Perigo`), com conversor que mantém o JSON em minúsculas. O contrato com a API e o arquivo local da versão anterior não mudam.
 - Um arquivo por classe, nas pastas `Dominio/`, `Servicos/` e `Telas/`.
+- Mapa de demonstração ampliado para vinte cadeiras em cinco fileiras de quatro. A API atualiza o arranjo original de seis cadeiras e preserva os IDs nas repetições; configurações personalizadas são recusadas sem alteração.
+
+### Corrigido
+
+- Revogação remota passa a exibir **Sensor revogado** no início dos avisos da grade, usando o estado do mesmo dispositivo informado pela API.
+- Textos extensos e precauções ficam na lista lateral do mapa; a planta usa códigos curtos e preserva a identificação dos pontos coincidentes.
+- Exportação PNG inclui título, período, dimensões, legenda, planta e todo o texto lateral, inclusive o conteúdo que exige rolagem na janela.
+
+Ensaio visual no Windows em **17/11/2026**, com API Demo e SQL Server Express, documentado em [VALIDACAO-WINDOWS-2026-11-17.md](docs/VALIDACAO-WINDOWS-2026-11-17.md). Após o novo visual, **19 testes e 6 verificações do autoteste passaram**, com saída 0, também no ZIP final extraído. Tela maximizada e em 958 × 707, cadastro, mapas e PNGs foram conferidos; cadastro e ação locais persistiram após reabrir o programa. Relato e autorização da entrevista confirmados por Samuel em 17/11; Magister e Salgueiro registradas como candidatas ao piloto.
 
 ## [0.2.0] - 2026-11-05
 

@@ -1,0 +1,53 @@
+CONFERÊNCIA DOS PACOTES — MODELO GERAL V1 — 17/11/2026
+
+Snapshot copiado e conferido por SHA-256 em:
+D:/codex-validacao-termometro-20261117-c0ce77f9efc54ab2885d0268d0cbb51c/pacotes-modelo-geral-v1-20261117/fontes-testadas
+Inventário: pacotes-modelo-geral-v1-fontes-testadas.json, nesta pasta.
+Modelos, fontes e testes foram executados nessa cópia isolada; documentação e
+evidências visuais terminaram depois. A extração final deve preservar por hash os
+mesmos arquivos de código/fixtures verificados. Os hashes dos ZIPs são externos.
+
+RESULTADOS DA CÓPIA ISOLADA — TODOS COM SAÍDA ZERO
+API: 134 aprovados, 0 falhas, 0 ignorados; api-pacote-modelo-geral-v1.trx.
+Desktop: 19 aprovados; desktop-pacote-modelo-geral-v1.trx.
+Desktop autoteste: "Autoteste: 6 verificacoes passaram."
+ML: 46 testes e 53 subtestes aprovados, 5,07 s.
+Mobile: 23 testes, 8 suítes, 0 falhas.
+TypeScript: sem erros. package.json e package-lock.json idênticos aos da instalação
+existente em D:, reutilizada por junction node_modules; não é instalação nova.
+Harness SQL final: compilado, 0 avisos e 0 erros; não iniciado novamente nessa cópia.
+Ensaio SQL real das fontes correspondentes: sql-modelo-geral-v1.txt.
+
+COMANDOS EXECUTADOS NA RAIZ DO SNAPSHOT
+dotnet test api/TermometroDaSala.Api.Tests/TermometroDaSala.Api.Tests.csproj -c Validacao --no-restore --disable-build-servers -m:1 --logger "trx;LogFileName=api-pacote-modelo-geral-v1.trx" --results-directory C:/Users/samue/Downloads/kit-windows-ml-soa-csharp/docs/resultados-testes-2026-11-17 --verbosity quiet
+dotnet test desktop/TermometroDaSala.Desktop.sln -c Release --disable-build-servers -m:1 -p:NuGetAudit=false --logger "trx;LogFileName=desktop-pacote-modelo-geral-v1.trx" --results-directory C:/Users/samue/Downloads/kit-windows-ml-soa-csharp/docs/resultados-testes-2026-11-17 --verbosity quiet
+dotnet run --project desktop/TermometroDaSala.Desktop -c Release --no-build --no-restore -- --autoteste
+dotnet build ferramentas/EnsaioSqlMqtt/EnsaioSqlMqtt.csproj -c Validacao --disable-build-servers -m:1 -p:NuGetAudit=false --verbosity quiet
+& 'D:/codex-validacao-termometro-20261117-c0ce77f9efc54ab2885d0268d0cbb51c/ml-python311/runtime/python.exe' -B -m pytest ml -q -p no:cacheprovider --basetemp 'D:/codex-validacao-termometro-20261117-c0ce77f9efc54ab2885d0268d0cbb51c/pacotes-modelo-geral-v1-20261117/pytest-temp'
+Ao repetir pytest, escolher outro --basetemp novo; pytest limpa esse diretório.
+Dentro de app:
+& 'C:/Program Files/WindowsApps/OpenAI.CodexPrimaryRuntime.v26-1116-1210-0_26.1116.1210.0_x64__3k8sg7r9htsxt/dependencies/node/bin/node.exe' --experimental-strip-types --test 'domain/*.test.ts'
+TypeScript, na raiz do snapshot, após a junction para as dependências conferidas:
+& 'C:/Program Files/WindowsApps/OpenAI.CodexPrimaryRuntime.v26-1116-1210-0_26.1116.1210.0_x64__3k8sg7r9htsxt/dependencies/node/bin/node.exe' 'D:/codex-validacao-termometro-20261117-c0ce77f9efc54ab2885d0268d0cbb51c/app/node_modules/typescript/bin/tsc' --noEmit --project 'app/tsconfig.json'
+
+CORREÇÃO REVELADA PELA CÓPIA LIMPA
+A primeira tentativa API teve 80 aprovados e 54 falhas antes de iniciar o servidor,
+com "Configure ConnectionStrings:Sala". O handoff anterior omitia o JSON da API;
+Program exige a conexão configurada antes da substituição do provedor por SQLite.
+Corrigido no empacotador: JSON público gerado, autenticação integrada SQL Express,
+banco de exemplo, migração automática e MQTT desligados, nenhuma chave. Nenhum
+appsettings existente, .env ou arquivo de credenciais foi lido ou copiado.
+A repetição aprovou 134/134; o TRX inicial foi preservado como
+api-pacote-modelo-geral-v1-sem-config.trx. Não houve mudança no código da API.
+
+INTEGRIDADE E LIMITES
+O empacotador recusa caminhos fora do kit e arquivos privados antes de calcular
+hashes; normaliza barras, confere cada entrada por SHA-256 antes de substituir ZIP.
+Os dois arquivos Mobile alterados e o manifesto público dotnet-tools estão no
+handoff. .npmrc é gerado com somente legacy-peer-deps=true.
+Pastas Gui/Lucas recebem fontes/API/fixture atuais, configuração pública gerada,
+documento V1 e evidências selecionadas. Câmera, Wokwi e VM têm roteiros próprios;
+as provas SQL locais não substituem essas integrações.
+Não houve nova consulta NuGet de vulnerabilidades, retreino ou benchmark com
+medições reais de sala. Nenhum commit, push ou envio ao grupo foi realizado.
+Hashes finais ficam nos manifestos externos, sem autorreferência no ZIP.

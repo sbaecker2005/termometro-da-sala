@@ -1,0 +1,100 @@
+SQL SERVER REAL — MODELO GERAL V1 — 17/11/2026
+
+RESULTADO FINAL
+Coletor SQL/HTTP: 98 verificações OK, zero divergências, saída 0.
+Ensaio HTTP/MQTT/SQL: 33 verificações aprovadas, saída 0.
+Não foi necessário corrigir código da API nesta rodada.
+
+1. COLETOR SQL/HTTP
+Banco novo: TermometroGS_SOA_ModeloGeral_20261117_134420
+Porta exclusiva da API: 5086.
+Comando executado na raiz do kit:
+powershell -NoProfile -ExecutionPolicy Bypass -File ./api/evidencias/gerar-evidencias.ps1 -Banco TermometroGS_SOA_ModeloGeral_20261117_134420 -Porta 5086
+Registro: api/evidencias/TermometroGS_SOA_ModeloGeral_20261117_134420/conferencia.tsv
+Resultado de console: Evidencias principais: 38 OK; 0 DIVERGE.
+O TSV contém 98 verificações ao incluir as auxiliares, todas OK.
+Escopo: cinco migrações reais, CRUD, consultas SQL, leituras HTTP, assinatura,
+reenvio, concorrência HTTP, revogação, ocorrências/foto sintética, autorização,
+mapa, modo Demo, bloqueio de Demo em Production local e limite de requisições.
+O cenário de mapa atual insere 12 leituras, quatro sensores em três minutos.
+Production é apenas o nome do ambiente local de ensaio; não houve acesso ou
+alteração a servidor de produção. O banco foi preservado.
+
+2. HTTP/MQTT/SQL E MODELO POR SALA
+Banco novo final: TermometroGS_ModeloGeral_20261117_135412_6ef80b60
+HTTP 5082; broker MQTT 18884, ambos em loopback.
+Comando executado na raiz do kit:
+dotnet run --project ferramentas/EnsaioSqlMqtt/EnsaioSqlMqtt.csproj -c Validacao --no-restore --disable-build-servers
+Registro: docs/resultados-testes-2026-11-17/TermometroGS_ModeloGeral_20261117_135412_6ef80b60/resultado.txt
+Outras provas nessa pasta: api.log, previsoes-modelo.json e mapa-futuro.json.
+O processo da API e o broker desse ensaio foram encerrados ao terminar.
+
+As 21 verificações anteriores foram repetidas: cinco migrações, persistência por
+HTTP e MQTT, dez corridas HTTP/MQTT com uma linha por instante, leitura antiga,
+revogação, falha SQL controlada, rollback e nova tentativa aceita.
+Foram acrescentadas 12 verificações da revisão:
+- previsão HTTP corresponde à árvore exportada e aos atributos da observação;
+- ajustes +4 e -4 isolados por sala, pesos por sensor/minuto, futuro e suspeita excluídos;
+- mesma previsão de rua compartilhada entre salas;
+- previsões internas distintas refletindo os ajustes;
+- alvo ancorado na observação externa válida, descartando rua futura/inválida;
+- origem simulada identificada;
+- sensores simultâneos não substituem três minutos de histórico;
+- último par mais antigo que 15 min não calibra a sala;
+- previsão calculada realmente gravada no SQL;
+- mapa +1 h interpolado pelo tempo restante até o alvo;
+- sem rua recente, média da última leitura válida de cada sensor;
+- sem rua e sem sensor, HTTP 503 em vez de previsão inventada.
+
+Na execução final, a rua prevista foi 31,0; sala-08, delta +4, previsão 35,0;
+sala-09, delta -4, previsão 27,0. São fixtures sintéticas de integração inseridas
+no banco exclusivo, não medições de uma escola. O arquivo previsoes-modelo.json
+preserva o horário-alvo exato e as respostas. A expiração da fixture externa no
+fim permite testar a persistência; não altera nenhum banco anterior.
+A primeira execução ampliada (32 verificações) está preservada na pasta
+TermometroGS_ModeloGeral_20261117_134909; a rodada anterior de 33 verificações está
+em TermometroGS_ModeloGeral_20261117_135029. Após a revisão independente, o nome do
+banco recebeu sufixo GUID curto para separar execuções no mesmo segundo. A
+execução de 33 acima revalidou essa versão e é a evidência final.
+
+3. API PARA CONFERÊNCIA VISUAL DA MESMA REVISÃO
+Após o coletor, a API foi reaberta em Demo na porta 5086 e no mesmo banco de
+coleta, com caminho absoluto explícito para o modelo exportado. Foi preparada
+sala-03 (18 leituras históricas simuladas) e sala-07 madrugada (12 leituras,
+4 sensores e 20 cadeiras). PID informado ao coordenador: 18232.
+Esta informação não comprova que o processo continuará ativo após a sessão;
+o relatório visual do coordenador registra as capturas e eventual encerramento.
+
+Comparação independente em Python para o CSV da hora 13, novembro:
+árvore exportada = 33,9917 -> 34,0; CSV sem modelo na hora 15 = 35,3.
+API = rua 34,0 + delta 4,0 = sala 38,0. Isso confirma que o valor exibido vem
+da árvore exportada, não do fallback do CSV.
+SHA-256 do modelo de API conferido:
+22AD57D6ED04B42B70B1D5BE44CF616F46B00A6A13BDC214213C0F98D0E8D118
+
+4. REPRODUÇÃO E LIMITES
+Exige SQL Server Express local com autenticação Windows e dependências .NET já
+restauradas. Nenhuma nova instalação foi feita nesta rodada.
+Escolher banco novo e porta livre ao repetir o coletor; nomes existentes são
+recusados. O ensaio MQTT gera nome novo automaticamente e recusa banco/portas
+preexistentes; seu nome inclui timestamp e oito caracteres de GUID. Não apaga
+bancos. Não encerra processos de outras sessões.
+A falha SQL deliberada no api.log é parte do teste de rollback e tem retry
+aprovado; não representa falha pendente.
+
+Os logs são redigidos pelo coletor/ensaio antes de gravar: chave temporária e
+string de conexão não são entregues. Dispositivos/corpos são fixtures públicas
+de teste; dados de alunos reais não foram usados.
+Esta execução não substitui a evidência manual anterior do Insomnia, a validação
+visual do coordenador, o Wokwi, o aparelho Mobile físico ou a VM/IIS.
+Os testes comprovam integração local, não precisão térmica em escolas reais.
+
+ARQUIVOS ALTERADOS/CRIADOS POR ESTA SUBTAREFA
+ferramentas/EnsaioSqlMqtt/Program.cs (ensaio ampliado, sem alteração de API)
+api/evidencias/README.md (índice atualizado)
+api/README.md (resultados e links atuais)
+api/evidencias/TermometroGS_SOA_ModeloGeral_20261117_134420/ (coleta)
+docs/resultados-testes-2026-11-17/TermometroGS_ModeloGeral_20261117_134909/ (histórico)
+docs/resultados-testes-2026-11-17/TermometroGS_ModeloGeral_20261117_135029/ (histórico)
+docs/resultados-testes-2026-11-17/TermometroGS_ModeloGeral_20261117_135412_6ef80b60/ (final)
+docs/resultados-testes-2026-11-17/sql-modelo-geral-v1.txt (este registro)

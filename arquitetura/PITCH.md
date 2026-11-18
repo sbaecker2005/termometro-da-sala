@@ -122,8 +122,9 @@ No slide 8, leia só a fala acima. O indicador do piloto e onde climatizar prime
 ## Texto dos slides
 
 ### Slide 1: Termômetro da Sala
-- Samuel Baecker - RM [preencher]
-- Demais integrantes e RMs: [preencher]
+- Samuel David Baecker - RM 559269
+- Lucas de Almeida Villar - RM 560005
+- Guilherme Augusto Caseiro - RM 559765
 - O calor da sala de aula, medido antes de alguém passar mal
 
 ### Slide 2: O problema

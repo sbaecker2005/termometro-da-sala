@@ -2,9 +2,9 @@
 
 ## Mapa térmico
 
-Selecione uma sala e clique em **Mapa térmico**, ou dê dois cliques na linha. A janela mostra a planta em escala com origem no canto inferior esquerdo, grade interpolada, bolas dos sensores e lugares, legenda, textos de todos os pontos e lista de precauções ao lado. Azul é frio, verde normal, amarelo atenção e vermelho cuidado extremo/perigo; cinza é sem leitura. O diâmetro cresce com o desvio absoluto da média, limitado visualmente a 8 °C.
+Selecione uma sala e clique em **Mapa térmico**, ou dê dois cliques na linha. A janela mostra a planta em escala com origem no canto inferior esquerdo, grade interpolada, sensores em círculos e cadeiras em quadrados, legenda colorida fixa e lista rolável com todos os pontos e precauções. As cadeiras recebem códigos C01, C02… e os sensores S1, S2… na planta, lista e PNG. A demonstração API tem C01–C20 e S1–S4; a local tem C01–C20 e S1–S2. Pontos na mesma posição mantêm seus códigos individuais, apresentados juntos na planta. Azul é frio, verde normal, amarelo atenção, laranja cuidado extremo e vermelho perigo; cinza é sem leitura. O tamanho cresce com o desvio absoluto da média, limitado visualmente a 8 °C e com mínimo para manter o código legível. As demonstrações API/local têm 20 cadeiras em 5 fileiras de 4; o cenário API `madrugada` permite conferir a região azul de frio.
 
-Use **Agora / Previsão +1 h** e **Exportar PNG** para salvar a janela, incluindo legenda e precauções, nos prints da entrega. No modo local, os mapas são exemplos identificados como **DEMONSTRAÇÃO**, inclusive em salas cadastradas: não representam sensores reais. No modo API, +1 h consulta `/ambientes/{id}/mapa?futuro=true`: previsão do ambiente aplicada aos pontos, usando metade da variação do índice prevista para +2 h como deslocamento da temperatura e do índice de cada sensor. A lista de precauções explica essa aproximação, que não tem modelo de temperatura por ponto. A previsão de +2 h do ambiente continua separada.
+Use **Agora / Previsão +1 h** e **Exportar PNG** para salvar a planta, período/dimensões, legenda e lista completa de pontos/precauções, inclusive o trecho que exige rolagem na tela. No modo local, os mapas são exemplos identificados como **DEMONSTRAÇÃO**, inclusive em salas cadastradas: não representam sensores reais. No modo API, +1 h consulta `/ambientes/{id}/mapa?futuro=true`: previsão do ambiente aplicada aos pontos, usando metade da variação do índice prevista para +2 h como deslocamento da temperatura e do índice de cada sensor. A lista de precauções explica essa aproximação, que não tem modelo de temperatura por ponto. A previsão de +2 h do ambiente continua separada.
 
 O mesmo sensor avisa calor no verão (escolas) e frio no inverno (dormitórios e abrigos).
 
@@ -13,7 +13,7 @@ O mesmo sensor avisa calor no verão (escolas) e frio no inverno (dormitórios e
 | Campo | Conteúdo |
 |---|---|
 | Nome da CitizenTech | Termômetro da Sala |
-| Cidade e bairro | São Paulo, bairro da escola [a confirmar] |
+| Cidade e bairro | São Paulo; Magister e Salgueiro são candidatas ao piloto, indicadas por Samuel em 17/11/2026. Unidade, bairro, contato e autorização dos testes a confirmar |
 | Cidadão beneficiado | Professor(a) e turma de uma sala sem climatização. Quem opera o sistema é a coordenação pedagógica |
 | Problema, em uma frase | Nas tardes quentes, a sala passa do limite seguro sem que ninguém meça, e a escola só reage quando alguém passa mal |
 | Como funciona | Um sensor na porta da sala mede o calor e acende verde, amarelo ou vermelho. O sistema prevê o nível da sala para daqui a 2 h. A coordenação vê todas as salas, decide e registra a ação tomada. O professor acompanha pelo app e registra ocorrências com foto |
@@ -28,11 +28,19 @@ Nas tardes quentes, a coordenação não sabe quais salas passaram do limite seg
 
 Pessoa real: **Monalisa Daniela Pereira Amaral, coordenadora do CRAS Santo Amaro (São Paulo)**. Data da entrevista: **07/11/2026**, por escrito, com autorização para citar o nome e as frases. O CRAS entra como referência de ambiente público; a escola continua sendo o cenário principal.
 
+Samuel confirmou a fidelidade do relato e a autorização de uso do nome e das falas em **17/11/2026**. Magister e Salgueiro foram indicadas como candidatas aos testes; ainda não há piloto realizado nem autorização dessas escolas registrada.
+
 Relato: No CRAS Santo Amaro, em São Paulo, passam no mínimo 150 pessoas por dia, porque ali também funciona um posto do Cadastro Único. A sala dos técnicos recebe sol à tarde, e o calor pesa de janeiro a março; a unidade conta só com janelas e ventiladores e nunca teve climatização, por limitação orçamentária. A coordenadora gostaria de receber o aviso no celular, para ligar ventiladores, abrir janelas e providenciar água gelada e leques, e de ter o histórico de temperatura para levar à Supervisão de Assistência Social, junto com o pedido de manutenção que já fez.
 
 A entrevista não coleta dados de alunos. Os números do CRAS não substituem os da escola do piloto, ainda [a confirmar].
 
-Equipe: **Termômetro da Sala**. Integrante: Samuel Baecker — RM [preencher]. Demais integrantes: [preencher, se houver].
+Equipe: **Termômetro da Sala**.
+
+| Nome completo | RM |
+|---|---|
+| Samuel David Baecker | 559269 |
+| Lucas de Almeida Villar | 560005 |
+| Guilherme Augusto Caseiro | 559765 |
 
 ## Abrir no Visual Studio 2022
 
@@ -40,9 +48,11 @@ Equipe: **Termômetro da Sala**. Integrante: Samuel Baecker — RM [preencher]. 
 2. Abra `TermometroDaSala.Desktop.sln`, nesta pasta.
 3. No **Gerenciador de Soluções**, clique com o botão direito em `TermometroDaSala.Desktop` e escolha **Definir como Projeto de Inicialização**.
 4. Aperte **F5**. Os testes ficam em **Teste > Gerenciador de Testes > Executar Todos os Testes**.
-5. Para ver o layout no Designer, dê dois cliques em `Telas/TelaCoordenacao.cs` (tela principal) ou em `Telas/CadastroSala.cs` (cadastro). Os controles ficam no `.Designer.cs` de cada tela; o código ao lado só carrega dados e trata os cliques.
+5. Para ver os controles no Designer, dê dois cliques em `Telas/TelaCoordenacao.cs` (tela principal) ou em `Telas/CadastroSala.cs` (cadastro). Os controles e eventos ficam no `.Designer.cs`; o tema e a organização visual final são aplicados em tempo de execução, incluindo `TelaCoordenacao.Visual.cs` e `TemaVisual.cs`.
 
 ## Executar pela linha de comando (Windows e SDK .NET 8)
+
+Se o SDK ainda não estiver instalado, execute `ferramentas/preparar-windows.ps1` a partir da raiz do repositório. Ele verifica o SDK 8, instala o pacote oficial pelo winget somente quando necessário e confere o Windows Desktop Runtime 8. O roteiro conjunto de API, banco, previsão e desktop está em [FECHAMENTO-ML-SOA-CSHARP.md](../docs/FECHAMENTO-ML-SOA-CSHARP.md).
 
 Dentro da pasta `desktop`, no PowerShell:
 
@@ -58,7 +68,7 @@ O padrão é `http://localhost:5080/`. Não coloque credenciais nesse arquivo. O
 
 ## Uso
 
-- No topo ficam o nome do sistema, a situação da conexão (API, MODO LOCAL ou DEMONSTRAÇÃO) e a legenda de cores. A janela e o executável usam o ícone do termômetro (`termometro.ico`).
+- O cabeçalho azul-escuro identifica o sistema; a faixa de origem informa API, MODO LOCAL ou DEMONSTRAÇÃO. Cartões claros resumem salas, alertas atuais e ações do dia. Sala sem leitura não conta como alerta. Botões turquesa destacam as ações principais; a janela menor permite rolagem. A janela e o executável usam o ícone do termômetro (`termometro.ico`).
 - **Atualizar** recarrega salas, previsões e ações; ocorre também a cada 30 segundos. O nível sempre tem texto e cor. Avisos identificam leitura antiga, previsão da rua e DEMONSTRAÇÃO.
 - **Cadastrar sala** exige `sala-NN`, nome, andar entre 0 e 20 e face norte/sul/leste/oeste. Há opção de ventilador e mensagens por campo via ErrorProvider.
 - Selecione uma sala, escolha o nível e descreva a ação (5–300 caracteres), depois use **Registrar ação**. A hora aparece no horário de São Paulo.
@@ -93,7 +103,7 @@ O cliente segue os contratos de `api/TermometroDaSala.Api/Contratos`. Níveis JS
 
 | Rota | Entrada / resposta |
 |---|---|
-| `GET /ambientes` | Array de `{id, nome, andar, faceSol, nivelAtual, indiceAtual, ultimaLeituraEm, semLeitura, temVentilador, dispositivoId}` |
+| `GET /ambientes` | Array de `{id, nome, andar, faceSol, nivelAtual, indiceAtual, ultimaLeituraEm, semLeitura, temVentilador, dispositivoId, sensorRevogado}` |
 | `GET /ambientes/{id}/previsao` | `{ambienteId, previstoPara, indiceRuaPrevisto, deltaSala, indiceSalaPrevisto, nivelPrevisto, semLeiturasRecentes, demonstracao, ruaDisponivel}`; 404 sala inexistente; 503 `{motivo: "sem-dados-para-prever"}` |
 | `POST /ambientes` | `{id, nome, andar, faceSol, temVentilador, tipo: "sala"}` |
 | `POST /acoes` | `{ambienteId, nivel, descricao}`; a API grava a hora do servidor e devolve `{id}` numérico |
@@ -130,7 +140,7 @@ As rotas de escrita da API (cadastro de sala, ação, revogação) exigem a chav
 |---|---|
 | `Dominio/` | Uma classe por arquivo: `Sala`, `Acao`, `Previsao`, `Leitura`, o enum `NivelCalor` (com o texto de cada nível), `HorarioEscola` e `CadastroInvalidoException` |
 | `Servicos/` | `IServicoSalas` e as duas implementações (`ServicoSalasApi` e `ServicoSalasLocal`), `DadosLocais`, `DadosDemonstracao`, `ExportacaoCsv`, `Configuracao` e os conversores de JSON |
-| `Telas/` | `TelaCoordenacao` e `CadastroSala`, cada uma com o seu `.Designer.cs` |
+| `Telas/` | `TelaCoordenacao` e `CadastroSala` com `.Designer.cs`, composição em `TelaCoordenacao.Visual.cs`, `TelaMapa` e tema compartilhado em `TemaVisual` |
 
 O domínio é encapsulado: as propriedades têm `private set`, então só a própria classe muda o seu estado.
 
@@ -242,8 +252,12 @@ dotnet test TermometroDaSala.Desktop.sln
 dotnet run --project TermometroDaSala.Desktop -- --autoteste
 ```
 
+Há também quatro testes de integração do cliente desktop em `api/TermometroDaSala.Api.Tests/ClienteDesktopTestes.cs`: eles compilam o mesmo domínio e os mesmos serviços HTTP do executável e os ligam aos controllers da API com SQLite em memória. Execute da raiz `dotnet test api/TermometroDaSala.sln --filter FullyQualifiedName~ClienteDesktopTestes`. Esses testes rodam no Linux e no Windows; não carregam o Windows Forms nem substituem os 19 testes Windows e o ensaio das telas.
+
 O autoteste não depende de pacote e retorna 0 em sucesso e 1 em falha. Os seis casos verificam limites dos campos e o encapsulamento do domínio, CSV/relógio, persistência/arquivo inválido, o contrato HTTP com um handler em memória (sem rede), a demonstração do modo local (que nunca é gravada) e as telas montadas pelo Designer, com a legenda nas mesmas cores da grade.
 As respostas usadas no teste de contrato são as que a API devolve: sala com leitura, sala sem leitura (`ultimaLeituraEm: ""`), previsão da rua, previsão sem a rua (`ruaDisponivel: false`), 503 `sem-dados-para-prever`, 503 sem esse motivo, 404 e ação com `id` numérico.
+
+Em 17/11/2026, após o novo visual, passaram **19 testes Windows e 6 verificações do autoteste**, com saída 0, também na cópia extraída do ZIP final. A interface foi conferida maximizada e em 958 × 707 com rolagem, cadastro, mapas Agora/+1 h/frio e dois PNGs completos. Cadastro e ação locais persistiram após fechar e reabrir o programa com a API desligada. Evidências e limites estão em [VALIDACAO-WINDOWS-2026-11-17.md](docs/VALIDACAO-WINDOWS-2026-11-17.md). DPI ampliado ainda não foi exercitado.
 
 ## Versões
 
@@ -255,6 +269,8 @@ O projeto segue versionamento semântico. O histórico completo está no [CHANGE
 | `v0.1.0` | 2026-11-04 | Primeira versão do terminal da coordenação |
 
 Pull request da versão: [Desktop v0.2.0](https://github.com/sbaecker2005/termometro-da-sala/pull/1). Tags: [v0.1.0](https://github.com/sbaecker2005/termometro-da-sala/releases/tag/v0.1.0) e [v0.2.0](https://github.com/sbaecker2005/termometro-da-sala/releases/tag/v0.2.0).
+
+Conferência remota em **17/11/2026**: PR #1 aberto, sem revisão registrada, da branch `desktop/v0.2.0` para `desktop/v0.1.0`; não é um PR dos ajustes locais de 17/11. As duas releases existem, sem anexos. A `main` ainda aponta para `7a8e4e35eeb3827200c27efc085f5158898879eb`, anterior aos ajustes do kit. Revisão, commit e merge das fontes atuais ficam com o Cérebro, conforme a divisão de trabalho.
 
 ## Entrega
 

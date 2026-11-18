@@ -1,0 +1,15 @@
+2026-11-17T09:17:08.2902310-03:00
+Ambiente: Development; MQTT desligado; conexao: ***
+GET http://localhost:5081/ambientes/sala-05
+
+Corpo enviado: 
+Esperado: HTTP 404; 
+HTTP 404 Not Found
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Tue, 17 Nov 2026 12:17:07 GMT
+Server: Kestrel
+Content-Type: application/problem+json; charset=utf-8
+
+{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.5","title":"Not Found","status":404,"traceId":"00-636701e3f62f1a64743e904ca277540e-142c029467a2318c-00"}
+Conferencia: OK

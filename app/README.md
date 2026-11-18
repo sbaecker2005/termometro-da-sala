@@ -30,14 +30,15 @@ App do professor. A coordenação usa o desktop; este app só acompanha a sala e
 
 | Nome completo | RM |
 |---|---|
-| Samuel Baecker | [preencher] |
-| [preencher] | [preencher] |
+| Samuel David Baecker | 559269 |
+| Lucas de Almeida Villar | 560005 |
+| Guilherme Augusto Caseiro | 559765 |
 
 Os mesmos nomes e RMs ficam no campo `authors` do `package.json`.
 
 ## Como rodar (Expo Go)
 
-Requisitos: Node.js 22.6 ou mais novo (os testes usam `--experimental-strip-types`) e o aplicativo Expo Go no celular, na mesma rede do computador.
+Requisitos: Node.js 22.x a partir de 22.15, 24.x a partir de 24.3, ou 26 ou mais novo, e o aplicativo Expo Go no celular, na mesma rede do computador. O lock do Expo/React Native exige pelo menos 22.13 na linha 22.x; os testes também usam [`module.registerHooks`, disponível desde 22.15](https://nodejs.org/download/release/v22.15.0/docs/api/module.html#synchronous-hooks-accepted-by-moduleregisterhooks).
 
 ```bash
 cd app

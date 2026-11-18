@@ -1,0 +1,36 @@
+2026-11-17T09:12:31.1528119-03:00
+E02 - parte local; prints e demais itens do roteiro permanecem pendentes.
+
+2026-11-17T09:12:25.2029707-03:00
+Ambiente: Development; MQTT desligado; conexao: ***
+POST http://localhost:5081/leituras
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {"ambienteId":"sala-03","dispositivo":"esp32-sala-03","temperaturaC":33.4,"umidadePct":58,"medidoEm":1794917545,"assinatura":"07e6ea9d72a848350251f390f61f0c66401bd8a821d2c44bcb37a667a421daf4"}
+Esperado: HTTP 201; "id".*"indiceCalor".*"nivel"
+HTTP 201 Created
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Tue, 17 Nov 2026 12:12:25 GMT
+Location: /ambientes/sala-03/leituras
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"id":1,"suspeita":false,"indiceCalor":39.8,"nivel":"cuidado"}
+Conferencia: OK
+
+2026-11-17T09:12:26.4922321-03:00
+Ambiente: Development; MQTT desligado; conexao: ***
+GET http://localhost:5081/ambientes/sala-03/leituras
+
+Corpo enviado: 
+Esperado: HTTP 200; 
+HTTP 200 OK
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Tue, 17 Nov 2026 12:12:25 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+[{"medidoEm":"2026-11-17T12:12:25+00:00","temperaturaC":33.4,"umidadePct":58,"indiceCalor":39.8,"nivel":"cuidado","origem":"dispositivo","suspeita":false,"dispositivoId":"esp32-sala-03"}]
+Conferencia: OK

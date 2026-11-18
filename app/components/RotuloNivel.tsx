@@ -11,6 +11,6 @@ export function RotuloNivel({ nivel }: { nivel: Nivel }) {
 }
 
 const styles = StyleSheet.create({
-  selo: { alignSelf: 'flex-start', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4 },
-  texto: { color: '#fff', fontWeight: '700' },
+  selo: { alignSelf: 'flex-start', maxWidth: '100%', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6 },
+  texto: { color: '#fff', fontSize: 13, fontWeight: '700' },
 });

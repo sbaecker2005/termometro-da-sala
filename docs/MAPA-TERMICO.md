@@ -30,7 +30,17 @@ Diferença de temperatura entre os sensores extremos maior ou igual a 4 °C gera
 
 Cada ponto também contém `precaucoes`: as recomendações calculadas para aquele identificador e tipo, usadas no toque e na lista acessível. A lista geral continua disponível. Sensores extremos recebem o aviso de desigualdade; lugares vulneráveis recebem sua indicação de troca ou de ausência de destino melhor.
 
-`GET /ambientes/{id}/mapa?futuro=true` retorna `previstoPara` igual a agora mais uma hora. Usa `ConsultaPrevisao` para obter o índice previsto do ambiente em +2 h. O deslocamento de +1 h é `(índice previsto em +2 h − média dos índices atuais dos sensores recentes) / 2`, por interpolação linear no tempo. Soma esse deslocamento à temperatura e ao índice de cada sensor, recalcula níveis e interpola lugares e grade. Aplicar a variação do índice à temperatura é uma aproximação, pois não há previsão de temperatura por ponto; não equivale a um modelo térmico individual. A lista de precauções, exibida nos dois clientes, informa “Previsão do ambiente aplicada aos pontos” e explica o cálculo. Pontos sem leitura continuam sem valores; sem índice previsto do ambiente ou sem sensores recentes, todos os valores futuros são nulos e há aviso de indisponibilidade. A previsão de sala em +2 h mantém seu contrato independente. Consultar o mapa futuro também registra essa previsão no histórico, respeitando o limite existente de uma por ambiente a cada 10 minutos.
+`GET /ambientes/{id}/mapa?futuro=true` retorna `previstoPara` igual a agora mais uma hora.
+Usa o índice e o horário-alvo retornados por `ConsultaPrevisao`. O deslocamento é
+`(índice previsto − média dos índices atuais dos sensores recentes) / horas até o alvo`.
+Quando o alvo está a duas horas, isso equivale a dividir por dois; se está a 90
+minutos, divide por 1,5. Não extrapola quando o alvo fica antes de agora +1 h.
+Soma esse deslocamento à temperatura e ao índice de cada sensor, recalcula níveis
+e interpola lugares e grade. Aplicar a variação do índice à temperatura continua
+sendo uma aproximação sem modelo de temperatura por ponto. A lista de precauções
+explica essa hipótese nos clientes. Sem previsão válida ou sensores recentes,
+os valores futuros são nulos. Consultar o mapa futuro também registra a previsão
+da sala, respeitando o limite de uma gravação por ambiente a cada dez minutos.
 
 `PUT /ambientes/{id}/mapa` exige `X-Chave-Coordenacao` e o limite de escrita existente; retorna 204. Configura dimensões, posiciona dispositivos já cadastrados no ambiente e substitui a lista de lugares. Sensor omitido mantém posição e rótulo; lugar omitido é removido. Lugar com mesmo nome preserva seu identificador. Lista vazia de lugares remove todos os lugares, sem apagar leituras. Nomes são únicos no ambiente, sem distinguir maiúsculas de minúsculas.
 
@@ -47,9 +57,9 @@ Dimensões são fornecidas juntas, de 0,5 a 50 m; posições devem estar dentro 
 
 ## Demonstração
 
-Somente no ambiente `Demo`, `POST /demo/mapa?periodo=tarde` cria Sala 7 (`sala-07`), 6 × 4 m, quatro sensores e seis cadeiras, duas vulneráveis. Janela: 35 °C; demais: 24 °C; umidade 60%. `periodo=madrugada` usa fundo a 15 °C e os demais a 22 °C. São cenários explícitos, com horário atual, para permanecerem recentes e reproduzíveis em qualquer horário. No cenário apenas simulado, execute novamente após 15 minutos. Após qualquer leitura de dispositivo na sala, a rota retorna 409: pare circuito/API e recrie somente o banco descartável do ensaio, conforme `esp32/ROTEIRO-VIDEO.md`, antes de semear novamente. A resposta aponta para `/ambientes/sala-07/mapa`.
+Somente no ambiente `Demo`, `POST /demo/mapa?periodo=tarde` cria Sala 7 (`sala-07`), 6 × 4 m, quatro sensores e vinte cadeiras em cinco fileiras de quatro. Insere 12 leituras simuladas, uma por sensor em cada um de três minutos distintos, para exercitar o ajuste por sala. Os rótulos vão de `Cadeira 01` a `Cadeira 20`; as cadeiras 09 e 20 são vulneráveis. As colunas ficam em x = 0,75; 2,25; 3,75; 5,25 m, e as fileiras em y = 0,4; 1,2; 2; 2,8; 3,6 m. Janela: 35 °C; demais: 24 °C; umidade 60%. `periodo=madrugada` usa fundo a 15 °C e os demais a 22 °C, produzindo pontos de nível Frio, exibidos em azul. São cenários explícitos, com horário atual, para permanecerem recentes e reproduzíveis em qualquer horário. No cenário apenas simulado, execute novamente após 15 minutos. Após qualquer leitura de dispositivo na sala, a rota retorna 409: pare circuito/API e recrie somente o banco descartável do ensaio, conforme `esp32/ROTEIRO-VIDEO.md`, antes de semear novamente. A resposta aponta para `/ambientes/sala-07/mapa`.
 
-Repetir substitui somente leituras simuladas dessa sala. Não semeia automaticamente em outros ambientes de execução. Sala 7 com leitura real ou configuração de dispositivos incompatível é recusada com 409. A demonstração anterior em `/demo/semear` continua disponível.
+O arranjo original de seis cadeiras é atualizado uma vez para vinte, somente se os nomes, posições, vulnerabilidades, dimensões, cadastro e quatro sensores ainda corresponderem à demonstração original. Repetir preserva as vinte cadeiras e seus IDs, substituindo somente as leituras simuladas. Salas personalizadas ou com leitura de dispositivo são recusadas com 409, sem alterações. Não semeia automaticamente em outros ambientes de execução. A demonstração anterior em `/demo/semear` continua disponível.
 
 ## Migração e validação
 

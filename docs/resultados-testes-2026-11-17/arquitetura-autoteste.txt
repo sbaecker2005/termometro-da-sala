@@ -1,0 +1,6 @@
+Autoteste: 12 casos OK
+Exit code: 0
+Data: 17/11/2026
+Comando: python.exe -B arquitetura/conferir_modelo.py --autoteste
+Runtime: C:/Program Files/WindowsApps/OpenAI.CodexPrimaryRuntime.v26-1112-611-0_26.1112.611.0_x64__3k8sg7r9htsxt/dependencies/python/python.exe
+Escopo: defeitos semeados em memoria; arquivos do modelo preservados.

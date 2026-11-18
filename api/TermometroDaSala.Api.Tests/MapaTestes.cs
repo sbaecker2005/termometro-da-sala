@@ -197,7 +197,7 @@ public class MapaTestes
     [Theory]
     [InlineData("tarde", "janela", "perigo")]
     [InlineData("madrugada", "fundo", "frio")]
-    public async Task DemoTemQuatroSensoresSeisLugaresEDoisVulneraveis(string periodo, string rotulo, string nivel)
+    public async Task DemoTemQuatroSensoresVinteLugaresEDoisVulneraveis(string periodo, string rotulo, string nivel)
     {
         using var f = new ApiFabrica("Demo", new RelogioFixo(Agora));
         var c = f.Cliente();
@@ -205,9 +205,18 @@ public class MapaTestes
             Assert.Equal(HttpStatusCode.Created, (await c.PostAsync($"/demo/mapa?periodo={periodo}", null)).StatusCode);
         var mapa = (await c.GetFromJsonAsync<MapaSaida>("/ambientes/sala-07/mapa"))!;
         Assert.Equal(4, mapa.Pontos.Count(p => p.Tipo == "sensor"));
-        Assert.Equal(6, mapa.Pontos.Count(p => p.Tipo == "lugar"));
+        var lugares = mapa.Pontos.Where(p => p.Tipo == "lugar").OrderBy(p => p.Rotulo).ToArray();
+        Assert.Equal(20, lugares.Length);
+        for (var i = 0; i < lugares.Length; i++)
+        {
+            Assert.Equal($"Cadeira {i + 1:00}", lugares[i].Rotulo);
+            Assert.Equal(0.75 + 1.5 * (i % 4), lugares[i].X);
+            Assert.Equal(0.4 + 0.8 * (i / 4), lugares[i].Y);
+            Assert.Equal(i is 8 or 19, lugares[i].Vulneravel);
+        }
         Assert.Equal(2, mapa.Pontos.Count(p => p.Vulneravel));
         Assert.Equal(nivel, mapa.Pontos.Single(p => p.Tipo == "sensor" && p.Rotulo == rotulo).Nivel);
+        if (periodo == "madrugada") Assert.Equal("frio", lugares[^1].Nivel);
         Assert.Contains(mapa.Precaucoes, p => p.StartsWith("trocar"));
         var futuro = (await c.GetFromJsonAsync<MapaSaida>("/ambientes/sala-07/mapa?futuro=true"))!;
         Assert.Equal(Agora.AddHours(1), futuro.PrevistoPara);
@@ -218,7 +227,40 @@ public class MapaTestes
         var deslocamento = (previsao!.IndiceSalaPrevisto!.Value - mapa.Pontos.Where(p => p.Tipo == "sensor").Average(p => p.IndiceCalor!.Value)) / 2;
         foreach (var p in futuro.Pontos)
             Assert.Equal(mapa.Pontos.Single(a => a.Tipo == p.Tipo && a.Id == p.Id).TemperaturaC!.Value + deslocamento, p.TemperaturaC!.Value, 8);
-        Assert.Equal(4, escopo.ServiceProvider.GetRequiredService<SalaDb>().Leituras.Count(l => l.AmbienteId == "sala-07"));
+        var historico = escopo.ServiceProvider.GetRequiredService<SalaDb>().Leituras.Where(l => l.AmbienteId == "sala-07").ToArray();
+        Assert.Equal(12, historico.Length);
+        Assert.Equal(3, historico.Select(l => l.MedidoEm).Distinct().Count());
+    }
+
+    [Fact]
+    public async Task DemoAtualizaSeisCadeirasOriginaisUmaVezEPreservaPersonalizacao()
+    {
+        using var f = new ApiFabrica("Demo", new RelogioFixo(Agora));
+        var c = f.Cliente();
+        Assert.Equal(HttpStatusCode.Created, (await c.PostAsync("/demo/mapa", null)).StatusCode);
+        using (var escopo = f.Services.CreateScope())
+        {
+            var db = escopo.ServiceProvider.GetRequiredService<SalaDb>();
+            db.Lugares.RemoveRange(db.Lugares.Where(l => l.AmbienteId == "sala-07"));
+            db.Lugares.AddRange(Enumerable.Range(0, 6).Select(i => new Lugar { AmbienteId = "sala-07",
+                Nome = $"Cadeira {i + 1}", X = i % 3 * 3, Y = i < 3 ? 2 : 4, Vulneravel = i is 0 or 5 }));
+            await db.SaveChangesAsync();
+        }
+        Assert.Equal(HttpStatusCode.Created, (await c.PostAsync("/demo/mapa", null)).StatusCode);
+        var atualizado = (await c.GetFromJsonAsync<MapaSaida>("/ambientes/sala-07/mapa"))!;
+        Assert.Equal(20, atualizado.Pontos.Count(p => p.Tipo == "lugar"));
+        Assert.Equal(HttpStatusCode.Created, (await c.PostAsync("/demo/mapa?periodo=madrugada", null)).StatusCode);
+        var repetido = (await c.GetFromJsonAsync<MapaSaida>("/ambientes/sala-07/mapa"))!;
+        Assert.Equal(atualizado.Pontos.Select(p => (p.Id, p.Rotulo, p.X, p.Y)), repetido.Pontos.Select(p => (p.Id, p.Rotulo, p.X, p.Y)));
+        using (var escopo = f.Services.CreateScope())
+        {
+            var db = escopo.ServiceProvider.GetRequiredService<SalaDb>();
+            db.Lugares.First(l => l.AmbienteId == "sala-07").Nome = "Lugar personalizado";
+            await db.SaveChangesAsync();
+        }
+        var personalizado = await c.GetStringAsync("/ambientes/sala-07/mapa");
+        Assert.Equal(HttpStatusCode.Conflict, (await c.PostAsync("/demo/mapa", null)).StatusCode);
+        Assert.Equal(personalizado, await c.GetStringAsync("/ambientes/sala-07/mapa"));
     }
 
     [Fact]

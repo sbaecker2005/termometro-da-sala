@@ -1,4 +1,4 @@
-2026-11-14T18:36:12.4380276-03:00
+2026-11-07T10:02:15.5074394-03:00
 Ambiente: Development; MQTT desligado; conexao: ***
 GET http://localhost:5080/niveis
 
@@ -7,7 +7,7 @@ Esperado: HTTP 200;
 HTTP 200 OK
 Transfer-Encoding: chunked
 X-Content-Type-Options: nosniff
-Date: Sat, 14 Nov 2026 21:36:11 GMT
+Date: Sat, 07 Nov 2026 13:02:15 GMT
 Server: Kestrel
 Content-Type: application/json; charset=utf-8
 

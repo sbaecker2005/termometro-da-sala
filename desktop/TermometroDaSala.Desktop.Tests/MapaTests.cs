@@ -7,6 +7,23 @@ namespace TermometroDaSala.Desktop.Tests;
 
 public class MapaTests
 {
+    [Fact]
+    public void CodigosSeparamCadeirasESensoresMesmoNaMesmaPosicao()
+    {
+        var demo = Mapa.Demonstracao("sala-07", false);
+        var mapa = demo with { Pontos = demo.Pontos.Take(4).ToList() };
+        var sensor = mapa.Pontos[0];
+        var cadeira = sensor with { Id = "cadeira-junto-janela", Tipo = "lugar", Rotulo = "Cadeira junto à janela", Precaucoes = ["Trocar de lugar."] };
+        mapa.Pontos.Insert(2, cadeira);
+
+        var identificados = mapa.PontosIdentificados().ToList();
+        Assert.Equal(mapa.Pontos, identificados.Select(p => p.Ponto));
+        Assert.Equal(new[] { "S1", "S2", "C01", "C02", "C03" }, identificados.Select(p => p.Codigo));
+        Assert.Contains("Trocar de lugar.", identificados[2].Ponto.Texto);
+        var futuro = mapa with { Pontos = mapa.Pontos.Select(p => p with { TemperaturaC = 20 }).ToList() };
+        Assert.Equal(identificados.Select(p => p.Codigo), futuro.PontosIdentificados().Select(p => p.Codigo));
+    }
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
@@ -70,6 +87,13 @@ public class MapaTests
         var futuro = Mapa.Demonstracao("sala-05", true);
         agora.Conferir("sala-05");
         futuro.Conferir("sala-05");
+        var cadeiras = agora.Pontos.Where(p => p.Tipo == "lugar").ToList();
+        Assert.Equal(20, cadeiras.Count);
+        Assert.Equal(Enumerable.Range(1, 20).Select(i => $"C{i:00}"),
+            agora.PontosIdentificados().Where(p => p.Ponto.Tipo == "lugar").Select(p => p.Codigo));
+        Assert.Equal(4, cadeiras.Select(p => p.X).Distinct().Count());
+        Assert.Equal(5, cadeiras.Select(p => p.Y).Distinct().Count());
+        Assert.Contains(cadeiras, p => p.Nivel == NivelCalor.Frio);
         Assert.Equal(agora.Pontos.Select(p => (p.Id, p.X, p.Y)), futuro.Pontos.Select(p => (p.Id, p.X, p.Y)));
         Assert.Equal(14, futuro.Pontos[0].TemperaturaC);
         Assert.Contains("Frio", agora.Pontos[0].Texto);

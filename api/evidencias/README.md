@@ -1,5 +1,32 @@
 # Evidências da API
 
+## Validação atual — 17/11/2026
+
+| Prova | Resultado observado | Registro |
+|---|---|---|
+| Suíte API com o modelo geral e ajuste por sala | **134 aprovados, zero falhas, zero ignorados** | [TRX](../../docs/resultados-testes-2026-11-17/api-modelo-geral-v1.trx) |
+| Coleta automática com SQL Server Express real, banco exclusivo da revisão | **98 verificações OK, zero divergências**, incluindo CRUD, cinco migrações, foto sintética, autorizações, mapa com 12 leituras, limite e reenvio concorrente | [conferência](TermometroGS_SOA_ModeloGeral_20261117_134420/conferencia.tsv) |
+| HTTP + broker MQTT + assinante da API + SQL Server reais | **33 verificações aprovadas**: as 21 anteriores de concorrência/revogação/rollback e 12 do modelo, ajuste por sala, horizonte, persistência e mapa +1 h | [resultado](../../docs/resultados-testes-2026-11-17/TermometroGS_ModeloGeral_20261117_135412_6ef80b60/resultado.txt), [comandos e limites](../../docs/resultados-testes-2026-11-17/sql-modelo-geral-v1.txt) |
+| Insomnia 13.4.0, Scratch Pad local — rodada anterior ao ajuste geral | **29 requisições e 29 asserções aprovadas, zero falhas**, runner 978 ms; revogação 200 e upload 201 também conferidos individualmente | [captura final](insomnia-2026-11-17/colecao-final.png), [condições e reprodução](insomnia-2026-11-17/README.md) |
+| Preparação completa da apresentação ML/desktop | Iniciador aprovado em banco novo; previsão da sala numérica, `semLeiturasRecentes=false`, desktop aberto | [previsão](../../output/apresentacao/TermometroGS_Apresentacao_20261117_094533/previsao-ml.txt) |
+| Desktop integrado, persistência e PNGs | Cadastro/ação/CSV/revogação, modo local e retorno; vinte cadeiras, quatro sensores e frio em azul | [relatório Windows](../../desktop/docs/VALIDACAO-WINDOWS-2026-11-17.md) |
+
+Os registros automáticos acima **não são prints de execução manual no Insomnia**. O ensaio MQTT usa broker local em loopback; não comprova Wokwi, internet/broker público nem IIS/VM. A foto do ensaio é uma ilustração JPEG sintética, sem pessoas, e não uma foto de escola/piloto.
+
+O coletor cria um banco e diretório exclusivos por execução, falha se o nome já existir e preserva os registros. Para repetir a partir da raiz do kit:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\api\evidencias\gerar-evidencias.ps1 -Autoverificar
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\api\evidencias\gerar-evidencias.ps1
+dotnet run --project .\ferramentas\EnsaioSqlMqtt\EnsaioSqlMqtt.csproj -c Validacao --no-restore --disable-build-servers
+```
+
+O primeiro comando não inicia API nem acessa banco. Os seguintes exigem SQL Express local e portas livres; usam bancos novos, não apagam bancos anteriores e não são comandos de produção. Resultados esperados: autoverificação aprovada, 98 verificações OK e 33 verificações aprovadas, respectivamente. A falha SQL deliberada no log do ensaio MQTT é a prova do rollback e tem retry aprovado. O ensaio ampliado usa banco `TermometroGS_ModeloGeral_` com timestamp e sufixo GUID curto, HTTP 5082 e MQTT 18884 em loopback. As fixtures do modelo são sintéticas; não atestam precisão em escolas reais.
+
+## Histórico preservado — 07 e 08/11/2026
+
+As tabelas `saidas/` abaixo pertencem à coleta anterior e continuam como histórico. Para a entrega atual, priorize os registros de 17/11 acima. Quantidades e disponibilidade de infraestrutura citadas no histórico não substituem a validação atual.
+
 Índice das provas de funcionamento da API. Cada print mostra o método, a rota, o status
 e o corpo da resposta. Nenhum print pode mostrar `ChaveCoordenacao`, senha do banco ou
 dados de alunos. Os passos seguem o roteiro do Insomnia em [../README.md](../README.md#roteiro-do-insomnia).

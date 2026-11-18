@@ -13,12 +13,14 @@ public static class MapaTermico
             .GroupBy(l => l.DispositivoId).ToDictionary(g => g.Key, g => g.OrderByDescending(l => l.MedidoEm).ThenByDescending(l => l.Id).First());
         if (futuro)
         {
-            if (previsao?.IndiceSalaPrevisto is not double previsto || recentes.Count == 0)
+            if (previsao?.IndiceSalaPrevisto is not double previsto || !double.IsFinite(previsto)
+                || recentes.Count == 0 || previsao.PrevistoPara < agora.AddHours(1))
                 recentes.Clear();
             else
             {
-                // shortcut: interpola linearmente até +2 h e aproxima a variação térmica pela do índice; trocar quando houver previsão de temperatura por ponto.
-                var deslocamento = (previsto - recentes.Values.Average(l => l.IndiceCalor)) / 2;
+                // shortcut: interpola até o alvo real e aproxima temperatura pela variação do índice; trocar quando houver previsão por ponto.
+                var deslocamento = (previsto - recentes.Values.Average(l => l.IndiceCalor))
+                    / (previsao.PrevistoPara - agora).TotalHours;
                 recentes = recentes.ToDictionary(p => p.Key, p => new Leitura
                 {
                     TemperaturaC = p.Value.TemperaturaC + deslocamento,
@@ -73,7 +75,7 @@ public static class MapaTermico
         var precaucoes = Precaucoes(pontos).ToList();
         pontos = pontos.Select(p => p with { Precaucoes = Precaucoes(pontos, p) }).ToList();
         if (futuro) precaucoes.Insert(0, fontes.Count == 0 ? "Previsão do ambiente indisponível para os pontos; sem valores futuros."
-            : "Previsão do ambiente aplicada aos pontos: +1 h estimada pela metade da variação do índice prevista para +2 h, somada à temperatura e ao índice de cada sensor; aproximação sem modelo de temperatura por ponto.");
+            : "Previsão do ambiente aplicada aos pontos: +1 h estimada proporcionalmente ao tempo até o horário-alvo, somada à temperatura e ao índice de cada sensor; aproximação sem modelo de temperatura por ponto.");
         return new(sala.Id, sala.LarguraM, sala.ProfundidadeM, 0.5, grade, pontos, precaucoes,
             horarios.Count == 0 ? null : horarios.Min()) { PrevistoPara = futuro ? agora.AddHours(1) : null };
     }

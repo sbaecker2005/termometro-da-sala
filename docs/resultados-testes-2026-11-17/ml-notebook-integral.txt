@@ -1,0 +1,57 @@
+Celula 1/19: OK (18.16 s)
+Celula 2/19: OK (0.03 s)
+Celula 3/19: OK (0.02 s)
+Celula 4/19: OK (0.12 s)
+notebook-celula-4:3: UserWarning: Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.
+Celula 5/19: OK (0.02 s)
+notebook-celula-6:2: UserWarning: Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.
+notebook-celula-6:6: UserWarning: Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.
+notebook-celula-6:15: UserWarning: Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.
+Celula 6/19: OK (0.11 s)
+Celula 7/19: OK (11.95 s)
+notebook-celula-8:5: UserWarning: Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.
+Celula 8/19: OK (0.06 s)
+Celula 9/19: OK (0.12 s)
+notebook-celula-10:14: UserWarning: Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.
+Celula 10/19: OK (0.38 s)
+Celula 11/19: OK (0.01 s)
+Celula 12/19: OK (0.02 s)
+Celula 13/19: OK (0.00 s)
+Celula 14/19: OK (0.02 s)
+notebook-celula-15:12: UserWarning: Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.
+notebook-celula-15:15: UserWarning: Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.
+Celula 15/19: OK (0.05 s)
+Celula 16/19: OK (0.33 s)
+Celula 17/19: OK (0.30 s)
+notebook-celula-18:20: UserWarning: Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.
+notebook-celula-18:20: UserWarning: Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.
+Celula 18/19: OK (0.16 s)
+Celula 19/19: OK (0.11 s)
+19/19 celulas executadas em 31.95 s
+Execucao Python sequencial, com IPython.display e Matplotlib Agg; sem kernel Jupyter/nbclient e sem avaliacao visual das figuras regeneradas.
+nbclient disponivel: False
+Modelo de rua JSON: igualdade estrutural exata com original; MAE 0.909, baseline 1.442; alerta TP19/FP17/FN29.
+modelo.json: hash_original=22ad57d6ed04b42b70b1d5be44cf616f46b00a6a13bdc214213c0f98d0e8d118; hash_regenerado=c5c4f1fc38e33088fa12ed4e7ed5bde2a5ac40de1f1927fb8604e03521aaf7bd; bytes_iguais=False
+  JSON estruturalmente igual: True
+alertas.csv: hash_original=713aea076d9ae876ff9d5050de78c95d26629438f7548ba90d8bd15df1e17848; hash_regenerado=ebd48993bc23eef2733876a45080f4da23ed5a6b64ad4afe03e29e3b84322991; bytes_iguais=False
+  CSV equivalente: sim (rtol/atol 1e-10)
+paridade-api.json: hash_original=0785af655195737f39b45759da243c6252bc1059fb89ca18d47bf4b0a5e4d31b; hash_regenerado=0785af655195737f39b45759da243c6252bc1059fb89ca18d47bf4b0a5e4d31b; bytes_iguais=True
+  JSON estruturalmente igual: True
+grade-parametros.csv: hash_original=35105ec230278bf3c37e05e97f731ecae4cb7aa68f26998c790c265898092be4; hash_regenerado=ea1412e5d5ddee925fe156b315802c7d26f88ce73860adc102a743e10d765986; bytes_iguais=False
+  CSV equivalente: sim (rtol/atol 1e-10)
+modelo_pontos.json: hash_original=829dbc7ddfe949e741ad86188df23f1c6207a0226d4db32b418d5e27d2d0af0d; hash_regenerado=0dab0acb36341f3e2682d45545b88d0a56c70952e2ea19f7cbba5694151e0c23; bytes_iguais=False
+  JSON estruturalmente igual: True
+metricas-pontos.csv: hash_original=e590d0d32f569bc3e826fd5a02b499877806f9d40a58498d6720ae211d812c3f; hash_regenerado=54c0d2591ce2c874adbb4da709dc0cd37169f2816f579d237fddd5f0d3a91236; bytes_iguais=False
+  CSV equivalente: sim (rtol/atol 1e-10)
+dados/sala7-simulada.csv: hash_original=753832a7acd48ed71edf0f4442dbe060e2fe473ce09ded28e4d7615fab71fd99; hash_regenerado=1d8b9dc7ec8df64838a924482f8ffdfb7b5b58e3777d31660c825a47197c2543; bytes_iguais=False
+  CSV equivalente: sim (rtol/atol 1e-10)
+Originais preservados: 12 arquivos .ipynb/.json/.csv com hashes identicos antes/depois.
+Copia isolada: D:\codex-validacao-termometro-20261117-c0ce77f9efc54ab2885d0268d0cbb51c\ml-notebook-integral-20261117
+
+Código de saída: 0.
+Comando executado, na raiz do kit:
+& 'D:/codex-validacao-termometro-20261117-c0ce77f9efc54ab2885d0268d0cbb51c/ml-python311/runtime/python.exe' -u -B .\tmp\validar-notebook-integral.py 'D:/codex-validacao-termometro-20261117-c0ce77f9efc54ab2885d0268d0cbb51c/ml-notebook-integral-20261117'
+Para repetir, escolha outro destino novo no D:; o verificador recusa destino existente.
+
+Conferência adicional: todas as seis diferenças de hashes acima desapareceram ao normalizar somente CRLF para LF. Os conteúdos textuais de modelo.json, alertas.csv, grade-parametros.csv, modelo_pontos.json, metricas-pontos.csv e dados/sala7-simulada.csv são iguais após essa normalização. A paridade-api.json já era igual byte a byte.
+Os avisos de Matplotlib Agg indicam ausência de janela gráfica, não falha de execução. As células foram executadas sem editar seu conteúdo e não foram regravadas as saídas do notebook original.

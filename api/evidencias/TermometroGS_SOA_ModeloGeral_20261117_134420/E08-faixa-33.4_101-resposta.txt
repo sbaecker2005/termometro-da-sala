@@ -1,0 +1,16 @@
+2026-11-17T13:44:32.4126580-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5086/leituras
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {"ambienteId":"sala-02","dispositivo":"esp32-sala-02","temperaturaC":33.4,"umidadePct":101,"medidoEm":1794933872,"assinatura":"15b8c7349b64f6ff6ee8eddd9d88dcc57cb62fb1abdb870083c428fa0b8a3d68"}
+Esperado: HTTP 400; fora-da-faixa
+HTTP 400 Bad Request
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Tue, 17 Nov 2026 16:44:32 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"fora-da-faixa"}
+Conferencia: OK
