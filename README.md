@@ -32,20 +32,33 @@ Global Solution 2026.2 (CitizenTech) — Engenharia de Software, 3º ano, FIAP.
 | Lucas de Almeida Villar | 560005 |
 | Guilherme Augusto Caseiro | 559765 |
 
-## Estrutura
+## Por disciplina
 
-| Pasta | Parte | Disciplina |
-|---|---|---|
-| `api/` | API REST, banco e painel web | SOA e Web Services |
-| `desktop/` | Terminal da coordenação | C# Windows Forms |
-| `app/` | App do professor | Mobile e IoT |
-| `esp32/` | Sensor da porta da sala (Wokwi) | Physical Computing |
-| `ml/` | Notebook do modelo | IA e Machine Learning |
-| `infra/` | Windows Server, IIS, AD, GPO | Operating Systems |
-| `seguranca/` | Gestão de riscos | Cybersecurity |
-| `arquitetura/` | ArchiMate e pitch | Testing (TOGAF) |
-| `demo/` | Gerador de leituras do modo demonstração | — |
-| `docs/` | Plano e briefing | — |
+Cada disciplina tem a sua pasta. O que enviar em cada uma está em [ENTREGA.md](ENTREGA.md).
+
+| Disciplina | Pasta | Parte | Como rodar ou conferir |
+|---|---|---|---|
+| SOA e Web Services | [`api/`](api/) | API REST, banco e painel web | `dotnet test .\api\TermometroDaSala.sln` |
+| C# Windows Forms | [`desktop/`](desktop/) | Terminal da coordenação | `dotnet test .\desktop\TermometroDaSala.Desktop.sln` |
+| Mobile e IoT | [`app/`](app/) | App do professor | `npm --prefix .\app ci`, depois `npm --prefix .\app test` |
+| IA e Machine Learning | [`ml/`](ml/) | Notebook e modelo exportado para a API | `python -m pytest ml` |
+| Physical Computing | [`esp32/`](esp32/) | Sensor da porta da sala (Wokwi) | `python esp32\conferir_circuito.py` e o projeto no Wokwi |
+| Operating Systems | [`infra/`](infra/) | Windows Server, IIS, AD, GPO | scripts `01` a `10` na VM, conforme `infra/README.md` |
+| Cybersecurity | [`seguranca/`](seguranca/) | Gestão de riscos | relatório e anexo; cenários em `seguranca/cenarios-ataque.ps1` |
+| Testing (TOGAF) | [`arquitetura/`](arquitetura/) | ArchiMate, documento e pitch | `python arquitetura\conferir_modelo.py` |
+
+Pastas comuns: `demo/` (leituras simuladas do modo demonstração), `ferramentas/` (scripts de apoio) e `docs/` (plano, briefing e resultados de testes).
+
+## Rodar o projeto inteiro
+
+Num Windows com .NET SDK 8 e SQL Server Express, na raiz do repositório:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\rodar-projeto.ps1        # API, previsão, mapa, desktop e painel web
+powershell -ExecutionPolicy Bypass -File .\rodar-projeto.ps1 -App   # o mesmo, mais o app do professor no Expo
+```
+
+A API sobe em `http://localhost:5080` no modo demonstração, com um banco novo e dados simulados.
 
 O contrato entre as partes está em [CONTRATO.md](CONTRATO.md). O plano completo está em [docs/PLANO.md](docs/PLANO.md).
 

@@ -3,7 +3,8 @@ $ErrorActionPreference = 'Stop'
 $raiz = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $projeto = Join-Path $raiz 'api/TermometroDaSala.Api'
 $desktop = Join-Path $raiz 'executavel-desktop/TermometroDaSala.Desktop.exe'
-if (!(Test-Path -LiteralPath $desktop)) { throw 'Execute no kit completo, com executavel-desktop.' }
+# Sem o executavel do kit (caso do repositorio clonado), o desktop compila e roda a partir do codigo.
+$desktopFonte = Join-Path $raiz 'desktop/TermometroDaSala.Desktop'
 $reservaPorta = [Net.Sockets.TcpListener]::new([Net.IPAddress]::Loopback, 5080)
 try {
     $reservaPorta.ExclusiveAddressUse = $true
@@ -48,7 +49,8 @@ try {
     & (Join-Path $PSScriptRoot 'preparar-cena-ml.ps1') | Tee-Object -FilePath (Join-Path $saida 'previsao-ml.txt')
     $mapa = Invoke-RestMethod -Method Post 'http://localhost:5080/demo/mapa?periodo=madrugada'
     if ($mapa.inseridas -ne 12) { throw 'A cena de frio nao foi preparada.' }
-    $tela = Start-Process -FilePath $desktop -WorkingDirectory (Split-Path $desktop) -PassThru
+    $tela = if (Test-Path -LiteralPath $desktop) { Start-Process -FilePath $desktop -WorkingDirectory (Split-Path $desktop) -PassThru }
+        else { Start-Process -FilePath (Get-Command dotnet).Source -WorkingDirectory $desktopFonte -PassThru -ArgumentList 'run -c Release' }
     @("Banco novo de ensaio: $banco", "API PID: $($api.Id)", "Desktop PID: $($tela.Id)",
       'Dados simulados. Credenciais temporarias somente na memoria dos processos.',
       "Para encerrar a API deste ensaio: Stop-Process -Id $($api.Id)") |
