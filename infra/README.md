@@ -38,7 +38,7 @@
 
 | Campo | Valor no roteiro |
 |---|---|
-| Servidor | Windows Server 2022 (avaliação, Desktop Experience), VM isolada em Hyper-V ou VirtualBox |
+| Servidor | Windows Server 2022 (avaliação, Desktop Experience), VM isolada. Ensaio de 16/11/2026 feito em **VMware Workstation Pro 26H1**, com rede NAT do VMware; Hyper-V e VirtualBox equivalem para este roteiro |
 | Hostname e IP fixo | `SRV-TERMOMETRO`, `192.168.56.10/24` (exemplo do roteiro; o IP real fica em E01) |
 | Domínio e DNS | Floresta `termometro.local`; registro A `api.termometro.local` apontando para a VM; zona reversa com PTR |
 | Grupos | `Coordenacao` (`coordenador`) e `AdminsTermometro` (`admin.termometro`, único grupo com RDP: membro de `Remote Desktop Users` e dono do direito na GPO) |

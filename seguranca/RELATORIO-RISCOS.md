@@ -3,10 +3,11 @@
 ## Relatório de Gestão de Riscos
 
 **Equipe:** Termômetro da Sala  
-**Integrantes:** Samuel David Baecker - RM 559269; Lucas de Almeida Villar - RM 560005; Guilherme Augusto Caseiro - RM 559765  
+**Integrantes:** Guilherme Caseiro - RM 559765; Samuel Baecker - RM 559269; Lucas Villar - RM 560005  
 **Disciplina:** Cybersecurity  
 **Instituição:** FIAP — Engenharia de Software, Global Solution 2026.2  
-**Data da análise:** 05/11/2026
+**Data da análise:** 05/11/2026  
+**Laboratório Windows Server:** 17/11/2026, `SRV-TERMOMETRO` em VM isolada (VMware, rede NAT)
 
 ## Resumo executivo
 

@@ -48,8 +48,11 @@ IF IS_ROLEMEMBER(N'db_datawriter', N'IIS APPPOOL\$Pool') <> 1 ALTER ROLE db_data
         $ids = New-Object System.Collections.Generic.List[string]
         while ($reader.Read()) { [void]$ids.Add($reader.GetString(0)) }
         $reader.Close()
-        # shortcut: confere so Inicial, Enums e SegredosPorDispositivo, inclua o id quando houver outra migracao.
-        foreach ($id in '20261105025544_Inicial','20261105033613_Enums','20261105050515_SegredosPorDispositivo') {
+        # Confere as cinco migracoes do ramo atual; inclua o id quando houver outra.
+        # Sem MapaTermico o EF consulta PosX/PosY/Rotulo em Dispositivos e LarguraM/ProfundidadeM em Ambientes:
+        # GET /ambientes responderia 500 com Banco__Migrar=false. O SQL versionado em api/evidencias/ tem so quatro
+        # migracoes e e historico; gere o script de novo pelo passo 5 do README.
+        foreach ($id in '20261105025544_Inicial','20261105033613_Enums','20261105050515_SegredosPorDispositivo','20261107033211_AlertaFrio','20261107091447_MapaTermico') {
             if ($ids -notcontains $id) { throw "Historico sem $id. Gere o script de novo a partir do ramo atual (README, passo 5)." }
         }
         Write-Host ("Migracoes: " + ($ids -join ', '))

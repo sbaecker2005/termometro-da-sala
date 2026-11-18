@@ -1,0 +1,49 @@
+---
+title: "Termômetro da Sala — Relatório de Gestão de Riscos"
+subtitle: "Cybersecurity · Global Solution 2026.2 · FIAP — Engenharia de Software, 3º ano"
+author:
+  - "Equipe Termômetro da Sala"
+  - "Guilherme Caseiro — RM 559765"
+  - "Samuel Baecker — RM 559269"
+  - "Lucas Villar — RM 560005"
+date: "Análise: 05/11/2026 · Laboratório Windows Server: 17/11/2026 · Entrega: 19/11/2026"
+lang: pt-BR
+documentclass: article
+papersize: a4
+fontsize: 10pt
+geometry:
+  - top=2.2cm
+  - bottom=2.2cm
+  - left=2.2cm
+  - right=2.2cm
+monofont: "DejaVu Sans Mono"
+monofontoptions:
+  - "Scale=0.75"
+colorlinks: true
+linkcolor: Maroon
+urlcolor: MidnightBlue
+toc: true
+include-before:
+  - "\\newpage"
+toc-depth: 2
+numbersections: false
+header-includes:
+  - \usepackage{etoolbox}
+  # Permite hifenizar dentro de \texttt: nomes longos de teste cabem na celula.
+  - \usepackage[htt]{hyphenat}
+  - \usepackage{ragged2e}
+  # Tabelas largas: corpo menor e quebra de linha dentro da celula.
+  - \AtBeginEnvironment{longtable}{\footnotesize\RaggedRight}
+  - \setlength{\emergencystretch}{5em}
+  - \usepackage{pdflscape}
+  # Comandos, nao ambientes: o pandoc engoliria o conteudo de um ambiente cru.
+  - \newcommand{\blandscape}{\begin{landscape}}
+  - \newcommand{\elandscape}{\end{landscape}}
+  - \usepackage{fancyhdr}
+  - \pagestyle{fancy}
+  - \fancyhf{}
+  - \fancyhead[L]{\footnotesize Termômetro da Sala — Gestão de Riscos}
+  - \fancyhead[R]{\footnotesize Cybersecurity · GS 2026.2}
+  - \fancyfoot[C]{\footnotesize\thepage}
+  - \renewcommand{\headrulewidth}{0.4pt}
+---

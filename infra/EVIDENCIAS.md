@@ -4,12 +4,12 @@ Nenhuma evidência foi coletada por este roteiro. Use somente dados simulados; r
 
 As saídas de comando de E01 a E12 saem prontas do `10-coletar-evidencias.ps1` (README, passo 10), um arquivo por item em `infra/evidencias/AAAA-MM-DD/`. Em cada "Print/saída" abaixo, coloque o link desse arquivo e o print de tela que o comando não cobre. E13 exige prova própria do funcionamento completo; os TXT de E01 a E12 não a substituem.
 
-Equipe/RMs: Samuel David Baecker - RM 559269; Lucas de Almeida Villar - RM 560005; Guilherme Augusto Caseiro - RM 559765  
-Data/fuso do ensaio: [preencher]  
-Versão Windows/avaliação e hipervisor: [preencher]  
-IP do servidor/cliente: [preencher]  
-Link repositório e vídeo (duração): [preencher]  
-RDS completo exigido pelo professor? Resposta/data: [preencher]
+Equipe/RMs: Guilherme Caseiro — RM 559765; Samuel Baecker — RM 559269; Lucas Villar — RM 560005  
+Data/fuso do ensaio: 16/11/2026, fuso America/Sao_Paulo (UTC−03:00), ajustado na VM com `Set-TimeZone -Id 'E. South America Standard Time'`  
+Versão Windows/avaliação e hipervisor: Windows Server 2022 Standard **Avaliação** (180 dias), Desktop Experience, build 20348; **VMware Workstation Pro 26H1**; VM com 2 vCPU, 6 GB RAM, disco NVMe 80 GB expansível, firmware UEFI sem Secure Boot  
+IP do servidor/cliente: servidor `SRV-TERMOMETRO` em `192.168.16.10/24` (adaptador `Ethernet0`, gateway `192.168.16.2`, DNS apontando para si mesmo); cliente de laboratório = host do VMware pela VMnet8, `192.168.16.1`  
+Link repositório e vídeo (duração): https://github.com/sbaecker2005/termometro-da-sala ; vídeo [preencher] (até 7 min)  
+RDS completo exigido pelo professor? Resposta/data: [preencher — perguntar antes da entrega]
 
 Para cada item abaixo: cole a saída sem segredos, link do print, horário e interpretação (esperado/obtido).
 
@@ -135,7 +135,21 @@ Prints dos três contadores com caminhos localizados, limites, ação `Termometr
 
 ## E10 — recuperação do pool (1 ponto com E11)
 
-Print/saída do 09 parte Pool: [colar]. PID antes: [preencher]; depois: [preencher]; horários: [preencher]. Evento WAS e HTTP 200 posterior em `/ambientes` e em `/`: [colar]. Confirmação de que não houve pedido externo nem início manual durante a espera: [preencher]. Rapid-Fail Protection e número de crashes no intervalo: [preencher].
+Executado em 16/11/2026 com `.\09-teste-de-falha.ps1 -Parte Pool -ProbeUri https://api.termometro.local/ambientes -LaboratorioConfirmado`.
+
+| Campo | Valor |
+|---|---|
+| PID do worker antes | 7336 |
+| PID do worker depois | 7332 |
+| Estado do pool ao fim | `Started` |
+| HTTP antes e depois | 200 em `/ambientes` e em `/` (exigido pelo próprio script, que falha se não vier 200) |
+| Horário | 16/11/2026, por volta das 22h40 (America/Sao_Paulo) — [confirmar o minuto exato pelo arquivo de coleta/Event Viewer] |
+
+O script derruba apenas o processo `w3wp.exe` do `TermometroPool`, espera o WAS criar outro e só então repete as duas requisições; não houve `Start-Service` nem reinício manual durante a espera. O navegador foi fechado antes do ensaio, de modo que nenhuma requisição externa pudesse iniciar o worker e invalidar a prova de inicialização automática.
+
+Houve uma execução anterior no mesmo dia (PID 5068 → 7336) feita com o navegador ainda aberto no painel, que atualiza a cada 30 s; ela **não** é usada como prova, justamente por não garantir a ausência de requisição externa.
+
+Print/saída: [colar]. Evento WAS correspondente: [colar]. Rapid-Fail Protection e número de crashes no intervalo: [preencher].
 
 ## E11 — recuperação W3SVC
 
@@ -146,7 +160,41 @@ Get-CimInstance Win32_Service -Filter "Name='W3SVC'" | Select-Object Name,State,
 Get-Service WAS,W3SVC
 ```
 
-Print de isolamento do PID e saída do 09 parte Servico: [colar]. PID antes/depois e tempo real: [preencher]. SCM falha/recuperação + HTTP 200 em `/` e `/ambientes` sem intervenção: [colar]. Se isolamento ou recuperação falhar, registrar aqui e corrigir antes da entrega: [preencher].
+**Resultado: não executado. Limitação registrada, conforme [TESTE-DE-FALHA.md](TESTE-DE-FALHA.md).**
+
+Nesta build do Windows Server 2022, o `W3SVC` roda dentro do grupo compartilhado de serviços do IIS (`svchost`/`iissvcs`). O script 09 recusa a parte `Servico` nessa condição — com razão, porque matar aquele PID derrubaria todo o grupo e não provaria recuperação do W3SVC.
+
+Seguindo o procedimento documentado, tentou-se o isolamento:
+
+```powershell
+sc.exe config W3SVC type= own
+Restart-Computer
+```
+
+Depois do reinício o serviço **não voltou a subir**. `Start-Service W3SVC` falhou e o log System registrou, entre 22:25:48 e 22:34:39 de 16/11/2026:
+
+- **7001** — "The World Wide Web Publishing Service service depends on the Windows Process Activation Service service which failed to start because of the following error: The service did not respond to the start or control request in a timely fashion."
+- **7024** — término com erro "The dependency service or group failed to start."
+- **7031** — término inesperado, repetido **137 vezes**, cada um seguido de "The following corrective action will be taken in 5000 milliseconds: Restart the service."
+
+Ou seja: isolado do grupo, o W3SVC não consegue iniciar junto do WAS, e o SCM reaplicou a ação de reinício a cada 5 s por cerca de nove minutos até esgotar o ciclo.
+
+A reversão prevista no procedimento resolveu:
+
+```powershell
+sc.exe config W3SVC type= share
+Restart-Computer
+```
+
+Às 22:35:36 o log registra "The W3SVC service entered the running state", e `https://api.termometro.local/ambientes` voltou a responder 200.
+
+**Interpretação.** A parte 2 não foi demonstrada porque o isolamento exigido por ela não é viável nesta build. Não se substituiu o teste por `Stop-Service` nem por `iisreset`: ambos são paradas planejadas e não comprovam recuperação por falha, como o próprio procedimento adverte. A prova de recuperação da entrega é a parte 1 (E10), que derruba o worker do pool e demonstra o WAS criando outro sem intervenção.
+
+Como efeito colateral útil, os 137 eventos 7031 acima são prova direta de que a **política de recuperação do serviço configurada no passo 7 funciona**: o SCM executou "Restart the service" com atraso de 5000 ms, repetidamente, exatamente como `sc.exe qfailure W3SVC` declara. A origem foi a tentativa de isolamento, não uma falha da aplicação.
+
+Pendente: confirmar com o professor se a parte 2 é exigida; em caso afirmativo, repetir em VM compatível antes da gravação. Resposta/data: [preencher].
+
+Saída de `sc.exe qfailure W3SVC` e `sc.exe qfailureflag W3SVC`: [colar]. Print dos eventos 7031/7024/7001 na janela acima: [colar].
 
 ## E12 — correlação de logs
 
@@ -158,6 +206,8 @@ Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4656,4663; StartTime=(Get
 ```
 
 Selecione só eventos do ensaio antes de publicar saídas. Prints System, Application, Security e trecho de `C:\inetpub\logs\LogFiles\W3SVC<ID>\u_ex*.log` com URL/sc-status e hora UTC: [colar]. Mostre causa, PID/serviço e requisição após recuperação; não prometa IDs que o Windows não gerou.
+
+**Janela a explicar ao revisar o log System.** Entre 22:25:48 e 22:34:39 de 16/11/2026 há uma sequência de 137 eventos 7031 do W3SVC ("terminated unexpectedly... It has done this N time(s)"), com 7024 e 7001 intercalados. Não é instabilidade do servidor nem da aplicação: é a tentativa de isolar o W3SVC descrita em E11, revertida às 22:35:36. Quem recortar esse trecho sem a explicação lê um servidor quebrado; quem o apresentar com a explicação mostra a política de recuperação do SCM funcionando.
 
 ## E13 — funcionamento completo (2 pontos)
 
