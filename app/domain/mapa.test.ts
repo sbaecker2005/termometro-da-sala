@@ -13,14 +13,18 @@ describe('mapa térmico', () => {
     assert.equal(futuro.pontos[0].temperaturaC, 14);
     assert.deepEqual(futuro.pontos.map(p => [p.id, p.x, p.y]), agora.pontos.map(p => [p.id, p.x, p.y]));
     assert.match(agora.precaucoes[0], /DEMONSTRAÇÃO/);
-    assert.match(textoPonto(agora.pontos[2]), /trocar Cadeira 1 para Cadeira 2/);
-    assert.match(textoPonto(futuro.pontos[2]), /trocar Cadeira 1 para Cadeira 2/);
+    assert.equal(agora.pontos.filter(p => p.tipo === 'sensor').length, 4);
+    assert.deepEqual(agora.pontos.filter(p => p.tipo === 'lugar').map(p => p.rotulo).slice(0, 2), ['Cadeira 01', 'Cadeira 02']);
+    assert.equal(agora.pontos.filter(p => p.tipo === 'lugar').length, 20);
+    assert.match(textoPonto(agora.pontos[12]), /trocar Cadeira 09 para Cadeira 04/);
+    assert.match(textoPonto(futuro.pontos[12]), /trocar Cadeira 09 para Cadeira 04/);
   });
   it('separa calor e normal e usa o módulo do desvio com limite visual', () => {
     const mapa = mapaDemonstracao('sala-07', false);
     assert.equal(mapa.pontos[0].nivel, 'cuidado');
     assert.equal(mapa.pontos[1].nivel, 'normal');
-    assert.match(textoPonto(mapa.pontos[2]), /trocar Cadeira 1 para Cadeira 2/);
+    assert.match(textoPonto(mapa.pontos[12]), /trocar Cadeira 09 para Cadeira 04 \(33\.6 → 25\.4 °C de índice\)/);
+    assert.deepEqual(mapa.pontos.filter(p => p.vulneravel).map(p => p.rotulo), ['Cadeira 09', 'Cadeira 20']);
     assert.equal(diametro(-4), diametro(4));
     assert.equal(diametro(0), 12);
     assert.equal(diametro(null), 12);
@@ -39,14 +43,14 @@ describe('mapa térmico', () => {
   });
   it('associa a precaução calculada ao ponto no texto usado pelo toque e pela lista acessível', () => {
     const base = mapaDemonstracao('sala-07', false);
-    const precaucao = 'trocar Cadeira 1 para Cadeira 2 (33.2 → 25.8 °C de índice)';
+    const precaucao = 'trocar Cadeira 09 para Cadeira 04 (33.6 → 25.4 °C de índice)';
     const mapa = lerMapa({ ...base, pontos: base.pontos.map(p => ({ ...p,
-      precaucoes: p.id === 'cadeira-1' ? [precaucao] : [] })), precaucoes: [precaucao] }, 'sala-07');
-    assert.ok(textoPonto(mapa.pontos[2]).includes(precaucao));
-    assert.ok(!textoPonto(mapa.pontos[3]).includes(precaucao));
+      precaucoes: p.id === 'cadeira-09' ? [precaucao] : [] })), precaucoes: [precaucao] }, 'sala-07');
+    assert.ok(textoPonto(mapa.pontos[12]).includes(precaucao));
+    assert.ok(!textoPonto(mapa.pontos[7]).includes(precaucao));
     assert.ok(!textoPonto(mapa.pontos[0]).includes(precaucao));
-    assert.match(textoPonto({ ...mapa.pontos[2], semLeitura: true }), /Sem leitura/);
-    assert.ok(!textoPonto({ ...mapa.pontos[2], semLeitura: true }).includes(precaucao));
+    assert.match(textoPonto({ ...mapa.pontos[12], semLeitura: true }), /Sem leitura/);
+    assert.ok(!textoPonto({ ...mapa.pontos[12], semLeitura: true }).includes(precaucao));
   });
   it('aceita planta sem dimensões e valores ausentes sem presumir normal', () => {
     const mapa = { ambienteId: 's', larguraM: null, profundidadeM: null, passoM: .5,

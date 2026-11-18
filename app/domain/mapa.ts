@@ -42,13 +42,22 @@ export function mapaDemonstracao(id: string, futuro: boolean): Mapa {
   const celula = (x: number, y: number): CelulaMapa => ({ x, y, temperaturaC: valor(x), indiceCalor: valor(x), nivel: nivelDeIndice(valor(x)) });
   const grade: CelulaMapa[] = [];
   for (let x = 0; x <= 6; x += .5) for (let y = 0; y <= 4; y += .5) grade.push(celula(x, y));
+  // Mesma sala da demonstração da API (POST /demo/mapa) e do desktop: 4 sensores (S1–S4) e 20 cadeiras (C01–C20),
+  // com as cadeiras 09 e 20 marcadas como lugar vulnerável.
+  const sensores = [['janela', 'Janela', 0, 2], ['fundo', 'Fundo', 6, 4], ['porta', 'Porta', 6, 0], ['centro', 'Centro', 3, 2]] as const;
+  const cadeiras = Array.from({ length: 20 }, (_, i) => {
+    const n = String(i + 1).padStart(2, '0');
+    return { id: `cadeira-${n}`, rotulo: `Cadeira ${n}`, tipo: 'lugar', x: .75 + 1.5 * (i % 4), y: .4 + .8 * Math.floor(i / 4), vulneravel: i === 8 || i === 19 };
+  });
   const pontos = [
-    { id: 'janela', rotulo: 'Janela', tipo: 'sensor', x: 0, y: 2 },
-    { id: 'fundo', rotulo: 'Fundo', tipo: 'sensor', x: 6, y: 2 },
-    { id: 'cadeira-1', rotulo: 'Cadeira 1', tipo: 'lugar', x: 1, y: 1 },
-    { id: 'cadeira-2', rotulo: 'Cadeira 2', tipo: 'lugar', x: 5, y: 3 },
-  ].map(p => ({ ...p, ...celula(p.x, p.y), vulneravel: p.tipo === 'lugar', semLeitura: false, desvioC: valor(p.x) - valor(3) }));
-  const origem = pontos[2], destino = pontos[3];
+    ...sensores.map(([id, rotulo, x, y]) => ({ id, rotulo, tipo: 'sensor', x, y, vulneravel: false })),
+    ...cadeiras,
+  ].map(p => ({ ...p, ...celula(p.x, p.y), semLeitura: false, desvioC: valor(p.x) - valor(3) }));
+  // A troca sai da cadeira vulnerável mais exposta para a cadeira comum, em nível normal, mais perto de 22,5 °C
+  // (meio da faixa normal): a melhor da sala tanto no calor quanto no frio.
+  const origem = pontos.find(p => p.id === 'cadeira-09')!;
+  const destino = pontos.filter(p => p.tipo === 'lugar' && !p.vulneravel && p.nivel === 'normal')
+    .sort((a, b) => Math.abs(valor(a.x) - 22.5) - Math.abs(valor(b.x) - 22.5))[0] ?? origem;
   const precaucoes = origem.nivel === 'frio' || origem.nivel === 'cuidado' || origem.nivel === 'perigo'
     ? [`trocar ${origem.rotulo} para ${destino.rotulo} (${valor(origem.x).toFixed(1)} → ${valor(destino.x).toFixed(1)} °C de índice)`] : [];
   return { ambienteId: id, larguraM: 6, profundidadeM: 4, passoM: .5, grade,
