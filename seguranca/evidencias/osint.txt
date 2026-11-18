@@ -148,6 +148,7 @@ git log --all --diff-filter=A --format= --name-only; filtro de nomes .env, secre
 (nenhuma linha)
 
 Limite: metadados identificam commits a revisar; nao atestam ausencia de credenciais reais no conteudo. Wokwi nao acessado.
+Revalidado em 18/11/2026, sobre o historico publicado (115 commits em todos os ramos, main em 0c59c4d): git log -- esp32/secrets.h sem linha; nenhum .env, secrets.h, pfx, pem ou key adicionado em commit algum.
 Saida integral desta busca: saidas/osint-historico.txt
 
 9. Link do Wokwi (A EXECUTAR depois de publicado)

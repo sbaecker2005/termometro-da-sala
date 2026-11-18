@@ -99,7 +99,7 @@ README com execução, descrição e nomes: `api/README.md`.
 - [x] Preencher os nomes completos e RMs em `api/README.md`
 - [x] Exercitar SQL Server Express e cinco migrações em banco exclusivo; coleta SQL com 98 verificações OK (`conferencia.tsv`) e ensaio HTTP/MQTT/SQL com 33 verificações aprovadas (as 21 anteriores estão incluídas nas 33)
 - [x] Executar a coleção no Insomnia real: 29 requisições, 29/29 asserções e zero falhas; [captura e condições](api/evidencias/insomnia-2026-11-17/README.md)
-- [ ] Publicar o código e as evidências atuais no GitHub; depois do envio, não alterar a `main` (ou criar a tag `gs-2026.2-entrega`)
+- [x] Publicar o código e as evidências atuais no GitHub; depois do envio, não alterar a `main` (ou criar a tag `gs-2026.2-entrega`) (publicado em 18/11: main em 0c59c4d)
 - [ ] Enviar o link no Teams
 
 ## Cybersecurity
@@ -116,7 +116,7 @@ README com execução, descrição e nomes: `api/README.md`.
 - [x] Preencher os nomes completos e RMs no relatório
 - [x] Na VM: cenários S1 a S3 contra o IIS em 18/11, 23/23 (`seguranca/evidencias/cenarios-ataque-laboratorio.txt`); GPO e RDP restrito (E11, parcial)
 - [ ] Na VM: nmap de duas origens (E12), correlação 4663 (E11), LED sem broker no Wokwi (E13), prints do app (E08); depois, atualizar as linhas no `seguranca/ANEXO-EVIDENCIAS.md`
-- [ ] Gerar o PDF por `seguranca/pdf/README.md` e enviar no Teams
+- [x] Gerar o PDF por `seguranca/pdf/README.md` e enviar no Teams (18/11: gerado sem pandoc por `seguranca/pdf/gerar_pdf_html.py`, com a mesma formatação; 49 páginas com os prints do anexo; falta só enviar)
 
 ## C# Windows Forms
 
@@ -140,7 +140,7 @@ O briefing desta disciplina não divide a nota em pontos. O que a página 29 ped
 - [ ] Opcional: PR `desktop/v0.3.0` para `main` e tag `v0.3.0`, com revisão por outro integrante
 - [x] Conferir visualmente a `TelaCoordenacao` no Windows: chave sem valor visível, cadastro validado, ação registrada, CSV, mapa, revogação e retorno da API; ver relatório de 17/11
 - [x] Executar a suíte atual (19/19) e o autoteste do desktop (seis verificações); validar sala-99 e ação persistidas após fechar e reabrir no modo local, conforme fixture da rodada. Edição/exclusão ficam na API, no ensaio de SOA; não são comandos da interface desktop nem exigência explícita do enunciado de C#
-- [ ] Regenerar o ZIP do commit final (o `desktop/` mudou na v0.3.0), conferir numa pasta limpa (build + autoteste = 0) e atualizar o hash em `entrega-pacotes.sha256`; a geração anterior passou com 19 testes e seis autotestes
+- [x] Regenerar o ZIP do commit final (o `desktop/` mudou na v0.3.0), conferir numa pasta limpa (build + autoteste = 0) e atualizar o hash em `entrega-pacotes.sha256`; a geração anterior passou com 19 testes e seis autotestes (18/11: gerado do 2ae6002; build e autoteste 0 numa pasta limpa; hash atualizado)
 - [ ] Enviar ZIP e txt no Teams, um integrante
 
 Conferência do ZIP do desktop: extrair numa pasta vazia, fora do repositório, compilar e rodar o autoteste. O resultado tem que ser `0`. Rode na raiz do repositório, depois de gerar o `entrega-desktop.zip`.
@@ -198,7 +198,7 @@ Pasta de ML (README, dataset INMET A701, modelo.json): https://github.com/sbaeck
 
 - [x] Preencher os nomes completos e RMs em `app/package.json` e `app/README.md`
 - [ ] Gravar o vídeo no Expo Go
-- [ ] Regenerar o ZIP do commit final e conferir nova extração com instalação limpa, TypeScript e 24 testes (a geração anterior passou com 23 testes; depois dela o mapa de demonstração passou a ter quatro sensores e vinte cadeiras); atualizar o hash em `entrega-pacotes.sha256`
+- [x] Regenerar o ZIP do commit final e conferir nova extração com instalação limpa, TypeScript e 24 testes (a geração anterior passou com 23 testes; depois dela o mapa de demonstração passou a ter quatro sensores e vinte cadeiras); atualizar o hash em `entrega-pacotes.sha256` (18/11: gerado do 2ae6002; extração limpa com TypeScript sem erro e 24/24 testes; hash atualizado)
 - [ ] Enviar ZIP e vídeo no Teams
 
 ## Operating Systems
@@ -301,10 +301,10 @@ Nenhum desses quatro pode ir com o marcador de preenchimento. O `.md` não subst
 - [x] Entrevista e autorização das falas confirmadas pelo grupo em 17/11/2026
 - [ ] Revisar as fontes de impacto da seção 7; o piloto em escola ainda não tem unidade definida. Não apresentar estimativas como resultados medidos
 - [x] Preencher os nomes completos e RMs em `arquitetura/DOCUMENTO.md`, `arquitetura/PITCH.md` e `arquitetura/README.md`
-- [ ] Abrir o `.archimate` no Archi, conferir as seis visões e exportar os PNGs com os nomes do item 2 e `diagrama-archi.png`
+- [x] Abrir o `.archimate` no Archi, conferir as seis visões e exportar os PNGs com os nomes do item 2 e `diagrama-archi.png` (18/11: as seis visões reexportadas pela linha de comando do Archi saíram iguais às do repositório; falta só conferir a legibilidade da visão em quatro camadas)
 - [ ] Conferir a legibilidade da "Visão em quatro camadas" e gravar as seis visões abertas no Archi para os cortes do pitch
 - [x] Conferir as seis imagens no `DOCUMENTO.md`, incluindo Implementação e migração na seção 9; PDF de revisão exportado e inspecionado em 17/11
-- [ ] Aprovar o conteúdo final e exportar o PDF definitivo do documento com os PNGs após completar as pendências (o caminho do PDF final em `arquitetura/` ainda não existe)
+- [ ] Aprovar o conteúdo final e exportar o PDF definitivo do documento com os PNGs após completar as pendências (o caminho do PDF final em `arquitetura/` ainda não existe) (18/11: PDF gerado por `arquitetura/gerar_pdf_html.py`, 22 páginas com as seis visões; falta a aprovação do grupo)
 - [ ] Cronometrar o ensaio do pitch (meta 3min30s; se passar de 3min40s, cortar na demonstração), gravar e publicar no YouTube como não listado
 - [ ] Enviar `.archimate`, PNGs, PDF e link do YouTube no Teams
 
@@ -318,9 +318,9 @@ Itens que dependem de gravação, publicação ou coleta no laboratório e que n
 - [ ] Vídeo de Physical Computing (até 4 min) e link do projeto no Wokwi (ainda não existe no repositório; `secrets.h` não vai)
 - [ ] Pitch de TOGAF (até 4 min): cronometrar, gravar e publicar como não listado
 - [ ] Prints e saídas de OS (`infra/evidencias/`) e de Cybersecurity (E08, E11, E12, E13)
-- [ ] PNGs das visões no Archi e PDF final de TOGAF; PDF final de Cybersecurity
-- [ ] `entrega-desktop.zip` e `entrega-app.zip` do commit final, com `entrega-pacotes.sha256` atualizado
-- [ ] Publicar o código no GitHub e conferir o acesso; depois do envio, não alterar a `main` (ou criar a tag `gs-2026.2-entrega`)
+- [x] PNGs das visões no Archi e PDF final de TOGAF; PDF final de Cybersecurity (18/11: PNGs conferidos e os dois PDFs gerados; falta a aprovação do grupo e o envio)
+- [x] `entrega-desktop.zip` e `entrega-app.zip` do commit final, com `entrega-pacotes.sha256` atualizado (18/11)
+- [x] Publicar o código no GitHub e conferir o acesso; depois do envio, não alterar a `main` (ou criar a tag `gs-2026.2-entrega`) (18/11: main em 0c59c4d; falta só não alterar a `main` depois do envio, ou criar a tag)
 
 ## Campos ainda em branco
 
