@@ -98,9 +98,9 @@ curl.exe -i "$Api/ambientes/$AmbienteId/leituras"
 
 Esperado: 4xx nos dois POSTs, log `assinatura-invalida` no primeiro e `reenvio` no segundo, sem novas linhas no banco. Confirmar também ingestão MQTT com a mesma mensagem na coleção/ferramenta já usada pela equipe; confirmar no código que ambos chamam o mesmo validador. Para MQTT a prova é log e ausência de gravação, não status HTTP. Não publicar em tópico de terceiros.
 
-Repetir o POST válido depois de reiniciar a API no laboratório. Esperado: o último `medidoEm` fica na coluna do dispositivo (`ServicoLeituras.cs:67`), então o reenvio continua recusado depois do reinício. O assinante MQTT está em `api/TermometroDaSala.Api/Servicos/AssinanteMqtt.cs:70` e chama o mesmo `Receber`.
+Repetir o POST válido depois de reiniciar a API no laboratório. Esperado: o último `medidoEm` fica na coluna do dispositivo (`ServicoLeituras.cs:51-54`), então o reenvio continua recusado depois do reinício. O assinante MQTT está em `api/TermometroDaSala.Api/Servicos/AssinanteMqtt.cs:70` e chama o mesmo `Receber`.
 
-Duas cópias simultâneas de uma leitura nova: o código lê o dispositivo e grava em dois passos, sem token de concorrência (`ServicoLeituras.cs:28` e `:67-68`; C1 parcial no relatório). Se as duas forem gravadas, registrar a contagem como a lacuna declarada, não como aprovação. Não há teste automatizado de concorrência.
+Duas cópias simultâneas de uma leitura nova: a reserva atômica (`ServicoLeituras.cs:50-54`) deixa só uma ser gravada; a outra volta com `reenvio`. Conferir a contagem no SQL Server: uma linha só. Teste automatizado: `ServicoLeiturasConcorrenciaTestes` (5 casos).
 
 **Print E03:** ![Evidência E03](evidencias/prints/E03.png) [saida local](evidencias/saidas/E03.txt)
 
@@ -124,7 +124,7 @@ $Temporal = Join-Path $Evidencias 'leitura-temporal.json'
 curl.exe -i -H 'Content-Type: application/json' --data-binary "@$Temporal" "$Api/leituras"
 ```
 
-Esperado: 4xx e `atrasada` nos dois casos, sem gravação. A ordem está em `ValidadorLeitura.Motivo` (`api/TermometroDaSala.Api/Dominio/Contrato.cs:98`): assinatura, revogação, reenvio, janela de -10 min a +1 min, faixa. Teste: `VetoresTestes.LimitesDaJanelaEDaFaixa` e `ApiTestes.RecusasELeituraAceita`. O relógio do Wokwi por 15 minutos fica para o laboratório.
+Esperado: 4xx e `atrasada` nos dois casos, sem gravação. A ordem está em `ValidadorLeitura.Motivo` (`api/TermometroDaSala.Api/Dominio/Contrato.cs:86`): assinatura, revogação, reenvio, janela de -10 min a +1 min, faixa. Teste: `VetoresTestes.LimitesDaJanelaEDaFaixa` e `ApiTestes.RecusasELeituraAceita`. O relógio do Wokwi por 15 minutos fica para o laboratório.
 
 **Print E04:** ![Evidência E04](evidencias/prints/E04.png) [saida local](evidencias/saidas/E04.txt)
 
@@ -199,13 +199,13 @@ curl.exe -i -F "ambienteId=$AmbienteId" -F 'descricao=Ventilador sem funcionar' 
 curl.exe -i -F 'ambienteId=sala-inexistente' -F 'descricao=Ventilador sem funcionar' -F "foto=@$FotoValida;type=image/jpeg" "$Api/ocorrencias"
 ```
 
-Esperado: 4xx, sem registros parciais. Descrição após trim: 10 a 500 caracteres (`OcorrenciasController.cs:21`). No app, fotografar erro com descrição de 9 e 501 caracteres e falta de foto, e sucesso com 10 e 500 caracteres e foto. Para temperatura -11/61 e umidade -1/101, repetir E02 com cada valor alterado também no texto canônico e com nova assinatura válida; alterar só JSON provaria HMAC, não faixa física. Esperado: `fora-da-faixa` (`Contrato.cs:106`) e nenhuma inserção. Testes: `VetoresTestes.LimitesDaJanelaEDaFaixa` e `ApiTestes.RecusasELeituraAceita`.
+Esperado: 4xx, sem registros parciais. Descrição após trim: 10 a 500 caracteres (`OcorrenciasController.cs:21`). No app, fotografar erro com descrição de 9 e 501 caracteres e falta de foto, e sucesso com 10 e 500 caracteres e foto. Para temperatura -11/61 e umidade -1/101, repetir E02 com cada valor alterado também no texto canônico e com nova assinatura válida; alterar só JSON provaria HMAC, não faixa física. Esperado: `fora-da-faixa` (`Contrato.cs:107`) e nenhuma inserção. Testes: `VetoresTestes.LimitesDaJanelaEDaFaixa` e `ApiTestes.RecusasELeituraAceita`.
 
 **Print E08:** ![Evidência E08](evidencias/prints/E08.png) [saida local](evidencias/saidas/E08.txt)
 
 ### 9. E09 — /demo/semear recusado fora de Demo
 
-A rota existe em todos os ambientes; fora de Demo a ação responde 404 sem gravar (`DemoController.cs:20`). Usar banco descartável; semear escreve dados. Em Demo, ligar sensor e confirmar leitura ao vivo antes de semear. Executar em terminais separados, encerrando a API antes de mudar ambiente:
+A rota existe em todos os ambientes; fora de Demo a ação responde 404 sem gravar (`DemoController.cs:78`). Usar banco descartável; semear escreve dados. Em Demo, ligar sensor e confirmar leitura ao vivo antes de semear. Executar em terminais separados, encerrando a API antes de mudar ambiente:
 
 ```powershell
 $env:ASPNETCORE_ENVIRONMENT = 'Demo'

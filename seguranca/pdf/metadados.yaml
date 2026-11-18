@@ -3,10 +3,10 @@ title: "Termômetro da Sala — Relatório de Gestão de Riscos"
 subtitle: "Cybersecurity · Global Solution 2026.2 · FIAP — Engenharia de Software, 3º ano"
 author:
   - "Equipe Termômetro da Sala"
-  - "Guilherme Caseiro — RM 559765"
-  - "Samuel Baecker — RM 559269"
-  - "Lucas Villar — RM 560005"
-date: "Análise: 05/11/2026 · Laboratório Windows Server: 17/11/2026 · Entrega: 19/11/2026"
+  - "Samuel David Baecker — RM 559269"
+  - "Lucas de Almeida Villar — RM 560005"
+  - "Guilherme Augusto Caseiro — RM 559765"
+date: "Análise: 05/11/2026 · Laboratório Windows Server: 17 e 18/11/2026 · Entrega: 19/11/2026"
 lang: pt-BR
 documentclass: article
 papersize: a4
@@ -36,6 +36,12 @@ header-includes:
   - \AtBeginEnvironment{longtable}{\footnotesize\RaggedRight}
   - \setlength{\emergencystretch}{5em}
   - \usepackage{pdflscape}
+  # Trechos de codigo: quebra as linhas longas em vez de passar da margem.
+  - \usepackage{fvextra}
+  - \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,commandchars=\\\{\}}
+  # Prints na ordem do texto, sem flutuar para outra pagina.
+  - \usepackage{float}
+  - \floatplacement{figure}{H}
   # Comandos, nao ambientes: o pandoc engoliria o conteudo de um ambiente cru.
   - \newcommand{\blandscape}{\begin{landscape}}
   - \newcommand{\elandscape}{\end{landscape}}

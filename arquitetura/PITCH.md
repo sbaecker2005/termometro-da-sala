@@ -1,8 +1,8 @@
 # Termômetro da Sala: roteiro do pitch
 
-Vídeo de até 4 minutos, enviado em Testing. Tempo total do roteiro: 3min30s, com 30 s de folga sobre o limite. O briefing pede a solução e as entregas que mais somaram: o bloco "Entregas" cumpre essa parte.
+Vídeo de até 4 minutos, enviado em Testing. Tempo total do roteiro: 3min30s, com 30 s de folga sobre o limite. São cerca de 410 palavras faladas (cerca de 2min45s a 150 palavras por minuto); o restante é a pausa das telas gravadas. O briefing pede a solução e as entregas que mais somaram: o bloco "Entregas" cumpre essa parte.
 
-Cronometre o ensaio. Se passar de 3min40s, corte primeiro na demonstração, nunca no impacto, na abertura nem na frase da pessoa entrevistada. A frase entra inteira, sem completar o bloco com outra fala.
+Cronometre o ensaio. Se passar de 3min30s, corte primeiro na demonstração, nunca no impacto, na abertura nem na frase da pessoa entrevistada. A frase entra inteira, sem completar o bloco com outra fala.
 
 Antes de gravar: os números de escola do impacto estão na seção 7 do `DOCUMENTO.md`. Se um número mudar lá, ele muda aqui e no slide 6. As informações do CRAS vêm do relato da coordenadora, não de medição no local. O aviso no celular é o que ela pediu e o próximo passo.
 
@@ -31,7 +31,7 @@ Se ela não aparecer, leia o crédito e a frase, com o crédito na tela. Sem alu
 
 ## Demonstração no modo demonstração (0:45 a 2:15)
 
-> O mapa térmico mostra onde cada sensor e cada lugar ficam na planta, com temperatura, nível e precauções também em texto. No verão, ajuda a escola a observar o calor perto da janela e avaliar a mudança de lugar; no inverno, ajuda o plantão do dormitório a observar regiões frias e orientar agasalho, cobertor e verificação de correntes de ar. O desktop permite exportar o mapa, e o app permite tocar nos pontos ou consultar a lista acessível. A alternância de agora para mais uma hora também consulta o servidor, somando à temperatura e ao índice de cada sensor recente metade da variação entre a previsão do ambiente em +2 h e a média dos índices atuais. O aviso explica a aproximação; não há modelo de temperatura por ponto.
+> O mapa térmico mostra onde cada sensor e cada lugar ficam na planta, com temperatura, nível e precauções também em texto. A alternância para daqui a uma hora é uma aproximação, e o aviso na tela diz isso.
 
 Gravar entre 12h e 17h, com a API no ambiente `Demo`. Antes de cada ensaio ou tomada, pare a API e o Wokwi e recrie **somente o banco local descartável abaixo**, reservado a este roteiro. Requer LocalDB e a ferramenta EF já disponíveis (ver `api/README.md`). Em PowerShell, dentro de `api/`, execute cada comando apenas se o anterior terminar sem erro:
 
@@ -46,7 +46,7 @@ dotnet run --project TermometroDaSala.Api --no-launch-profile --urls http://loca
 
 O `drop` apaga todo o histórico desse banco de demonstração; não substitua a conexão pela de um banco com dados a preservar. O perfil `http` não é usado porque fixa Development.
 
-O circuito atual de `esp32/README.md:36` usa quatro dispositivos na Sala 7; não publica na Sala 3 sem esta preparação específica. Após cada reset, as migrações recriam a Sala 3 e `esp32-sala-03` (usado aqui como porta), mas não configuram a planta. Com o Wokwi ainda parado, execute o SQL abaixo em um editor SQL já disponível, conectado a `(localdb)\MSSQLLocalDB`. Ele cadastra os outros três pontos apenas no banco descartável do pitch, reutilizando internamente o valor público de demonstração do dispositivo existente, sem exibi-lo, e configura uma planta fictícia de 6 × 4 m com seis cadeiras, nas mesmas posições do exemplo da Sala 7:
+O circuito atual de `esp32/README.md:36` usa quatro dispositivos na Sala 7; não publica na Sala 3 sem esta preparação específica. Após cada reset, as migrações recriam a Sala 3 e `esp32-sala-03` (usado aqui como porta), mas não configuram a planta. Com o Wokwi ainda parado, execute o SQL abaixo em um editor SQL já disponível, conectado a `(localdb)\MSSQLLocalDB`. Ele cadastra os outros três pontos apenas no banco descartável do pitch, reutilizando internamente o valor público de demonstração do dispositivo existente, sem exibi-lo, e configura uma planta fictícia de 6 × 4 m com seis cadeiras (a Sala 7 do exemplo, no `esp32/README.md`, tem outra planta, com vinte lugares):
 
 ```sql
 USE [TermometroRoteiroPitch];
@@ -100,16 +100,16 @@ Cortes rápidos de 3 s cada, gravados antes, com o nome da disciplina na tela.
 |---|---|
 | Archi com a "Visão em quatro camadas" aberta e as visões Motivação, Negócio, Aplicação, Tecnologia e Implementação e migração na árvore do modelo (`arquitetura/termometro-da-sala.archimate`) | Arquitetura (TOGAF) |
 | Notebook do modelo com a tabela de MAE de validação e teste | Machine Learning |
-| Saída do `dotnet test` da solução da API com os 85 testes passando | SOA e Testing |
+| Saída do `dotnet test` da solução da API com os 134 testes passando | SOA e Testing |
 | Windows Server com o IIS e o pool da API | Operating Systems |
 
-> Por trás disso: o modelo ArchiMate com uma visão por camada, o notebook com dados reais do INMET, a API com 85 testes passando e o servidor Windows que publica tudo.
+> Por trás disso: o modelo ArchiMate com uma visão por camada, o notebook com dados reais do INMET, a API com 134 testes passando e o servidor Windows que publica tudo.
 
-Resultados informados pelo coordenador em 08/11/2026: 85 testes da API e 18 do desktop aprovados, zero falhas; desktop não entra na fala da API. Registro histórico e nota atual em `api/evidencias/dotnet-test.txt`.
+Resultados medidos em 18/11/2026, zero falhas: API 134/134, desktop 19/19, app 24/24 e ML 46 testes. O desktop não entra na fala da API.
 
 ## Impacto (2:30 a 3:10)
 
-> A rede estadual de São Paulo: cerca de 3,5 milhões de alunos. Censo de 2024: quase 96 % das salas sem climatização; cerca de 3,36 milhões, se a proporção valer para os alunos. Na capital, de 2022 a 2025, 21 dias a 34 graus ou mais. No CRAS Santo Amaro passam no mínimo 150 pessoas por dia, sem climatização por orçamento, com calor de janeiro a março. Segundo ela, nenhuma escola ou CCA que ela saiba tem ar-condicionado. Meta em quatro semanas: zero aula em Perigo sem ação registrada, com mediana de até 15 minutos entre alerta e ação.
+> A rede estadual de São Paulo tem cerca de 3,5 milhões de alunos. Pelo Censo de 2024, quase 96 % das salas não têm climatização: cerca de 3,36 milhões de alunos, se a proporção valer para eles. Na capital, de 2022 a 2025, foram 21 dias a 34 graus ou mais. Meta em quatro semanas: zero aula em Perigo sem ação registrada, com mediana de até 15 minutos entre alerta e ação.
 
 As ressalvas ficam no slide 6: a base de 3 milhões da outra nota da Seduc, a premissa de 35 alunos por turma e o fato de os 21 dias não serem a contagem oficial de ondas de calor do INMET.
 

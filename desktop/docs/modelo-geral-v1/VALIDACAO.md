@@ -5,7 +5,7 @@ Concluída em **17/11/2026**, entre 13h45 e 13h56 (São Paulo), com o desktop at
 ## Ambiente e integridade
 
 - API em `http://127.0.0.1:5086`, banco exclusivo `TermometroGS_SOA_ModeloGeral_20261117_134420` e cinco migrações aplicadas.
-- Desktop executado da cópia isolada `D:/codex-validacao-termometro-20261117-c0ce77f9efc54ab2885d0268d0cbb51c/desktop-visual-modelo-geral-v1`, com configuração pública apontando para essa API.
+- Desktop executado da cópia isolada do desktop, com configuração pública apontando para essa API.
 - Os quatro binários/runtime da cópia e de `executavel-desktop` foram comparados por SHA-256 com a saída compilada atual: [registro de integridade](../../../docs/resultados-testes-2026-11-17/desktop-binarios-modelo-geral-v1.tsv). A publicação do kit usa a URL pública padrão 5080.
 - API reiniciada com caminho absoluto explícito do modelo. A árvore retornou 33,9917 → 34,0 para o CSV da hora 13/novembro; sem modelo, o CSV retornaria 35,3. [Conferência SQL/ML](../../../docs/resultados-testes-2026-11-17/sql-modelo-geral-v1.txt).
 

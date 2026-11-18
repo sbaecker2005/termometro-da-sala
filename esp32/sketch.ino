@@ -9,7 +9,7 @@
  * resistor de 220 Ω e cátodo no GND; LCD 16x2 I2C (endereço 0x27) em SDA 21 e
  * SCL 22; buzzer no GPIO 26; botão "Ciente" entre o GPIO 27 e o GND.
  *
- * Na porta: o LED dá a cor, o LCD escreve a temperatura, o índice e o nível por
+ * Em cada ponto medido: o LED dá a cor, o LCD escreve a temperatura, o índice e o nível por
  * extenso (quem não distingue as cores também entende) e o buzzer bipa em Perigo até o
  * professor apertar "Ciente". O botão é só local: não muda a leitura publicada.
  *

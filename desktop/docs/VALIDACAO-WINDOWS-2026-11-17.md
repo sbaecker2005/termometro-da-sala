@@ -41,7 +41,7 @@ Para o mapa, as quatro leituras simuladas da Sala 7 foram renovadas por `/demo/m
 | Frio / +1 h | Fundo passou a aproximadamente 14,8 °C no instante do ensaio. Numeração e disposição permaneceram iguais. Ressalva da aproximação presente nas precauções. |
 | Calor / Agora e +1 h | `/demo/mapa?periodo=tarde`: janela a 35 °C e aproximadamente 34,8 °C em +1 h. Regiões verde/amarela/laranja/vermelha, 20 cadeiras e números legíveis em ambos os períodos. |
 | PNG completo | Exportação pela interface gera título, período/dimensões, legenda, planta e todo o texto lateral, inclusive o conteúdo que exige rolagem na janela. Os três arquivos foram reabertos e inspecionados, sem corte nas bordas ou nas precauções. |
-| Compilação | API e desktop, incluindo projetos de testes, compilaram com zero erros e zero avisos. Suites e autoteste não foram executados, conforme divisão com o Cérebro. |
+| Compilação | API e desktop, incluindo projetos de testes, compilaram com zero erros e zero avisos. Nesta etapa as suítes e o autoteste não foram executados; passaram na sessão do novo visual, descrita abaixo (19 testes e 6 verificações). |
 | Publicação usada | A primeira publicação preservou uma DLL antiga do kit com timestamp posterior à compilação. Após detectar o desenho antigo na tela e hashes divergentes, a saída foi copiada explicitamente e o hash da DLL publicada foi comparado ao binário Release. A revalidação final usou `executavel-desktop/TermometroDaSala.Desktop.exe`. |
 
 Arquivos exportados nesta revalidação:
@@ -52,7 +52,7 @@ Arquivos exportados nesta revalidação:
 | [mapa-20-cadeiras-frio-1h.png](mapa-20-cadeiras-frio-1h.png) | 1084 × 893 | 62.497 |
 | [mapa-20-cadeiras-calor.png](mapa-20-cadeiras-calor.png) | 1084 × 813 | 61.707 |
 
-`mapa-termico.png` permanece como evidência anterior. `mapa-termico 2.png` é a exportação de +1 h preservada também com o nome descritivo acima.
+`mapa-termico.png` permanece como evidência anterior. A exportação de +1 h está preservada com o nome descritivo acima.
 
 O mapa atual interpola as leituras pela distância (IDW). O ML prevê o índice do ambiente em +2 h; +1 h aplica metade dessa variação aos sensores e interpola os lugares. Não existe modelo de temperatura individual por cadeira. As cenas usadas aqui são simuladas, sem sensor físico ou Wokwi.
 
@@ -119,7 +119,7 @@ Não foram validados persistência de novos registros no modo local, câmera/Wok
 
 ## Sessão do novo visual — 17/11/2026
 
-Após autorização de Samuel para executar as suítes, o desktop recebeu cabeçalho azul-escuro, botões turquesa, cartões claros de resumo, grades com avisos quebrados em linhas e mais espaço entre os controles. Os resumos são calculados a partir das salas e ações carregadas; sala sem leitura não é contada como alerta. Eventos, atalhos, contratos, códigos C01–C20/S1–S4 e cores térmicas foram preservados. A revisão independente de leitura não encontrou defeito material.
+Após executar as suítes, o desktop recebeu cabeçalho azul-escuro, botões turquesa, cartões claros de resumo, grades com avisos quebrados em linhas e mais espaço entre os controles. Os resumos são calculados a partir das salas e ações carregadas; sala sem leitura não é contada como alerta. Eventos, atalhos, contratos, códigos C01–C20/S1–S4 e cores térmicas foram preservados. A revisão de leitura não encontrou defeito material.
 
 | Verificação pela interface real | Resultado observado nesta sessão |
 |---|---|

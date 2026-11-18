@@ -9,7 +9,7 @@ Global Solution 2026.2 (CitizenTech) — Engenharia de Software, 3º ano, FIAP.
 | Campo | Conteúdo |
 |---|---|
 | Nome da CitizenTech | Termômetro da Sala |
-| Cidade e bairro | São Paulo; Magister e Salgueiro são candidatas ao piloto, indicadas por Samuel em 17/11/2026. Unidade, bairro e autorização a confirmar; a entrevista foi no CRAS Santo Amaro |
+| Cidade e bairro | São Paulo. Piloto proposto em uma das unidades Magister ou Salgueiro (a unidade final será definida com a escola). A entrevista foi no CRAS Santo Amaro |
 | Cidadão beneficiado | Professor(a) e turma de uma sala sem climatização. Quem opera o sistema é a coordenação pedagógica |
 | Problema, em uma frase | Nas tardes quentes, a sala passa do limite seguro sem que ninguém meça, e a escola só reage quando alguém passa mal |
 | Como funciona | Um sensor na porta da sala mede o calor e acende verde, amarelo ou vermelho. O sistema prevê o nível da sala para daqui a 2 h. A coordenação vê todas as salas, decide e registra a ação tomada. O professor acompanha pelo app e registra ocorrências com foto |
@@ -52,9 +52,9 @@ O assinante MQTT conecta em `broker.hivemq.com:1883`, tópico `fiap-gs/termometr
 
 Semente: salas `sala-01` a `sala-04`, dispositivo `esp32-sala-0N` em cada uma, segredo de demonstração `segredo-de-teste-sala-0N` (a sala 03 continua com o vetor público do contrato). Cada um é revogável por `POST /dispositivos/{id}/revogar`. Não é segredo de produção.
 
-A coordenação autentica `POST /ambientes`, `PUT` e `DELETE /ambientes/{id}`, `POST /acoes`, `POST /dispositivos/{id}/revogar` e `GET /ocorrencias/{id}/foto` com o cabeçalho `X-Chave-Coordenacao`. O valor vem da configuração `ChaveCoordenacao` (variável de ambiente de mesmo nome) e não entra no git. Sem ela, ou com valor diferente, a resposta é 401 e nada é gravado. `POST /leituras` continua só com HMAC. `POST /ocorrencias` não exige essa chave, mas a foto gravada só abre com ela: pode mostrar pessoas.
+A coordenação autentica `POST /ambientes`, `PUT` e `DELETE /ambientes/{id}`, `PUT /ambientes/{id}/mapa`, `POST /acoes`, `POST /dispositivos/{id}/revogar` e `GET /ocorrencias/{id}/foto` com o cabeçalho `X-Chave-Coordenacao`. O valor vem da configuração `ChaveCoordenacao` (variável de ambiente de mesmo nome) e não entra no git. Sem ela, ou com valor diferente, a resposta é 401 e nada é gravado. `POST /leituras` continua só com HMAC. `POST /ocorrencias` não exige essa chave, mas a foto gravada só abre com ela: pode mostrar pessoas.
 
-As rotas de escrita (`POST /ambientes`, `PUT` e `DELETE /ambientes/{id}`, `POST /acoes`, `/leituras`, `/ocorrencias`, `/dispositivos/{id}/revogar` e `/demo/semear`) aceitam 30 pedidos por minuto por IP. O seguinte responde 429.
+As rotas de escrita (`POST /ambientes`, `PUT` e `DELETE /ambientes/{id}`, `PUT /ambientes/{id}/mapa`, `POST /acoes`, `/leituras`, `/ocorrencias`, `/dispositivos/{id}/revogar`, `/demo/semear` e `/demo/mapa`) aceitam 30 pedidos por minuto por IP. O seguinte responde 429.
 
 Toda resposta leva `X-Content-Type-Options: nosniff`, para o navegador não interpretar uma foto ou um CSV como outro tipo. Em Production a API redireciona para HTTPS e manda `Strict-Transport-Security` (HSTS). Teste: `RespostasLevamNosniffEProducaoLevaHsts`.
 
@@ -70,6 +70,8 @@ Toda resposta leva `X-Content-Type-Options: nosniff`, para o navegador não inte
 | GET | `/ambientes/{id}/ocorrencias` | Ocorrências da sala (`id`, `ambienteId`, `descricao`, `criadaEm`), da mais recente à mais antiga, sem a foto |
 | GET | `/ambientes/{id}/leituras` | Leituras em JSON. `?formato=csv` devolve CSV |
 | GET | `/ambientes/{id}/previsao` | Rua daqui a 2 h, delta da sala e nível previsto. Sem rua, usa a última leitura válida da sala (`ruaDisponivel: false`); 503 sem rua e sem leitura válida recente |
+| GET | `/ambientes/{id}/mapa` | Mapa térmico da sala: dimensões, `grade` interpolada (IDW) com os sensores, `pontos` (um por sensor e por lugar), `precaucoes`. `?futuro=true` projeta +1 h com a previsão. Usa as leituras dos últimos 15 min; sem leitura os valores vêm nulos. 404 se a sala não existe |
+| PUT | `/ambientes/{id}/mapa` | Configura a planta: `larguraM`, `profundidadeM`, `sensores` (`id`, `posX`, `posY`, `rotulo`) e `lugares` (`nome`, `x`, `y`, `vulneravel`). 204. 400 `mapa-invalido`, `sensor-invalido` ou `sensor-fora-da-planta`. Exige `X-Chave-Coordenacao` |
 | POST | `/leituras` | Mesma leitura assinada do MQTT |
 | POST | `/ocorrencias` | Multipart: `ambienteId`, `descricao`, `foto` JPEG até 5 MB. Exige a estrutura de um JPEG (quadro SOF com altura e largura e início da varredura SOS); os pixels não são decodificados. A API regrava o JPEG sem o segmento APP1 (EXIF) |
 | GET | `/ocorrencias/{id}/foto` | A foto da ocorrência pelo id. Exige `X-Chave-Coordenacao` (401 sem ela) |
@@ -78,6 +80,7 @@ Toda resposta leva `X-Content-Type-Options: nosniff`, para o navegador não inte
 | GET | `/niveis` | As 5 faixas da tabela `NiveisAcao`: `nivel`, `nome`, `indiceMin` e `acaoSugerida` |
 | POST | `/dispositivos/{id}/revogar` | Marca o dispositivo como inativo. É uma ação de estado (não apaga nem substitui o recurso), por isso POST com verbo em vez de PUT/DELETE. Exige `X-Chave-Coordenacao` |
 | POST | `/demo/semear?ambienteId=` | Só com `ASPNETCORE_ENVIRONMENT=Demo`. 409 sem leitura ao vivo |
+| POST | `/demo/mapa?periodo=tarde\|madrugada` | Só com `ASPNETCORE_ENVIRONMENT=Demo` (404 fora dele). Cria ou refaz a Sala 7 com 4 sensores e 20 lugares e grava a cena de calor (tarde) ou de frio (madrugada). 201 com `inseridas`; 400 `periodo-invalido`; 409 `ambiente-em-uso` se a `sala-07` já tem leituras de dispositivo |
 
 `POST /leituras`:
 
@@ -140,7 +143,7 @@ As leituras do sensor no Wokwi, as leituras do modo demonstração e as ocorrên
 
 | Pasta | Responsabilidade |
 |---|---|
-| `Dominio/Entidades` | As 8 entidades persistidas e os enums `Nivel`, `Origem`, `FaceSol` e `TipoAmbiente`. `Dispositivo.Revogar()` desativa o sensor sem apagar o histórico |
+| `Dominio/Entidades` | As 9 entidades persistidas (`Ambiente`, `Dispositivo`, `Leitura`, `LeituraRua`, `Lugar`, `Previsao`, `Ocorrencia`, `Acao` e `NivelAcao`) e os enums `Nivel`, `Origem`, `FaceSol` e `TipoAmbiente`. `Dispositivo.Revogar()` desativa o sensor sem apagar o histórico |
 | `Dominio/Contrato.cs` | Regras puras, sem banco: `IndiceCalor` (NOAA e faixas, devolve o enum `Nivel`), `Assinatura` (HMAC do texto canônico), `ValidadorLeitura` (motivos de recusa e leitura suspeita) e `Relogio` (hora de São Paulo) |
 | `Contratos` | Entradas e saídas da API (DTOs). A entrada de ambiente valida com DataAnnotations; as saídas não devolvem as entidades do banco |
 | `Servicos` | Casos de uso: `ServicoLeituras` (recebe, valida e grava a leitura, vinda de HTTP ou MQTT), `ConsultaPrevisao` (monta e grava a previsão) com os previsores da rua (`PrevisorRuaModelo`, `PrevisorRuaBaseline`, `PrevisorRuaDemo`) e `ModeloRua` (lê e avalia o `modelo.json`) e `AssinanteMqtt` (serviço em segundo plano) |
@@ -158,6 +161,7 @@ erDiagram
     Ambiente ||--o{ Previsao : "tem (cascade)"
     Ambiente ||--o{ Ocorrencia : "tem (cascade)"
     Ambiente ||--o{ Acao : "tem (cascade)"
+    Ambiente ||--o{ Lugar : "tem (cascade)"
 
     Ambiente {
         string Id PK "sala-NN"
@@ -166,6 +170,8 @@ erDiagram
         int Andar
         string FaceSol
         bool TemVentilador
+        double LarguraM "nulo sem mapa"
+        double ProfundidadeM "nulo sem mapa"
     }
     Dispositivo {
         string Id PK
@@ -173,6 +179,9 @@ erDiagram
         string Segredo
         bool Ativo
         datetimeoffset UltimoMedidoEm
+        double PosX "nulo sem mapa"
+        double PosY "nulo sem mapa"
+        string Rotulo "nulo"
     }
     Leitura {
         long Id PK
@@ -211,6 +220,14 @@ erDiagram
         string Descricao
         datetimeoffset RegistradaEm
     }
+    Lugar {
+        long Id PK
+        string AmbienteId FK
+        string Nome "unico por ambiente"
+        double X
+        double Y
+        bool Vulneravel
+    }
     LeituraRua {
         long Id PK
         datetimeoffset MedidoEm
@@ -226,7 +243,7 @@ erDiagram
     }
 ```
 
-`LeituraRua` e `NivelAcao` não têm FK: a primeira guarda a série da rua e a segunda as
+`Lugar` guarda as cadeiras e os pontos de interesse da planta (`Lugares`, índice único em `AmbienteId` e `Nome`), usados pelo mapa térmico. `LeituraRua` e `NivelAcao` não têm FK: a primeira guarda a série da rua e a segunda as
 faixas de nível com a ação sugerida, servidas por `GET /niveis` (o teste
 `NiveisVemDaTabelaEBatemComAsFaixasDoCodigo` confere que a tabela e `IndiceCalor` dizem
 o mesmo). `Previsoes` guarda cada previsão servida. Os enums são gravados como texto.
@@ -354,6 +371,12 @@ status esperado na aba de testes do Insomnia (after-response com `insomnia.expec
 10. `20` a `24`: `GET /ambientes`, leituras em JSON e CSV, previsão (200; 503 sem rua e sem
     leitura válida recente) e `GET /niveis`. `25 POST /demo/semear` exige ambiente Demo e
     uma leitura ao vivo: 404 fora de Demo, 409 sem leitura, 201 após ela.
+11. Mapa térmico (`26` a `29`):
+    - `26 PUT /ambientes/sala-01/mapa`: planta 6 × 4 m, o sensor `esp32-sala-01` na janela (0; 2) e a Cadeira 1 em (1; 2). Exige `X-Chave-Coordenacao`; espere 204 (sem a chave, 401).
+    - `27 GET /ambientes/sala-01/mapa`: 200 com `grade`, `pontos` (janela e Cadeira 1) e `precaucoes`. Rode depois do `26`; sem leitura recente da sala-01 as temperaturas vêm nulas.
+    - `28 POST /demo/mapa?periodo=tarde` (só em Demo): 201 com `inseridas: 4`. Em seguida `GET /ambientes/sala-07/mapa` (200): a janela aparece a 35 °C em nível perigo, com troca de lugar sugerida e ambiente desigual.
+    - `29 POST /demo/mapa?periodo=madrugada` (só em Demo): 201 com `inseridas: 4`. Em seguida o mesmo `GET` (200): o canto do fundo aparece a 15 °C em nível frio.
+    - O `28` e o `29` substituem as leituras simuladas da Sala 7; use o banco de demonstração. Fora do Demo respondem 404.
 
 As fotos locais ficam em `TermometroDaSala.Api/fotos/`, ignorada pelo repositório.
 O [índice de evidências](evidencias/README.md) separa capturas manuais, respostas do
@@ -385,5 +408,3 @@ dotnet test .\api\TermometroDaSala.Api.Tests\TermometroDaSala.Api.Tests.csproj -
 SQL Server foi revalidado com esta revisão: [98 verificações do coletor](evidencias/TermometroGS_SOA_ModeloGeral_20261117_134420/conferencia.tsv) e [33 verificações HTTP/MQTT/SQL](../docs/resultados-testes-2026-11-17/TermometroGS_ModeloGeral_20261117_135412_6ef80b60/resultado.txt), com broker local real, dez corridas, rollback após falha controlada e 12 verificações do modelo por sala/horizonte/mapa. [Comandos, cenários e limites](../docs/resultados-testes-2026-11-17/sql-modelo-geral-v1.txt). As contagens não são somadas à suíte xUnit. O registro de 85 testes em 08/11 permanece histórico em [dotnet-test.txt](evidencias/dotnet-test.txt).
 
 A origem do modelo também foi revalidada: [19/19 células do notebook](../docs/resultados-testes-2026-11-17/ml-notebook-integral.txt) executadas em 31,95 s, saída 0, com Python 3.11.9/IPython.display/Agg em cópia isolada. Os modelos JSON foram estruturalmente idênticos; os 12 originais mantiveram seus hashes. Esse ensaio executou as células sequencialmente, sem kernel Jupyter/nbclient e sem conferir visualmente figuras regeneradas.
-
-O iniciador `ferramentas/abrir-apresentacao.ps1` teve a proteção de porta corrigida: uma consulta de rede que falhasse não podia ser interpretada como porta livre. A reserva TCP exclusiva agora interrompe a abertura quando indisponível; [recusa comprovada no host e sandbox](../output/apresentacao/TermometroGS_Apresentacao_20261117_094533/protecao-porta.txt), saída 1 e API original preservada. A tentativa anterior teve seus processos adicionais encerrados e seus registros/banco preservados; não há pendência de correção.

@@ -123,7 +123,7 @@ A tarefa MQTT fica separada para DNS ou broker lentos nao travarem os alertas.
 
 ## Ensaio
 
-Roteiro do vídeo: [ROTEIRO-VIDEO.md](ROTEIRO-VIDEO.md). Prints em `evidencias/`. O vídeo (meta 3 min 30 s, limite 4 min) não inclui "baixar todos, voltar ao perigo" nem "Sem Wi-Fi ou NTP": as duas linhas ficam neste ensaio.
+Roteiro do vídeo: [ROTEIRO-VIDEO.md](ROTEIRO-VIDEO.md). O vídeo (meta 3 min 30 s, limite 4 min) não inclui "baixar todos, voltar ao perigo" nem "Sem Wi-Fi ou NTP": as duas linhas ficam neste ensaio.
 
 | Teste | Esperado | Observado |
 |---|---|---|

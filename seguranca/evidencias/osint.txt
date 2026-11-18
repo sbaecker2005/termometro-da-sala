@@ -87,6 +87,17 @@ Filtro usado em todos os comandos: X="--exclude-dir=node_modules --exclude-dir=b
 
 
 
+8b. Recoleta do historico do git em 2026-11-18T01:57:37-03:00
+   Copia local com todos os ramos: 113 commits, HEAD 460752e. Mesmos comandos do item 8.
+   git log --all --oneline -S "segredo-de-teste": 16 commits; valores completos encontrados: so
+       segredo-de-teste-sala-01 a -04 (vetores de teste do item 1).
+   git log --all --oneline -- esp32/secrets.h: nenhuma linha (secrets.h nunca foi commitado).
+   ChaveCoordenacao com valor: so "chave-teste" e "outra" dos testes automatizados; o resto sao
+       marcadores "..." de documentacao, a leitura da configuracao e as linhas dos proprios roteiros.
+   password=/pwd=: so Password=$env:MSSQL_SA_PASSWORD (variavel de ambiente) e os padroes dos roteiros.
+   Arquivos .env, secrets.h, .pfx, .pem ou .key adicionados em algum commit: nenhum.
+   Obtido: igual ao esperado.
+
 8a. Recoleta local em 2026-11-07T10:02:21.2331598-03:00
 Data da busca: 2026-11-07T10:02:19.8021046-03:00
 Escopo: historico local de todos os refs, sem rede; sem ler .env* ou contas/.

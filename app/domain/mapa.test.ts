@@ -4,8 +4,8 @@ import { diametro, lerMapa, mapaDemonstracao, textoPonto } from './mapa.ts';
 
 describe('mapa térmico', () => {
   it('mostra frio, desvio e texto com precaução, preservando as posições na previsão', () => {
-    const agora = lerMapa(mapaDemonstracao('sala-05', false), 'sala-05');
-    const futuro = lerMapa(mapaDemonstracao('sala-05', true), 'sala-05');
+    const agora = lerMapa(mapaDemonstracao('sala-05', false, 'frio'), 'sala-05');
+    const futuro = lerMapa(mapaDemonstracao('sala-05', true, 'frio'), 'sala-05');
     const ponto = agora.pontos[0];
     assert.equal(ponto.nivel, 'frio');
     assert.equal(ponto.desvioC, -4.5);
@@ -18,6 +18,13 @@ describe('mapa térmico', () => {
     assert.equal(agora.pontos.filter(p => p.tipo === 'lugar').length, 20);
     assert.match(textoPonto(agora.pontos[12]), /trocar Cadeira 09 para Cadeira 04/);
     assert.match(textoPonto(futuro.pontos[12]), /trocar Cadeira 09 para Cadeira 04/);
+  });
+  it('acompanha o nível da sala: sala normal não mostra mapa quente', () => {
+    const normal = mapaDemonstracao('sala-01', false, 'normal');
+    assert.ok(normal.grade.every(c => c.nivel === 'normal'));
+    assert.ok(normal.pontos.every(p => p.nivel === 'normal'));
+    assert.equal(mapaDemonstracao('sala-07', false, 'perigo').pontos[0].nivel, 'perigo');
+    assert.equal(mapaDemonstracao('sala-12', false, 'atencao').pontos[0].nivel, 'atencao');
   });
   it('separa calor e normal e usa o módulo do desvio com limite visual', () => {
     const mapa = mapaDemonstracao('sala-07', false);

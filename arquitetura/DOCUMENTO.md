@@ -50,6 +50,8 @@ O Termômetro da Sala mede cada sala, prevê o nível dela para daqui a 2 horas 
 | Diretoria de Ensino / Seduc-SP | Recebe o relatório por sala | Dado para decidir onde climatizar primeiro |
 | INMET | Fornece dados públicos | Não se aplica: é fonte de dados |
 
+**Evidência qualitativa do problema.** Em entrevista, a coordenadora do CRAS Santo Amaro (São Paulo) relatou que o serviço recebe no mínimo 150 pessoas por dia, sem climatização por falta de orçamento, com calor de janeiro a março, e que não conhece escola ou CCA com ar-condicionado. O CRAS é um equipamento de assistência social, e não uma escola: o relato mostra a mesma falta de conforto térmico em serviço público. Ele ilustra o problema e não substitui os dados da seção 7.
+
 **Matriz de partes interessadas.** As cinco primeiras estão no modelo como Stakeholder, ligadas à preocupação (Assessment ou Goal) que a arquitetura precisa responder.
 
 | Parte interessada | Preocupação no modelo | Visão que responde |
@@ -210,14 +212,14 @@ A visão mostra, no alto, os componentes de aplicação; no meio, os serviços d
 
 ## 5. Estado da implementação
 
-Situação desta versão em 05/11/2026.
+Situação desta versão em 18/11/2026. Todos os números de teste abaixo foram medidos nesta data.
 
 | Parte | Situação |
 |---|---|
-| Modelo de ML | Notebook executado. Árvore (profundidade 12, folha 24) escolhida pelo MAE de validação. No teste de 2025, MAE 0,909 °C (`ml/modelo.json`) |
-| App do professor | Quatro telas em Expo. O modo simulado vem ligado; com `EXPO_PUBLIC_API_MOCK=0` o app chama a API |
-| API | Rotas de salas, leituras, previsão, ocorrências, ações, revogação e demonstração. Painel em `wwwroot`. 85 testes automatizados da API aprovados em 08/11/2026 no `dotnet test api/TermometroDaSala.sln`: 50 `[Fact]` e 35 casos `[InlineData]` em 8 `[Theory]` (`api/evidencias/dotnet-test.txt`) |
-| Terminal da coordenação | Windows Forms: salas, ação, cadastro, revogação e CSV. Se a API cai, usa a reserva local. Separadamente da API, 18 testes aprovados em 08/11/2026 no `dotnet test desktop/TermometroDaSala.Desktop.sln --no-restore` (`api/evidencias/dotnet-test.txt`) |
+| Modelo de ML | Notebook executado. Árvore (profundidade 12, folha 24) escolhida pelo MAE de validação. No teste de 2025, MAE 0,909 °C (`ml/modelo.json`). 46 testes automatizados aprovados (`python -m pytest ml`) |
+| App do professor | Quatro telas em Expo. O modo simulado vem ligado; com `EXPO_PUBLIC_API_MOCK=0` o app chama a API. 24 testes da lógica de domínio aprovados (`npm test` em `app/`) |
+| API | Rotas de salas, leituras, previsão, ocorrências, ações, revogação e demonstração. Painel em `wwwroot`. 134 testes automatizados da API aprovados, 0 falhas, em 18/11/2026 no `dotnet test api/TermometroDaSala.sln` |
+| Terminal da coordenação | Windows Forms: salas, ação, cadastro, revogação e CSV. Se a API cai, usa a reserva local. Separadamente da API, 19 testes aprovados, 0 falhas, em 18/11/2026 no `dotnet test desktop/TermometroDaSala.Desktop.sln` |
 | ESP32 | `sketch.ino`, `diagram.json` e `libraries.txt` para o Wokwi. O `esp32/README.md` descreve a simulação e o vetor de HMAC |
 | Windows Server | Roteiro em `infra/README.md` e scripts `01-rede.ps1` a `09-teste-de-falha.ps1` |
 | Relatório de riscos | `seguranca/RELATORIO-RISCOS.md`, com ameaças, controles e evidências da solução |
@@ -295,7 +297,20 @@ Pelo índice de calor, a rua ficou em Normal por 30.792 horas, em Atenção por 
 - A estação representa a capital, e não o estado. Por isso a frequência não foi multiplicada pelas turmas da rede.
 - "Dia útil de aula" é premissa: segunda a sexta, de fevereiro a meados de dezembro, sem feriados, sem conferir o calendário escolar de cada ano.
 
-### 7.3 Referências
+### 7.3 Relato de campo: CRAS Santo Amaro
+
+Entrevista com a coordenadora do CRAS Santo Amaro (São Paulo), com a fala autorizada para uso neste trabalho. É **relato**, e não medição feita no local.
+
+| Informação relatada | Valor |
+|---|---|
+| Pessoas atendidas por dia | No mínimo 150 |
+| Climatização | Nenhuma, por falta de orçamento |
+| Período de calor | De janeiro a março |
+| Escolas e CCAs com ar-condicionado | Nenhuma que a coordenadora conheça |
+
+Como o relato se liga ao público-alvo: o CRAS não é escola, mas é serviço público de São Paulo com o mesmo problema, calor sem climatização e sem ninguém medindo. A coordenadora cita escolas e CCAs como ambientes semelhantes, e o encerramento do pitch retoma o pedido dela, o aviso no celular de quem cuida do local. O relato ilustra, com uma voz de campo, o que os números da seção 7.1 mostram em escala. Os números de alcance continuam sendo apenas os de 7.1; este relato não entra em nenhuma conta.
+
+### 7.4 Referências
 
 | Nº | Fonte | Link | Situação |
 |---|---|---|---|

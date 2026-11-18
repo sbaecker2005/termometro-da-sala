@@ -1,5 +1,7 @@
 # Vídeo de Operating Systems — até 7 minutos
 
+> Vídeo gravado (6 min 39 s): seguiu este roteiro com diferenças. Não mostrou `icacls` nem as permissões NTFS, não mostrou o teste do W3SVC (só fechou dizendo que a política de recuperação está configurada, com limitação documentada) e a previsão apareceu como "sem dado de rua". O que o vídeo comprova, minuto a minuto, está em [EVIDENCIAS.md](EVIDENCIAS.md).
+
 Meta: **6 min 30 s**. Prepare janelas, comandos e dados simulados antes de gravar; não mostre senhas, a chave da coordenação nem o segredo HMAC. Não grave instalação nem reinicialização da VM. Todos os integrantes devem saber explicar o ambiente. O painel é `/` e a lista da API é `/ambientes`, os dois em `https://api.termometro.local`.
 
 Ambiente real do ensaio: VMware Workstation Pro 26H1; servidor `SRV-TERMOMETRO` em `192.168.16.10/24`, gateway `192.168.16.2`; cliente de laboratório = host pela VMnet8, `192.168.16.1`.

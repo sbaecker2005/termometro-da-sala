@@ -6,6 +6,10 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 ## [Não publicado]
 
+Sem mudanças pendentes.
+
+## [0.3.0] - 2026-11-18
+
 ### Adicionado
 
 - Campo `ruaDisponivel` na previsão. Quando é falso, o aviso da linha diz que a previsão usa a última leitura válida da sala.
@@ -31,7 +35,7 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 - Textos extensos e precauções ficam na lista lateral do mapa; a planta usa códigos curtos e preserva a identificação dos pontos coincidentes.
 - Exportação PNG inclui título, período, dimensões, legenda, planta e todo o texto lateral, inclusive o conteúdo que exige rolagem na janela.
 
-Ensaio visual no Windows em **17/11/2026**, com API Demo e SQL Server Express, documentado em [VALIDACAO-WINDOWS-2026-11-17.md](docs/VALIDACAO-WINDOWS-2026-11-17.md). Após o novo visual, **19 testes e 6 verificações do autoteste passaram**, com saída 0, também no ZIP final extraído. Tela maximizada e em 958 × 707, cadastro, mapas e PNGs foram conferidos; cadastro e ação locais persistiram após reabrir o programa. Relato e autorização da entrevista confirmados por Samuel em 17/11; Magister e Salgueiro registradas como candidatas ao piloto.
+Ensaio visual no Windows em **17/11/2026**, com API Demo e SQL Server Express, documentado em [VALIDACAO-WINDOWS-2026-11-17.md](docs/VALIDACAO-WINDOWS-2026-11-17.md). Após o novo visual, **19 testes e 6 verificações do autoteste passaram**, com saída 0, também no ZIP final extraído. Tela maximizada e em 958 × 707, cadastro, mapas e PNGs foram conferidos; cadastro e ação locais persistiram após reabrir o programa. Relato e autorização da entrevista confirmados em 17/11; Magister e Salgueiro registradas como candidatas ao piloto.
 
 ## [0.2.0] - 2026-11-05
 
@@ -63,6 +67,7 @@ Ensaio visual no Windows em **17/11/2026**, com API Demo e SQL Server Express, d
 - Serviços HTTP e JSON local, aviso de indisponibilidade e persistência sem previsões inventadas.
 - Atalhos, ordem de tabulação, testes de domínio, persistência e contrato HTTP sem rede.
 
-[Não publicado]: https://github.com/sbaecker2005/termometro-da-sala/compare/v0.2.0...HEAD
+[Não publicado]: https://github.com/sbaecker2005/termometro-da-sala/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/sbaecker2005/termometro-da-sala/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/sbaecker2005/termometro-da-sala/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/sbaecker2005/termometro-da-sala/releases/tag/v0.1.0

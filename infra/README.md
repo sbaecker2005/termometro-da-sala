@@ -39,7 +39,7 @@
 | Campo | Valor no roteiro |
 |---|---|
 | Servidor | Windows Server 2022 (avaliação, Desktop Experience), VM isolada. Ensaio de 16/11/2026 feito em **VMware Workstation Pro 26H1**, com rede NAT do VMware; Hyper-V e VirtualBox equivalem para este roteiro |
-| Hostname e IP fixo | `SRV-TERMOMETRO`, `192.168.56.10/24` (exemplo do roteiro; o IP real fica em E01) |
+| Hostname e IP fixo | `SRV-TERMOMETRO`, `192.168.16.10/24` (ensaio no VMware, gateway `192.168.16.2`). Os comandos dos passos abaixo usam `192.168.56.x` como exemplo: troque pelo IP da sua rede |
 | Domínio e DNS | Floresta `termometro.local`; registro A `api.termometro.local` apontando para a VM; zona reversa com PTR |
 | Grupos | `Coordenacao` (`coordenador`) e `AdminsTermometro` (`admin.termometro`, único grupo com RDP: membro de `Remote Desktop Users` e dono do direito na GPO) |
 | IIS | Site `Termometro` em `C:\Sites\Termometro`, pool `TermometroPool` (No Managed Code, AlwaysRunning, idle 0, preload), Hosting Bundle .NET 8, HTTPS 443 em `https://api.termometro.local/` |
@@ -62,7 +62,7 @@ Uma VM reúne AD, DNS, arquivos, IIS e SQL para caber no laboratório. As conseq
 ## 0. Criar a VM e preparar os arquivos
 
 1. No Hyper-V: VM geração 2, Windows Server 2022 avaliação **Desktop Experience**, 2 vCPU, 6 GB RAM, disco expansível 80 GB. Guarde o VHDX, ISO e checkpoints em `D:` no host. No VirtualBox: equivalente, com rede host-only e, se necessário, uma segunda placa NAT temporária para instalar dependências. Após instalar, mantenha apenas a interface de laboratório; não use rede em bridge na rede doméstica/escola.
-2. Reserve endereço livre na rede virtual, por exemplo `192.168.56.10/24`. O gateway deve existir nessa rede; não copie um gateway fictício. Hyper-V NAT e VirtualBox NAT Network podem fornecer um gateway real. Cliente e host precisam alcançar a rede da VM. Não abra portas no roteador.
+2. Reserve endereço livre na rede virtual, por exemplo `192.168.56.10/24` (no ensaio de 16/11 foi `192.168.16.10/24`, na rede NAT do VMware). O gateway deve existir nessa rede; não copie um gateway fictício. Hyper-V NAT e VirtualBox NAT Network podem fornecer um gateway real. Cliente e host precisam alcançar a rede da VM. Não abra portas no roteador.
 3. Instale atualizações e transfira, de fontes oficiais, o **Hosting Bundle .NET 8 x64**, instalador offline SQL Server Express 2022 e, na máquina de desenvolvimento, SDK .NET 8. Não é necessário SDK no servidor. Use arquivos locais verificados por assinatura digital; os scripts não baixam instaladores.
 4. Tire checkpoint antes da promoção AD e outro antes dos testes destrutivos. Checkpoint é para o laboratório, não substitui backup. Copie o repositório para `C:\GS\termometro` dentro da VM e abra PowerShell elevado em `C:\GS\termometro\infra`.
 5. Use senhas próprias digitadas no prompt seguro; não grave transcrições de sessões com credenciais, nem inclua senhas, chaves, connection strings secretas ou arquivos privados nas evidências. Os caminhos `C:` abaixo são **da VM**, cujo disco fica em `D:` no host.
@@ -173,9 +173,9 @@ O certificado local serve apenas para o laboratório; nunca exporte sua chave pr
 
 ## 5. SQL Server Express
 
-Antes da instalação no DC, crie em Active Directory Users and Computers uma conta de domínio dedicada `svc.sql`, sem grupos administrativos, com senha própria digitada no formulário seguro. Não use essa conta para usuários da aplicação. Na GPO, negue a ela logon local e por RDP; não negue logon como serviço. Planeje a troca da senha junto da configuração do serviço para não interromper o banco quando expirar.
+O mecanismo do SQL roda na conta virtual `NT SERVICE\MSSQL$SQLEXPRESS`: é o padrão de menor privilégio, uma conta por serviço, sem senha para gerenciar. Conta de domínio só seria necessária para acessar recurso de rede, e a API conecta localmente em `.\SQLEXPRESS`. A conta de domínio `svc.sql` (criada no passo 3) existe como identidade de serviço sem grupos administrativos: a GPO nega a ela logon local e por RDP, e ela não é usada por usuários da aplicação.
 
-Execute o instalador offline na VM: New standalone installation → Database Engine Services → instância nomeada `SQLEXPRESS` → serviço automático. Na VM que também é DC, configure a conta do mecanismo como `TERMOMETRO\svc.sql` (não conta local/virtual), digitando a senha apenas no instalador; deixe o instalador conceder os direitos necessários ao serviço. Escolha **Windows Authentication**, adicione a conta administrativa atual como SQL administrator. Não habilite modo misto, SQL Browser nem portas externas. Não exponha SQL na rede; API e banco usam a mesma VM. Reinicie se o instalador pedir.
+Execute o instalador offline na VM: New standalone installation → Database Engine Services → instância nomeada `SQLEXPRESS` → serviço automático. Na VM que também é DC, mantenha a conta padrão do mecanismo (conta virtual `NT SERVICE\MSSQL$SQLEXPRESS`); o instalador concede os direitos necessários ao serviço. Escolha **Windows Authentication**, adicione a conta administrativa atual como SQL administrator. Não habilite modo misto, SQL Browser nem portas externas. Não exponha SQL na rede; API e banco usam a mesma VM. Reinicie se o instalador pedir.
 
 ```powershell
 Get-Service 'MSSQL$SQLEXPRESS'
@@ -207,7 +207,7 @@ O script separa os lotes no `GO` e aplica no banco `Termometro` com a conta da s
 gpmc.msc
 ```
 
-O script cria/vincula `Termometro-Seguranca` à raiz do domínio isolado, configura bloqueio de tela em 600 s, NLA, RDP e preferência de auditoria avançada; aplica política de senha do domínio (12 caracteres, complexidade, histórico 24, expiração 90 dias, bloqueio após 5 erros por 15 min) e SACL de Modify na pasta de fotos para sucesso/falha (Modify inclui ReadData, então leitura, gravação e exclusão geram evento). Antes de abrir o firewall, conclua na GPMC:
+O script cria/vincula `Termometro-Seguranca` à raiz do domínio isolado (no ensaio e no vídeo, a GPO ficou ligada também na OU Domain Controllers, passo manual no GPMC: clique direito na OU → Link an Existing GPO; é lá que o direito de RDP vence a Default Domain Controllers Policy), configura bloqueio de tela em 600 s, NLA, RDP e preferência de auditoria avançada; aplica política de senha do domínio (12 caracteres, complexidade, histórico 24, expiração 90 dias, bloqueio após 5 erros por 15 min) e SACL de Modify na pasta de fotos para sucesso/falha (Modify inclui ReadData, então leitura, gravação e exclusão geram evento). Antes de abrir o firewall, conclua na GPMC:
 
 1. Edite `Termometro-Seguranca` → Computer Configuration → Policies → Windows Settings → Security Settings → Local Policies → User Rights Assignment. Em **Allow log on through Remote Desktop Services**, defina **somente** `TERMOMETRO\AdminsTermometro`. Em **Deny log on through Remote Desktop Services**, inclua Guests. Direitos de negação têm prioridade: verifique que nenhuma outra GPO nega o grupo permitido. Em um DC, o direito explícito na GPO é essencial. São duas peças: este direito e a permissão de conexão de `Remote Desktop Users`, onde o `03-usuarios-grupos.ps1` pôs `AdminsTermometro`. A VM é DC: a Default Domain Controllers Policy, vinculada à OU Domain Controllers, vence a GPO da raiz. Em `gpresult /scope computer /h C:\GS\gpresult.html`, confira que o direito vem de `Termometro-Seguranca`; se vier da Default Domain Controllers Policy, defina nela o mesmo valor.
 2. Na mesma GPO, Advanced Audit Policy Configuration → Audit Policies → Logon/Logoff → Audit Logon: Success e Failure. Object Access → Audit File System: Success e Failure. Security Options → Audit: Force audit policy subcategory settings…: Enabled. O script habilita as duas subcategorias localmente para o ensaio; a configuração na GPO é necessária para persistência após atualização.
@@ -320,9 +320,9 @@ Abra `/` e `/ambientes`. O fluxo da proposta é sala, leitura, previsão, ocorr�
 
 ## 9. Teste de falha e entrega
 
-Siga [TESTE-DE-FALHA.md](TESTE-DE-FALHA.md): mate somente o worker do pool e depois o processo isolado do W3SVC. `Stop-Service` é parada planejada e **não comprova recuperação por falha**. Registre PIDs antes/depois, retorno HTTP e eventos sem reiniciar manualmente os serviços durante a medição.
+Siga [TESTE-DE-FALHA.md](TESTE-DE-FALHA.md): mate somente o worker do pool. A parte 2 (matar o processo isolado do W3SVC) não foi executada no ensaio: nesta build o W3SVC não inicia isolado do grupo compartilhado do IIS (ver E11 em [EVIDENCIAS.md](EVIDENCIAS.md)); a política de reinício do serviço está configurada. `Stop-Service` é parada planejada e **não comprova recuperação por falha**. Registre PIDs antes/depois, retorno HTTP e eventos sem reiniciar manualmente os serviços durante a medição.
 
-Preencha [EVIDENCIAS.md](EVIDENCIAS.md) e grave [ROTEIRO-VIDEO.md](ROTEIRO-VIDEO.md), até 7 minutos. A entrega é feita por formulário até 19/11 às 23h55, por um integrante: link do repositório, link do vídeo e os dados do [Resumo do ambiente](#resumo-do-ambiente).
+Preencha [EVIDENCIAS.md](EVIDENCIAS.md) e grave [ROTEIRO-VIDEO.md](ROTEIRO-VIDEO.md), até 7 minutos. A entrega é feita na tarefa do Teams da disciplina até 19/11 às 23h55, por um integrante: link do repositório e link do vídeo; os dados do [Resumo do ambiente](#resumo-do-ambiente) ficam neste README.
 
 ## 10. Coleta das evidências
 
@@ -358,7 +358,7 @@ Os scripts 04, 07 e 08 e o coletor 10 aceitam `-WhatIf`: conferem os parâmetros
 
 ## Limitações
 
-- **Uma VM para tudo.** AD, DNS, arquivos, IIS e SQL ficam na mesma VM para caber no laboratório. É um ponto único de falha e não é arquitetura de produção. SQL no controlador de domínio tem restrições de conta de serviço: o roteiro usa a conta de domínio dedicada `svc.sql` (passo 5). Se o instalador recusar, o SQL vai para uma segunda VM membro, e a identidade do pool e o acesso ao banco precisam ser revistos (o login virtual local do 05 não serve para SQL remoto).
+- **Uma VM para tudo.** AD, DNS, arquivos, IIS e SQL ficam na mesma VM para caber no laboratório. É um ponto único de falha e não é arquitetura de produção. SQL no controlador de domínio tem restrições de conta de serviço: o roteiro usa a conta virtual padrão do serviço (passo 5), suficiente porque a API e o banco estão na mesma VM. Se o SQL fosse para uma segunda VM membro, a identidade do pool e o acesso ao banco precisariam ser revistos (o login virtual local do 05 não serve para SQL remoto).
 - **Acesso remoto.** O demonstrado é RDP administrativo restrito a `AdminsTermometro`, que não é uma implantação de Remote Desktop Session Host. RDS completo, se o professor exigir, vai em **outra VM membro do domínio**: Server Manager → Add Roles and Features → Remote Desktop Services installation → Quick Start → Session-based desktop deployment (Connection Broker, Web Access e Session Host com coleção), coleção restrita a `AdminsTermometro`, certificados e licenciamento conforme a avaliação da Microsoft e uma conexão real pela coleção. Session Host não vai no DC.
 - **DFS sem replicação.** Um namespace e um destino; não há disponibilidade entre servidores. DFS Replication exigiria segundo servidor, segundo destino e grupo de replicação.
 - **Passos manuais.** Direito de logon por RDP e auditoria na GPMC (a entrada em `Remote Desktop Users` é feita pelo 03), zona reversa e PTR são feitos pela interface (passos 2 e 6). Os nomes dos contadores mudam com o idioma da VM.

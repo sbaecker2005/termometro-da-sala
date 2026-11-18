@@ -1,5 +1,7 @@
 # Roteiro de gravação — fala por fala
 
+> Vídeo gravado (6 min 39 s): seguiu este roteiro com diferenças. Não mostrou `icacls` nem as permissões NTFS, não mostrou o teste do W3SVC (só fechou dizendo que a política de recuperação está configurada, com limitação documentada) e a previsão apareceu como "sem dado de rua". O que o vídeo comprova, minuto a minuto, está em [EVIDENCIAS.md](EVIDENCIAS.md).
+
 Alvo 6:30. Limite 7:00. Fale devagar; o que está escrito já cabe no tempo.
 
 **Antes de apertar o rec**

@@ -261,6 +261,9 @@ Production, HTTPS com `Strict-Transport-Security`.
 | `GET /ocorrencias/{id}/foto` | sim | 200 `image/jpeg`; 401 sem chave; 404. A foto pode mostrar pessoas, então só a coordenação abre |
 | `GET /niveis` | não | 200 com as 5 faixas (Frio, Normal, Atenção, Cuidado extremo e Perigo) da tabela `NiveisAcao`: `nivel`, `nome`, `indiceMin`, `acaoSugerida` (seção 3) |
 | `POST /acoes` | sim | 201 com `Location: /acoes?dia=AAAA-MM-DD` (dia de São Paulo); 400 `nivel` ou `descricao`; 404 |
+| `GET /ambientes/{id}/mapa` | não | 200 com dimensões, grade, pontos e precauções (`?futuro=true` projeta +1 h); 404 sala inexistente |
+| `PUT /ambientes/{id}/mapa` | sim | 204; 400 `mapa-invalido`, `sensor-invalido` ou `sensor-fora-da-planta`; 401 sem chave; 404; 429 |
+| `POST /demo/mapa?periodo=tarde` ou `madrugada` | não (só em Demo) | 201 com `inseridas`; 400 `periodo-invalido`; 404 fora do Demo; 409 `ambiente-em-uso` |
 
 O app do professor lista as ocorrências da sala e não abre fotos; o desktop da
 coordenação não exibe fotos.

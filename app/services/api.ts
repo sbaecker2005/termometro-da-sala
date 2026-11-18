@@ -183,7 +183,7 @@ async function lerJson(resposta: Response): Promise<unknown> {
 
 export async function obterMapa(ambienteId: string, futuro: boolean): Promise<Mapa | null> {
   const { apiUrl, modo } = configuracao();
-  if (modo !== 'desligado') return simular(modo, () => mapaDemonstracao(ambienteId, futuro));
+  if (modo !== 'desligado') return simular(modo, () => mapaDemonstracao(ambienteId, futuro, AMBIENTES.find(a => a.id === ambienteId)?.nivelAtual));
   const resposta = await buscar(`${apiUrl}/ambientes/${encodeURIComponent(ambienteId)}/mapa${futuro ? '?futuro=true' : ''}`);
   if (!resposta.ok) throw new Error(`Não foi possível carregar o mapa (${resposta.status}).`);
   return lerMapa(await lerJson(resposta), ambienteId);

@@ -15,10 +15,10 @@ Global Solution 2026.2 (CitizenTech) — Engenharia de Software, 3º ano, FIAP.
 | Campo | Conteúdo |
 |---|---|
 | Nome da CitizenTech | Termômetro da Sala |
-| Cidade e bairro | São Paulo; Magister e Salgueiro são candidatas ao piloto, indicadas por Samuel em 17/11/2026. Unidade, bairro e autorização a confirmar; a entrevista foi no CRAS Santo Amaro |
+| Cidade e bairro | São Paulo; a entrevista foi no CRAS Santo Amaro. O piloto em escola ainda não tem unidade, bairro e autorização definidos |
 | Cidadão beneficiado | Professor(a) e turma de uma sala sem climatização. Quem opera o sistema é a coordenação pedagógica |
 | Problema, em uma frase | Nas tardes quentes, a sala passa do limite seguro sem que ninguém meça, e a escola só reage quando alguém passa mal |
-| Como funciona | Um sensor na porta da sala mede o calor e acende verde, amarelo ou vermelho. O sistema prevê o nível da sala para daqui a 2 h. A coordenação vê todas as salas, decide e registra a ação tomada. O professor acompanha pelo app e registra ocorrências com foto |
+| Como funciona | Sensores na sala (quatro na demonstração: janela, fundo, porta e centro) medem o calor e acendem verde, amarelo ou vermelho. O sistema prevê o nível da sala para daqui a 2 h. A coordenação vê todas as salas, decide e registra a ação tomada. O professor acompanha pelo app e registra ocorrências com foto |
 | O que cada parte faz | ESP32 (Wokwi) mede e envia a leitura assinada; API (ASP.NET Core + SQL Server) valida, grava e prevê; modelo (Python, dados do INMET) prevê o índice de calor da rua; app (React Native + Expo) para o professor; desktop (Windows Forms) para a coordenação; Windows Server hospeda a API e o painel web no IIS |
 | Link do repositório | https://github.com/sbaecker2005/termometro-da-sala |
 | Indicador de impacto | Aulas no nível "Perigo" sem ação registrada (meta: zero) e minutos entre o alerta e a ação |
@@ -42,12 +42,12 @@ Cada disciplina tem a sua pasta. O que enviar em cada uma está em [ENTREGA.md](
 | C# Windows Forms | [`desktop/`](desktop/) | Terminal da coordenação | `dotnet test .\desktop\TermometroDaSala.Desktop.sln` |
 | Mobile e IoT | [`app/`](app/) | App do professor | `npm --prefix .\app ci`, depois `npm --prefix .\app test` |
 | IA e Machine Learning | [`ml/`](ml/) | Notebook e modelo exportado para a API | `python -m pytest ml` |
-| Physical Computing | [`esp32/`](esp32/) | Sensor da porta da sala (Wokwi) | `python esp32\conferir_circuito.py` e o projeto no Wokwi |
+| Physical Computing | [`esp32/`](esp32/) | Quatro sensores na sala (janela, fundo, porta e centro), no Wokwi | `python esp32\conferir_circuito.py` e o projeto no Wokwi |
 | Operating Systems | [`infra/`](infra/) | Windows Server, IIS, AD, GPO | scripts `01` a `10` na VM, conforme `infra/README.md` |
 | Cybersecurity | [`seguranca/`](seguranca/) | Gestão de riscos | relatório e anexo; cenários em `seguranca/cenarios-ataque.ps1` |
 | Testing (TOGAF) | [`arquitetura/`](arquitetura/) | ArchiMate, documento e pitch | `python arquitetura\conferir_modelo.py` |
 
-Pastas comuns: `demo/` (leituras simuladas do modo demonstração), `ferramentas/` (scripts de apoio) e `docs/` (plano, briefing e resultados de testes).
+Pastas comuns: `demo/` (leituras simuladas do modo demonstração), `ferramentas/` (scripts de apoio) e `docs/` (plano, mapa térmico, fechamento e resultados de testes).
 
 ## Rodar o projeto inteiro
 

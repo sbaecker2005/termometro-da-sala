@@ -1,38 +1,16 @@
 # Termômetro da Sala — desktop da coordenação
 
-## Mapa térmico
-
-Selecione uma sala e clique em **Mapa térmico**, ou dê dois cliques na linha. A janela mostra a planta em escala com origem no canto inferior esquerdo, grade interpolada, sensores em círculos e cadeiras em quadrados, legenda colorida fixa e lista rolável com todos os pontos e precauções. As cadeiras recebem códigos C01, C02… e os sensores S1, S2… na planta, lista e PNG. A demonstração API tem C01–C20 e S1–S4; a local tem C01–C20 e S1–S2. Pontos na mesma posição mantêm seus códigos individuais, apresentados juntos na planta. Azul é frio, verde normal, amarelo atenção, laranja cuidado extremo e vermelho perigo; cinza é sem leitura. O tamanho cresce com o desvio absoluto da média, limitado visualmente a 8 °C e com mínimo para manter o código legível. As demonstrações API/local têm 20 cadeiras em 5 fileiras de 4; o cenário API `madrugada` permite conferir a região azul de frio.
-
-Use **Agora / Previsão +1 h** e **Exportar PNG** para salvar a planta, período/dimensões, legenda e lista completa de pontos/precauções, inclusive o trecho que exige rolagem na tela. No modo local, os mapas são exemplos identificados como **DEMONSTRAÇÃO**, inclusive em salas cadastradas: não representam sensores reais. No modo API, +1 h consulta `/ambientes/{id}/mapa?futuro=true`: previsão do ambiente aplicada aos pontos, usando metade da variação do índice prevista para +2 h como deslocamento da temperatura e do índice de cada sensor. A lista de precauções explica essa aproximação, que não tem modelo de temperatura por ponto. A previsão de +2 h do ambiente continua separada.
-
-O mesmo sensor avisa calor no verão (escolas) e frio no inverno (dormitórios e abrigos).
-
-## Ficha da CitizenTech
-
-| Campo | Conteúdo |
-|---|---|
-| Nome da CitizenTech | Termômetro da Sala |
-| Cidade e bairro | São Paulo; Magister e Salgueiro são candidatas ao piloto, indicadas por Samuel em 17/11/2026. Unidade, bairro, contato e autorização dos testes a confirmar |
-| Cidadão beneficiado | Professor(a) e turma de uma sala sem climatização. Quem opera o sistema é a coordenação pedagógica |
-| Problema, em uma frase | Nas tardes quentes, a sala passa do limite seguro sem que ninguém meça, e a escola só reage quando alguém passa mal |
-| Como funciona | Um sensor na porta da sala mede o calor e acende verde, amarelo ou vermelho. O sistema prevê o nível da sala para daqui a 2 h. A coordenação vê todas as salas, decide e registra a ação tomada. O professor acompanha pelo app e registra ocorrências com foto |
-| O que cada parte faz | ESP32 (Wokwi) mede e envia a leitura assinada; API (ASP.NET Core + SQL Server) valida, grava e prevê; modelo (Python, dados do INMET) prevê o índice de calor da rua; app (React Native + Expo) para o professor; desktop (Windows Forms) para a coordenação; Windows Server hospeda a API e o painel web no IIS |
-| Link do repositório | https://github.com/sbaecker2005/termometro-da-sala |
-| Indicador de impacto | Aulas no nível "Perigo" sem ação registrada (meta: zero) e minutos entre o alerta e a ação |
-| ODS conectados | 3 (meta 3.d), 4 (meta 4.a), 11 (meta 11.b) e 13 (meta 13.1) |
-
 ## Problema e pessoa real beneficiada
 
 Nas tardes quentes, a coordenação não sabe quais salas passaram do limite seguro de calor. O terminal mostra o nível de cada sala, a previsão para as próximas 2 horas e as ações tomadas no dia, e permite revogar um sensor suspeito.
 
 Pessoa real: **Monalisa Daniela Pereira Amaral, coordenadora do CRAS Santo Amaro (São Paulo)**. Data da entrevista: **07/11/2026**, por escrito, com autorização para citar o nome e as frases. O CRAS entra como referência de ambiente público; a escola continua sendo o cenário principal.
 
-Samuel confirmou a fidelidade do relato e a autorização de uso do nome e das falas em **17/11/2026**. Magister e Salgueiro foram indicadas como candidatas aos testes; ainda não há piloto realizado nem autorização dessas escolas registrada.
+A fidelidade do relato e a autorização de uso do nome e das falas foram confirmadas em **17/11/2026**. Magister e Salgueiro são candidatas aos testes; ainda não há piloto realizado nem autorização dessas escolas.
 
 Relato: No CRAS Santo Amaro, em São Paulo, passam no mínimo 150 pessoas por dia, porque ali também funciona um posto do Cadastro Único. A sala dos técnicos recebe sol à tarde, e o calor pesa de janeiro a março; a unidade conta só com janelas e ventiladores e nunca teve climatização, por limitação orçamentária. A coordenadora gostaria de receber o aviso no celular, para ligar ventiladores, abrir janelas e providenciar água gelada e leques, e de ter o histórico de temperatura para levar à Supervisão de Assistência Social, junto com o pedido de manutenção que já fez.
 
-A entrevista não coleta dados de alunos. Os números do CRAS não substituem os da escola do piloto, ainda [a confirmar].
+A entrevista não coleta dados de alunos. Os números do CRAS não substituem os da escola do piloto, ainda não existem.
 
 Equipe: **Termômetro da Sala**.
 
@@ -41,6 +19,28 @@ Equipe: **Termômetro da Sala**.
 | Samuel David Baecker | 559269 |
 | Lucas de Almeida Villar | 560005 |
 | Guilherme Augusto Caseiro | 559765 |
+
+## Ficha da CitizenTech
+
+| Campo | Conteúdo |
+|---|---|
+| Nome da CitizenTech | Termômetro da Sala |
+| Cidade e bairro | São Paulo; as escolas Magister e Salgueiro são candidatas ao piloto. Unidade, bairro, contato e autorização dos testes ainda não foram definidos |
+| Cidadão beneficiado | Professor(a) e turma de uma sala sem climatização. Quem opera o sistema é a coordenação pedagógica |
+| Problema, em uma frase | Nas tardes quentes, a sala passa do limite seguro sem que ninguém meça, e a escola só reage quando alguém passa mal |
+| Como funciona | Um sensor na porta da sala mede o calor e acende verde, amarelo ou vermelho. O sistema prevê o nível da sala para daqui a 2 h. A coordenação vê todas as salas, decide e registra a ação tomada. O professor acompanha pelo app e registra ocorrências com foto |
+| O que cada parte faz | ESP32 (Wokwi) mede e envia a leitura assinada; API (ASP.NET Core + SQL Server) valida, grava e prevê; modelo (Python, dados do INMET) prevê o índice de calor da rua; app (React Native + Expo) para o professor; desktop (Windows Forms) para a coordenação; Windows Server hospeda a API e o painel web no IIS |
+| Link do repositório | https://github.com/sbaecker2005/termometro-da-sala |
+| Indicador de impacto | Aulas no nível "Perigo" sem ação registrada (meta: zero) e minutos entre o alerta e a ação |
+| ODS conectados | 3 (meta 3.d), 4 (meta 4.a), 11 (meta 11.b) e 13 (meta 13.1) |
+
+## Mapa térmico
+
+Selecione uma sala e clique em **Mapa térmico**, ou dê dois cliques na linha. A janela mostra a planta em escala com origem no canto inferior esquerdo, grade interpolada, sensores em círculos e cadeiras em quadrados, legenda colorida fixa e lista rolável com todos os pontos e precauções. As cadeiras recebem códigos C01, C02… e os sensores S1, S2… na planta, lista e PNG. A demonstração API tem C01–C20 e S1–S4; a local tem C01–C20 e S1–S2. Pontos na mesma posição mantêm seus códigos individuais, apresentados juntos na planta. Azul é frio, verde normal, amarelo atenção, laranja cuidado extremo e vermelho perigo; cinza é sem leitura. O tamanho cresce com o desvio absoluto da média, limitado visualmente a 8 °C e com mínimo para manter o código legível. As demonstrações API/local têm 20 cadeiras em 5 fileiras de 4; o cenário API `madrugada` permite conferir a região azul de frio.
+
+Use **Agora / Previsão +1 h** e **Exportar PNG** para salvar a planta, período/dimensões, legenda e lista completa de pontos/precauções, inclusive o trecho que exige rolagem na tela. No modo local, os mapas são exemplos identificados como **DEMONSTRAÇÃO**, inclusive em salas cadastradas: não representam sensores reais. No modo API, +1 h consulta `/ambientes/{id}/mapa?futuro=true`: previsão do ambiente aplicada aos pontos, usando metade da variação do índice prevista para +2 h como deslocamento da temperatura e do índice de cada sensor. A lista de precauções explica essa aproximação, que não tem modelo de temperatura por ponto. A previsão de +2 h do ambiente continua separada.
+
+O mesmo sensor avisa calor no verão (escolas) e frio no inverno (dormitórios e abrigos).
 
 ## Abrir no Visual Studio 2022
 
@@ -95,7 +95,23 @@ Tela principal sem API e sem dados neste computador (modo DEMONSTRAÇÃO, uma sa
 
 ![Tela da coordenação em modo demonstração](docs/tela-demonstracao.png)
 
-[preencher: prints com a API ligada: grade com salas coloridas, cadastro com erro por campo, ação registrada, CSV aberto no Excel, confirmação de revogação e aviso MODO LOCAL]
+Tela principal com a API e o SQL Server ligados:
+
+![Tela da coordenação com a API ligada](docs/modelo-geral-v1/desktop-sql-janela.jpg)
+
+Mesma tela maximizada:
+
+![Tela da coordenação maximizada](docs/modelo-geral-v1/desktop-sql-maximizado.jpg)
+
+Aviso MODO LOCAL — DEMONSTRAÇÃO, com a API desligada:
+
+![Tela da coordenação no modo local](docs/modelo-geral-v1/desktop-modo-local.jpg)
+
+Mapa térmico de uma sala (Agora), na tela e exportado em PNG:
+
+![Mapa térmico na tela](docs/modelo-geral-v1/mapa-agora-tela.jpg)
+
+![Mapa térmico exportado em PNG](docs/modelo-geral-v1/mapa-agora-exportado.png)
 
 ## API e modo local
 
@@ -265,12 +281,11 @@ O projeto segue versionamento semântico. O histórico completo está no [CHANGE
 
 | Versão | Data | Resumo |
 |---|---|---|
+| `v0.3.0` | 2026-11-18 | Novo visual, `TelaCoordenacao` com Designer, domínio encapsulado, modo DEMONSTRAÇÃO, mapa térmico de 20 cadeiras com legenda e exportação PNG |
 | `v0.2.0` | 2026-11-05 | Contrato com a API real (sala sem leitura e id numérico da ação), solução do Visual Studio e README |
 | `v0.1.0` | 2026-11-04 | Primeira versão do terminal da coordenação |
 
-Pull request da versão: [Desktop v0.2.0](https://github.com/sbaecker2005/termometro-da-sala/pull/1). Tags: [v0.1.0](https://github.com/sbaecker2005/termometro-da-sala/releases/tag/v0.1.0) e [v0.2.0](https://github.com/sbaecker2005/termometro-da-sala/releases/tag/v0.2.0).
-
-Conferência remota em **17/11/2026**: PR #1 aberto, sem revisão registrada, da branch `desktop/v0.2.0` para `desktop/v0.1.0`; não é um PR dos ajustes locais de 17/11. As duas releases existem, sem anexos. A `main` ainda aponta para `7a8e4e35eeb3827200c27efc085f5158898879eb`, anterior aos ajustes do kit. Revisão, commit e merge das fontes atuais ficam com o Cérebro, conforme a divisão de trabalho.
+Pull request da v0.2.0: [Desktop v0.2.0](https://github.com/sbaecker2005/termometro-da-sala/pull/1). Tags: [v0.1.0](https://github.com/sbaecker2005/termometro-da-sala/releases/tag/v0.1.0) e [v0.2.0](https://github.com/sbaecker2005/termometro-da-sala/releases/tag/v0.2.0).
 
 ## Entrega
 

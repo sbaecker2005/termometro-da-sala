@@ -15,30 +15,46 @@ export function textoPonto(ponto: PontoMapa): string {
   return `${ponto.rotulo} (${ponto.tipo})${ponto.vulneravel ? ', lugar vulnerável' : ''}: ${valores}`;
 }
 
-export function lerMapa(valor: unknown, id: string): Mapa {
-  const erro = () => { throw new Error('Mapa inválido recebido do servidor.'); };
-  if (!valor || typeof valor !== 'object') return erro();
-  const m = valor as Mapa;
-  const numero = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
-  const opcional = (v: unknown) => v === null || numero(v);
-  if (m.ambienteId !== id || !numero(m.passoM) || m.passoM <= 0
-    || !((m.larguraM === null && m.profundidadeM === null)
-      || (numero(m.larguraM) && m.larguraM >= .5 && m.larguraM <= 50 && numero(m.profundidadeM) && m.profundidadeM >= .5 && m.profundidadeM <= 50))
-    || !Array.isArray(m.grade) || m.grade.length > 10201 || !Array.isArray(m.pontos) || m.pontos.length > 300
-    || !Array.isArray(m.precaucoes) || !m.precaucoes.every(p => typeof p === 'string')) return erro();
-  const celula = (c: CelulaMapa) => c && numero(c.x) && numero(c.y) && c.x >= 0 && c.y >= 0
-    && c.x <= (m.larguraM ?? 0) && c.y <= (m.profundidadeM ?? 0)
-    && opcional(c.temperaturaC) && opcional(c.indiceCalor)
-    && (c.nivel === null || (typeof c.nivel === 'string' && ['frio', 'normal', 'atencao', 'cuidado', 'perigo'].includes(c.nivel) && ehNivel(c.nivel)));
-  if (!m.grade.every(celula) || !m.pontos.every(p => celula(p) && typeof p.id === 'string'
-    && typeof p.rotulo === 'string' && p.rotulo.trim().length > 0 && ['sensor', 'lugar'].includes(p.tipo)
+const registro = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null;
+const numero = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
+const opcional = (v: unknown): boolean => v === null || numero(v);
+const textos = (v: unknown): boolean => Array.isArray(v) && v.every(t => typeof t === 'string');
+
+// Confere a resposta campo a campo, sobre Record<string, unknown>, antes de tratá-la como Mapa.
+function ehMapa(valor: unknown, id: string): valor is Mapa {
+  if (!registro(valor)) return false;
+  const { ambienteId, larguraM, profundidadeM, passoM, grade, pontos, precaucoes } = valor;
+  const planta = larguraM === null && profundidadeM === null
+    ? { largura: 0, profundidade: 0 }
+    : numero(larguraM) && larguraM >= .5 && larguraM <= 50 && numero(profundidadeM) && profundidadeM >= .5 && profundidadeM <= 50
+      ? { largura: larguraM, profundidade: profundidadeM } : null;
+  if (ambienteId !== id || !numero(passoM) || passoM <= 0 || !planta
+    || !Array.isArray(grade) || grade.length > 10201 || !Array.isArray(pontos) || pontos.length > 300
+    || !textos(precaucoes)) return false;
+  const celula = (c: unknown): c is Record<string, unknown> => {
+    if (!registro(c)) return false;
+    const { x, y, nivel } = c;
+    return numero(x) && numero(y) && x >= 0 && y >= 0 && x <= planta.largura && y <= planta.profundidade
+      && opcional(c.temperaturaC) && opcional(c.indiceCalor)
+      && (nivel === null || (typeof nivel === 'string' && ehNivel(nivel)));
+  };
+  return grade.every(celula) && pontos.every(p => celula(p) && typeof p.id === 'string'
+    && typeof p.rotulo === 'string' && p.rotulo.trim().length > 0 && (p.tipo === 'sensor' || p.tipo === 'lugar')
     && typeof p.vulneravel === 'boolean' && typeof p.semLeitura === 'boolean' && opcional(p.desvioC)
-    && (p.precaucoes === undefined || (Array.isArray(p.precaucoes) && p.precaucoes.every(t => typeof t === 'string'))))) return erro();
-  return m;
+    && (p.precaucoes === undefined || textos(p.precaucoes)));
 }
 
-export function mapaDemonstracao(id: string, futuro: boolean): Mapa {
-  const valor = (x: number) => (id === 'sala-05' ? 15 : 35) + (24 - (id === 'sala-05' ? 15 : 35)) * x / 6 - (futuro ? 1 : 0);
+export function lerMapa(valor: unknown, id: string): Mapa {
+  if (!ehMapa(valor, id)) throw new Error('Mapa inválido recebido do servidor.');
+  return valor;
+}
+
+// Temperatura da janela (x = 0) por nível da sala: o mapa simulado acompanha o nível mostrado na lista.
+const BASE_POR_NIVEL: Record<Nivel, number> = { frio: 15, normal: 25, atencao: 30, cuidado: 35, perigo: 42 };
+
+export function mapaDemonstracao(id: string, futuro: boolean, nivel: Nivel = 'cuidado'): Mapa {
+  const base = BASE_POR_NIVEL[nivel];
+  const valor = (x: number) => base + (24 - base) * x / 6 - (futuro ? 1 : 0);
   const celula = (x: number, y: number): CelulaMapa => ({ x, y, temperaturaC: valor(x), indiceCalor: valor(x), nivel: nivelDeIndice(valor(x)) });
   const grade: CelulaMapa[] = [];
   for (let x = 0; x <= 6; x += .5) for (let y = 0; y <= 4; y += .5) grade.push(celula(x, y));
@@ -55,7 +71,8 @@ export function mapaDemonstracao(id: string, futuro: boolean): Mapa {
   ].map(p => ({ ...p, ...celula(p.x, p.y), semLeitura: false, desvioC: valor(p.x) - valor(3) }));
   // A troca sai da cadeira vulnerável mais exposta para a cadeira comum, em nível normal, mais perto de 22,5 °C
   // (meio da faixa normal): a melhor da sala tanto no calor quanto no frio.
-  const origem = pontos.find(p => p.id === 'cadeira-09')!;
+  const origem = pontos.find(p => p.id === 'cadeira-09');
+  if (!origem) throw new Error('Cadeira 09 ausente da demonstração.');
   const destino = pontos.filter(p => p.tipo === 'lugar' && !p.vulneravel && p.nivel === 'normal')
     .sort((a, b) => Math.abs(valor(a.x) - 22.5) - Math.abs(valor(b.x) - 22.5))[0] ?? origem;
   const precaucoes = origem.nivel === 'frio' || origem.nivel === 'cuidado' || origem.nivel === 'perigo'

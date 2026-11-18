@@ -38,7 +38,26 @@ corpo = corpo.replace(
     "![Fluxo de dados e fronteiras de confiança](fluxo-dados.pdf){width=100%}",
 )
 
+PDF = Path(__file__).resolve().parent
+PRINT = re.compile(r"^!\[([^\]]+)\]\(evidencias/prints/(E\d+)\.png\)[ \t]*$", re.M)
+
+
+def prints(texto: str) -> str:
+    """Cada print do anexo vira suas partes de pagina (fatiar_prints.py); sem as partes, o print inteiro."""
+    def troca(m):
+        legenda, nome = m.group(1), m.group(2)
+        partes = sorted(PDF.glob(f"prints/{nome}-*.png"), key=lambda p: int(p.stem.split("-")[1]))
+        if not partes:
+            return f"![{legenda}](../evidencias/prints/{nome}.png){{width=100%}}"
+        n = len(partes)
+        return "\n\n".join(
+            f"![{legenda}{f' (parte {i} de {n})' if n > 1 else ''}](prints/{p.name}){{width=100%}}"
+            for i, p in enumerate(partes, start=1))
+    return PRINT.sub(troca, texto)
+
+
 # Anexo: vira uma secao do mesmo documento, um nivel abaixo do que estava.
+anexo = prints(anexo)
 anexo = anexo.replace("# Termômetro da Sala — Anexo de evidências de Cybersecurity", "", 1)
 anexo = re.sub(r"^## ", "### ", anexo, flags=re.M)
 anexo = "\\newpage\n\n## Anexo de evidências\n" + anexo
@@ -98,5 +117,6 @@ def formatar_tabelas(texto: str) -> str:
 
 saida = "\\newpage\n\n" + formatar_tabelas(links(corpo) + "\n\n" + links(anexo))
 SAIDA.write_text(saida, encoding="utf-8")
+imagens = len(re.findall(r"^!\[", saida, flags=re.M))
 print(f"{SAIDA}: {len(saida.splitlines())} linhas, "
-      f"{saida.count('blandscape')} tabelas deitadas")
+      f"{saida.count('blandscape')} tabelas deitadas, {imagens} imagens")
