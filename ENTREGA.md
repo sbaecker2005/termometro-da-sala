@@ -219,7 +219,7 @@ Pasta de ML (README, dataset INMET A701, modelo.json): https://github.com/sbaeck
 - [x] Preencher os nomes completos e RMs no README, em `infra/EVIDENCIAS.md` e no bloco abaixo
 - [x] Vídeo gravado (6 min 39 s, limite 7 min)
 - [x] Publicar o vídeo com acesso liberado ao professor (19/11: https://youtu.be/0YAHInyHltA)
-- [ ] Enviar o link do repositório e o do vídeo na tarefa do Teams, um integrante
+- [x] Enviar o link do repositório e o do vídeo, um integrante (entregue no Portal do Aluno em 19/11 às 20:18, PDF com repositório, vídeo e resumo do ambiente)
 
 ### Resumo para a entrega
 
