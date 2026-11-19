@@ -152,7 +152,10 @@ Revalidado em 18/11/2026, sobre o historico publicado (115 commits em todos os r
 Saida integral desta busca: saidas/osint-historico.txt
 
 9. Link do Wokwi (A EXECUTAR depois de publicado)
-   Abrir o link em janela anonima e conferir que o unico segredo visivel e o de esp32-sala-03.
+   Projeto publicado em 18/11/2026: https://wokwi.com/projects/481082666157493249 (esp32/README.md).
+   Abrir o link em janela anonima e conferir que so aparecem o vetor publico de esp32-sala-03 (autoteste do
+   HMAC em sketch.ino:137-138) e o segredo de demonstracao somente-demonstracao-sala-07 (secrets.h), que so
+   assina com a API em Demo (DemoController.cs:20). Nenhum segredo de Production.
    Obtido: [preencher]
 
 Conclusao: nenhuma credencial de producao nem dado de aluno nos arquivos da versao atual nem no historico do git

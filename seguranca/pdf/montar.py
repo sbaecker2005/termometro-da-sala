@@ -53,13 +53,15 @@ def prints(texto: str) -> str:
         return "\n\n".join(
             f"![{legenda}{f' (parte {i} de {n})' if n > 1 else ''}](prints/{p.name}){{width=100%}}"
             for i, p in enumerate(partes, start=1))
-    return PRINT.sub(troca, texto)
+    texto = PRINT.sub(troca, texto)
+    # Prints de outras pastas (../infra/...) sao relativos a seguranca/; o PDF e composto em seguranca/pdf/.
+    return re.sub(r"^(!\[[^\]]+\]\()\.\./([^)]+\.png)\)[ \t]*$", r"\1../../\2){width=100%}", texto, flags=re.M)
 
 
 # Anexo: vira uma secao do mesmo documento, um nivel abaixo do que estava.
 anexo = prints(anexo)
 anexo = anexo.replace("# Termômetro da Sala — Anexo de evidências de Cybersecurity", "", 1)
-anexo = re.sub(r"^## ", "### ", anexo, flags=re.M)
+anexo = re.sub(r"^(##+) ", r"#\1 ", anexo, flags=re.M)
 anexo = "\\newpage\n\n## Anexo de evidências\n" + anexo
 
 SEPARADOR = re.compile(r"^\s*\|[\s:|-]+\|\s*$")

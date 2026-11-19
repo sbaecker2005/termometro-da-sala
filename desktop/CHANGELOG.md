@@ -10,10 +10,6 @@ Sem mudanças pendentes.
 
 ## [0.3.0] - 2026-11-19
 
-### Corrigido
-
-- As duas ações de exemplo do modo DEMONSTRAÇÃO ficam sempre no dia da escola. Entre 00h00 e 00h20 (São Paulo), a ação de "20 minutos atrás" caía no dia anterior e sumia da lista do dia; o autoteste falhava nesse horário. Novo teste cobre 00h05, 23h59 e o meio da tarde.
-
 ### Adicionado
 
 - Campo `ruaDisponivel` na previsão. Quando é falso, o aviso da linha diz que a previsão usa a última leitura válida da sala.
@@ -35,6 +31,7 @@ Sem mudanças pendentes.
 
 ### Corrigido
 
+- As duas ações de exemplo do modo DEMONSTRAÇÃO ficam sempre no dia da escola. Entre 00h00 e 00h20 (São Paulo), a ação de "20 minutos atrás" caía no dia anterior e sumia da lista do dia; o autoteste falhava nesse horário. Novo teste cobre 00h05, 23h59 e o meio da tarde.
 - Revogação remota passa a exibir **Sensor revogado** no início dos avisos da grade, usando o estado do mesmo dispositivo informado pela API.
 - Textos extensos e precauções ficam na lista lateral do mapa; a planta usa códigos curtos e preserva a identificação dos pontos coincidentes.
 - Exportação PNG inclui título, período, dimensões, legenda, planta e todo o texto lateral, inclusive o conteúdo que exige rolagem na janela.

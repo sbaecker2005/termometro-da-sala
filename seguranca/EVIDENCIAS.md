@@ -38,7 +38,7 @@ Get-Content -LiteralPath $Fonte -Encoding UTF8 |
     ForEach-Object { $Linha++; '{0}: {1}' -f $Linha, $_ }
 ```
 
-Esperado: arquivo e linha de C1–C12 estão na seção 6 do relatório. Abrir somente fonte que não contenha a chave da coordenação. Se uma linha mudar, atualizar o relatório. A suíte está em `evidencias/dotnet-test-seguranca.txt` (55/55 no total; 20 testes de segurança listados).
+Esperado: arquivo e linha de C1–C12 estão na seção 6 do relatório. Abrir somente fonte que não contenha a chave da coordenação. Se uma linha mudar, atualizar o relatório. A suíte está em `evidencias/dotnet-test-seguranca.txt` (134/134 no total em 18/11/2026; 30 testes de segurança listados).
 
 **Print E01:** ![Evidência E01](evidencias/prints/E01.png) [saida local](evidencias/saidas/E01.txt)
 
@@ -262,9 +262,9 @@ Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4625,4663; StartTime=(Get
     Select-Object TimeCreated, Id, Message
 ```
 
-Esperado: GPO aplicada restringe logon RDP a grupo autorizado; senha/bloqueio e firewall configurados; NTFS permite escrita ao pool/administradores; política de auditoria e SACL de fotos ativas. A SACL do roteiro usa o direito `Modify` (`infra/06-gpo.ps1:32`), que inclui leitura de dados (`ReadData`), gravação e exclusão: baixar uma foto pela API gera 4663 com a conta do pool, e gravar ou apagar também. Efetuar um logon RDP negado com conta de teste sem grupo, de uma estação que alcance a porta, e um download de teste de foto (E06) para gerar os eventos. Correlacionar conta/horário/evento; 4625 genérico não prova restrição RDP. Anexar também regra de firewall com escopo de origem. GPO e auditoria: a aplicar e coletar no laboratório Windows Server (`infra/06-gpo.ps1` é roteiro, não política aplicada).
+Esperado: GPO aplicada restringe logon RDP a grupo autorizado; senha/bloqueio e firewall configurados; NTFS permite escrita ao pool/administradores; política de auditoria e SACL de fotos ativas. A SACL do roteiro usa o direito `Modify` (`infra/06-gpo.ps1:36`), que inclui leitura de dados (`ReadData`), gravação e exclusão: baixar uma foto pela API gera 4663 com a conta do pool, e gravar ou apagar também. Efetuar um logon RDP negado com conta de teste sem grupo, de uma estação que alcance a porta, e um download de teste de foto (E06) para gerar os eventos. Correlacionar conta/horário/evento; 4625 genérico não prova restrição RDP. Anexar também regra de firewall com escopo de origem. GPO e auditoria: aplicadas no laboratório Windows Server em 17/11/2026 (E11 no anexo); falta registrar a correlação dos eventos 4663 da pasta de fotos.
 
-**Print E11:** [inserir resultado de GPO, permissões, SACL e eventos correlacionados]
+**Print E11 (parcial, VM `SRV-TERMOMETRO`):** [GPO ligada ao domínio](../infra/evidencias/vm-2026-11/E07-gpo-link.png), [direitos de logon](../infra/evidencias/vm-2026-11/E07-direitos.png), [Audit Logon em sucesso e falha](../infra/evidencias/vm-2026-11/E07-auditoria.png), [RDP permitido](../infra/evidencias/vm-2026-11/E07-rdp-permitido.png), [RDP negado](../infra/evidencias/vm-2026-11/E07-rdp-negado.png) e [evento 4624 tipo 10](../infra/evidencias/vm-2026-11/E07-logons.txt). [inserir permissões NTFS (`icacls`), SACL, eventos 4663 correlacionados e regra de firewall com escopo de origem]
 
 ### 12. E12 — portas mínimas com nmap
 
@@ -278,7 +278,7 @@ Test-NetConnection -ComputerName $IpServidor -Port 1433
 
 Esperado: HTTPS acessível a usuários; HTTP somente se usado para redirecionar; RDP inacessível da rede comum e acessível apenas na rede administrativa; SQL sem exposição a clientes comuns; nenhum listener MQTT no Windows apenas para assinar tópico externo. Se a VM também for controlador de domínio/DNS, portas necessárias a AD/DNS existem: justificar por função e origem, sem afirmar que só 443 pode estar aberta. A lista efetiva de portas é coletada no laboratório Windows Server (nmap e IIS). A API só redireciona para HTTPS em Production (`Program.cs:65`); o binding 443 e a regra de firewall `TermometroHTTPS` (só sub-rede local) estão no `infra/README.md`, seção "HTTPS no laboratório". Esperado no nmap: 443 com o certificado `api.termometro.local` e 80 só redirecionando. TCP não cobre UDP: anexar regras de firewall/DNS para completar a análise, sem alegar varredura UDP executada.
 
-**Print E12:** [inserir saídas com origem identificada, portas justificadas e regras de firewall]
+**Print E12:** [inserir saídas do nmap com origem identificada, portas justificadas e regras de firewall]. Já no repositório, sem substituir a varredura: [bindings 80 e 443 do IIS](../infra/evidencias/vm-2026-11/E04-iis-binding.png) e [certificado do laboratório](../infra/evidencias/vm-2026-11/E06-certificado.png).
 
 ### 13. E13 — indisponibilidade do broker sem ataque
 
@@ -292,9 +292,9 @@ curl.exe -i "$Api/ambientes"
 curl.exe -i "$Api/ambientes/$AmbienteId/previsao"
 ```
 
-Esperado: LED continua reagindo à temperatura local sem internet; timestamp não avança com leitura inventada; após o limiar de desatualização confirmado no código, interface mostra falta de leitura recente. Reconectar e comprovar retomada; leituras velhas fora da janela não viram atuais. LED, limiar de desatualização na interface e recuperação do broker: a coletar no laboratório Windows Server. A API não fabrica leitura atual: sem pares, `semLeiturasRecentes` vem verdadeiro (`ApiTestes.DeltaSemTresParesENuloEComTresFechaOExemplo`).
+Esperado: LED continua reagindo à temperatura local sem internet; timestamp não avança com leitura inventada; após o limiar de desatualização confirmado no código, interface mostra falta de leitura recente. Reconectar e comprovar retomada; leituras velhas fora da janela não viram atuais. Alerta local sem rede e retomada da publicação: ensaiados no Wokwi em 18/11/2026 (linha "Sem Wi-Fi ou NTP" de [esp32/README.md](../esp32/README.md)). Consulta da API durante a queda e aviso de desatualização na interface: a coletar. A API não fabrica leitura atual: sem pares, `semLeiturasRecentes` vem verdadeiro (`ApiTestes.DeltaSemTresParesENuloEComTresFechaOExemplo`).
 
-**Print E13:** [inserir LED offline, timestamp, aviso e retomada]
+**Print E13:** [inserir LED offline, timestamp, aviso e retomada]; o ensaio de 18/11 no Wokwi ficou só em registro escrito.
 
 ### 14. E14 — prevenção de OSINT e dados de aluno
 

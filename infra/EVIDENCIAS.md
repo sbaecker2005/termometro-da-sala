@@ -1,6 +1,6 @@
 # Evidências — Operating Systems
 
-Este arquivo registra o que o ensaio de 16/11/2026 e o vídeo de demonstração (6 min 39 s) comprovam. Cada item traz **Mostrado no vídeo** (com o minuto) e **Arquivo de saída / print no repositório**. Onde a segunda linha diz "não coletado", o comando está listado para rodar na VM com `10-coletar-evidencias.ps1` (README, passo 10), que grava um arquivo por item em `infra/evidencias/AAAA-MM-DD/`. Essa pasta ainda não existe, porque nenhuma saída foi coletada. Só dados simulados; recortar senhas, chaves, tokens e detalhes privados. Datas dos logs IIS são UTC.
+Este arquivo registra o que o ensaio de 16/11/2026 e o vídeo de demonstração (6 min 39 s) comprovam. Cada item traz **Mostrado no vídeo** (com o minuto) e **Arquivo de saída / print no repositório**. Parte das provas já está no repositório: 15 prints e 1 arquivo de texto da VM `SRV-TERMOMETRO` em [`evidencias/vm-2026-11/`](evidencias/vm-2026-11/README.md) (E04, E06, E07, E08, E09 e E13). Onde a segunda linha diz "não coletado", o item continua sem print ou saída, e o comando está listado para rodar na VM com `10-coletar-evidencias.ps1` (README, passo 10), que grava um arquivo por item em `infra/evidencias/AAAA-MM-DD/` (essa pasta ainda não existe). Só dados simulados; recortar senhas, chaves, tokens e detalhes privados. Datas dos logs IIS são UTC.
 
 Os minutos do vídeo vêm da transcrição da fala e podem variar alguns segundos. Link do vídeo: ainda não publicado.
 
@@ -69,7 +69,11 @@ Get-WebConfigurationProperty -PSPath MACHINE/WEBROOT/APPHOST -Filter "system.app
 ```
 
 **Mostrado no vídeo (02:16 a 02:49):** site em HTTPS; pool com `AlwaysRunning` e tempo de inatividade 0 (02:26 a 02:33); runtime do ASP.NET Core instalado (02:33 a 02:44). O nome e o caminho físico do site não foram citados na fala.
-**Arquivo de saída / print no repositório:** não coletado (`Get-Website`, `Get-WebBinding`, `dotnet --list-runtimes`, `processModel`).
+**Prints no repositório:**
+- [E04-iis-binding.png](evidencias/vm-2026-11/E04-iis-binding.png): Site Bindings com `http` na porta 80 e `https` na porta 443, ambos com host `api.termometro.l…` (nome cortado na coluna) e IP `*`. Interpretação: o site está ligado por nome nas portas 80 e 443 (o print mostra a configuração, não respostas); o nome completo aparece nas URLs de E06 e E13.
+- [E04-iis-pool.png](evidencias/vm-2026-11/E04-iis-pool.png): Advanced Settings de `TermometroPool`: .NET CLR Version `No Managed Code`, Managed Pipeline Mode `Integrated`, Start Mode `AlwaysRunning`, Identity `ApplicationPoolIdentity`, Idle Time-out `0`. Interpretação: pool próprio, sem runtime gerenciado (compatível com ASP.NET Core pelo ANCM, que este print não mostra), identidade virtual por pool, partida automática e sem descarte por inatividade.
+
+**Ainda sem prova:** nome e caminho físico do site, estado `Started` do pool, ANCM V2 e runtime `dotnet`, Application Initialization (`preloadEnabled`), Rapid-Fail Protection, nomes das variáveis do pool e `Get-WindowsFeature` (`Get-Website`, `Get-WebBinding`, `dotnet --list-runtimes`, `processModel`).
 Esperado na coleta: ANCM V2, Microsoft.AspNetCore.App 8.x, binding, ApplicationPoolIdentity, Started/AlwaysRunning, idle 0 e preload True. Nomes no pool: `ConnectionStrings__Sala`, `Fotos__Pasta`, `ChaveCoordenacao`, `ASPNETCORE_ENVIRONMENT`, `ASPNETCORE_HTTPS_PORT`, `Banco__Migrar` (e `Mqtt__Desligado` se tiver sido gravado). Não capture valores. Print de Application Initialization e Rapid-Fail Protection: não coletado.
 
 ## E05 — pastas e NTFS
@@ -93,7 +97,11 @@ Invoke-WebRequest https://api.termometro.local/ambientes -UseBasicParsing | Sele
 ```
 
 **Mostrado no vídeo:** SQL Server Express em execução e banco com as cinco migrações aplicadas (02:44 a 02:54), com `Banco__Migrar=false` e o script idempotente aplicado à parte (02:54 a 03:06); SQL rodando em conta virtual `NT SERVICE\MSSQL$SQLEXPRESS` (03:06 a 03:21), com a API conectando localmente; `GET /ambientes` (05:45).
-**Arquivo de saída / print no repositório:** não coletado (`Get-Service`, HTTP 200 em `/` e `/ambientes`, consulta ao `__EFMigrationsHistory`).
+**Prints no repositório:**
+- [E06-certificado.png](evidencias/vm-2026-11/E06-certificado.png): Edge em `https://api.termometro.local` com o Certificate Viewer aberto: emitido para `api.termometro.local` e emitido por `api.termometro.local` (autoassinado), válido de 16/11/2026 às 20:52:37 a 16/11/2027 às 21:12:37, com a impressão digital SHA-256. Interpretação: HTTPS com certificado próprio do nome do site. Como titular e emissor são iguais, a confiança depende de o certificado estar instalado como raiz confiável no cliente, o que este print não mostra (a barra de endereço aparece com cadeado e a página abre sem tela de aviso).
+- [E06-painel.png](evidencias/vm-2026-11/E06-painel.png): mural em `https://api.termometro.local`: Sala 1 Atenção 28.5 °C, Sala 2 Atenção 31.4 °C, Sala 3 Cuidado extremo 35.3 °C, Sala 4 Cuidado extremo 40.5 °C; a coluna "Nível previsto" repete o nível com "sem dado da rua: mantém a última leitura válida da sala"; texto "Atualiza a cada 30 segundos". Interpretação: a publicação no IIS responde em `/` com dados das salas. Os valores acompanham os de `/ambientes` (ver E13).
+
+**Ainda sem prova:** `Get-Service 'MSSQL$SQLEXPRESS'`, HTTP 200 por comando, consulta ao `__EFMigrationsHistory`, usuário e papéis do pool no banco, registro que sobrevive à reciclagem do pool.
 As duas URLs precisam de HTTP 200: o painel em `/` e a lista em `/ambientes`. Registre a versão publicada e um registro que continua no banco depois de reciclar o pool. Via ferramenta SQL com autenticação integrada administrativa, sem exibir string privada nem a coluna Segredo:
 
 ```sql
@@ -122,7 +130,15 @@ Get-NetFirewallRule -Name TermometroRDP | Get-NetFirewallAddressFilter
 ```
 
 **Mostrado no vídeo:** a GPO `Termometro-Seguranca` ligada na unidade organizacional Domain Controllers, e não na raiz do domínio, porque uma política ligada no domínio perde para a política dos controladores (01:16 a 01:32); os três direitos: acesso remoto permitido só a `AdminsTermometro` e administradores, logon local negado a `svc.sql`, acesso remoto negado a `svc.sql` e convidados (01:32 a 01:50); teste do host pela VMnet8: `admin.termometro` entra e `coordenador` é recusado por autorização, com a senha correta e sem evento de senha errada (01:50 a 02:16); auditoria de logon e de arquivo, sucesso e falha, ligada por GPO (06:01 a 06:05).
-**Arquivo de saída / print no repositório:** não coletado (`Get-GPO`, `gpresult`, `auditpol`, eventos 4624, 4625, 4656 e 4663, regras de firewall do RDP).
+**Prints e saída no repositório:**
+- [E07-gpo-link.png](evidencias/vm-2026-11/E07-gpo-link.png): GPMC, `termometro.local`, aba Linked Group Policy Objects: ordem 1 `Default Domain Policy` e ordem 2 `Termometro-Segura…` (nome cortado), Enforced `No`, Link Enabled `Yes`, GPO Status `Enabled`. Interpretação: a GPO de segurança está ligada e habilitada **no nó do domínio**. O vídeo cita a ligação na unidade Domain Controllers (01:16 a 01:32); este print mostra o domínio, então o local da ligação precisa ser conferido antes de ser afirmado.
+- [E07-direitos.png](evidencias/vm-2026-11/E07-direitos.png): editor da GPO `Termometro-Seguranca`, User Rights Assignment: *Allow log on through Remote Desktop Services* = `Administrators,TERMOMETRO\A…` (cortado); *Deny log on locally* = `TERMOMETRO\svc.sql`; *Deny log on through Remote Desktop Services* = `Guests,TERMOMETRO\svc.sql`. As outras linhas visíveis estão Not Defined. Interpretação: RDP só para administradores e o grupo cortado (que o vídeo diz ser `AdminsTermometro`), e conta de serviço sem logon local nem remoto.
+- [E07-auditoria.png](evidencias/vm-2026-11/E07-auditoria.png): Advanced Audit Policy Configuration > Audit Policies > Logon/Logoff: *Audit Logon* = `Success and Failure`; as outras subcategorias da tela (Logoff, Account Lockout, Special Logon etc.) estão `Not Configured`. Interpretação: gera 4624 (sucesso) e 4625 (falha). A auditoria de acesso a arquivos (Object Access) não aparece neste print.
+- [E07-rdp-permitido.png](evidencias/vm-2026-11/E07-rdp-permitido.png): sessão RDP em `192.168.16.10`; no PowerShell, `whoami` = `termometro\admin.termometro`, `hostname` = `SRV-TERMOMETRO`, `qwinsta` com `rdp-tcp#0` da conta `admin.termometro` `Active` (e `console` do `Administrator` também ativo). Interpretação: a conta administrativa entra por RDP.
+- [E07-rdp-negado.png](evidencias/vm-2026-11/E07-rdp-negado.png): cliente RDP com "The connection was denied because the user account is not authorised for remote log-in." O print não mostra a conta usada nem o destino; a atribuição à conta `coordenador` vem do vídeo (01:50 a 02:16), não da imagem.
+- [E07-logons.txt](evidencias/vm-2026-11/E07-logons.txt): evento 4624 de 17/11/2026 21:09:48, Logon Type `10` (RDP), conta `TERMOMETRO\admin.termometro`, origem `192.168.16.1`, workstation `SRV-TERMOMETRO`, pacote Negotiate. Interpretação: o log de segurança registra um logon RDP da conta administrativa vindo do host do VMware pela VMnet8. O horário é o impresso na saída (fuso não consta do arquivo) e nenhum print o liga ao instante da sessão de `E07-rdp-permitido.png`.
+
+**Ainda sem prova:** evento 4625 da recusa (o RDP negado não tem evento em arquivo), 4656 e 4663 de arquivo (auditoria de objeto não aparece), `Get-GPO`, `gpresult`, `auditpol`, política de senha, regra de firewall do RDP.
 
 ## E08 — DFS e acesso remoto
 
@@ -133,7 +149,8 @@ Get-DfsnFolderTarget -Path '\\termometro.local\Escola\Manuais'
 ```
 
 **Mostrado no vídeo (05:50 a 06:01):** citado na fala: os manuais ficam no namespace DFS baseado em domínio e o usuário acessa pelo nome do domínio, não pelo do servidor. RDP administrativo restrito demonstrado em 01:50 a 02:16; coleção RDS não demonstrada.
-**Arquivo de saída / print no repositório:** não coletado (`Get-DfsnRoot`, `Get-DfsnFolderTarget`, leitura de `\\termometro.local\Escola\Manuais` como coordenador). Fotos não fazem parte do DFS.
+**Print no repositório:** [E08-dfs.png](evidencias/vm-2026-11/E08-dfs.png): DFS Management com o namespace `\\termometro.local\Escola` (Domain-based in Windows Server 2008 mode) e 1 entrada, a pasta `Manuais`. Interpretação: namespace baseado em domínio, endereçado por `\\termometro.local\Escola`, e não pelo nome do servidor.
+**Ainda sem prova:** destino da pasta (`Get-DfsnFolderTarget`), aba Namespace Servers e leitura de `\\termometro.local\Escola\Manuais` como coordenador. Fotos não fazem parte do DFS.
 
 ## E09 — monitoramento (2 pontos)
 
@@ -144,7 +161,13 @@ schtasks /query /tn Termometro-Monitoramento-Boot /v /fo LIST
 ```
 
 **Mostrado no vídeo (03:26 a 04:12):** `Termometro-Recursos` gravando processador, espaço livre em disco e memória disponível a cada 15 s em arquivo BLG, já no terceiro arquivo (a coleta começou antes do dia da gravação); `Termometro-Alertas` com os três alertas (processador acima de 80%, disco abaixo de 15% livre, memória abaixo de 512 MB); tarefa agendada que sobe os conjuntos no boot. O vídeo mostra só a configuração; nenhum alerta disparando.
-**Arquivo de saída / print no repositório:** não coletado (`logman query`, `schtasks`, BLG, evento de disparo de cada recurso com contador, limite, valor e hora). Como nenhum disparo foi provocado, não há limite temporário a restaurar.
+**Prints no repositório:**
+- [E09-coletor-contadores.png](evidencias/vm-2026-11/E09-coletor-contadores.png): propriedades de `Termometro-Recursos`: contadores `\Processor(_Total)\% Processor Time`, `\LogicalDisk(C:)\% Free Space` e `\Memory\Available MBytes`; Log format `Binary`; Sample interval `15` segundos; arquivo `Termometro-Recursos_000003.blg` visível ao fundo. Interpretação: coleta dos três contadores a cada 15 s, já no terceiro arquivo.
+- [E09-alertas-limites.png](evidencias/vm-2026-11/E09-alertas-limites.png): `logman query "Termometro-Alertas"`: Status `Running`, Root Path `C:\PerfLogs\Termometro\`, Run as `SYSTEM`, tipo `Alert`, intervalo 15 s, Event Log `On`, limites `Processor Time>80`, `% Free Space<15` e `Available MBytes<512`. Interpretação: os três alertas pedidos, com gravação no log de eventos.
+- [E09-alertas.png](evidencias/vm-2026-11/E09-alertas.png): Performance Monitor, Data Collector Sets > User Defined, com `Termometro-Alertas` (tipo Alert) e `Termometro-Recursos`. Interpretação: os dois conjuntos existem; a coluna Output do alerta está vazia.
+- [E09-boot.png](evidencias/vm-2026-11/E09-boot.png): Task Scheduler, tarefa `Termometro-…` (nome cortado) com status `Ready` e gatilho `At system startup`. Interpretação: tarefa agendada para o boot; o print não mostra a ação nem o conjunto que ela inicia.
+
+**Ainda sem prova:** alerta disparando (evento com contador, limite, valor e hora), `logman query Termometro-Recursos`, `schtasks /query /v` com nome completo e ação, conteúdo do BLG. Como nenhum disparo foi provocado, não há limite temporário a restaurar.
 
 ## E10 — recuperação do pool (1 ponto com E11)
 
@@ -229,7 +252,11 @@ Na coleta: System, Application, Security e trecho de `C:\inetpub\logs\LogFiles\W
 ## E13 — funcionamento completo (2 pontos)
 
 **Mostrado no vídeo (04:49 a 05:50):** painel pensado para a TV do corredor, atualizado a cada 30 s, com o nível escrito além da cor; leitura enviada com HMAC-SHA256 e segredo por dispositivo, que a API recusa sem assinatura válida e quando repetida ou atrasada; a sala 2 mudou de nível; `GET /ambientes` com as salas e suas dimensões. A coluna de previsão apareceu como "sem dado de rua" (05:28): fora do modo de demonstração, sem leituras externas na tabela, a API não inventa previsão. A ocorrência continuando depois de reciclar o pool não foi mostrada.
-**Arquivo de saída / print no repositório:** não coletado.
+**Prints no repositório:**
+- [E06-painel.png](evidencias/vm-2026-11/E06-painel.png): painel em `/` com as quatro salas, nível, índice e nível previsto (detalhes em E06).
+- [E13-ambientes.png](evidencias/vm-2026-11/E13-ambientes.png): Edge em `https://api.termometro.local/ambientes` com o JSON das quatro salas (`sala-01` a `sala-04`): índices 28.5, 31.4, 35.3 e 40.5; `nivelAtual` `atencao` nas salas 1 e 2 e `cuidado` nas salas 3 e 4 (o mural escreve "Cuidado extremo"); `ultimaLeituraEm` `2026-11-17T23:23:18Z` nas quatro; `semLeitura` `false`; `dispositivoId` `esp32-sala-01` a `esp32-sala-04`. Interpretação: a API responde por HTTPS com as quatro salas e leituras gravadas, e os valores batem com o mural.
+
+**Ainda sem prova:** leitura entrando por MQTT ou `POST /leituras` (os prints mostram o resultado, não o envio), ocorrência que sobrevive à reciclagem do pool, foto por `GET /ocorrencias/{id}/foto`, app no celular, LED sem broker, HTTP 200 por comando e migrações no banco.
 
 Cobertura esperada de E13: painel em `/` com sala, nível e previsão; `GET /ambientes`; leitura por MQTT (NAT na 1883) ou por `POST /leituras` com `Mqtt__Desligado=true`; ocorrência ou ação ainda presente depois de reciclar o pool; foto só por `GET /ocorrencias/{id}/foto`. O HMAC `segredo-de-teste-sala-0N` é de demonstração: a troca é `POST /dispositivos/{id}/revogar` e um dispositivo novo, sem exibir segredo nem chave. Origem dos dados: leitura simulada enviada durante a gravação, assinada com o segredo de demonstração; nenhum dado público de rua foi carregado na tabela de leituras do servidor.
 
@@ -238,7 +265,7 @@ Não marque E13 só com o processo no ar. As duas URLs, a migração e uma leitu
 ## Conferência final
 
 - [ ] Ficha, bairro (a ficha vale para todas as disciplinas), link, equipe e RMs preenchidos.
-- [ ] E01–E13 com arquivos de saída e prints no repositório, sem segredos (hoje há só o registro do ensaio e o vídeo).
+- [ ] E01–E13 com arquivos de saída e prints no repositório, sem segredos. Já há prints de E04, E06, E07, E08, E09 e E13 em `evidencias/vm-2026-11/`; faltam E01, E02, E03, E05, E10 a E12 e as saídas listadas em "Ainda sem prova" de cada item.
 - [ ] Sintaxe dos dez scripts aprovada, ensaio completo na VM e `10-coletar-evidencias.ps1` rodado no servidor e no cliente (E02).
 - [ ] RDS mínimo confirmado com professor, ou implantação completa evidenciada.
 - [ ] Vídeo publicado com acesso liberado ao professor e testado em aba anônima (duração 6 min 39 s).

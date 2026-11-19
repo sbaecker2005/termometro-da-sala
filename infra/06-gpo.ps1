@@ -14,6 +14,10 @@ if (-not $gpo) { $gpo = New-GPO -Name $GpoName }
 if (-not ((Get-GPInheritance -Target $domain.DistinguishedName).GpoLinks | Where-Object DisplayName -eq $GpoName)) {
     New-GPLink -Guid $gpo.Id -Target $domain.DistinguishedName | Out-Null
 }
+# A GPO do dominio perde para a Default Domain Controllers Policy: liga tambem na OU Domain Controllers.
+if (-not ((Get-GPInheritance -Target $domain.DomainControllersContainer).GpoLinks | Where-Object DisplayName -eq $GpoName)) {
+    New-GPLink -Guid $gpo.Id -Target $domain.DomainControllersContainer | Out-Null
+}
 $desktop = 'HKCU\Software\Policies\Microsoft\Windows\Control Panel\Desktop'
 foreach ($setting in @(@('ScreenSaveActive','1'),@('ScreenSaverIsSecure','1'),@('ScreenSaveTimeOut','600'),@('SCRNSAVE.EXE','scrnsave.scr'))) {
     Set-GPRegistryValue -Guid $gpo.Id -Key $desktop -ValueName $setting[0] -Type String -Value $setting[1] | Out-Null

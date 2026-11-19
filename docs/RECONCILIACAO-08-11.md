@@ -80,7 +80,7 @@ Cada referência antes usa a numeração encontrada ao iniciar esta tarefa; depo
 - Leitura antiga: desktop após 10 min; ingestão recusa mais de 10 min atrás/1 min à frente (`Dominio/Contrato.cs:106`); mapa usa janela inclusiva de 15 min; previsão de ambiente consulta até 3 h (`Servicos/PrevisaoSala.cs:233`). Não existe prazo único.
 - Concorrência de ingestão, validação completa dos pixels JPEG e compartilhamento do valor público de demonstração permanecem limites de código, fora do escopo. Nenhum ensaio de VM, dispositivo ou revisão visual foi declarado concluído.
 
-Opção menor para o Cérebro: manter esta reconciliação documental e executar os ensaios já previstos; correções de código ficam para decisão separada.
+Opção menor para a equipe: manter esta reconciliação documental e executar os ensaios já previstos; correções de código ficam para decisão separada.
 
 ## Fechamento
 

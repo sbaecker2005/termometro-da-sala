@@ -40,6 +40,8 @@ Confirme AlwaysRunning, preload, idle timeout zero, Application Initialization e
 
 ## Parte 2 — falha inesperada do W3SVC
 
+> **Status no ensaio de 16/11/2026: não executada.** Nesta build o W3SVC não inicia isolado do grupo compartilhado do IIS (ver E11 em [EVIDENCIAS.md](EVIDENCIAS.md)). O que está provado é a política de recuperação configurada e a recuperação do pool (parte 1). Os passos abaixo valem só para um ambiente em que o isolamento funcione; neles o PID do W3SVC só muda se o serviço estiver isolado.
+
 `Stop-Service W3SVC` ou `iisreset` são ações administrativas planejadas; não demonstram as ações de recuperação do Service Control Manager. A prova usa término inesperado do processo do serviço. **W3SVC pode compartilhar svchost com WAS/outros serviços**: o script recusa essa condição para não matar todo o grupo.
 
 Preparação **fora da medição**, pelo console da VM:

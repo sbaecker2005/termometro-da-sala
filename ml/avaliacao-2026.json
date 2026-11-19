@@ -1,0 +1,69 @@
+{
+ "fonte": "INMET, estação automática A701 (São Paulo, Mirante de Santana), CSV horário oficial de 2026",
+ "periodo_utc": "2026-01-01T00:00Z a 2026-10-31T23:00Z",
+ "sha256_modelo": "c5c4f1fc38e33088fa12ed4e7ed5bde2a5ac40de1f1927fb8604e03521aaf7bd",
+ "horas_calendario": 7296,
+ "horas_validas": 7213,
+ "horas_ausentes_ou_descartadas": 83,
+ "buracos": 33,
+ "maior_buraco_h": 16,
+ "sem_vizinhos_ou_alvo": 86,
+ "exemplos_avaliados": 7127,
+ "exemplos_com_defasagem_de_2025": 1,
+ "niveis_reais": {
+  "frio": 2285,
+  "normal": 4272,
+  "atencao": 560,
+  "cuidado": 10,
+  "perigo": 0
+ },
+ "regressao": [
+  {
+   "modelo": "baseline (agora)",
+   "MAE (°C)": 1.34,
+   "RMSE (°C)": 1.917,
+   "R²": 0.812,
+   "F1 macro (níveis)": 0.603
+  },
+  {
+   "modelo": "árvore anterior",
+   "MAE (°C)": 0.935,
+   "RMSE (°C)": 1.334,
+   "R²": 0.909,
+   "F1 macro (níveis)": 0.633
+  },
+  {
+   "modelo": "árvore exportada",
+   "MAE (°C)": 0.881,
+   "RMSE (°C)": 1.294,
+   "R²": 0.914,
+   "F1 macro (níveis)": 0.766
+  }
+ ],
+ "alerta": [
+  {
+   "modelo": "baseline (agora)",
+   "TP": 1,
+   "FP": 9,
+   "FN": 9,
+   "precisão": 0.1,
+   "recall": 0.1
+  },
+  {
+   "modelo": "árvore anterior",
+   "TP": 0,
+   "FP": 1,
+   "FN": 10,
+   "precisão": 0.0,
+   "recall": 0.0
+  },
+  {
+   "modelo": "árvore exportada",
+   "TP": 4,
+   "FP": 1,
+   "FN": 6,
+   "precisão": 0.8,
+   "recall": 0.4
+  }
+ ]
+}

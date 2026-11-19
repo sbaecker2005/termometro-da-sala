@@ -22,7 +22,7 @@ Integrantes: Samuel David Baecker — RM 559269; Lucas de Almeida Villar — RM 
 
 O mesmo sensor pode avisar calor no verão (escolas) e frio no inverno (dormitórios e abrigos); o notebook e as métricas abaixo tratam do calor. O problema: nas tardes quentes a sala passa do limite seguro sem que ninguém meça. O modelo prevê o índice de calor da rua (fórmula da NOAA) daqui a 2 horas, e a API soma a diferença medida pelo sensor da sala.
 
-Dados: INMET, estação automática A701 (São Paulo, Mirante de Santana), horários de 2022 a 2025, hora em UTC convertida para São Paulo. Arquivo `dados/inmet_a701.csv`, extraído dos zips anuais por `extrair_a701.py` ([portal.inmet.gov.br/dadoshistoricos](https://portal.inmet.gov.br/dadoshistoricos)). Divisão por tempo: treino 2022–2023, validação 2024, teste 2025.
+Dados: INMET, estação automática A701 (São Paulo, Mirante de Santana), horários de 2022 a 2025, hora em UTC convertida para São Paulo. Arquivo `dados/inmet_a701.csv`, extraído dos zips anuais por `extrair_a701.py` ([portal.inmet.gov.br/dadoshistoricos](https://portal.inmet.gov.br/dadoshistoricos)). Divisão por tempo: treino 2022–2023, validação 2024, teste 2025. Validação independente, sem retreino, em janeiro–outubro de 2026 (`dados/inmet_a701_2026.csv`).
 
 ## Resultados
 
@@ -52,6 +52,28 @@ O nível "perigo" (índice ≥ 41 °C) não aparece na rua da A701 entre 2022 e 
 **Limite crítico:** o treino tem só 104 alvos cuidado (0,605%) e nenhum perigo. A revisão detecta 19 das 48 horas de cuidado em 2025, ante 7 da árvore anterior e 18 da persistência. A precisão cai de 58,3% para 52,8% e os falsos positivos sobem de 5 para 17; ainda perde 29 horas críticas (27 como atenção, 2 como normal). Em 2024, o recall continua abaixo da persistência. Não há garantia de segurança nem validação dentro da sala. O `classification_report` inclui perigo com suporte zero; sua macro difere da tabela de regressão, que usa só níveis presentes.
 
 O notebook mostra previsto contra real na semana mais quente de 2025 e resíduos: média −0,032 °C, com 90% dos erros entre −2,11 e +2,08 °C.
+
+**Viés de seleção de 2025 (limite desta avaliação).** O ano de 2025 foi examinado antes de o atributo `indice_agora` ser escolhido e de a grade ser ampliada. Por isso o teste de 2025 deixou de ser independente: o MAE de 0,909 °C e o recall de 39,6% são uma validação temporal, com divisão por tempo e sem uso de 2025 no treino nem na escolha de `max_depth` e `min_samples_leaf` (decididas em 2024), mas podem estar otimistas, porque a decisão de incluir o índice atual foi tomada vendo o resultado de 2025. Os limiares 27/32/41 °C são os do contrato e não foram ajustados. O teste independente é janeiro–outubro de 2026 (seção abaixo), avaliado com o `modelo.json` congelado: o MAE se manteve (0,881 °C contra 1,340 °C da persistência), mas o alerta teve só 10 horas críticas e segue inconclusivo. Em 2024 o recall (34,0%) continua abaixo da persistência (39,4%), o que reforça a cautela.
+
+### Validação independente em 2026 (jan-out)
+
+Fonte: CSV horário oficial do INMET da A701, de 01/01 a 31/10/2026 (hora UTC), convertido por `extrair_a701.py` em `dados/inmet_a701_2026.csv`. Esses dados não foram usados no treino, na grade nem na escolha de atributos e limiares. `avaliar_2026.py` aplica o `modelo.json` congelado (SHA-256 `c5c4f1fc…aaf7bd`), sem retreino, reaproveitando as células do notebook (leitura e checagens, calendário, índice de calor, atributos/alvo, `avalia`, `prever_json` e a árvore anterior). Das 7.296 horas do calendário, 83 estão ausentes ou descartadas (33 buracos, o maior com 16 h) e outras 86 ficam sem hora anterior ou alvo +2 h: restam **7.127 exemplos**. Do histórico de 2025 entra só a hora 31/12/2025 23h UTC, como defasagem do primeiro exemplo (`variacao_1h`). Números em `avaliacao-2026.json`, conferidos por `test_avaliacao_2026.py`.
+
+| Modelo | MAE (°C) | RMSE (°C) | R² | F1 macro (níveis presentes) |
+|---|---:|---:|---:|---:|
+| Persistência "daqui a 2 h = agora" | 1,340 | 1,917 | 0,812 | 0,603 |
+| Árvore anterior (8, folha 30) | 0,935 | 1,334 | 0,909 | 0,633 |
+| **Árvore exportada (12, folha 24)** | **0,881** | **1,294** | **0,914** | **0,766** |
+
+| Alerta (≥ 32 °C) | TP | FP | FN | Precisão | Recall |
+|---|---:|---:|---:|---:|---:|
+| Persistência | 1 | 9 | 9 | 10,0% | 10,0% |
+| Árvore anterior | 0 | 1 | 10 | 0,0% | 0,0% |
+| Árvore exportada (12, folha 24) | 4 | 1 | 6 | 80,0% | 40,0% |
+
+**Resultado:** em dados nunca vistos, a árvore exportada erra 34% menos que a persistência e confirma o MAE de 2025 (0,881 contra 0,909 °C). O alerta, porém, quase não pode ser avaliado: janeiro–outubro de 2026 teve só 10 horas reais de cuidado e nenhuma de perigo (novembro e dezembro, meses quentes, ainda não entram). A árvore detectou 4 e perdeu 6; com amostra tão pequena, 80% de precisão e 40% de recall não são estimativas estáveis, e a perda de 6 das 10 horas críticas continua sendo o limite principal.
+
+**Por que a árvore e não a floresta.** A floresta tem MAE menor (0,822 contra 0,909 °C), mas o contrato da API é uma árvore única em `modelo.json`, percorrida em C# sem Python em produção. Trocar por floresta exigiria mudar o formato e o avaliador da API. Perdemos cerca de 0,09 °C de MAE em troca de paridade exata, auditável e testada entre notebook e API.
 
 ### Previsão em uso
 
@@ -85,15 +107,18 @@ O aviso com 2 h de antecedência apoia a coordenação ao hidratar, ventilar ou 
 - **Ensemble só para comparação:** floresta de 100 árvores, profundidade 12, folha 10, semente 42, MAE 0,834 °C em 2024. Ela vence em regressão, mas a exportação continua uma árvore única, conforme o contrato da API, que percorre o JSON em C# sem Python em produção. A escolha é a melhor árvore da grade, não o melhor regressor entre todas as famílias.
 - **Formato:** mantidos `tipo: arvore`, `atributos`, `raiz` e os nós existentes. O atributo `indice_agora` entra no ponto compartilhado `ModeloRua.Atributos` do Demo e do banco; a validação de nomes passa a aceitá-lo. As cópias do JSON em `ml/` e na API precisam ser publicadas junto com esse código. O notebook confere 200 exemplos contra scikit-learn (diferença máxima < 0,00005 °C), exporta suas entradas e previsões em `paridade-api.json` e calcula os três vetores de `PrevisorModeloTestes`. Os testes da API verificam igualdade byte a byte das cópias de `modelo.json` e paridade do avaliador C# com as 200 previsões do scikit-learn (tolerância de 0,00005 °C).
 - **Interpretação:** coeficientes padronizados da linear e redução de impureza da árvore; `indice_agora` concentra 88,0% da importância. Ele deriva de temperatura e umidade, portanto essa importância não mede causalidade nem efeito isolado.
-- **Índice atual e limite da avaliação:** incluímos `indice_agora` para responder ao baixo recall. Os limites 27/32/41 °C permanecem os do contrato; nenhum limiar foi escolhido no teste. A revisão combina atributo adicional e grade ampliada, sem atribuir todo o ganho a um único fator. 2025 já havia sido examinado quando o atributo foi escolhido: o resultado da seção Resultados é uma validação temporal, e a confirmação independente requer dados novos.
+- **Índice atual e limite da avaliação:** incluímos `indice_agora` para responder ao baixo recall. Os limites 27/32/41 °C permanecem os do contrato; nenhum limiar foi escolhido no teste. A revisão combina atributo adicional e grade ampliada, sem atribuir todo o ganho a um único fator. 2025 já havia sido examinado quando o atributo foi escolhido: o resultado de 2025 é uma validação temporal; o teste independente é janeiro–outubro de 2026, sem retreino.
 
 ## Arquivos
 
 | Arquivo | O que é |
 |---|---|
-| `termometro_da_sala.ipynb` | O notebook, já executado (dados, índice de calor, modelos, métricas, exportação, previsão em uso) |
+| `termometro_da_sala.ipynb` | O notebook (39 células, 19 de código, todas executadas, sem erros; dados, índice de calor, modelos, métricas, exportação, previsão em uso) |
 | `dados/inmet_a701.csv` | Dataset: INMET, estação automática A701 (São Paulo, Mirante de Santana), dados horários de 2022 a 2025, hora em UTC |
-| `extrair_a701.py` | Extrai a A701 dos zips anuais do INMET ([portal.inmet.gov.br/dadoshistoricos](https://portal.inmet.gov.br/dadoshistoricos)) |
+| `extrair_a701.py` | Extrai a A701 dos zips anuais do INMET ([portal.inmet.gov.br/dadoshistoricos](https://portal.inmet.gov.br/dadoshistoricos)) ou de um CSV avulso da estação |
+| `dados/inmet_a701_2026.csv` | INMET A701, horário, 01/01 a 31/10/2026, mesmo formato; usado só na validação independente |
+| `avaliar_2026.py` | Aplica o `modelo.json` congelado a 2026 e grava `avaliacao-2026.json` (regressão e alerta) |
+| `test_avaliacao_2026.py` | Recalcula os números de 2026 e confere o SHA-256 do `modelo.json` |
 | `gerar_notebook.py` | Monta o notebook (as células ficam legíveis no git) |
 | `grade-parametros.csv` | MAE e RMSE de todas as 410 configurações na validação de 2024 |
 | `alertas.csv` | Precisão, recall e TP/FP/FN antes e depois em 2024 e 2025 |
@@ -112,10 +137,13 @@ O aviso com 2 h de antecedência apoia a coordenação ao hidratar, ventilar ou 
 python -m pytest ml -o cache_dir=ml/.pytest_cache
 ```
 
+Execução de 19/11/2026: **48 testes passaram** (alertas, avaliação de 2026, mapa, ocupantes e salas). Rode da raiz do repositório: de dentro de `ml/` os módulos `ml.*` não são encontrados.
+
 **Regressão offline**, a partir da raiz, no ambiente Python 3.11 já usado pelo notebook:
 
 ```powershell
 python -m unittest discover -s ml -p test_alertas.py
+python -B ml/avaliar_2026.py
 dotnet test api/TermometroDaSala.Api.Tests/TermometroDaSala.Api.Tests.csproj --no-restore
 ```
 

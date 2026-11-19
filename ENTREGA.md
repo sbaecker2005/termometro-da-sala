@@ -6,7 +6,7 @@ O briefing pede ZIP só em C# e em Mobile. Nas outras, o envio é link, PDF ou v
 
 ## Estado da entrega - 18/11/2026
 
-**Modelo geral:** as fontes aplicam ajuste por sala ao modelo compartilhado, com o terceirão apenas na demonstração. Resultados atuais (19/11): API **138/138**, ML **46 testes e 53 subtestes**, desktop **22/22 + 6 autotestes**, Mobile **24/24** e TypeScript sem erros. [Registro técnico](docs/resultados-testes-2026-11-17/ml-modelo-geral-v1.txt). Tela e PNGs do desktop conferidos, com [evidências](desktop/docs/modelo-geral-v1/VALIDACAO.md). SQL real: **98/98** verificações da coleta e **33/33** de HTTP/MQTT/SQL, [registro](docs/resultados-testes-2026-11-17/sql-modelo-geral-v1.txt). Insomnia 29/29 permanece como evidência manual anterior.
+**Modelo geral:** as fontes aplicam ajuste por sala ao modelo compartilhado, com o terceirão apenas na demonstração. Resultados atuais (19/11): API **138/138**, ML **48 testes e 56 subtestes**, desktop **22/22 + 6 autotestes**, Mobile **24/24** e TypeScript sem erros. [Registro técnico](docs/resultados-testes-2026-11-17/ml-modelo-geral-v1.txt). Tela e PNGs do desktop conferidos, com [evidências](desktop/docs/modelo-geral-v1/VALIDACAO.md). SQL real: **98/98** verificações da coleta e **33/33** de HTTP/MQTT/SQL, [registro](docs/resultados-testes-2026-11-17/sql-modelo-geral-v1.txt). Insomnia 29/29 permanece como evidência manual anterior.
 
 Meta: nota 10 em todas as disciplinas. Os itens abaixo só ficam concluídos com a evidência indicada, sem promessa de nota. O enunciado oficial (PDF "GS CitizenTech - 3ES Ago - FIAP 2026") foi conferido nas páginas 27, 29 e 30 para SOA, C# e ML e na página 34 para Operating Systems. O [fechamento de ML, SOA e C#](docs/FECHAMENTO-ML-SOA-CSHARP.md) relaciona os critérios às provas.
 
@@ -14,14 +14,14 @@ Meta: nota 10 em todas as disciplinas. Os itens abaixo só ficam concluídos com
 |---|---|---|
 | SOA | API 138/138 (camada `IServicoAmbientes` e `Ambiente.Alterar`); cinco migrações; SQL Express 98/98 e MQTT/HTTP/SQL 33/33 nesta revisão. Insomnia anterior com 29/29 asserções | Publicar código e evidências no GitHub, conferir o acesso e enviar o link |
 | C# | Fontes: 22/22 testes e seis autotestes (19/11, com a correção das ações de exemplo perto da meia-noite); tela e horário, mapa C01-C20/S1-S4, frio azul, PNG Agora/+1 h e rolagem conferidos na versão atual; entrevista, PR e versões já conferidos | Revisão final do grupo, regenerar o ZIP a partir do commit final (v0.3.0) e enviar ZIP + TXT |
-| ML | 46 testes e 53 subtestes; modelo geral com ajuste por sala e casos compartilhados com a API; modelos/notebook preservados. Histórico: 19/19 células reexecutadas, 31,95 s, modelos estruturalmente idênticos e integração visível no desktop | Gravar vídeo de até 2 min mostrando a integração atual; conferir links e enviar. Precisão real por sala depende de dados de campo |
+| ML | 48 testes e 56 subtestes (19/11); validação independente em 2026 (jan-out, modelo congelado, sem retreino): MAE 0,881 °C contra 1,340 °C da persistência ([ml/avaliacao-2026.json](ml/avaliacao-2026.json)); modelo geral com ajuste por sala e casos compartilhados com a API; modelos/notebook preservados. Histórico: 19/19 células reexecutadas, 31,95 s, modelos estruturalmente idênticos e integração visível no desktop | Gravar vídeo de até 2 min mostrando a integração atual; conferir links e enviar. Precisão real por sala depende de dados de campo |
 | Mobile | 24 testes e TypeScript sem erros nas fontes (o ZIP precisa ser regenerado do commit final); prévia web conferida em 390 × 844 e 320 × 740, incluindo mapa, formulário, erro/vazio e identificação persistida após recarregar | Ensaiar Expo Go, câmera e retorno dos Ajustes no aparelho, teclado/fontes ampliadas, persistência nativa e integração HTTP real; gravar até 2 min e enviar ZIP + vídeo |
-| Operating Systems | Scripts e roteiros; ensaio de 16/11 na VM (AD, DNS, IIS, SQL, GPO, monitoramento, teste de falha do pool) e vídeo de 6 min 39 s gravado | Coletar saídas e prints (`infra/evidencias/` ainda não existe); publicar o vídeo e testar o link; enviar repositório e vídeo no Teams |
-| Cybersecurity | Relatório e anexo reconciliados com o laboratório de 17 e 18/11 (cenários 23/23 contra o IIS), API 134/134 e seleção de segurança 30/30 em 18/11, C1 com reserva atômica implementada, trechos de código e prints no anexo | Coletar nmap (E12), correlação 4663 (E11), LED sem broker (E13) e prints do app (E08); gerar o PDF e enviar no Teams |
+| Operating Systems | Scripts e roteiros; ensaio de 16/11 na VM (AD, DNS, IIS, SQL, GPO, monitoramento, teste de falha do pool) e vídeo de 6 min 39 s gravado | Prints de E04, E06, E07, E08, E09 e E13 em `infra/evidencias/vm-2026-11/`; faltam as saídas do `10-coletar-evidencias.ps1` (E01–E03, E05, E10–E12) e o alerta disparando; publicar o vídeo e testar o link; enviar repositório e vídeo no Teams |
+| Cybersecurity | Relatório e anexo reconciliados com o laboratório de 17 e 18/11 (cenários 23/23 contra o IIS), API 134/134 e seleção de segurança 30/30 em 18/11, C1 com reserva atômica implementada, trechos de código e prints no anexo | Coletar nmap (E12), correlação 4663 (E11), consulta da API durante a queda (E13; o alerta local sem rede já foi ensaiado no Wokwi em 18/11) e prints do app (E08); revisar o PDF gerado (com os prints da VM) e enviar no Teams |
 | TOGAF | Modelo validado: 111 elementos, 190 relações, seis visões e 12 autotestes; seis diagramas inspecionados | Conferir abertura no Archi e as fontes de impacto; gerar o PDF final; gravar pitch de até 4 min, liberar acesso e enviar |
 | Physical Computing | Firmware, contrato, roteiro e 110 verificações estruturais do circuito aprovadas | Compilar/ensaiar no Wokwi, preencher resultados e URL real; gravar até 4 min e enviar link + txt |
 
-Resultados de 17 a 19/11: API 138/138, desktop 22/22 e seis verificações do autoteste, Mobile 24/24 e TypeScript sem erros, ML 46 testes e 53 subtestes aprovados. Os resultados anteriores ficam como histórico. As releases `v0.1.0` e `v0.2.0` do desktop não têm pacotes anexos.
+Resultados de 17 a 19/11: API 138/138, desktop 22/22 e seis verificações do autoteste, Mobile 24/24 e TypeScript sem erros, ML 48 testes e 56 subtestes aprovados. Os resultados anteriores ficam como histórico. As releases `v0.1.0` e `v0.2.0` do desktop não têm pacotes anexos.
 
 Provas da rodada: [API](api/evidencias/dotnet-test-atual.txt) (138 testes; [TRX de 17/11](docs/resultados-testes-2026-11-17/api-modelo-geral-v1.trx) com 134), [desktop após o novo visual](docs/resultados-testes-2026-11-17/desktop-visual-20261117.trx), [autoteste](docs/resultados-testes-2026-11-17/desktop-autoteste-visual-20261117.txt), [Mobile](docs/resultados-testes-2026-11-17/mobile.txt), [ML](docs/resultados-testes-2026-11-17/ml-pytest-python311.txt), [modelo ArchiMate](docs/resultados-testes-2026-11-17/arquitetura-modelo.txt), [12 autotestes do modelo](docs/resultados-testes-2026-11-17/arquitetura-autoteste.txt) e [circuito](docs/resultados-testes-2026-11-17/esp32-circuito.txt). A [validação Windows](desktop/docs/VALIDACAO-WINDOWS-2026-11-17.md) e a [fixture local após reabrir](docs/resultados-testes-2026-11-17/desktop-persistencia-local.json) documentam os ensaios do desktop. Os resultados locais não comprovam o Wokwi nem a câmera física. O [registro do ambiente ML](docs/resultados-testes-2026-11-17/ml-pytest.txt) contém os comandos reproduzíveis; a tentativa inicial sem pytest foi preservada no histórico. A execução final em Python 3.11.9 terminou com código 0, em 20,62 s, sem alterar notebook, modelo ou dados.
 
@@ -35,7 +35,7 @@ Artefatos de envio (os ZIPs e os PDFs não estão versionados no repositório):
 - `entrega-app.zip`: gerado pelo mesmo comando, com `$pasta = 'app'`. Mobile **24/24** e TypeScript sem erros.
 - [entrega-pacotes.sha256](entrega-pacotes.sha256): hashes dos dois ZIPs. Os valores atuais são de uma geração anterior à v0.3.0 do desktop e ao mapa de 20 cadeiras do app; atualizar depois de gerar os ZIPs do commit final. Fontes sem `bin`, `obj`, dependências instaladas ou configurações privadas.
 - Cybersecurity - PDF final: gerar pelos comandos de [`seguranca/pdf/README.md`](seguranca/pdf/README.md) (`montar.py` + pandoc/xelatex); saída `seguranca/pdf/relatorio-gestao-de-riscos.pdf`. Relatório e anexo reconciliados com o laboratório de 17 e 18/11 (cenários 23/23 no IIS), API 134/134 em 18/11, trechos de código e prints no anexo.
-- TOGAF - PDF final: `arquitetura/arquitetura-togaf.pdf`, gerado em 18/11 por `arquitetura/gerar_pdf_html.py` (22 páginas, capa e as 6 visões, com o layout novo da visão de Aplicação); falta só a aprovação do grupo. `arquitetura/DOCUMENTO.md` e `arquitetura/PITCH.md` foram atualizados em 18/11 com API 134/134, desktop 19/19 e ML 46 testes.
+- TOGAF - PDF final: `arquitetura/arquitetura-togaf.pdf`, gerado em 18/11 por `arquitetura/gerar_pdf_html.py` (22 páginas, capa e as 6 visões, com o layout novo da visão de Aplicação); falta só a aprovação do grupo. `arquitetura/DOCUMENTO.md` e `arquitetura/PITCH.md` foram atualizados em 18/11 com API 134/134, desktop 19/19 e ML 46 testes; em 19/11, a tela e a fala do pitch sobre a suíte da API passaram a 138 testes, e a linha datada de 18/11 ficou como está.
 
 Para gerar PDFs de revisão do relatório e do documento de arquitetura, existe `python ferramentas/gerar-pdfs-revisao.py --runtime "CAMINHO_DO_RUNTIME/dependencies"`, em Python com as bibliotecas do runtime. O gerador mantém a identificação **de revisão**; a versão final passa por nova inspeção visual.
 
@@ -54,7 +54,7 @@ python arquitetura/conferir_modelo.py --autoteste
 python esp32/conferir_circuito.py
 ```
 
-Esperado ao repetir: todos os comandos com código 0; API incluindo os casos de intercalação/rollback e as regressões de contrato, ajuste por sala e mapa; Mobile com 24 testes, incluindo a lógica de retomada da permissão e a recusa de níveis herdados; ML com 46 testes e 53 subtestes aprovados no ambiente compatível. Os comandos aprovados estão ligados aos registros acima. Testes de funções não comprovam o retorno real dos Ajustes ou a câmera no aparelho. A conferência estrutural do circuito não substitui compilação e execução no Wokwi. Requisitos de Node e Python estão nos READMEs correspondentes. Guardar o resultado real, sem substituir falha por contagem histórica.
+Esperado ao repetir: todos os comandos com código 0; API incluindo os casos de intercalação/rollback e as regressões de contrato, ajuste por sala e mapa; Mobile com 24 testes, incluindo a lógica de retomada da permissão e a recusa de níveis herdados; ML com 48 testes e 56 subtestes aprovados no ambiente compatível. Os comandos aprovados estão ligados aos registros acima. Testes de funções não comprovam o retorno real dos Ajustes ou a câmera no aparelho. A conferência estrutural do circuito não substitui compilação e execução no Wokwi. Requisitos de Node e Python estão nos READMEs correspondentes. Guardar o resultado real, sem substituir falha por contagem histórica.
 
 O comando abaixo regenera o ZIP com a pasta e as subpastas. Ele deixa de fora artefatos de compilação, dependências instaladas, fotos, logs e configurações privadas; o `app/assets` (ícones e splash) entra. Rode na raiz do repositório, no Windows PowerShell. Na disciplina de C#, troque `app` por `desktop` na primeira linha. Depois, atualize o hash e repita a conferência.
 
@@ -140,7 +140,7 @@ O briefing desta disciplina não divide a nota em pontos. O que a página 29 ped
 - [ ] Opcional: PR `desktop/v0.3.0` para `main` e tag `v0.3.0`, com revisão por outro integrante
 - [x] Conferir visualmente a `TelaCoordenacao` no Windows: chave sem valor visível, cadastro validado, ação registrada, CSV, mapa, revogação e retorno da API; ver relatório de 17/11
 - [x] Executar a suíte atual (22/22 em 19/11) e o autoteste do desktop (seis verificações); validar sala-99 e ação persistidas após fechar e reabrir no modo local, conforme fixture da rodada. Edição/exclusão ficam na API, no ensaio de SOA; não são comandos da interface desktop nem exigência explícita do enunciado de C#
-- [x] Regenerar o ZIP do commit final (o `desktop/` mudou na v0.3.0), conferir numa pasta limpa (build + autoteste = 0) e atualizar o hash em `entrega-pacotes.sha256`; a geração anterior passou com 19 testes e seis autotestes (18/11: gerado do 2ae6002; build e autoteste 0 numa pasta limpa; hash atualizado)
+- [ ] Regenerar o ZIP do commit final em 19/11, conferir numa pasta limpa (build, 22 testes e autoteste = 0) e atualizar o hash em `entrega-pacotes.sha256`. O ZIP atual e o hash foram gerados em 18/11 do 2ae6002 (19 testes e seis autotestes) e não têm a correção das ações de exemplo de 19/11
 - [ ] Enviar ZIP e txt no Teams, um integrante
 
 Conferência do ZIP do desktop: extrair numa pasta vazia, fora do repositório, compilar e rodar o autoteste. O resultado tem que ser `0`. Rode na raiz do repositório, depois de gerar o `entrega-desktop.zip`.
@@ -198,7 +198,7 @@ Pasta de ML (README, dataset INMET A701, modelo.json): https://github.com/sbaeck
 
 - [x] Preencher os nomes completos e RMs em `app/package.json` e `app/README.md`
 - [ ] Gravar o vídeo no Expo Go
-- [x] Regenerar o ZIP do commit final e conferir nova extração com instalação limpa, TypeScript e 24 testes (a geração anterior passou com 23 testes; depois dela o mapa de demonstração passou a ter quatro sensores e vinte cadeiras); atualizar o hash em `entrega-pacotes.sha256` (18/11: gerado do 2ae6002; extração limpa com TypeScript sem erro e 24/24 testes; hash atualizado)
+- [ ] Regenerar o ZIP do commit final em 19/11 (o ZIP e o hash atuais são do 2ae6002, antes da mudança no `app/README.md`) e conferir nova extração com instalação limpa, TypeScript e 24 testes (a geração anterior passou com 23 testes; depois dela o mapa de demonstração passou a ter quatro sensores e vinte cadeiras); atualizar o hash em `entrega-pacotes.sha256` (18/11: gerado do 2ae6002; extração limpa com TypeScript sem erro e 24/24 testes; hash atualizado)
 - [ ] Enviar ZIP e vídeo no Teams
 
 ## Operating Systems
@@ -215,7 +215,7 @@ Pasta de ML (README, dataset INMET A701, modelo.json): https://github.com/sbaeck
 | Funcionamento completo | 2 | painel em `api/TermometroDaSala.Api/wwwroot/index.html` e `GET /ambientes`, no vídeo |
 
 - [x] VM montada e ensaio de 16/11 com os scripts `01` a `10`, registrado em `infra/EVIDENCIAS.md` (IP, data, PIDs do teste do pool)
-- [ ] Rodar `10-coletar-evidencias.ps1` na VM e commitar a pasta `infra/evidencias/` com as saídas e os prints; não mostrar segredos
+- [ ] Rodar `10-coletar-evidencias.ps1` na VM e juntar as saídas em `infra/evidencias/` (os prints da VM já estão em `infra/evidencias/vm-2026-11/`); não mostrar segredos
 - [x] Preencher os nomes completos e RMs no README, em `infra/EVIDENCIAS.md` e no bloco abaixo
 - [x] Vídeo gravado (6 min 39 s, limite 7 min)
 - [ ] Publicar o vídeo com acesso liberado ao professor, testar em aba anônima e colocar o link no bloco abaixo
@@ -231,7 +231,7 @@ Os campos vêm dos scripts, do `infra/README.md` e do ensaio de 16/11 registrado
 | Equipe (nome e RM) | Samuel David Baecker - RM 559269; Lucas de Almeida Villar - RM 560005; Guilherme Augusto Caseiro - RM 559765 |
 | Repositório | https://github.com/sbaecker2005/termometro-da-sala |
 | Roteiro de configuração | https://github.com/sbaecker2005/termometro-da-sala/tree/main/infra (README, scripts `01` a `10` e `TESTE-DE-FALHA.md`) |
-| Evidências (prints e saídas) | https://github.com/sbaecker2005/termometro-da-sala/blob/main/infra/EVIDENCIAS.md (registro do ensaio de 16/11 e do vídeo; saídas e prints ainda não coletados, a pasta `infra/evidencias/` só vale depois de commitada) |
+| Evidências (prints e saídas) | https://github.com/sbaecker2005/termometro-da-sala/blob/main/infra/EVIDENCIAS.md (registro do ensaio de 16/11 e do vídeo; prints da VM em `infra/evidencias/vm-2026-11/`; saídas de comando ainda não coletadas) |
 | Vídeo (link e duração) | [PENDENTE: link do vídeo]; 6 min 39 s (limite 7 min) |
 | Sistema e virtualização | Windows Server 2022 Standard Avaliação, Desktop Experience, build 20348; VMware Workstation Pro 26H1, rede NAT (VMnet8) |
 | Hostname | `SRV-TERMOMETRO` |
@@ -317,7 +317,7 @@ Itens que dependem de gravação, publicação ou coleta no laboratório e que n
 - [ ] Vídeo de Operating Systems (6 min 39 s gravado): publicar, liberar acesso ao professor e testar o link
 - [ ] Vídeo de Physical Computing (até 4 min); projeto no Wokwi já publicado em https://wokwi.com/projects/481082666157493249
 - [ ] Pitch de TOGAF (até 4 min): cronometrar, gravar e publicar como não listado
-- [ ] Prints e saídas de OS (`infra/evidencias/`) e de Cybersecurity (E08, E11, E12, E13)
+- [ ] Saídas de comando de OS (`infra/evidencias/`; os prints já estão em `vm-2026-11/`) e de Cybersecurity (E08, E11, E12, E13)
 - [x] PNGs das visões no Archi e PDF final de TOGAF; PDF final de Cybersecurity (18/11: PNGs conferidos e os dois PDFs gerados; falta a aprovação do grupo e o envio)
 - [x] `entrega-desktop.zip` e `entrega-app.zip` do commit final, com `entrega-pacotes.sha256` atualizado (18/11)
 - [x] Publicar o código no GitHub e conferir o acesso; depois do envio, não alterar a `main` (ou criar a tag `gs-2026.2-entrega`) (18/11: main em 0c59c4d; falta só não alterar a `main` depois do envio, ou criar a tag)
