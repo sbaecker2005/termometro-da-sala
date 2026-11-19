@@ -1,6 +1,9 @@
 export const DESCRICAO_MIN = 10;
 export const DESCRICAO_MAX = 500;
 
+// Texto único para JSON fora do formato esperado; ele chega à tela do professor.
+export const RESPOSTA_INESPERADA = 'O servidor respondeu num formato inesperado. Tente de novo.';
+
 export type ErroOcorrencia = 'descricao-curta' | 'descricao-longa' | 'sem-foto';
 
 export function validarOcorrencia(entrada: { descricao: string; temFoto: boolean }): ErroOcorrencia[] {
@@ -20,9 +23,9 @@ export type Ocorrencia = {
 };
 
 export function lerOcorrencias(valor: unknown): Ocorrencia[] {
-  if (!Array.isArray(valor)) throw new Error('resposta invalida');
+  if (!Array.isArray(valor)) throw new Error(RESPOSTA_INESPERADA);
   return valor.map((item: unknown) => {
-    if (!item || typeof item !== 'object') throw new Error('resposta invalida');
+    if (!item || typeof item !== 'object') throw new Error(RESPOSTA_INESPERADA);
     const linha = item as Record<string, unknown>;
     if (
       typeof linha.id !== 'string' ||
@@ -30,7 +33,7 @@ export function lerOcorrencias(valor: unknown): Ocorrencia[] {
       typeof linha.descricao !== 'string' ||
       typeof linha.criadaEm !== 'string'
     ) {
-      throw new Error('resposta invalida');
+      throw new Error(RESPOSTA_INESPERADA);
     }
     return { id: linha.id, ambienteId: linha.ambienteId, descricao: linha.descricao, criadaEm: linha.criadaEm };
   });

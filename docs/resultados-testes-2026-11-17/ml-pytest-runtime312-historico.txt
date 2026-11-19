@@ -1,0 +1,11 @@
+C:\Program Files\WindowsApps\OpenAI.CodexPrimaryRuntime.v26-1112-611-0_26.1112.611.0_x64__3k8sg7r9htsxt\dependencies\python\python.exe: No module named pytest
+Data: 17/11/2026
+Comando: python.exe -B -m pytest ml -p no:cacheprovider
+Runtime: C:/Program Files/WindowsApps/OpenAI.CodexPrimaryRuntime.v26-1112-611-0_26.1112.611.0_x64__3k8sg7r9htsxt/dependencies/python/python.exe
+Exit code: 1
+Bloqueio de ambiente: pytest e sklearn ausentes; numpy e pandas disponiveis.
+Python 3.12.14. Nenhum caso ML foi executado; nao equivale a falha de regressao.
+Nao houve instalacao, regeneracao do notebook/modelo nem treino adicional.
+Busca adicional: nenhum py launcher ou Python 3.11 encontrado nas pastas usuais; D:/codex-validacao-termometro-20261117-c0ce77f9efc54ab2885d0268d0cbb51c contem a validacao Mobile, sem ambiente ML.
+requirements.txt fixa numpy==1.24.3 e pandas==2.0.3, ambos com suporte oficial Python 3.8-3.11. Nao foram alterados para caber no runtime 3.12.
+Fontes oficiais consultadas em 17/11/2026: https://numpy.org/doc/1.26/release/1.24.3-notes.html e https://pandas.pydata.org/pandas-docs/version/2.0.3/getting_started/install.html

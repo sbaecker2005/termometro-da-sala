@@ -24,6 +24,8 @@ def indice_calor_c(temp_c: float, umidade: float) -> float:
 
 
 def nivel(indice_c: float) -> str:
+    if indice_c < 18:
+        return "frio"
     if indice_c < 27:
         return "normal"
     if indice_c < 32:
@@ -41,6 +43,7 @@ CASOS = [  # (temperatura C, umidade %, indice C esperado, nivel); C# e C++ conf
 ]
 
 if __name__ == "__main__":
+    assert nivel(17.9) == "frio" and nivel(18.0) == "normal" and nivel(27.0) == "atencao"
     for t, u, esperado, n in CASOS:
         i = indice_calor_c(t, u)
         assert i == esperado and nivel(i) == n, (t, u, i)

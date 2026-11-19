@@ -1,13 +1,34 @@
 # Vídeo de IA e Machine Learning — até 2 minutos
 
-Meta: **1 min 50 s**. O modelo prevê o índice de calor da rua daqui a 2 h; a sala entra pelo delta medido pelo ESP32 e a previsão aparece no app. Grave o notebook já executado e, no trecho final, a sala 3 no app. Não mostre chave, segredo HMAC nem connection string.
+Meta: **1 min 50 s**. O modelo prevê o índice de calor da rua daqui a 2 h; a sala entra pelo delta medido pelo ESP32 e a previsão aparece no app. Grave o notebook já executado e, no trecho final, a API ligada devolvendo o número calculado pelo modelo, mais o teste que chega ao mesmo valor do notebook. Não mostre chave, segredo HMAC nem connection string.
 
-Antes de gravar: notebook aberto nas seções 1, 4, 5 e na tabela de métricas; `ml/modelo.json` e `api/TermometroDaSala.Api/modelo/modelo.json` no mesmo conteúdo; app na sala 3 (modo simulado ou API). No simulado, a sala 3 mostra rua 34, delta 4 e sala 38, com a etiqueta DEMONSTRAÇÃO.
+## Preparação no computador já validado
+
+Na raiz do kit, execute `powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\ferramentas\abrir-apresentacao.ps1`. O script compila a API, cria um banco novo no SQL Server Express, prepara a previsão e abre o desktop com a mesma chave temporária mantida apenas em memória. Se a porta 5080 estiver ocupada, ele para sem encerrar outro processo. Os registros e o comando para encerrar a API criada ficam em `output/apresentacao/`. O mapa frio com vinte cadeiras é uma cena simulada; o trecho de ML deve mostrar a **Sala 3 e sua previsão de +2 h**.
+
+## Fala pronta para ensaiar
+
+Leia com pausas e use os cortes da tabela abaixo. Cronometre uma vez; mantenha o vídeo inteiro abaixo de dois minutos.
+
+“O Termômetro da Sala ajuda a coordenação a antecipar situações de calor. O sensor mede a sala; nosso modelo prevê o índice de calor da rua duas horas à frente. A API combina essa previsão com a diferença recente entre sala e rua.
+
+Usamos dados públicos do INMET, da estação A701, entre 2022 e 2025, convertendo o horário para São Paulo. Separamos os dados por tempo: 2022 e 2023 para treino, 2024 para escolher os parâmetros e 2025 para avaliação.
+
+Comparamos persistência, regressão linear, árvore e floresta. A floresta erra menos, mas a API em C# percorre uma árvore única, e por isso exportamos a árvore. Exportamos uma árvore de profundidade 12 e folha mínima 24, escolhida na validação. Ela teve erro absoluto médio de 0,909 grau, contra 1,442 do baseline. O alerta identificou 19 de 48 horas de cuidado: melhorou, mas ainda perde casos. Em 2026, dado novo e sem retreino: 0,881 grau, contra 1,340 da persistência.
+
+Este é o modelo exportado, e aqui está a API calculando a previsão em uso. No desktop, a coordenação vê esse alerta e pode registrar uma ação. O teste de paridade confirma que notebook e API calculam o mesmo vetor de referência.
+
+Esta demonstração usa leituras simuladas por HTTP. Ainda precisamos validar o comportamento em campo, especialmente os alertas e a diferença térmica da sala.”
+
+Antes de gravar: notebook aberto nas seções 1, 4, 5 e 6 (previsão em uso e gráfico de previsto contra real); `ml/modelo.json` e `api/TermometroDaSala.Api/modelo/modelo.json` no mesmo conteúdo; a API ligada no ambiente `Demo` (`ASPNETCORE_ENVIRONMENT=Demo`), com leituras recentes na sala 3, e um navegador ou o Insomnia em `GET /ambientes/sala-03/previsao`; um terminal em `api` pronto para `dotnet test --filter PrevisorModeloTestes`. O Wokwi pode fornecer as leituras; para este vídeo de ML, também é possível usar o ensaio HTTP identificado como simulado em [FECHAMENTO-ML-SOA-CSHARP.md](../docs/FECHAMENTO-ML-SOA-CSHARP.md). Ele não comprova funcionamento de um sensor físico ou do Wokwi.
+
+No Demo, a API aplica o `modelo.json` à hora atual do dia quente de `demo/rua-dia-quente.csv` (temperatura, umidade, índice de calor atual (`indice_agora`) e variação desde a hora anterior, com a hora local e o mês de hoje), e o `indiceRuaPrevisto` da resposta é a saída do modelo. O número depende da hora e do mês da gravação; compare a resposta com a entrada atual do CSV, sem prometer um valor fixo. O teste `DemoAplicaOModeloAoDiaDoCsvEDaOMesmoValor` põe o vetor da seção 6 (15/01/2026, 14h em São Paulo, rua a 30 °C, 28,5 °C uma hora antes) no CSV do Demo e chega a 27,16 °C, o mesmo número do notebook e do previsor do banco. Não use o modo simulado do app, em que a previsão é fixa no código.
 
 | Tempo | Mostrar | O que dizer |
 |---|---|---|
 | 0:00–0:20 | Nome do projeto e a frase do problema: a sala esquenta e a escola só reage quando alguém passa mal. Aponte o cidadão (professor e turma) e quem decide (coordenação, no desktop). | O modelo não mede a sala. Ele prevê a rua. O ESP32 mede a sala, e a API soma os dois. |
 | 0:20–0:45 | Seção 1 do notebook: `dados/inmet_a701.csv`, estação A701 (Mirante de Santana), 2022–2025, e a conversão de UTC para São Paulo. Mostre o assert 15/01/2026 às 1700 UTC = 14h. | Dado público do INMET, não inventado. Sem essa conversão, o ciclo do dia sai 3 h errado e a previsão da sala erra. |
-| 0:45–1:05 | Divisão por tempo: treino 2022–2023, validação 2024, teste 2025. Árvore de profundidade 8 e folha 30, escolhida pelo MAE de 2024, sem retreino no teste. | O teste de 2025 só entra na avaliação final. |
-| 1:05–1:25 | Tabela do teste: árvore MAE 0,958 °C contra 1,442 °C do baseline "daqui a 2 h = agora". Diga o limite: na rua o nível perigo não aparece, e o recall de cuidado é 14,6 %. | Vence no erro em graus. Não vence o alerta do nível mais alto na rua; dentro da sala quem empurra o índice é o delta. |
-| 1:25–1:50 | `modelo.json` (`tipo: arvore`) e a sala 3 no app: nível de agora, previsão de 2 h e a ação sugerida. Se a API estiver no ar, abra `GET /ambientes/sala-03/previsao` ao lado. | Esse JSON é o que a API carrega. A previsão da sala é a rua prevista mais o delta das últimas 3 h. Sem leituras recentes, a tela mostra só a rua. |
+| 0:45–1:05 | Divisão por tempo: treino 2022–2023, validação 2024, teste 2025. Mostre a grade de 410 configurações (profundidades 4–12 e None; folhas 10–50), a persistência, a regressão linear e a floresta. Exportada: árvore de profundidade 12 e folha 24, escolhida pelo MAE de 2024, sem retreino. | O índice atual foi incluído para melhorar o alerta. 2025 já visto nessa escolha; 2026 (jan–out), nunca visto, confirma: 0,881 contra 1,340 °C. |
+| 1:05–1:25 | Tabela do teste: árvore MAE 0,909 °C contra 1,442 °C do baseline "daqui a 2 h = agora", e o gráfico de previsto contra real da seção 6. Mostre o alerta antes/depois: recall de 14,6% para 39,6%, precisão de 58,3% para 52,8% (19 de 48 horas detectadas). | Reduz o erro e detecta mais horas de cuidado, mas ainda perde 29 e gera 17 falsos positivos. Perigo não aparece na base; a previsão da sala depende de validar o delta. |
+| 1:25–1:45 | `modelo.json` (`tipo: arvore`) e a tabela "Previsão em uso" da seção 6 (rua prevista 27,16 °C, sala 31,16 °C, atenção). Depois, a API ligada: `GET /ambientes/sala-03/previsao` com `indiceRuaPrevisto` (saída do modelo), `deltaSala` e `indiceSalaPrevisto`, e `dotnet test --filter PrevisorModeloTestes` passando com o mesmo 27,16. | Esse JSON é o que a API carrega. O número da rua nesta resposta foi calculado pelo modelo agora, e o teste mostra que a API chega ao mesmo valor do notebook. A previsão da sala é a rua prevista mais o delta das últimas 3 h. Sem leituras recentes, a tela mostra só a rua. |
+| 1:45–1:50 | Cerca de 5 s da tela do desktop com a previsão da Sala 3 (rua prevista, delta e sala prevista), aberto pelo `abrir-apresentacao.ps1`. | A coordenação vê a previsão da sala 3 aqui e decide a ação. |

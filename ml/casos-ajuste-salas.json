@@ -1,0 +1,128 @@
+{
+  "agora": "2026-11-17T15:30:00Z",
+  "descricao": "Vetores sintéticos de paridade Python/C#. segundos é deslocamento em relação a agora; não são medições de campo.",
+  "casos": [
+    {
+      "nome": "arredondamento_compartilhado_em_meio_decimal", "ambiente_id": "sala-01",
+      "rua": [{"segundos": -1800, "indice": 0}],
+      "leituras": [
+        {"ambiente_id": "sala-01", "sensor": "S1", "segundos": -120, "indice": 2.4},
+        {"ambiente_id": "sala-01", "sensor": "S2", "segundos": -120, "indice": 2.5},
+        {"ambiente_id": "sala-01", "sensor": "S1", "segundos": -60, "indice": 2.4},
+        {"ambiente_id": "sala-01", "sensor": "S2", "segundos": -60, "indice": 2.5},
+        {"ambiente_id": "sala-01", "sensor": "S1", "segundos": 0, "indice": 2.4},
+        {"ambiente_id": "sala-01", "sensor": "S2", "segundos": 0, "indice": 2.5}
+      ],
+      "delta_esperado": 2.4, "persistencia_esperada": 2.4, "minutos_pareados": 3
+    },
+    {
+      "nome": "rua_horaria_e_isolamento_de_sala", "ambiente_id": "sala-01",
+      "rua": [{"segundos": -1800, "indice": 28}],
+      "leituras": [
+        {"ambiente_id": "sala-01", "sensor": "S1", "segundos": -120, "indice": 32},
+        {"ambiente_id": "sala-01", "sensor": "S1", "segundos": -60, "indice": 32},
+        {"ambiente_id": "sala-01", "sensor": "S1", "segundos": 0, "indice": 32},
+        {"ambiente_id": "sala-02", "sensor": "S2", "segundos": 0, "indice": 50}
+      ],
+      "delta_esperado": 4, "persistencia_esperada": 32, "minutos_pareados": 3
+    },
+    {
+      "nome": "quatro_sensores_no_mesmo_minuto", "ambiente_id": "sala-01",
+      "rua": [{"segundos": -1800, "indice": 28}],
+      "leituras": [
+        {"ambiente_id": "sala-01", "sensor": "S1", "segundos": -20, "indice": 30},
+        {"ambiente_id": "sala-01", "sensor": "S2", "segundos": -15, "indice": 32},
+        {"ambiente_id": "sala-01", "sensor": "S3", "segundos": -10, "indice": 34},
+        {"ambiente_id": "sala-01", "sensor": "S4", "segundos": -5, "indice": 36}
+      ],
+      "delta_esperado": null, "persistencia_esperada": 33, "minutos_pareados": 1
+    },
+    {
+      "nome": "frequencia_de_envio_nao_aumenta_peso", "ambiente_id": "sala-01",
+      "rua": [{"segundos": -1800, "indice": 28}],
+      "leituras": [
+        {"ambiente_id": "sala-01", "sensor": "S1", "segundos": -120, "indice": 20},
+        {"ambiente_id": "sala-01", "sensor": "S1", "segundos": -110, "indice": 30},
+        {"ambiente_id": "sala-01", "sensor": "S2", "segundos": -110, "indice": 40},
+        {"ambiente_id": "sala-01", "sensor": "S1", "segundos": -60, "indice": 20},
+        {"ambiente_id": "sala-01", "sensor": "S1", "segundos": -50, "indice": 30},
+        {"ambiente_id": "sala-01", "sensor": "S2", "segundos": -50, "indice": 40},
+        {"ambiente_id": "sala-01", "sensor": "S1", "segundos": 0, "indice": 30},
+        {"ambiente_id": "sala-01", "sensor": "S2", "segundos": 0, "indice": 40}
+      ],
+      "delta_esperado": 7, "persistencia_esperada": 35, "minutos_pareados": 3
+    },
+    {
+      "nome": "rua_futura_nao_preenche_passado", "ambiente_id": "sala-01",
+      "rua": [{"segundos": 60, "indice": 28}],
+      "leituras": [
+        {"ambiente_id": "sala-01", "sensor": "S1", "segundos": -120, "indice": 32},
+        {"ambiente_id": "sala-01", "sensor": "S1", "segundos": -60, "indice": 32},
+        {"ambiente_id": "sala-01", "sensor": "S1", "segundos": 0, "indice": 32}
+      ],
+      "delta_esperado": null, "persistencia_esperada": 32, "minutos_pareados": 0
+    },
+    {
+      "nome": "rua_antiga_nao_preenche_presente", "ambiente_id": "sala-01",
+      "rua": [{"segundos": -3800, "indice": 28}],
+      "leituras": [
+        {"ambiente_id": "sala-01", "sensor": "S1", "segundos": -120, "indice": 32},
+        {"ambiente_id": "sala-01", "sensor": "S1", "segundos": -60, "indice": 32},
+        {"ambiente_id": "sala-01", "sensor": "S1", "segundos": 0, "indice": 32}
+      ],
+      "delta_esperado": null, "persistencia_esperada": 32, "minutos_pareados": 0
+    },
+    {
+      "nome": "sala_sem_leitura_ha_mais_de_15_minutos", "ambiente_id": "sala-01",
+      "rua": [{"segundos": -1800, "indice": 28}],
+      "leituras": [
+        {"ambiente_id": "sala-01", "sensor": "S1", "segundos": -1021, "indice": 32},
+        {"ambiente_id": "sala-01", "sensor": "S1", "segundos": -961, "indice": 32},
+        {"ambiente_id": "sala-01", "sensor": "S1", "segundos": -901, "indice": 32}
+      ],
+      "delta_esperado": null, "persistencia_esperada": null, "minutos_pareados": 3
+    },
+    {
+      "nome": "limite_inclusivo_de_15_minutos", "ambiente_id": "sala-01",
+      "rua": [{"segundos": -1800, "indice": 28}],
+      "leituras": [
+        {"ambiente_id": "sala-01", "sensor": "S1", "segundos": -1020, "indice": 32},
+        {"ambiente_id": "sala-01", "sensor": "S1", "segundos": -960, "indice": 32},
+        {"ambiente_id": "sala-01", "sensor": "S1", "segundos": -900, "indice": 32}
+      ],
+      "delta_esperado": 4, "persistencia_esperada": 32, "minutos_pareados": 3
+    },
+    {
+      "nome": "limite_inclusivo_de_60_minutos_rua", "ambiente_id": "sala-01",
+      "rua": [{"segundos": -3600, "indice": 28}],
+      "leituras": [
+        {"ambiente_id": "sala-01", "sensor": "S1", "segundos": -120, "indice": 32},
+        {"ambiente_id": "sala-01", "sensor": "S1", "segundos": -60, "indice": 32},
+        {"ambiente_id": "sala-01", "sensor": "S1", "segundos": 0, "indice": 32}
+      ],
+      "delta_esperado": 4, "persistencia_esperada": 32, "minutos_pareados": 3
+    },
+    {
+      "nome": "janela_3h_e_recusa_futuro_suspeita", "ambiente_id": "sala-01",
+      "rua": [{"segundos": -10801, "indice": 28}, {"segundos": -60, "indice": 28}],
+      "leituras": [
+        {"ambiente_id": "sala-01", "sensor": "S1", "segundos": -10801, "indice": 50},
+        {"ambiente_id": "sala-01", "sensor": "S1", "segundos": -10800, "indice": 32},
+        {"ambiente_id": "sala-01", "sensor": "S1", "segundos": -60, "indice": 32},
+        {"ambiente_id": "sala-01", "sensor": "S1", "segundos": 0, "indice": 32},
+        {"ambiente_id": "sala-01", "sensor": "S1", "segundos": 1, "indice": 50},
+        {"ambiente_id": "sala-01", "sensor": "S2", "segundos": 0, "indice": 50, "suspeita": true}
+      ],
+      "delta_esperado": 4, "persistencia_esperada": 32, "minutos_pareados": 3
+    },
+    {
+      "nome": "sem_dados_validos", "ambiente_id": "sala-01",
+      "rua": [{"segundos": -1800, "indice": 28}],
+      "leituras": [
+        {"ambiente_id": "sala-01", "sensor": "S1", "segundos": -120, "indice": 32, "suspeita": true},
+        {"ambiente_id": "sala-01", "sensor": "S1", "segundos": 1, "indice": 32}
+      ],
+      "delta_esperado": null, "persistencia_esperada": null, "minutos_pareados": 0
+    }
+  ]
+}

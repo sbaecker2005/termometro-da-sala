@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { apresentarNivel } from '../domain/nivel';
+import { apresentarNivel, type Nivel } from '../domain/nivel';
 
-export function RotuloNivel({ nivel }: { nivel: string }) {
+export function RotuloNivel({ nivel }: { nivel: Nivel }) {
   const info = apresentarNivel(nivel);
   return (
     <View style={[styles.selo, { backgroundColor: info.cor }]} accessibilityRole="text">
@@ -11,6 +11,6 @@ export function RotuloNivel({ nivel }: { nivel: string }) {
 }
 
 const styles = StyleSheet.create({
-  selo: { alignSelf: 'flex-start', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4 },
-  texto: { color: '#fff', fontWeight: '700' },
+  selo: { alignSelf: 'flex-start', maxWidth: '100%', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6 },
+  texto: { color: '#fff', fontSize: 13, fontWeight: '700' },
 });

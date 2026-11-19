@@ -1,0 +1,51 @@
+Evidencia: suite de seguranca da API (C1 a C5, C9, C10, C11 e cota de escrita)
+Ambiente: Windows 11, .NET SDK 8.0.427, banco SQLite em memoria dos testes; dependencias ja restauradas
+Data: 2026-11-18T01:52:44.3888794-03:00
+
+Comando 1 (suite completa da API):
+  dotnet test api\TermometroDaSala.sln --no-restore -m:1 -nodeReuse:false
+Resultado obtido:
+  Passed!  - Failed:     0, Passed:   134, Skipped:     0, Total:   134, Duration: 5 s - TermometroDaSala.Api.Tests.dll (net8.0)
+
+Comando 2 (selecao dos testes de seguranca):
+  dotnet test api\TermometroDaSala.Api.Tests\TermometroDaSala.Api.Tests.csproj --no-restore --no-build --logger "console;verbosity=normal" --filter "HmacDoContrato|LimitesDaJanelaEDaFaixa|RecusasELeituraAceita|SegredoDeOutraSalaNaoAssina|ConsultaDeLeiturasParametrizada|UploadRecusaOQueNaoEJpegENomeComDoisPontos|UploadRecusaJpegSemQuadroOuSemVarredura|UploadRemoveSegmentoApp1|DemoSemearForaDoAmbienteDemoResponde404|CoordenacaoSemChaveNaoGravaELeituraContinuaComHmac|EscritaAcimaDeTrintaPorMinutoResponde429|CadastroRecusaEntradaInvalida|MqttDescartaMensagemAcimaDoLimite|OcorrenciaCriadaVoltaNaListaDaSalaEFotoSoComChave|RespostasLevamNosniffEProducaoLevaHsts|ServicoLeiturasConcorrenciaTestes"
+Resultado obtido:
+Test run for D:\projetos\termometro-wt-consolida\api\TermometroDaSala.Api.Tests\bin\Debug\net8.0\TermometroDaSala.Api.Tests.dll (.NETCoreApp,Version=v8.0)
+  Passed TermometroDaSala.Api.Tests.VetoresTestes.HmacDoContrato [3 ms]
+  Passed TermometroDaSala.Api.Tests.VetoresTestes.LimitesDaJanelaEDaFaixa [1 ms]
+  Passed TermometroDaSala.Api.Tests.ServicoLeiturasConcorrenciaTestes.LeituraConfirmadaEntreValidacaoEReservaNaoDuplicaNemRegride(diferencaSegundos: 1, statusEsperado: 400, quantidadeEsperada: 1) [892 ms]
+  Passed TermometroDaSala.Api.Tests.ServicoLeiturasConcorrenciaTestes.LeituraConfirmadaEntreValidacaoEReservaNaoDuplicaNemRegride(diferencaSegundos: -1, statusEsperado: 201, quantidadeEsperada: 2) [11 ms]
+  Passed TermometroDaSala.Api.Tests.ServicoLeiturasConcorrenciaTestes.LeituraConfirmadaEntreValidacaoEReservaNaoDuplicaNemRegride(diferencaSegundos: 0, statusEsperado: 400, quantidadeEsperada: 1) [22 ms]
+  Passed TermometroDaSala.Api.Tests.ServicoLeiturasConcorrenciaTestes.RevogacaoConfirmadaEntreValidacaoEReservaImpedeInsercao [33 ms]
+  Passed TermometroDaSala.Api.Tests.ServicoLeiturasConcorrenciaTestes.FalhaAoSalvarReverteReservaEPermiteNovaTentativaDoMesmoInstante [41 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastroRecusaEntradaInvalida(id: "invalido", nome: "Sala", andar: 0, faceSol: "leste") [400 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastroRecusaEntradaInvalida(id: "sala-٠٣", nome: "Sala", andar: 0, faceSol: "leste") [74 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastroRecusaEntradaInvalida(id: "sala-05", nome: "Sala", andar: 0, faceSol: "desconhecida") [45 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastroRecusaEntradaInvalida(id: "sala-05", nome: "Sala", andar: 21, faceSol: "leste") [27 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastroRecusaEntradaInvalida(id: "\nsala-03", nome: "Sala", andar: 0, faceSol: "leste") [35 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastroRecusaEntradaInvalida(id: "sala-3", nome: "Sala", andar: 0, faceSol: "leste") [51 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastroRecusaEntradaInvalida(id: "sala-０３", nome: "Sala", andar: 0, faceSol: "leste") [24 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastroRecusaEntradaInvalida(id: "sala-05", nome: "Sala", andar: -1, faceSol: "leste") [29 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastroRecusaEntradaInvalida(id: "sala-05", nome: " ", andar: 0, faceSol: "leste") [25 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastroRecusaEntradaInvalida(id: "sala-03\n", nome: "Sala", andar: 0, faceSol: "leste") [34 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.CadastroRecusaEntradaInvalida(id: "sala-05", nome: "Sala", andar: 0, faceSol: "0") [25 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.ConsultaDeLeiturasParametrizada [178 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.RecusasELeituraAceita [148 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.MqttDescartaMensagemAcimaDoLimite [28 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.SegredoDeOutraSalaNaoAssina [50 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.CoordenacaoSemChaveNaoGravaELeituraContinuaComHmac [211 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.UploadRemoveSegmentoApp1 [66 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.EscritaAcimaDeTrintaPorMinutoResponde429 [466 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.OcorrenciaCriadaVoltaNaListaDaSalaEFotoSoComChave [99 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.UploadRecusaOQueNaoEJpegENomeComDoisPontos [62 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.DemoSemearForaDoAmbienteDemoResponde404 [57 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.RespostasLevamNosniffEProducaoLevaHsts [93 ms]
+  Passed TermometroDaSala.Api.Tests.ApiTestes.UploadRecusaJpegSemQuadroOuSemVarredura [63 ms]
+Test Run Successful.
+Total tests: 30
+     Passed: 30
+
+Os 5 casos de ServicoLeiturasConcorrenciaTestes comprovam a reserva atomica do C1
+(ServicoLeituras.cs:50-54): leitura concorrente igual, mais nova e mais antiga, revogacao
+intermediaria e rollback da reserva quando a gravacao falha.
+Somente resultados de testes; logs internos e semente omitidos.

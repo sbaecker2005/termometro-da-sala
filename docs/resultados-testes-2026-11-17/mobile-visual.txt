@@ -1,0 +1,40 @@
+Validação visual Mobile — 17/11/2026
+
+Método
+- Inspeção interativa por CUA no navegador integrado, usando export real do React Native/Expo web.
+- Viewports: 390 x 844 e 320 x 740 pixels.
+- Código compilado a partir dos fontes finais; renderers web instalados somente na cópia isolada em D:, sem mudança de package.json/package-lock.json do produto.
+- URLs locais: 127.0.0.1:18083 (mock normal), 18084 (erro) e 18085 (vazio).
+- O helper temporário serviu os três índices e os nove scripts referenciados com HTTP 200, MIME JavaScript e Cache-Control no-store antes da inspeção final.
+
+Resultados observados — aprovado
+- Identificação: campos obrigatórios validados; identificação persistida após recarregar o navegador; acesso à lista.
+- Lista: seis salas legíveis, com níveis, índices, horários e navegação para o detalhe.
+- Detalhe: cenário Frio exibido; cartão atual, previsão e orientações legíveis.
+- Mapa: Agora e Previsão +1 h funcionaram, com carregamento; legenda, lista e seleção acessível de ponto conferidas, inclusive em 320 px.
+- Formulário em 320 px: descrição vazia exibiu a exigência de ao menos 10 caracteres e de foto; descrição válida manteve a exigência da foto. Rolagem e controles legíveis.
+- Erro: Tentar de novo mostrou carregamento e retornou ao erro tratado do cenário forçado.
+- Vazio: mensagem de lista vazia legível.
+- Console: lista de erros vazia nas três variantes.
+
+Incidentes da infraestrutura de prévia, resolvidos antes da inspeção final
+- O export inicial não pôde recriar uma pasta usada como diretório de trabalho pelo servidor Python (EBUSY); o export final foi gerado em outra pasta.
+- O helper Python depois encerrou respostas HTTP e o navegador mostrou referências de uma versão anterior. Foi substituído por helper Node local, sem dependências e sem cache, em novas portas. Os assets foram conferidos por HTTP antes da retomada.
+- Variantes erro/vazio foram recompiladas com --clear para evitar reaproveitamento de configuração pelo cache do Metro.
+- Nenhum desses ajustes modificou os fontes do app.
+
+Nota de infraestrutura após a validação
+- Em 17/11/2026, às 03:09:08 de São Paulo (06:09:08 UTC), uma tentativa posterior de abrir a lista para a captura final ocorreu com o helper já desligado e gerou AsyncRequireError ao buscar o bundle da rota.
+- A reabertura do helper e o recarregamento restauraram a lista. A captura final em 320 px foi salva em output/revisao-grupo/mobile-final.jpg; depois dela, o helper foi encerrado, sem listeners nas portas 18083–18085.
+- Esse incidente pertence à preparação da captura posterior. A observação de console sem erros nas três variantes acima corresponde à sessão original de validação aprovada. Não houve alteração dos fontes ou repetição das suítes por esse incidente.
+
+Limites
+- Esta prova é de React Native web em dados simulados. Não comprova execução em Expo Go/aparelho, câmera no navegador ou câmera física, permissões nativas, teclado/fontes ampliadas nativos ou persistência no aparelho.
+- Integração HTTP real, upload/persistência de foto na API, MQTT/Wokwi e vídeos continuam pendentes.
+- O mock Mobile tem dois sensores e duas cadeiras. O cenário da API Demo tem quatro sensores e vinte cadeiras; não foi o conjunto usado nesta inspeção.
+- A previsão do ambiente é +2 h; o mapa +1 h usa a aproximação documentada e não é previsão individual de cada cadeira.
+
+Verificações automatizadas associadas
+- npm ci do lock original: 500 pacotes; npm run typecheck sem erros; npm test: 23/23, oito suítes.
+- Detalhes da instalação e paridade dos 40 arquivos: mobile.txt, nesta pasta.
+- A validação aprovada do ZIP extraído está registrada separadamente em mobile-zip.txt.

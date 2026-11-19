@@ -1,0 +1,358 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="e6221ce4-391b-4df9-ab66-c3ad47d9bbdf" name="samue@DESKTOP-2PSC4L7 2026-11-17 09:25:27" runUser="DESKTOP-2PSC4L7\samue" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-11-17T09:25:27.4254086-03:00" queuing="2026-11-17T09:25:27.4254087-03:00" start="2026-11-17T09:25:25.2140378-03:00" finish="2026-11-17T09:25:27.4285516-03:00" />
+  <TestSettings name="default" id="cdadb74b-6b4f-412b-80ce-8b7a3a81e90b">
+    <Deployment runDeploymentRoot="samue_DESKTOP-2PSC4L7_2026-11-17_09_25_27" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="b5e4a47e-0a00-4500-80d7-42611a5d8cf9" testId="cf9f9e3c-944c-0bc0-82b3-d8a7e39a23df" testName="TermometroDaSala.Api.Tests.ApiTestes.DemoRepetidoAncoraNaUltimaLeituraSemApagarHistoricoReal" computerName="DESKTOP-2PSC4L7" duration="00:00:01.1311035" startTime="2026-11-17T09:25:27.3787454-03:00" endTime="2026-11-17T09:25:27.3787543-03:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b5e4a47e-0a00-4500-80d7-42611a5d8cf9">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Equal() Failure: Values differ&#xD;
+Expected: 2026-11-17T11:50:00.0000000+00:00&#xD;
+Actual:   2026-11-16T11:50:00.0000000+00:00</Message>
+          <StackTrace>   at TermometroDaSala.Api.Tests.ApiTestes.DemoRepetidoAncoraNaUltimaLeituraSemApagarHistoricoReal() in C:\Users\samue\Downloads\kit-windows-ml-soa-csharp\api\TermometroDaSala.Api.Tests\ApiTestes.cs:line 163&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="TermometroDaSala.Api.Tests.ApiTestes.DemoRepetidoAncoraNaUltimaLeituraSemApagarHistoricoReal" storage="c:\users\samue\downloads\kit-windows-ml-soa-csharp\api\termometrodasala.api.tests\bin\validacao\net8.0\termometrodasala.api.tests.dll" id="cf9f9e3c-944c-0bc0-82b3-d8a7e39a23df">
+      <Execution id="b5e4a47e-0a00-4500-80d7-42611a5d8cf9" />
+      <TestMethod codeBase="C:\Users\samue\Downloads\kit-windows-ml-soa-csharp\api\TermometroDaSala.Api.Tests\bin\Validacao\net8.0\TermometroDaSala.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="TermometroDaSala.Api.Tests.ApiTestes" name="DemoRepetidoAncoraNaUltimaLeituraSemApagarHistoricoReal" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="cf9f9e3c-944c-0bc0-82b3-d8a7e39a23df" executionId="b5e4a47e-0a00-4500-80d7-42611a5d8cf9" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="1" executed="1" passed="0" failed="1" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.5.3.1+6b60a9e56a (64-bit .NET 8.0.33)&#xD;
+[xUnit.net 00:00:00.46]   Discovering: TermometroDaSala.Api.Tests&#xD;
+[xUnit.net 00:00:00.50]   Discovered:  TermometroDaSala.Api.Tests&#xD;
+[xUnit.net 00:00:00.50]   Starting:    TermometroDaSala.Api.Tests&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (4ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL;&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      CREATE TABLE "Ambientes" (&#xD;
+          "Id" TEXT NOT NULL CONSTRAINT "PK_Ambientes" PRIMARY KEY,&#xD;
+          "Nome" TEXT NOT NULL,&#xD;
+          "Tipo" TEXT NOT NULL,&#xD;
+          "Andar" INTEGER NOT NULL,&#xD;
+          "FaceSol" TEXT NOT NULL,&#xD;
+          "TemVentilador" INTEGER NOT NULL,&#xD;
+          "LarguraM" REAL NULL,&#xD;
+          "ProfundidadeM" REAL NULL&#xD;
+      );&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      CREATE TABLE "LeiturasRua" (&#xD;
+          "Id" INTEGER NOT NULL CONSTRAINT "PK_LeiturasRua" PRIMARY KEY AUTOINCREMENT,&#xD;
+          "MedidoEm" INTEGER NOT NULL,&#xD;
+          "TemperaturaC" REAL NOT NULL,&#xD;
+          "UmidadePct" INTEGER NOT NULL,&#xD;
+          "IndiceCalor" REAL NOT NULL&#xD;
+      );&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      CREATE TABLE "NiveisAcao" (&#xD;
+          "Nivel" TEXT NOT NULL CONSTRAINT "PK_NiveisAcao" PRIMARY KEY,&#xD;
+          "Nome" TEXT NOT NULL,&#xD;
+          "AcaoSugerida" TEXT NOT NULL,&#xD;
+          "IndiceMin" REAL NOT NULL&#xD;
+      );&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      CREATE TABLE "Acoes" (&#xD;
+          "Id" INTEGER NOT NULL CONSTRAINT "PK_Acoes" PRIMARY KEY AUTOINCREMENT,&#xD;
+          "AmbienteId" TEXT NOT NULL,&#xD;
+          "Nivel" TEXT NOT NULL,&#xD;
+          "Descricao" TEXT NOT NULL,&#xD;
+          "RegistradaEm" INTEGER NOT NULL,&#xD;
+          CONSTRAINT "FK_Acoes_Ambientes_AmbienteId" FOREIGN KEY ("AmbienteId") REFERENCES "Ambientes" ("Id") ON DELETE CASCADE&#xD;
+      );&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      CREATE TABLE "Dispositivos" (&#xD;
+          "Id" TEXT NOT NULL CONSTRAINT "PK_Dispositivos" PRIMARY KEY,&#xD;
+          "AmbienteId" TEXT NOT NULL,&#xD;
+          "Segredo" TEXT NOT NULL,&#xD;
+          "PosX" REAL NULL,&#xD;
+          "PosY" REAL NULL,&#xD;
+          "Rotulo" TEXT NULL,&#xD;
+          "Ativo" INTEGER NOT NULL,&#xD;
+          "UltimoMedidoEm" INTEGER NULL,&#xD;
+          CONSTRAINT "FK_Dispositivos_Ambientes_AmbienteId" FOREIGN KEY ("AmbienteId") REFERENCES "Ambientes" ("Id") ON DELETE CASCADE&#xD;
+      );&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      CREATE TABLE "Lugares" (&#xD;
+          "Id" INTEGER NOT NULL CONSTRAINT "PK_Lugares" PRIMARY KEY AUTOINCREMENT,&#xD;
+          "AmbienteId" TEXT NOT NULL,&#xD;
+          "Nome" TEXT NOT NULL,&#xD;
+          "X" REAL NOT NULL,&#xD;
+          "Y" REAL NOT NULL,&#xD;
+          "Vulneravel" INTEGER NOT NULL,&#xD;
+          CONSTRAINT "FK_Lugares_Ambientes_AmbienteId" FOREIGN KEY ("AmbienteId") REFERENCES "Ambientes" ("Id") ON DELETE CASCADE&#xD;
+      );&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      CREATE TABLE "Ocorrencias" (&#xD;
+          "Id" TEXT NOT NULL CONSTRAINT "PK_Ocorrencias" PRIMARY KEY,&#xD;
+          "AmbienteId" TEXT NOT NULL,&#xD;
+          "Descricao" TEXT NOT NULL,&#xD;
+          "CaminhoFoto" TEXT NOT NULL,&#xD;
+          "CriadaEm" INTEGER NOT NULL,&#xD;
+          CONSTRAINT "FK_Ocorrencias_Ambientes_AmbienteId" FOREIGN KEY ("AmbienteId") REFERENCES "Ambientes" ("Id") ON DELETE CASCADE&#xD;
+      );&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      CREATE TABLE "Previsoes" (&#xD;
+          "Id" INTEGER NOT NULL CONSTRAINT "PK_Previsoes" PRIMARY KEY AUTOINCREMENT,&#xD;
+          "AmbienteId" TEXT NOT NULL,&#xD;
+          "PrevistoPara" INTEGER NOT NULL,&#xD;
+          "IndiceRuaPrevisto" REAL NOT NULL,&#xD;
+          "DeltaSala" REAL NULL,&#xD;
+          "IndiceSalaPrevisto" REAL NULL,&#xD;
+          "NivelPrevisto" TEXT NOT NULL,&#xD;
+          "SemLeiturasRecentes" INTEGER NOT NULL,&#xD;
+          "CalculadaEm" INTEGER NOT NULL,&#xD;
+          CONSTRAINT "FK_Previsoes_Ambientes_AmbienteId" FOREIGN KEY ("AmbienteId") REFERENCES "Ambientes" ("Id") ON DELETE CASCADE&#xD;
+      );&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      CREATE TABLE "Leituras" (&#xD;
+          "Id" INTEGER NOT NULL CONSTRAINT "PK_Leituras" PRIMARY KEY AUTOINCREMENT,&#xD;
+          "AmbienteId" TEXT NOT NULL,&#xD;
+          "DispositivoId" TEXT NOT NULL,&#xD;
+          "TemperaturaC" REAL NOT NULL,&#xD;
+          "UmidadePct" INTEGER NOT NULL,&#xD;
+          "IndiceCalor" REAL NOT NULL,&#xD;
+          "Nivel" TEXT NOT NULL,&#xD;
+          "MedidoEm" INTEGER NOT NULL,&#xD;
+          "Origem" TEXT NOT NULL,&#xD;
+          "Suspeita" INTEGER NOT NULL,&#xD;
+          CONSTRAINT "FK_Leituras_Ambientes_AmbienteId" FOREIGN KEY ("AmbienteId") REFERENCES "Ambientes" ("Id") ON DELETE CASCADE,&#xD;
+          CONSTRAINT "FK_Leituras_Dispositivos_DispositivoId" FOREIGN KEY ("DispositivoId") REFERENCES "Dispositivos" ("Id") ON DELETE RESTRICT&#xD;
+      );&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      INSERT INTO "Ambientes" ("Id", "Andar", "FaceSol", "LarguraM", "Nome", "ProfundidadeM", "TemVentilador", "Tipo")&#xD;
+      VALUES ('sala-01', 0, 'leste', NULL, 'Sala 1', NULL, 1, 'sala');&#xD;
+      SELECT changes();&#xD;
+      INSERT INTO "Ambientes" ("Id", "Andar", "FaceSol", "LarguraM", "Nome", "ProfundidadeM", "TemVentilador", "Tipo")&#xD;
+      VALUES ('sala-02', 0, 'norte', NULL, 'Sala 2', NULL, 1, 'sala');&#xD;
+      SELECT changes();&#xD;
+      INSERT INTO "Ambientes" ("Id", "Andar", "FaceSol", "LarguraM", "Nome", "ProfundidadeM", "TemVentilador", "Tipo")&#xD;
+      VALUES ('sala-03', 1, 'oeste', NULL, 'Sala 3', NULL, 1, 'sala');&#xD;
+      SELECT changes();&#xD;
+      INSERT INTO "Ambientes" ("Id", "Andar", "FaceSol", "LarguraM", "Nome", "ProfundidadeM", "TemVentilador", "Tipo")&#xD;
+      VALUES ('sala-04', 2, 'sul', NULL, 'Sala 4', NULL, 0, 'sala');&#xD;
+      SELECT changes();&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      INSERT INTO "NiveisAcao" ("Nivel", "AcaoSugerida", "IndiceMin", "Nome")&#xD;
+      VALUES ('atencao', 'liberar �gua, abrir janelas e ligar ventiladores', 27.0, 'Aten�ao');&#xD;
+      SELECT changes();&#xD;
+      INSERT INTO "NiveisAcao" ("Nivel", "AcaoSugerida", "IndiceMin", "Nome")&#xD;
+      VALUES ('cuidado', 'pausa, troca de sala ou adiar a Educa�ao F�sica', 32.0, 'Cuidado extremo');&#xD;
+      SELECT changes();&#xD;
+      INSERT INTO "NiveisAcao" ("Nivel", "AcaoSugerida", "IndiceMin", "Nome")&#xD;
+      VALUES ('frio', 'Fechar janelas, agasalhar e oferecer cobertor; � noite, avisar o plantao e levar quem estiver no c�modo mais frio para outro', -273.14999999999998, 'Frio');&#xD;
+      SELECT changes();&#xD;
+      INSERT INTO "NiveisAcao" ("Nivel", "AcaoSugerida", "IndiceMin", "Nome")&#xD;
+      VALUES ('normal', 'nenhuma', 18.0, 'Normal');&#xD;
+      SELECT changes();&#xD;
+      INSERT INTO "NiveisAcao" ("Nivel", "AcaoSugerida", "IndiceMin", "Nome")&#xD;
+      VALUES ('perigo', 'tirar a turma da sala', 41.0, 'Perigo');&#xD;
+      SELECT changes();&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      INSERT INTO "Dispositivos" ("Id", "AmbienteId", "Ativo", "PosX", "PosY", "Rotulo", "Segredo", "UltimoMedidoEm")&#xD;
+      VALUES ('esp32-sala-01', 'sala-01', 1, NULL, NULL, NULL, 'segredo-de-teste-sala-01', NULL);&#xD;
+      SELECT changes();&#xD;
+      INSERT INTO "Dispositivos" ("Id", "AmbienteId", "Ativo", "PosX", "PosY", "Rotulo", "Segredo", "UltimoMedidoEm")&#xD;
+      VALUES ('esp32-sala-02', 'sala-02', 1, NULL, NULL, NULL, 'segredo-de-teste-sala-02', NULL);&#xD;
+      SELECT changes();&#xD;
+      INSERT INTO "Dispositivos" ("Id", "AmbienteId", "Ativo", "PosX", "PosY", "Rotulo", "Segredo", "UltimoMedidoEm")&#xD;
+      VALUES ('esp32-sala-03', 'sala-03', 1, NULL, NULL, NULL, 'segredo-de-teste-sala-03', NULL);&#xD;
+      SELECT changes();&#xD;
+      INSERT INTO "Dispositivos" ("Id", "AmbienteId", "Ativo", "PosX", "PosY", "Rotulo", "Segredo", "UltimoMedidoEm")&#xD;
+      VALUES ('esp32-sala-04', 'sala-04', 1, NULL, NULL, NULL, 'segredo-de-teste-sala-04', NULL);&#xD;
+      SELECT changes();&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      CREATE INDEX "IX_Acoes_AmbienteId" ON "Acoes" ("AmbienteId");&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      CREATE INDEX "IX_Dispositivos_AmbienteId" ON "Dispositivos" ("AmbienteId");&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      CREATE INDEX "IX_Leituras_AmbienteId_MedidoEm" ON "Leituras" ("AmbienteId", "MedidoEm");&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      CREATE INDEX "IX_Leituras_DispositivoId" ON "Leituras" ("DispositivoId");&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      CREATE INDEX "IX_LeiturasRua_MedidoEm" ON "LeiturasRua" ("MedidoEm");&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      CREATE UNIQUE INDEX "IX_Lugares_AmbienteId_Nome" ON "Lugares" ("AmbienteId", "Nome");&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      CREATE INDEX "IX_Ocorrencias_AmbienteId" ON "Ocorrencias" ("AmbienteId");&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      CREATE INDEX "IX_Previsoes_AmbienteId" ON "Previsoes" ("AmbienteId");&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (2ms) [Parameters=[@p0='?' (Size = 7), @p1='?' (Size = 13), @p2='?' (DbType = Double), @p3='?' (DbType = Int64), @p4='?' (Size = 7), @p5='?' (Size = 11), @p6='?' (DbType = Boolean), @p7='?' (DbType = Double), @p8='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      INSERT INTO "Leituras" ("AmbienteId", "DispositivoId", "IndiceCalor", "MedidoEm", "Nivel", "Origem", "Suspeita", "TemperaturaC", "UmidadePct")&#xD;
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8)&#xD;
+      RETURNING "Id";&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 7), @p1='?' (Size = 13), @p2='?' (DbType = Double), @p3='?' (DbType = Int64), @p4='?' (Size = 7), @p5='?' (Size = 11), @p6='?' (DbType = Boolean), @p7='?' (DbType = Double), @p8='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      INSERT INTO "Leituras" ("AmbienteId", "DispositivoId", "IndiceCalor", "MedidoEm", "Nivel", "Origem", "Suspeita", "TemperaturaC", "UmidadePct")&#xD;
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8)&#xD;
+      RETURNING "Id";&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[@__ambienteId_0='?' (Size = 7)], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT EXISTS (&#xD;
+          SELECT 1&#xD;
+          FROM "Ambientes" AS "a"&#xD;
+          WHERE "a"."Id" = @__ambienteId_0)&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[@__ambienteId_0='?' (Size = 7)], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT "l"."Id", "l"."AmbienteId", "l"."DispositivoId", "l"."IndiceCalor", "l"."MedidoEm", "l"."Nivel", "l"."Origem", "l"."Suspeita", "l"."TemperaturaC", "l"."UmidadePct"&#xD;
+      FROM "Leituras" AS "l"&#xD;
+      WHERE "l"."AmbienteId" = @__ambienteId_0 AND "l"."Origem" = 'dispositivo'&#xD;
+      ORDER BY "l"."MedidoEm"&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[@__ambienteId_0='?' (Size = 7)], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT "d"."Id", "d"."AmbienteId", "d"."Ativo", "d"."PosX", "d"."PosY", "d"."Rotulo", "d"."Segredo", "d"."UltimoMedidoEm"&#xD;
+      FROM "Dispositivos" AS "d"&#xD;
+      WHERE "d"."AmbienteId" = @__ambienteId_0&#xD;
+      LIMIT 1&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[@__ambienteId_0='?' (Size = 7)], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT "l"."Id", "l"."AmbienteId", "l"."DispositivoId", "l"."IndiceCalor", "l"."MedidoEm", "l"."Nivel", "l"."Origem", "l"."Suspeita", "l"."TemperaturaC", "l"."UmidadePct"&#xD;
+      FROM "Leituras" AS "l"&#xD;
+      WHERE "l"."AmbienteId" = @__ambienteId_0 AND "l"."Origem" = 'simulada'&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 7), @p1='?' (Size = 13), @p2='?' (DbType = Double), @p3='?' (DbType = Int64), @p4='?' (Size = 7), @p5='?' (Size = 8), @p6='?' (DbType = Boolean), @p7='?' (DbType = Double), @p8='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      INSERT INTO "Leituras" ("AmbienteId", "DispositivoId", "IndiceCalor", "MedidoEm", "Nivel", "Origem", "Suspeita", "TemperaturaC", "UmidadePct")&#xD;
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8)&#xD;
+      RETURNING "Id";&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 7), @p1='?' (Size = 13), @p2='?' (DbType = Double), @p3='?' (DbType = Int64), @p4='?' (Size = 7), @p5='?' (Size = 8), @p6='?' (DbType = Boolean), @p7='?' (DbType = Double), @p8='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      INSERT INTO "Leituras" ("AmbienteId", "DispositivoId", "IndiceCalor", "MedidoEm", "Nivel", "Origem", "Suspeita", "TemperaturaC", "UmidadePct")&#xD;
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8)&#xD;
+      RETURNING "Id";&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 7), @p1='?' (Size = 13), @p2='?' (DbType = Double), @p3='?' (DbType = Int64), @p4='?' (Size = 7), @p5='?' (Size = 8), @p6='?' (DbType = Boolean), @p7='?' (DbType = Double), @p8='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      INSERT INTO "Leituras" ("AmbienteId", "DispositivoId", "IndiceCalor", "MedidoEm", "Nivel", "Origem", "Suspeita", "TemperaturaC", "UmidadePct")&#xD;
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8)&#xD;
+      RETURNING "Id";&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 7), @p1='?' (Size = 13), @p2='?' (DbType = Double), @p3='?' (DbType = Int64), @p4='?' (Size = 7), @p5='?' (Size = 8), @p6='?' (DbType = Boolean), @p7='?' (DbType = Double), @p8='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      INSERT INTO "Leituras" ("AmbienteId", "DispositivoId", "IndiceCalor", "MedidoEm", "Nivel", "Origem", "Suspeita", "TemperaturaC", "UmidadePct")&#xD;
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8)&#xD;
+      RETURNING "Id";&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 7), @p1='?' (Size = 13), @p2='?' (DbType = Double), @p3='?' (DbType = Int64), @p4='?' (Size = 7), @p5='?' (Size = 8), @p6='?' (DbType = Boolean), @p7='?' (DbType = Double), @p8='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      INSERT INTO "Leituras" ("AmbienteId", "DispositivoId", "IndiceCalor", "MedidoEm", "Nivel", "Origem", "Suspeita", "TemperaturaC", "UmidadePct")&#xD;
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8)&#xD;
+      RETURNING "Id";&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 7), @p1='?' (Size = 13), @p2='?' (DbType = Double), @p3='?' (DbType = Int64), @p4='?' (Size = 7), @p5='?' (Size = 8), @p6='?' (DbType = Boolean), @p7='?' (DbType = Double), @p8='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      INSERT INTO "Leituras" ("AmbienteId", "DispositivoId", "IndiceCalor", "MedidoEm", "Nivel", "Origem", "Suspeita", "TemperaturaC", "UmidadePct")&#xD;
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8)&#xD;
+      RETURNING "Id";&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 7), @p1='?' (Size = 13), @p2='?' (DbType = Double), @p3='?' (DbType = Int64), @p4='?' (Size = 7), @p5='?' (Size = 8), @p6='?' (DbType = Boolean), @p7='?' (DbType = Double), @p8='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      INSERT INTO "Leituras" ("AmbienteId", "DispositivoId", "IndiceCalor", "MedidoEm", "Nivel", "Origem", "Suspeita", "TemperaturaC", "UmidadePct")&#xD;
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8)&#xD;
+      RETURNING "Id";&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 7), @p1='?' (Size = 13), @p2='?' (DbType = Double), @p3='?' (DbType = Int64), @p4='?' (Size = 7), @p5='?' (Size = 8), @p6='?' (DbType = Boolean), @p7='?' (DbType = Double), @p8='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      INSERT INTO "Leituras" ("AmbienteId", "DispositivoId", "IndiceCalor", "MedidoEm", "Nivel", "Origem", "Suspeita", "TemperaturaC", "UmidadePct")&#xD;
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8)&#xD;
+      RETURNING "Id";&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 7), @p1='?' (Size = 13), @p2='?' (DbType = Double), @p3='?' (DbType = Int64), @p4='?' (Size = 7), @p5='?' (Size = 8), @p6='?' (DbType = Boolean), @p7='?' (DbType = Double), @p8='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      INSERT INTO "Leituras" ("AmbienteId", "DispositivoId", "IndiceCalor", "MedidoEm", "Nivel", "Origem", "Suspeita", "TemperaturaC", "UmidadePct")&#xD;
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8)&#xD;
+      RETURNING "Id";&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 7), @p1='?' (Size = 13), @p2='?' (DbType = Double), @p3='?' (DbType = Int64), @p4='?' (Size = 7), @p5='?' (Size = 8), @p6='?' (DbType = Boolean), @p7='?' (DbType = Double), @p8='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      INSERT INTO "Leituras" ("AmbienteId", "DispositivoId", "IndiceCalor", "MedidoEm", "Nivel", "Origem", "Suspeita", "TemperaturaC", "UmidadePct")&#xD;
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8)&#xD;
+      RETURNING "Id";&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 7), @p1='?' (Size = 13), @p2='?' (DbType = Double), @p3='?' (DbType = Int64), @p4='?' (Size = 7), @p5='?' (Size = 8), @p6='?' (DbType = Boolean), @p7='?' (DbType = Double), @p8='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      INSERT INTO "Leituras" ("AmbienteId", "DispositivoId", "IndiceCalor", "MedidoEm", "Nivel", "Origem", "Suspeita", "TemperaturaC", "UmidadePct")&#xD;
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8)&#xD;
+      RETURNING "Id";&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 7), @p1='?' (Size = 13), @p2='?' (DbType = Double), @p3='?' (DbType = Int64), @p4='?' (Size = 7), @p5='?' (Size = 8), @p6='?' (DbType = Boolean), @p7='?' (DbType = Double), @p8='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      INSERT INTO "Leituras" ("AmbienteId", "DispositivoId", "IndiceCalor", "MedidoEm", "Nivel", "Origem", "Suspeita", "TemperaturaC", "UmidadePct")&#xD;
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8)&#xD;
+      RETURNING "Id";&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 7), @p1='?' (Size = 13), @p2='?' (DbType = Double), @p3='?' (DbType = Int64), @p4='?' (Size = 7), @p5='?' (Size = 8), @p6='?' (DbType = Boolean), @p7='?' (DbType = Double), @p8='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      INSERT INTO "Leituras" ("AmbienteId", "DispositivoId", "IndiceCalor", "MedidoEm", "Nivel", "Origem", "Suspeita", "TemperaturaC", "UmidadePct")&#xD;
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8)&#xD;
+      RETURNING "Id";&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 7), @p1='?' (Size = 13), @p2='?' (DbType = Double), @p3='?' (DbType = Int64), @p4='?' (Size = 7), @p5='?' (Size = 8), @p6='?' (DbType = Boolean), @p7='?' (DbType = Double), @p8='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      INSERT INTO "Leituras" ("AmbienteId", "DispositivoId", "IndiceCalor", "MedidoEm", "Nivel", "Origem", "Suspeita", "TemperaturaC", "UmidadePct")&#xD;
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8)&#xD;
+      RETURNING "Id";&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 7), @p1='?' (Size = 13), @p2='?' (DbType = Double), @p3='?' (DbType = Int64), @p4='?' (Size = 7), @p5='?' (Size = 8), @p6='?' (DbType = Boolean), @p7='?' (DbType = Double), @p8='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      INSERT INTO "Leituras" ("AmbienteId", "DispositivoId", "IndiceCalor", "MedidoEm", "Nivel", "Origem", "Suspeita", "TemperaturaC", "UmidadePct")&#xD;
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8)&#xD;
+      RETURNING "Id";&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 7), @p1='?' (Size = 13), @p2='?' (DbType = Double), @p3='?' (DbType = Int64), @p4='?' (Size = 7), @p5='?' (Size = 8), @p6='?' (DbType = Boolean), @p7='?' (DbType = Double), @p8='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      INSERT INTO "Leituras" ("AmbienteId", "DispositivoId", "IndiceCalor", "MedidoEm", "Nivel", "Origem", "Suspeita", "TemperaturaC", "UmidadePct")&#xD;
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8)&#xD;
+      RETURNING "Id";&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 7), @p1='?' (Size = 13), @p2='?' (DbType = Double), @p3='?' (DbType = Int64), @p4='?' (Size = 7), @p5='?' (Size = 8), @p6='?' (DbType = Boolean), @p7='?' (DbType = Double), @p8='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      INSERT INTO "Leituras" ("AmbienteId", "DispositivoId", "IndiceCalor", "MedidoEm", "Nivel", "Origem", "Suspeita", "TemperaturaC", "UmidadePct")&#xD;
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8)&#xD;
+      RETURNING "Id";&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 7), @p1='?' (Size = 13), @p2='?' (DbType = Double), @p3='?' (DbType = Int64), @p4='?' (Size = 7), @p5='?' (Size = 8), @p6='?' (DbType = Boolean), @p7='?' (DbType = Double), @p8='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']&#xD;
+      INSERT INTO "Leituras" ("AmbienteId", "DispositivoId", "IndiceCalor", "MedidoEm", "Nivel", "Origem", "Suspeita", "TemperaturaC", "UmidadePct")&#xD;
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8)&#xD;
+      RETURNING "Id";&#xD;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]&#xD;
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']&#xD;
+      SELECT "l"."Id", "l"."AmbienteId", "l"."DispositivoId", "l"."IndiceCalor", "l"."MedidoEm", "l"."Nivel", "l"."Origem", "l"."Suspeita", "l"."TemperaturaC", "l"."UmidadePct"&#xD;
+      FROM "Leituras" AS "l"&#xD;
+      WHERE "l"."Origem" = 'simulada'&#xD;
+[xUnit.net 00:00:01.66]       Assert.Equal() Failure: Values differ&#xD;
+[xUnit.net 00:00:01.66]       Expected: 2026-11-17T11:50:00.0000000+00:00&#xD;
+[xUnit.net 00:00:01.66]       Actual:   2026-11-16T11:50:00.0000000+00:00&#xD;
+[xUnit.net 00:00:01.66]       Stack Trace:&#xD;
+[xUnit.net 00:00:01.66]         C:\Users\samue\Downloads\kit-windows-ml-soa-csharp\api\TermometroDaSala.Api.Tests\ApiTestes.cs(163,0): at TermometroDaSala.Api.Tests.ApiTestes.DemoRepetidoAncoraNaUltimaLeituraSemApagarHistoricoReal()&#xD;
+[xUnit.net 00:00:01.66]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:01.66]   Finished:    TermometroDaSala.Api.Tests&#xD;
+</StdOut>
+    </Output>
+    <RunInfos>
+      <RunInfo computerName="DESKTOP-2PSC4L7" outcome="Error" timestamp="2026-11-17T09:25:27.3776355-03:00">
+        <Text>[xUnit.net 00:00:01.66]     TermometroDaSala.Api.Tests.ApiTestes.DemoRepetidoAncoraNaUltimaLeituraSemApagarHistoricoReal [FAIL]</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>

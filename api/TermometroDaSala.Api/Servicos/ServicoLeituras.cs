@@ -25,7 +25,8 @@ public class ServicoLeituras
 
     public async Task<ResultadoLeitura> Receber(LeituraEntrada entrada, Origem origem = Origem.dispositivo)
     {
-        var dispositivo = await _db.Dispositivos.FindAsync(entrada.Dispositivo);
+        var dispositivo = await _db.Dispositivos.AsNoTracking()
+            .SingleOrDefaultAsync(d => d.Id == entrada.Dispositivo);
         var motivo = ValidadorLeitura.Motivo(
             dispositivo?.AmbienteId,
             dispositivo?.Ativo,
@@ -45,9 +46,23 @@ public class ServicoLeituras
         }
 
         var quando = DateTimeOffset.FromUnixTimeSeconds(entrada.MedidoEm);
-        // shortcut: ordena na memória, o SQLite do teste não ordena DateTimeOffset; volte ao ORDER BY se uma sala passar de um dia de leituras
-        var anteriores = await _db.Leituras.Where(l => l.DispositivoId == entrada.Dispositivo).ToListAsync();
-        double? anterior = anteriores.OrderByDescending(l => l.MedidoEm).FirstOrDefault()?.TemperaturaC;
+        // Reserva e leitura são atômicas, inclusive entre HTTP e MQTT em processos diferentes.
+        await using var transacao = await _db.Database.BeginTransactionAsync();
+        var reservados = await _db.Dispositivos
+            .Where(d => d.Id == entrada.Dispositivo && d.Ativo
+                && (d.UltimoMedidoEm == null || d.UltimoMedidoEm < quando))
+            .ExecuteUpdateAsync(s => s.SetProperty(d => d.UltimoMedidoEm, quando));
+        if (reservados == 0)
+        {
+            var ativo = await _db.Dispositivos.Where(d => d.Id == entrada.Dispositivo)
+                .Select(d => (bool?)d.Ativo).SingleOrDefaultAsync();
+            motivo = ativo is null ? "assinatura-invalida" : ativo.Value ? "reenvio" : "dispositivo-revogado";
+            _log.LogWarning("leitura recusada: {Motivo}", motivo);
+            return new ResultadoLeitura(400, motivo, null, false, 0, "");
+        }
+
+        var anterior = await _db.Leituras.Where(l => l.DispositivoId == entrada.Dispositivo)
+            .OrderByDescending(l => l.MedidoEm).Select(l => (double?)l.TemperaturaC).FirstOrDefaultAsync();
         var suspeita = ValidadorLeitura.Suspeita(entrada.TemperaturaC, anterior, _rua.TemperaturaNoInstante(quando));
         if (suspeita) _log.LogWarning("leitura marcada: {Motivo}", "suspeita");
 
@@ -59,14 +74,14 @@ public class ServicoLeituras
             TemperaturaC = entrada.TemperaturaC,
             UmidadePct = entrada.UmidadePct,
             IndiceCalor = indice,
-            Nivel = Enum.Parse<Nivel>(IndiceCalor.Nivel(indice)),
+            Nivel = IndiceCalor.Nivel(indice),
             MedidoEm = quando,
             Origem = origem,
             Suspeita = suspeita,
         };
         _db.Leituras.Add(leitura);
-        dispositivo!.UltimoMedidoEm = quando;
         await _db.SaveChangesAsync();
+        await transacao.CommitAsync();
         _log.LogInformation("leitura aceita {Ambiente} {Nivel}", entrada.AmbienteId, leitura.Nivel);
         return new ResultadoLeitura(201, null, leitura.Id, suspeita, indice, leitura.Nivel.ToString());
     }

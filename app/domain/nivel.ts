@@ -1,4 +1,4 @@
-export type Nivel = 'normal' | 'atencao' | 'cuidado' | 'perigo';
+export type Nivel = 'frio' | 'normal' | 'atencao' | 'cuidado' | 'perigo';
 
 export type ApresentacaoNivel = {
   nome: string;
@@ -7,6 +7,7 @@ export type ApresentacaoNivel = {
 };
 
 const APRESENTACAO: Record<Nivel, ApresentacaoNivel> = {
+  frio: { nome: 'Frio', acao: 'Fechar janelas, agasalhar e oferecer cobertor; à noite, avisar o plantão', cor: '#1D4ED8' },
   normal: { nome: 'Normal', acao: 'Nenhuma', cor: '#166534' },
   atencao: {
     nome: 'Atenção',
@@ -22,19 +23,19 @@ const APRESENTACAO: Record<Nivel, ApresentacaoNivel> = {
 };
 
 export function ehNivel(valor: string): valor is Nivel {
-  return valor in APRESENTACAO;
+  return Object.prototype.hasOwnProperty.call(APRESENTACAO, valor);
 }
 
 // 27 entra em atenção, 32 em cuidado e 41 em perigo. O topo da faixa anterior fica de fora.
 export function nivelDeIndice(indice: number): Nivel {
-  if (!Number.isFinite(indice)) throw new Error('indice invalido');
+  if (!Number.isFinite(indice)) throw new Error('índice inválido');
+  if (indice < 18) return 'frio';
   if (indice < 27) return 'normal';
   if (indice < 32) return 'atencao';
   if (indice < 41) return 'cuidado';
   return 'perigo';
 }
 
-export function apresentarNivel(nivel: string): ApresentacaoNivel {
-  if (ehNivel(nivel)) return APRESENTACAO[nivel];
-  return { nome: nivel, acao: 'Nenhuma', cor: '#44403C' };
+export function apresentarNivel(nivel: Nivel): ApresentacaoNivel {
+  return APRESENTACAO[nivel];
 }

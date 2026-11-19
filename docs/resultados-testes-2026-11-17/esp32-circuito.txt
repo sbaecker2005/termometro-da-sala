@@ -1,0 +1,6 @@
+Circuito confere: 110 verificacoes OK
+Exit code: 0
+Data: 17/11/2026
+Comando: python.exe -B esp32/conferir_circuito.py
+Runtime: C:/Program Files/WindowsApps/OpenAI.CodexPrimaryRuntime.v26-1112-611-0_26.1112.611.0_x64__3k8sg7r9htsxt/dependencies/python/python.exe
+Escopo: conferencias estaticas de pinagem/circuito/bibliotecas; nao compila firmware nem executa Wokwi.

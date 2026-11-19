@@ -1,0 +1,10 @@
+2026-11-17T09:12:29.8760892-03:00
+Demo; duas copias simultaneas; POST http://localhost:5081/leituras
+Content-Type: application/json
+Corpo: {"ambienteId":"sala-03","dispositivo":"esp32-sala-03","temperaturaC":33.4,"umidadePct":58,"medidoEm":1794917549,"assinatura":"9b7cf7e611a695338256e181d7b25709d97907ef85ae5449b3794765fd2884a1"}
+HTTP 201
+[Transfer-Encoding, System.String[]] [X-Content-Type-Options, System.String[]] [Date, System.String[]] [Location, System.String[]] [Server, System.String[]][Content-Type, System.String[]]
+{"id":28,"suspeita":false,"indiceCalor":39.8,"nivel":"cuidado"}
+HTTP 400
+[Transfer-Encoding, System.String[]] [X-Content-Type-Options, System.String[]] [Date, System.String[]] [Server, System.String[]][Content-Type, System.String[]]
+{"motivo":"reenvio"}

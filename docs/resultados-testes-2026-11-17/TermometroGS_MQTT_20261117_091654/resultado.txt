@@ -1,0 +1,24 @@
+2026-11-17T09:16:54.8113200-03:00
+SQL Server Express real; HTTP 5082; MQTT 18884 em loopback; TermometroGS_MQTT_20261117_091654
+OK: cinco migracoes aplicadas em banco novo
+OK: leitura HTTP persistida no SQL Server
+OK: leitura MQTT atravessa broker, assinante real e SQL Server
+OK: corrida HTTP/MQTT 1: exatamente uma linha para o mesmo instante
+OK: corrida HTTP/MQTT 2: exatamente uma linha para o mesmo instante
+OK: corrida HTTP/MQTT 3: exatamente uma linha para o mesmo instante
+OK: corrida HTTP/MQTT 4: exatamente uma linha para o mesmo instante
+OK: corrida HTTP/MQTT 5: exatamente uma linha para o mesmo instante
+OK: corrida HTTP/MQTT 6: exatamente uma linha para o mesmo instante
+OK: corrida HTTP/MQTT 7: exatamente uma linha para o mesmo instante
+OK: corrida HTTP/MQTT 8: exatamente uma linha para o mesmo instante
+OK: corrida HTTP/MQTT 9: exatamente uma linha para o mesmo instante
+OK: corrida HTTP/MQTT 10: exatamente uma linha para o mesmo instante
+OK: HTTP antigo recusado apos concorrencia
+OK: MQTT antigo nao duplica nem regride o timestamp
+OK: revogacao confirmada pela API real
+OK: HTTP de dispositivo revogado recusado
+OK: MQTT de dispositivo revogado nao grava leitura
+OK: falha SQL controlada apos reserva do timestamp
+OK: rollback SQL preserva leitura e timestamp anteriores
+OK: mesma leitura aceita depois de retirar a falha controlada
+CONCLUIDO: 21 verificacoes aprovadas. Banco preservado; nenhum banco anterior alterado.

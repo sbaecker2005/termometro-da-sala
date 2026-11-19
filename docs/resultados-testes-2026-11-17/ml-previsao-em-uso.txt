@@ -1,0 +1,7 @@
+Previsao incompleta. Confira modelo, CSV e leituras; nao grave o video com esse estado.
+At C:\Users\samue\Downloads\kit-windows-ml-soa-csharp\ferramentas\preparar-cena-ml.ps1:55 char:5
++     throw 'Previsao incompleta. Confira modelo, CSV e leituras; nao g ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (Previsao incomp...om esse estado.:String) [], RuntimeException
+    + FullyQualifiedErrorId : Previsao incompleta. Confira modelo, CSV e leituras; nao grave o video com esse estado.
+ 

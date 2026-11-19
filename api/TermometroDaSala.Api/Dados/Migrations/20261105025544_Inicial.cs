@@ -179,7 +179,7 @@ namespace TermometroDaSala.Api.Dados.Migrations
                         column: x => x.DispositivoId,
                         principalTable: "Dispositivos",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
                 });
 
             migrationBuilder.InsertData(

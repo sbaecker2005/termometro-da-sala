@@ -1,0 +1,55 @@
+---
+title: "Termômetro da Sala — Relatório de Gestão de Riscos"
+subtitle: "Cybersecurity · Global Solution 2026.2 · FIAP — Engenharia de Software, 3º ano"
+author:
+  - "Equipe Termômetro da Sala"
+  - "Samuel David Baecker — RM 559269"
+  - "Lucas de Almeida Villar — RM 560005"
+  - "Guilherme Augusto Caseiro — RM 559765"
+date: "Análise: 05/11/2026 · Laboratório Windows Server: 17 e 18/11/2026 · Entrega: 19/11/2026"
+lang: pt-BR
+documentclass: article
+papersize: a4
+fontsize: 10pt
+geometry:
+  - top=2.2cm
+  - bottom=2.2cm
+  - left=2.2cm
+  - right=2.2cm
+monofont: "DejaVu Sans Mono"
+monofontoptions:
+  - "Scale=0.75"
+colorlinks: true
+linkcolor: Maroon
+urlcolor: MidnightBlue
+toc: true
+include-before:
+  - "\\newpage"
+toc-depth: 2
+numbersections: false
+header-includes:
+  - \usepackage{etoolbox}
+  # Permite hifenizar dentro de \texttt: nomes longos de teste cabem na celula.
+  - \usepackage[htt]{hyphenat}
+  - \usepackage{ragged2e}
+  # Tabelas largas: corpo menor e quebra de linha dentro da celula.
+  - \AtBeginEnvironment{longtable}{\footnotesize\RaggedRight}
+  - \setlength{\emergencystretch}{5em}
+  - \usepackage{pdflscape}
+  # Trechos de codigo: quebra as linhas longas em vez de passar da margem.
+  - \usepackage{fvextra}
+  - \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,commandchars=\\\{\}}
+  # Prints na ordem do texto, sem flutuar para outra pagina.
+  - \usepackage{float}
+  - \floatplacement{figure}{H}
+  # Comandos, nao ambientes: o pandoc engoliria o conteudo de um ambiente cru.
+  - \newcommand{\blandscape}{\begin{landscape}}
+  - \newcommand{\elandscape}{\end{landscape}}
+  - \usepackage{fancyhdr}
+  - \pagestyle{fancy}
+  - \fancyhf{}
+  - \fancyhead[L]{\footnotesize Termômetro da Sala — Gestão de Riscos}
+  - \fancyhead[R]{\footnotesize Cybersecurity · GS 2026.2}
+  - \fancyfoot[C]{\footnotesize\thepage}
+  - \renewcommand{\headrulewidth}{0.4pt}
+---

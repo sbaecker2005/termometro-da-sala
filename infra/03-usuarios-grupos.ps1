@@ -23,6 +23,14 @@ foreach ($name in @($Coordenador,$Administrador)) {
         New-ADUser -Name $name -SamAccountName $name -UserPrincipalName "$name@$($domain.DNSRoot)" -Path $ou -AccountPassword $password -Enabled $true -ChangePasswordAtLogon $true
     }
 }
-Add-ADGroupMember -Identity Coordenacao -Members $Coordenador
-Add-ADGroupMember -Identity AdminsTermometro -Members $Administrador
-Write-Host 'AdminsTermometro autoriza RDP; nao concede administracao do dominio. Use conta administrativa separada para instalar.'
+# Add-ADGroupMember falha quando o membro ja existe: conferir antes mantem o script repetivel.
+function Add-MembroSeFaltar([string]$Grupo, [string]$Membro) {
+    $atuais = @(Get-ADGroupMember -Identity $Grupo | Select-Object -ExpandProperty SamAccountName)
+    if ($atuais -notcontains $Membro) { Add-ADGroupMember -Identity $Grupo -Members $Membro }
+}
+Add-MembroSeFaltar 'Coordenacao' $Coordenador
+Add-MembroSeFaltar 'AdminsTermometro' $Administrador
+# Permissao no listener RDP: grupo interno Remote Desktop Users (SID fixo, independe do idioma). O direito de logon vem da GPO (passo 6).
+Add-MembroSeFaltar 'S-1-5-32-555' 'AdminsTermometro'
+Get-ADGroupMember -Identity 'S-1-5-32-555' | Select-Object Name,SamAccountName
+Write-Host 'AdminsTermometro entrou em Remote Desktop Users; o RDP so libera depois do direito na GPO (passo 6). Nao concede administracao do dominio. Use conta administrativa separada para instalar.'
