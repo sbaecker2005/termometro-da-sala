@@ -50,6 +50,10 @@ struct Ponto { double temperatura, indice; Nivel nivel; };
 Ponto pontos[TOTAL] = {{0, 0, SEM_LEITURA}, {0, 0, SEM_LEITURA},
                        {0, 0, SEM_LEITURA}, {0, 0, SEM_LEITURA}};
 int maisFrio = -1, maisQuente = -1;
+// Antes da primeira funcao: os prototipos que o Arduino gera (publicar(const Leitura&)) precisam conhecer o tipo.
+// Leitura já formatada: o mesmo texto da temperatura vai no JSON e no HMAC.
+struct Leitura { char temperatura[16]; int umidade; long long instante; int sensor; };
+struct Lote { Leitura leituras[TOTAL]; int quantidade; };
 
 void atualizarExtremos() {
   maisFrio = maisQuente = -1;
@@ -69,9 +73,6 @@ WiFiClient rede;
 PubSubClient mqtt(rede);
 volatile bool relogioSincronizado = false;  // vira true no primeiro acerto do NTP
 
-// Leitura já formatada: o mesmo texto da temperatura vai no JSON e no HMAC.
-struct Leitura { char temperatura[16]; int umidade; long long instante; int sensor; };
-struct Lote { Leitura leituras[TOTAL]; int quantidade; };
 QueueHandle_t fila;  // um lote: as ultimas leituras dos quatro pontos
 bool ciente = false;  // professor apertou "Ciente" neste Perigo; zera quando o nível sai de Perigo
 
