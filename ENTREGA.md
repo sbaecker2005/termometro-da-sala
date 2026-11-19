@@ -14,7 +14,7 @@ Meta: nota 10 em todas as disciplinas. Os itens abaixo só ficam concluídos com
 |---|---|---|
 | SOA | API 138/138 (camada `IServicoAmbientes` e `Ambiente.Alterar`); cinco migrações; SQL Express 98/98 e MQTT/HTTP/SQL 33/33 nesta revisão. Insomnia 29/29 em 19/11 com um print por requisição | Publicar código e evidências no GitHub, conferir o acesso e enviar o link |
 | C# | Fontes: 22/22 testes e seis autotestes (19/11, com a correção das ações de exemplo perto da meia-noite); tela e horário, mapa C01-C20/S1-S4, frio azul, PNG Agora/+1 h e rolagem conferidos na versão atual; entrevista e versões conferidas; PR mesclado e release v0.3.0 com ZIP | Enviar ZIP + TXT |
-| ML | 48 testes e 56 subtestes (19/11); validação independente em 2026 (jan-out, modelo congelado, sem retreino): MAE 0,881 °C contra 1,340 °C da persistência ([ml/avaliacao-2026.json](ml/avaliacao-2026.json)); modelo geral com ajuste por sala e casos compartilhados com a API; modelos/notebook preservados. Histórico: 19/19 células reexecutadas, 31,95 s, modelos estruturalmente idênticos e integração visível no desktop | Gravar vídeo de até 2 min mostrando a integração atual; conferir links e enviar. Precisão real por sala depende de dados de campo |
+| ML | 48 testes e 56 subtestes (19/11); validação independente em 2026 (jan-out, modelo congelado, sem retreino): MAE 0,881 °C contra 1,340 °C da persistência ([ml/avaliacao-2026.json](ml/avaliacao-2026.json)); modelo geral com ajuste por sala e casos compartilhados com a API; modelos/notebook preservados. Histórico: 19/19 células reexecutadas, 31,95 s, modelos estruturalmente idênticos e integração visível no desktop | Vídeo publicado (https://youtu.be/ing8essnuOU, 1 min 48 s); enviar notebook, vídeo e repositório no Teams |
 | Mobile | 24 testes e TypeScript sem erros nas fontes; ZIP do commit `5a44933` conferido em pasta limpa (19/11); prévia web conferida em 390 × 844 e 320 × 740, incluindo mapa, formulário, erro/vazio e identificação persistida após recarregar | Ensaiar Expo Go, câmera e retorno dos Ajustes no aparelho, teclado/fontes ampliadas, persistência nativa e integração HTTP real; gravar até 2 min e enviar ZIP + vídeo |
 | Operating Systems | Scripts e roteiros; ensaio de 16/11 na VM; vídeo do Gui (6 min 39 s) cobre rede/AD/DNS com PTR, grupos, GPO, RDP, HTTPS, pool, SQL e migrações, alertas, tarefa no boot, falha do pool com troca de PID, auditoria, DFS e log do IIS; 15 prints em `infra/evidencias/vm-2026-11/` | Publicar o vídeo e testar o link; enviar repositório e vídeo no Teams. Opcional: saídas do `10-coletar-evidencias.ps1` (`ipconfig`, `nslookup`, `Test-NetConnection`) |
 | Cybersecurity | Relatório e anexo reconciliados com o laboratório de 17 e 18/11 (cenários 23/23 contra o IIS); evidência técnica atendida pelos trechos de consulta parametrizada e contra LFI com os prints da VM (HTTPS, GPO, auditoria, RDP restrito, 4624), conforme o enunciado, que aceita Prepared Statements, sanitização contra LFI ou nmap; PDF do Gui concluído | Enviar o PDF no Teams |
@@ -167,7 +167,7 @@ O briefing pede, além do notebook, o dataset com a origem, o modelo treinado, a
 
 ```text
 Notebook: termometro_da_sala.ipynb (anexo)
-Vídeo (até 2 min): [PENDENTE: link do vídeo, YouTube não listado]
+Vídeo (até 2 min): https://youtu.be/ing8essnuOU
 Repositório: https://github.com/sbaecker2005/termometro-da-sala
 Pasta de ML (README, dataset INMET A701, modelo.json): https://github.com/sbaecker2005/termometro-da-sala/tree/main/ml
 ```
@@ -181,7 +181,7 @@ Pasta de ML (README, dataset INMET A701, modelo.json): https://github.com/sbaeck
 | Integração na solução | 1,0 | `api/TermometroDaSala.Api/modelo/modelo.json`, aplicado também no Demo ao dia do CSV; mostrar no sistema rodando `GET /ambientes/sala-03/previsao` com `indiceRuaPrevisto` calculado pelo modelo. Teste `DemoAplicaOModeloAoDiaDoCsvEDaOMesmoValor` (27,16 °C, igual à seção 6). O vídeo de ML para nesse GET e no `dotnet test --filter PrevisorModeloTestes` (`ml/ROTEIRO-VIDEO.md`, meta 1 min 50 s, limite 2 min). A previsão no app e no desktop fica no pitch |
 
 - [x] Preencher nomes completos e RMs no README, no notebook e em `ml/gerar_notebook.py` (identificação sincronizada, preservando as saídas já executadas)
-- [ ] Gravar o vídeo, publicar como não listado, testar em aba anônima e colocar o link no texto acima
+- [x] Gravar o vídeo, publicar como não listado, testar em aba anônima e colocar o link no texto acima (19/11: https://youtu.be/ing8essnuOU, 1 min 48 s, abre sem login)
 - [ ] Enviar notebook, link do vídeo e link do repositório
 
 ## Mobile e IoT
@@ -312,7 +312,7 @@ Nenhum desses quatro pode ir com o marcador de preenchimento. O `.md` não subst
 
 Itens que dependem de gravação, publicação ou coleta no laboratório e que não podem ser preenchidos pelo texto do repositório:
 
-- [ ] Vídeo de ML (até 2 min): gravar, publicar como não listado, testar em aba anônima e colocar o link no texto da tarefa
+- [x] Vídeo de ML publicado: https://youtu.be/ing8essnuOU (1 min 48 s)
 - [ ] Vídeo de Mobile (até 2 min, Expo Go) e ensaio no aparelho (câmera, Ajustes, teclado)
 - [ ] Vídeo de Operating Systems (6 min 39 s gravado): publicar, liberar acesso ao professor e testar o link
 - [ ] Vídeo de Physical Computing (até 4 min); projeto no Wokwi já publicado em https://wokwi.com/projects/481082666157493249
