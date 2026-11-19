@@ -180,7 +180,7 @@ try
         foreach (var numero in new[] { 8, 9, 10, 11, 12 })
         {
             var id = $"sala-{numero:00}";
-            db.Ambientes.Add(new Ambiente { Id = id, Nome = $"Ensaio sintetico {numero}", LarguraM = 6, ProfundidadeM = 4 });
+            db.Ambientes.Add(new Ambiente(id, $"Ensaio sintetico {numero}", 0, FaceSol.leste, false) { LarguraM = 6, ProfundidadeM = 4 });
             foreach (var sensor in new[] { 1, 2 })
                 db.Dispositivos.Add(new Dispositivo { Id = $"ensaio-{numero}-{sensor}", AmbienteId = id,
                     Segredo = "fixture-publica-sem-uso", PosX = sensor == 1 ? 0 : 6, PosY = sensor == 1 ? 0 : 4 });
