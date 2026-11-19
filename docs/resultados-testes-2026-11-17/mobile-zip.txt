@@ -1,0 +1,38 @@
+Validação do ZIP Mobile final — 17/11/2026
+
+Artefato
+- Arquivo: entrega-app.zip, na raiz do kit.
+- Entradas: 40 arquivos, todos sob app/; sem node_modules, .env, configurações privadas, logs ou executáveis.
+- Tamanho: 604.054 bytes.
+- SHA-256: 728ae963851193a17ab66a916318ba2b72f4ccb4111e3b17d38ad79d8e8bb413
+- .npmrc público incluído: legacy-peer-deps=true; conteúdo confirmado pelo coordenador contra o repositório público, sem credenciais.
+
+Extração limpa
+- Pasta inédita: D:/codex-validacao-termometro-20261117-c0ce77f9efc54ab2885d0268d0cbb51c/zip-app-final-f6244898b5e94cf8a8a6820be4b0a933/app
+- Windows; Node.js v24.20.0; npm 11.6.2.
+- Cache npm e TEMP/TMP permaneceram em D:. Nenhuma dependência foi instalada no workspace em C:.
+
+Comandos executados na pasta app extraída
+$env:NPM_CONFIG_CACHE = 'D:/codex-validacao-termometro-20261117-c0ce77f9efc54ab2885d0268d0cbb51c/npm-cache'
+$env:TEMP = 'D:/codex-validacao-termometro-20261117-c0ce77f9efc54ab2885d0268d0cbb51c/tmp'
+$env:TMP = $env:TEMP
+npm ci --no-audit --no-fund
+npm run typecheck
+npm test
+
+Resultados
+- npm ci: exit code 0; 500 pacotes em 31 s, a partir do lock incluído no ZIP.
+- npm run typecheck: exit code 0; nenhum erro TypeScript.
+- npm test: exit code 0; 23 testes, oito suítes, 23 aprovados, zero falhas/cancelados/ignorados/todo.
+- SHA-256 de cada entrada comparado após os testes: fonte = ZIP = arquivo extraído, 40/40, zero diferenças.
+- package.json e package-lock.json permaneceram iguais aos fontes.
+- Avisos herdados build-from-source/msvs-version e MODULE_TYPELESS_PACKAGE_JSON continuaram sem falha; não houve mudança de configuração apenas para removê-los.
+
+Entrega ao grupo
+- Cópia idêntica do ZIP colocada em output/revisao-grupo/Lucas-pendencias/entrega-app.zip.
+- O ZIP está pronto para acompanhar a entrega Mobile depois dos ensaios e do vídeo. Se fontes forem corrigidos depois, regenerar o ZIP e repetir esta validação; não enviar uma cópia anterior às correções.
+- O pacote geral do Lucas será compactado separadamente pelo coordenador.
+
+Limites
+- Esta prova verifica o conteúdo e os testes do ZIP extraído. Não comprova câmera física, permissões/teclado/fontes ampliadas nativos, persistência no aparelho, Expo Go, integração HTTP/MQTT, Wokwi ou vídeo final.
+- A inspeção visual web aprovada está em mobile-visual.txt; ela usa dados simulados.

@@ -26,4 +26,10 @@
     <ProjectReference Include="..\TermometroDaSala.Api\TermometroDaSala.Api.csproj" />
   </ItemGroup>
 
+  <!-- Exercita o cliente HTTP real do desktop sem carregar o Windows Forms. -->
+  <ItemGroup>
+    <Compile Include="..\..\desktop\TermometroDaSala.Desktop\Dominio\*.cs" Link="ClienteDesktop\Dominio\%(Filename)%(Extension)" />
+    <Compile Include="..\..\desktop\TermometroDaSala.Desktop\Servicos\*.cs" Link="ClienteDesktop\Servicos\%(Filename)%(Extension)" />
+  </ItemGroup>
+
 </Project>

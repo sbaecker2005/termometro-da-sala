@@ -1,0 +1,62 @@
+Resumo da validação local em 17/11/2026 — base anterior à reformulação visual em andamento.
+Samuel autorizou a execução das suítes e a correção de falhas. Resultados conferidos nos registros abaixo:
+
+API (Release): 100 testes, 100 aprovados, 0 falhas, 0 não executados.
+Registro: docs/resultados-testes-2026-11-17/api-inicial-20261117.trx
+
+Desktop (Release; execução separada, não somar à API): 19 testes, 19 aprovados, 0 falhas, 0 não executados.
+Registro: docs/resultados-testes-2026-11-17/desktop-20261117.trx
+Cópia extraída do ZIP: os mesmos 19 testes aprovados, 0 falhas.
+Registro: docs/resultados-testes-2026-11-17/desktop-zip-20261117.trx
+Autoteste desktop: "Autoteste: 6 verificacoes passaram.", exit code 0, no workspace e na cópia extraída do ZIP, conforme saída de ferramenta informada pelo executor desta rodada; sem arquivo TXT separado.
+
+Mobile: instalação limpa na cópia isolada em D:, npm run typecheck sem erros e npm test com 22 testes aprovados, 8 suítes, 0 falhas; comandos com exit code 0.
+Registro: docs/resultados-testes-2026-11-17/mobile.txt
+Os hashes de package.json e package-lock.json conferem com o workspace; o registro documenta a comparação dos 39 arquivos, sem diferenças.
+
+Limites: a API usa SQLite/TestServer nos testes; isso não comprova o ensaio SQL Server/HTTP+MQTT no laboratório. Os testes Mobile não comprovam câmera física, Expo Go, navegação/persistência no aparelho ou ZIP extraído. Esta base não aprova a nova aparência do desktop ou Mobile, ainda em implementação e validação.
+
+Registros históricos preservados abaixo:
+
+Resumo da execução local em 08/11/2026, ~04h50. Windows, .NET SDK 8.0.427.
+Comando na raiz (API):
+dotnet test api/TermometroDaSala.sln --nologo
+Passed! - Failed: 0, Passed: 85, Skipped: 0, Total: 85 - TermometroDaSala.Api.Tests.dll (net8.0)
+
+Execução separada (desktop; não entra na contagem da API):
+dotnet test desktop/TermometroDaSala.Desktop.sln --nologo
+Passed! - Failed: 0, Passed: 18, Skipped: 0, Total: 18 - TermometroDaSala.Desktop.Tests.dll (net8.0)
+
+App (na pasta app): node --experimental-strip-types --test domain/*.test.ts -> 20 testes, 20 aprovados, 0 falhas; tsc --noEmit sem erros.
+
+A coleta SQL vinculada atualmente tem 97 verificações OK e 0 DIVERGE (conferencia.tsv); não são testes unitários nem prova da VM.
+
+Registro histórico preservado abaixo (não representa a suíte atual):
+Resumo da execução local em 07/11/2026. Windows, .NET SDK 8.0.427.
+Comando na raiz (API):
+dotnet test api/TermometroDaSala.sln --nologo
+
+Passed! - Failed: 0, Passed: 81, Skipped: 0, Total: 81
+46 [Fact] e 35 casos [InlineData] em 8 [Theory].
+
+Inclui os vetores do contrato, a leitura do modelo de previsão, as rotas da API, os casos HTTP
+do alerta com delta e arredondamento da sala (17.9/18.0, 26.9/27.0, 31.9/32.0 e 40.9/41.0),
+o GET /niveis com cinco faixas e a ação de frio, o mapa térmico (IDW, leituras fora da janela,
+um sensor só, borda de 4 °C, troca de lugar vulnerável, autorização do PUT e a Sala 7 do Demo)
+e o esquema do banco. Os 20 testes de segurança existentes continuam incluídos.
+
+Execução separada (desktop; não entra na contagem da API):
+dotnet test desktop/TermometroDaSala.Desktop.sln --nologo
+
+Passed! - Failed: 0, Passed: 9, Skipped: 0, Total: 9
+
+Banco SQLite em memória nas rotas; a coleta no SQL Server local está em api/evidencias/saidas (38 OK, 0 DIVERGE em 07/11/2026).
+Contagem em api/TermometroDaSala.Api.Tests/*.cs:
+Arquivo                  Fact  InlineData  Theory
+ApiTestes.cs               25          14       2
+EsquemaTestes.cs             6           0       0
+PrevisorModeloTestes.cs      5           0       0
+VetoresTestes.cs             5           7       2
+MapaTestes.cs                5          14       4
+Total                      46          35       8
+46 Fact + 35 casos InlineData = 81 testes.

@@ -1,0 +1,24 @@
+  Determining projects to restore...
+  Restored C:\Users\samue\Downloads\kit-windows-ml-soa-csharp\tmp\conferencia-desktop-final-f4726f5d9fcd4dbea5c6dfdfb09199a4\desktop\TermometroDaSala.Desktop\TermometroDaSala.Desktop.csproj (in 57 ms).
+C:\Users\samue\Downloads\kit-windows-ml-soa-csharp\tmp\conferencia-desktop-final-f4726f5d9fcd4dbea5c6dfdfb09199a4\desktop\TermometroDaSala.Desktop.Tests\TermometroDaSala.Desktop.Tests.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.
+  Restored C:\Users\samue\Downloads\kit-windows-ml-soa-csharp\tmp\conferencia-desktop-final-f4726f5d9fcd4dbea5c6dfdfb09199a4\desktop\TermometroDaSala.Desktop.Tests\TermometroDaSala.Desktop.Tests.csproj (in 18.28 sec).
+C:\Users\samue\Downloads\kit-windows-ml-soa-csharp\tmp\conferencia-desktop-final-f4726f5d9fcd4dbea5c6dfdfb09199a4\desktop\TermometroDaSala.Desktop.Tests\TermometroDaSala.Desktop.Tests.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.
+  TermometroDaSala.Desktop -> C:\Users\samue\Downloads\kit-windows-ml-soa-csharp\tmp\conferencia-desktop-final-f4726f5d9fcd4dbea5c6dfdfb09199a4\desktop\TermometroDaSala.Desktop\bin\Release\net8.0-windows\TermometroDaSala.Desktop.dll
+  TermometroDaSala.Desktop.Tests -> C:\Users\samue\Downloads\kit-windows-ml-soa-csharp\tmp\conferencia-desktop-final-f4726f5d9fcd4dbea5c6dfdfb09199a4\desktop\TermometroDaSala.Desktop.Tests\bin\Release\net8.0-windows\TermometroDaSala.Desktop.Tests.dll
+Test run for C:\Users\samue\Downloads\kit-windows-ml-soa-csharp\tmp\conferencia-desktop-final-f4726f5d9fcd4dbea5c6dfdfb09199a4\desktop\TermometroDaSala.Desktop.Tests\bin\Release\net8.0-windows\TermometroDaSala.Desktop.Tests.dll (.NETCoreApp,Version=v8.0)
+VSTest version 17.11.1 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Results File: C:\Users\samue\Downloads\kit-windows-ml-soa-csharp\docs\resultados-testes-2026-11-17\desktop-zip-final-20261117.trx
+
+Passed!  - Failed:     0, Passed:    19, Skipped:     0, Total:    19, Duration: 195 ms - TermometroDaSala.Desktop.Tests.dll (net8.0)
+Exit code: 0
+ZIP: entrega-desktop.zip, 496613 bytes
+SHA256: DF07F948ABA99C80102993C963D06BC4343CC24D4ED38F4EC272B5E75525E8C9
+Resultado final: 19/19 testes, zero falhas/ignorados; autoteste 6 verificacoes, ambos exit 0.
+Aviso NU1900: consulta de vulnerabilidades NuGet indisponivel; restore/build/testes concluidos.
+Extracao isolada removida apos validar caminho absoluto e containment em tmp do workspace.
+Comando executado:
+dotnet test 'C:/Users/samue/Downloads/kit-windows-ml-soa-csharp/tmp/conferencia-desktop-final-f4726f5d9fcd4dbea5c6dfdfb09199a4/desktop/TermometroDaSala.Desktop.Tests/TermometroDaSala.Desktop.Tests.csproj' -c Release -m:1 /nodeReuse:false --logger 'trx;LogFileName=desktop-zip-final-20261117.trx' --results-directory 'C:/Users/samue/Downloads/kit-windows-ml-soa-csharp/docs/resultados-testes-2026-11-17'
+dotnet run --project 'C:/Users/samue/Downloads/kit-windows-ml-soa-csharp/tmp/conferencia-desktop-final-f4726f5d9fcd4dbea5c6dfdfb09199a4/desktop/TermometroDaSala.Desktop/TermometroDaSala.Desktop.csproj' -c Release --no-build -- --autoteste

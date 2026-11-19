@@ -1,13 +1,14 @@
 import { Stack } from 'expo-router';
+import { cores } from '../components/tema';
 
 export default function RootLayout() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: '#14532D' },
+        headerStyle: { backgroundColor: cores.marinho },
         headerTintColor: '#fff',
-        headerTitleStyle: { fontWeight: '600' },
-        contentStyle: { backgroundColor: '#F4F7F5' },
+        headerTitleStyle: { fontWeight: '700' },
+        contentStyle: { backgroundColor: cores.fundo },
       }}
     />
   );

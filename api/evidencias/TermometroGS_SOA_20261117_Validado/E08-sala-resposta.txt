@@ -1,0 +1,16 @@
+2026-11-17T09:17:12.0394140-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5081/ocorrencias
+Content-Type: multipart/form-data; boundary="abd52605-6d1f-4951-b8ca-1156643942b6"
+
+Corpo enviado: {"descricao":"Ventilador sem funcionar","foto":"C:\\Users\\samue\\Downloads\\kit-windows-ml-soa-csharp\\api\\evidencias\\TermometroGS_SOA_20261117_Validado\\temporario-224859275c944a8593957a9c3f10b942\\sala-vazia-sintetica.jpg","ambienteId":"sala-inexistente"}; foto: bytes do JPEG/arquivo indicado, sem transcricao binaria
+Esperado: HTTP 404; 
+HTTP 404 Not Found
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Tue, 17 Nov 2026 12:17:11 GMT
+Server: Kestrel
+Content-Type: application/problem+json; charset=utf-8
+
+{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.5","title":"Not Found","status":404,"traceId":"00-9a54b57a77982586b34209a029e318ae-27b82be7735c2823-00"}
+Conferencia: OK

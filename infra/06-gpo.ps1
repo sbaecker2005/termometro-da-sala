@@ -14,6 +14,10 @@ if (-not $gpo) { $gpo = New-GPO -Name $GpoName }
 if (-not ((Get-GPInheritance -Target $domain.DistinguishedName).GpoLinks | Where-Object DisplayName -eq $GpoName)) {
     New-GPLink -Guid $gpo.Id -Target $domain.DistinguishedName | Out-Null
 }
+# A GPO do dominio perde para a Default Domain Controllers Policy: liga tambem na OU Domain Controllers.
+if (-not ((Get-GPInheritance -Target $domain.DomainControllersContainer).GpoLinks | Where-Object DisplayName -eq $GpoName)) {
+    New-GPLink -Guid $gpo.Id -Target $domain.DomainControllersContainer | Out-Null
+}
 $desktop = 'HKCU\Software\Policies\Microsoft\Windows\Control Panel\Desktop'
 foreach ($setting in @(@('ScreenSaveActive','1'),@('ScreenSaverIsSecure','1'),@('ScreenSaveTimeOut','600'),@('SCRNSAVE.EXE','scrnsave.scr'))) {
     Set-GPRegistryValue -Guid $gpo.Id -Key $desktop -ValueName $setting[0] -Type String -Value $setting[1] | Out-Null
@@ -27,6 +31,7 @@ foreach ($subcategory in '{0CCE9215-69AE-11D9-BED3-505054503030}','{0CCE921D-69A
     & auditpol.exe /set "/subcategory:$subcategory" /success:enable /failure:enable
     if ($LASTEXITCODE -ne 0) { throw 'Falha ao habilitar auditoria.' }
 }
+# Modify inclui ReadData: leitura da foto pela API tambem gera 4663, alem de gravar e apagar.
 $acl = Get-Acl -LiteralPath $PhotosPath -Audit
 $rule = [System.Security.AccessControl.FileSystemAuditRule]::new([System.Security.Principal.SecurityIdentifier]::new('S-1-1-0'),'Modify','ContainerInherit,ObjectInherit','None','Success,Failure')
 $acl.SetAuditRule($rule)

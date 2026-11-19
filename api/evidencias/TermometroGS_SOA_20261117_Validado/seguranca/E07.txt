@@ -1,0 +1,53 @@
+2026-11-17T09:17:12.9558409-03:00
+E07 - parte local; prints e demais itens do roteiro permanecem pendentes.
+Antes/depois dos uploads invalidos e faixas: Ocorrencias 1/1; Leituras 24/24
+2026-11-17T09:17:11.9489000-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5081/ocorrencias
+Content-Type: multipart/form-data; boundary="3e5e6bc9-bf6d-494b-8f8b-1211cc50952f"
+
+Corpo enviado: {"descricao":"Teste de arquivo invalido","foto":"C:\\Users\\samue\\Downloads\\kit-windows-ml-soa-csharp\\api\\evidencias\\TermometroGS_SOA_20261117_Validado\\temporario-224859275c944a8593957a9c3f10b942\\falsa.jpg","ambienteId":"sala-03"}; foto: bytes do JPEG/arquivo indicado, sem transcricao binaria
+Esperado: HTTP 400; nao-jpeg
+HTTP 400 Bad Request
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Tue, 17 Nov 2026 12:17:11 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"nao-jpeg"}
+Conferencia: OK
+
+2026-11-17T09:17:11.9734106-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5081/ocorrencias
+Content-Type: multipart/form-data; boundary="86092c0e-4a2b-43ac-848f-40971a0b4e1a"
+
+Corpo enviado: {"descricao":"Teste de nome invalido","foto":"C:\\Users\\samue\\Downloads\\kit-windows-ml-soa-csharp\\api\\evidencias\\TermometroGS_SOA_20261117_Validado\\temporario-224859275c944a8593957a9c3f10b942\\falsa.jpg","ambienteId":"sala-03","nomeFoto":"../../teste.jpg"}; foto: bytes do JPEG/arquivo indicado, sem transcricao binaria
+Esperado: HTTP 400; nome-invalido
+HTTP 400 Bad Request
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Tue, 17 Nov 2026 12:17:11 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"nome-invalido"}
+Conferencia: OK
+
+2026-11-17T09:17:11.9904098-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5081/ocorrencias
+Content-Type: multipart/form-data; boundary="8af0aab0-781f-4759-bded-9eeea8952e41"
+
+Corpo enviado: {"descricao":"Teste de limite de tamanho","foto":"C:\\Users\\samue\\Downloads\\kit-windows-ml-soa-csharp\\api\\evidencias\\TermometroGS_SOA_20261117_Validado\\temporario-224859275c944a8593957a9c3f10b942\\grande.jpg","ambienteId":"sala-03"}; foto: bytes do JPEG/arquivo indicado, sem transcricao binaria
+Esperado: HTTP 400; arquivo
+HTTP 400 Bad Request
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Tue, 17 Nov 2026 12:17:11 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"arquivo"}
+Conferencia: OK

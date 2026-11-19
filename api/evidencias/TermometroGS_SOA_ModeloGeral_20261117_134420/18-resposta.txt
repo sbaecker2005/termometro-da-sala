@@ -1,0 +1,15 @@
+2026-11-17T13:44:28.8134768-03:00
+Ambiente: Development; MQTT desligado; conexao: ***
+GET http://localhost:5086/ocorrencias/7a71989f-2481-4127-8116-99e174e0f88b/foto
+
+Corpo enviado: 
+Esperado: HTTP 401; 
+HTTP 401 Unauthorized
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Tue, 17 Nov 2026 16:44:28 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"chave-invalida"}
+Conferencia: OK

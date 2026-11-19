@@ -23,7 +23,7 @@ describe('lerOcorrencias', () => {
   it('aceita a lista e recusa o que não tem os campos', () => {
     const lista = [{ id: '1', ambienteId: 'sala-03', descricao: 'Ventilador parou', criadaEm: '2026-11-06T17:10:00Z' }];
     assert.deepEqual(lerOcorrencias(lista), lista);
-    assert.throws(() => lerOcorrencias({}), /resposta invalida/);
-    assert.throws(() => lerOcorrencias([{ id: '1' }]), /resposta invalida/);
+    assert.throws(() => lerOcorrencias({}), /formato inesperado/);
+    assert.throws(() => lerOcorrencias([{ id: '1' }]), /formato inesperado/);
   });
 });

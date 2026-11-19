@@ -1,0 +1,21 @@
+estacao,nome,grupo,k,cronico,desvio_medio
+inverno,centro,0,2,variavel,0.4029761904761906
+inverno,fundo,1,2,frio,-1.4488095238095238
+inverno,janela,0,2,quente,1.1776785714285716
+inverno,lugar 1,0,2,quente,1.0201081777794594
+inverno,lugar 2,1,2,frio,-1.1585500176584875
+inverno,lugar 3,0,2,quente,0.5866086445305992
+inverno,lugar 4,0,2,variavel,0.14933183506460748
+inverno,lugar 5,0,2,quente,0.48848153940396977
+inverno,lugar 6,0,2,variavel,0.042988418581533225
+inverno,porta,0,2,variavel,-0.13184523809523802
+verao,centro,1,2,variavel,-0.4770089285714284
+verao,fundo,1,2,frio,-1.993080357142857
+verao,janela,0,2,quente,3.7997767857142852
+verao,lugar 1,0,2,quente,3.0838485266555593
+verao,lugar 2,1,2,frio,-1.6472887524911126
+verao,lugar 3,1,2,quente,1.190698538141949
+verao,lugar 4,1,2,variavel,-0.43550379189745636
+verao,lugar 5,1,2,variavel,0.7341776327799805
+verao,lugar 6,1,2,variavel,-0.4504144504066523
+verao,porta,1,2,variavel,-1.3296874999999997

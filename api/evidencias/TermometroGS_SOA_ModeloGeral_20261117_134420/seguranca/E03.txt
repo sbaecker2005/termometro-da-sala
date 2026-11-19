@@ -1,0 +1,66 @@
+2026-11-17T13:44:33.2255008-03:00
+E03 - parte local; prints e demais itens do roteiro permanecem pendentes.
+MQTT e Serial nao coletados; nenhum broker externo acessado. As duas respostas simultaneas nao substituem contagem no SQL; sem SQL acessivel, persistencia e corrida ficam inconclusivas.
+2026-11-17T13:44:28.3369608-03:00
+Ambiente: Development; MQTT desligado; conexao: ***
+POST http://localhost:5086/leituras
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {"ambienteId":"sala-03","dispositivo":"esp32-sala-03","temperaturaC":33.4,"umidadePct":58,"medidoEm":1794933867,"assinatura":"74ad02245791d2ea2955b224b3bd85437b4d5e247edcec646e53002472276f1e"}
+Esperado: HTTP 400; "motivo":"reenvio"
+HTTP 400 Bad Request
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Tue, 17 Nov 2026 16:44:28 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"reenvio"}
+Conferencia: OK
+
+2026-11-17T13:44:28.3780550-03:00
+Ambiente: Development; MQTT desligado; conexao: ***
+POST http://localhost:5086/leituras
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {"ambienteId":"sala-02","dispositivo":"esp32-sala-02","temperaturaC":33.4,"umidadePct":58,"medidoEm":1794933868,"assinatura":"00"}
+Esperado: HTTP 400; assinatura-invalida
+HTTP 400 Bad Request
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Tue, 17 Nov 2026 16:44:28 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"assinatura-invalida"}
+Conferencia: OK
+
+2026-11-17T13:44:32.0206044-03:00
+Demo; duas copias simultaneas; POST http://localhost:5086/leituras
+Content-Type: application/json
+Corpo: {"ambienteId":"sala-03","dispositivo":"esp32-sala-03","temperaturaC":33.4,"umidadePct":58,"medidoEm":1794933872,"assinatura":"e23145da7465b322144910ad775590d1709947fedf174fab7e0c2a23a29634f3"}
+HTTP 400
+[Transfer-Encoding, System.String[]] [X-Content-Type-Options, System.String[]] [Date, System.String[]] [Server, System.String[]][Content-Type, System.String[]]
+{"motivo":"reenvio"}
+HTTP 201
+[Transfer-Encoding, System.String[]] [X-Content-Type-Options, System.String[]] [Date, System.String[]] [Location, System.String[]] [Server, System.String[]][Content-Type, System.String[]]
+{"id":44,"suspeita":false,"indiceCalor":39.8,"nivel":"cuidado"}
+
+Conferencia: OK
+
+2026-11-17T13:44:31.4604012-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5086/leituras
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {"ambienteId":"sala-03","dispositivo":"esp32-sala-03","temperaturaC":33.4,"umidadePct":58,"medidoEm":1794933867,"assinatura":"74ad02245791d2ea2955b224b3bd85437b4d5e247edcec646e53002472276f1e"}
+Esperado: HTTP 400; reenvio
+HTTP 400 Bad Request
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Tue, 17 Nov 2026 16:44:31 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"reenvio"}
+Conferencia: OK

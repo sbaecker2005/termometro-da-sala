@@ -13,22 +13,63 @@ public interface IPrevisorRua
     double? IndiceNoInstante(DateTimeOffset utc);
     double? TemperaturaNoInstante(DateTimeOffset utc);
     double? PreverDaquiA2h(DateTimeOffset utc);
+    DateTimeOffset InstanteBase(DateTimeOffset utc) => utc;
+    IReadOnlyDictionary<DateTimeOffset, double?> IndicesNosInstantes(IEnumerable<DateTimeOffset> instantes) =>
+        instantes.Distinct().ToDictionary(t => t, IndiceNoInstante);
 }
 
 public class PrevisorRuaBaseline : IPrevisorRua
 {
     private readonly SalaDb _db;
+    private DateTimeOffset? _instanteBase;
     public PrevisorRuaBaseline(SalaDb db) => _db = db;
 
-    public double? IndiceNoInstante(DateTimeOffset utc) =>
-        _db.LeiturasRua.AsEnumerable().FirstOrDefault(r => r.MedidoEm == utc)?.IndiceCalor;
+    public double? IndiceNoInstante(DateTimeOffset utc) => Ultima(_db, utc)?.IndiceCalor;
+
+    public IReadOnlyDictionary<DateTimeOffset, double?> IndicesNosInstantes(IEnumerable<DateTimeOffset> instantes)
+    {
+        var horarios = instantes.Distinct().OrderBy(t => t).ToArray();
+        var resultado = new Dictionary<DateTimeOffset, double?>();
+        if (horarios.Length == 0) return resultado;
+        var desde = horarios[0].AddHours(-1);
+        var ate = horarios[^1];
+        var leituras = _db.LeiturasRua.AsNoTracking().Where(r => r.MedidoEm >= desde && r.MedidoEm <= ate)
+            .OrderBy(r => r.MedidoEm).ThenBy(r => r.Id).ToList().Where(Valida).ToArray();
+        var posicao = 0;
+        LeituraRua? ultima = null;
+        foreach (var horario in horarios)
+        {
+            while (posicao < leituras.Length && leituras[posicao].MedidoEm <= horario)
+                ultima = leituras[posicao++];
+            resultado[horario] = ultima is not null && ultima.MedidoEm >= horario.AddHours(-1)
+                ? ultima.IndiceCalor : null;
+        }
+        return resultado;
+    }
 
     public double? TemperaturaNoInstante(DateTimeOffset utc) =>
-        _db.LeiturasRua.AsEnumerable().FirstOrDefault(r => r.MedidoEm == utc)?.TemperaturaC;
+        _db.LeiturasRua.Where(r => r.MedidoEm == utc).Select(r => (double?)r.TemperaturaC).FirstOrDefault();
 
     // shortcut: sem modelo.json válido, a rua daqui a 2 h repete o índice de agora
-    public double? PreverDaquiA2h(DateTimeOffset utc) =>
-        _db.LeiturasRua.AsEnumerable().Where(r => r.MedidoEm <= utc).OrderByDescending(r => r.MedidoEm).FirstOrDefault()?.IndiceCalor;
+    public double? PreverDaquiA2h(DateTimeOffset utc)
+    {
+        var ultima = Ultima(_db, utc);
+        _instanteBase = ultima?.MedidoEm;
+        return ultima?.IndiceCalor;
+    }
+
+    public DateTimeOffset InstanteBase(DateTimeOffset utc) => _instanteBase ?? utc;
+
+    internal static LeituraRua? Ultima(SalaDb db, DateTimeOffset utc)
+    {
+        var desde = utc.AddHours(-1);
+        return db.LeiturasRua.Where(r => r.MedidoEm >= desde && r.MedidoEm <= utc)
+            .OrderByDescending(r => r.MedidoEm).ThenByDescending(r => r.Id).AsEnumerable().FirstOrDefault(Valida);
+    }
+
+    internal static bool Valida(LeituraRua leitura) =>
+        double.IsFinite(leitura.IndiceCalor) && double.IsFinite(leitura.TemperaturaC)
+        && leitura.TemperaturaC is >= -10 and <= 60 && leitura.UmidadePct is >= 0 and <= 100;
 }
 
 public class PrevisorRuaModelo : IPrevisorRua
@@ -37,48 +78,53 @@ public class PrevisorRuaModelo : IPrevisorRua
     private readonly ILogger<PrevisorRuaModelo> _log;
     private readonly PrevisorRuaBaseline _provisorio;
     private readonly Func<Dictionary<string, double>, double>? _modelo; // linear ou arvore, conforme ml/modelo.json
+    private DateTimeOffset? _instanteBase;
 
     public PrevisorRuaModelo(SalaDb db, ILogger<PrevisorRuaModelo> log, string caminho)
     {
         _db = db;
         _log = log;
         _provisorio = new PrevisorRuaBaseline(db);
-        _modelo = Carregar(caminho, log);
+        _modelo = ModeloRua.Carregar(caminho, log);
     }
 
     public double? IndiceNoInstante(DateTimeOffset utc) => _provisorio.IndiceNoInstante(utc);
     public double? TemperaturaNoInstante(DateTimeOffset utc) => _provisorio.TemperaturaNoInstante(utc);
+    public DateTimeOffset InstanteBase(DateTimeOffset utc) => _instanteBase ?? utc;
+    public IReadOnlyDictionary<DateTimeOffset, double?> IndicesNosInstantes(IEnumerable<DateTimeOffset> instantes) =>
+        _provisorio.IndicesNosInstantes(instantes);
 
     public double? PreverDaquiA2h(DateTimeOffset utc)
     {
-        if (_modelo is null) return _provisorio.PreverDaquiA2h(utc);
-        var agora = _db.LeiturasRua.AsEnumerable().Where(r => r.MedidoEm <= utc).OrderByDescending(r => r.MedidoEm).FirstOrDefault();
+        _instanteBase = null;
+        if (_modelo is null)
+        {
+            var provisoria = _provisorio.PreverDaquiA2h(utc);
+            _instanteBase = _provisorio.InstanteBase(utc);
+            return provisoria;
+        }
+        var agora = PrevisorRuaBaseline.Ultima(_db, utc);
         if (agora is null) return null;
+        _instanteBase = agora.MedidoEm;
 
-        var alvo = agora.MedidoEm.AddHours(-1).ToUnixTimeSeconds();
         // shortcut: só casa a leitura no mesmo segundo; janela de minutos quando a rua não for horária
-        var antes = _db.LeiturasRua.AsEnumerable().FirstOrDefault(r => r.MedidoEm.ToUnixTimeSeconds() == alvo);
-        double variacao = 0;
+        var inicio = DateTimeOffset.FromUnixTimeSeconds(agora.MedidoEm.AddHours(-1).ToUnixTimeSeconds());
+        var fim = inicio.AddSeconds(1);
+        var antes = _db.LeiturasRua.Where(r => r.MedidoEm >= inicio && r.MedidoEm < fim)
+            .OrderByDescending(r => r.MedidoEm).ThenByDescending(r => r.Id)
+            .AsEnumerable().FirstOrDefault(PrevisorRuaBaseline.Valida)?.TemperaturaC;
         if (antes is null)
             _log.LogInformation("variacao_1h sem leitura de 1 h antes de {Instante}", agora.MedidoEm);
-        else
-            variacao = agora.TemperaturaC - antes.TemperaturaC;
 
-        var local = Relogio.HoraLocal(agora.MedidoEm);
-        var valores = new Dictionary<string, double>
-        {
-            ["temperatura_c"] = agora.TemperaturaC,
-            ["umidade_pct"] = agora.UmidadePct,
-            ["hora_sen"] = Math.Sin(2 * Math.PI * local.Hour / 24),
-            ["hora_cos"] = Math.Cos(2 * Math.PI * local.Hour / 24),
-            ["mes_sen"] = Math.Sin(2 * Math.PI * local.Month / 12),
-            ["mes_cos"] = Math.Cos(2 * Math.PI * local.Month / 12),
-            ["variacao_1h"] = variacao,
-        };
-        return _modelo(valores);
+        return _modelo(ModeloRua.Atributos(Relogio.HoraLocal(agora.MedidoEm), agora.TemperaturaC, agora.UmidadePct,
+            antes is null ? 0 : agora.TemperaturaC - antes.Value));
     }
+}
 
-    static readonly HashSet<string> Atributos = new() { "temperatura_c", "umidade_pct", "hora_sen", "hora_cos", "mes_sen", "mes_cos", "variacao_1h" };
+// Leitura do ml/modelo.json, usada fora do Demo (rua gravada no banco) e no Demo (dia do CSV).
+public static class ModeloRua
+{
+    static readonly HashSet<string> Nomes = new() { "temperatura_c", "umidade_pct", "hora_sen", "hora_cos", "mes_sen", "mes_cos", "variacao_1h", "indice_agora" };
 
     // arvore exportada pelo notebook: {atributo, limite, menor_ou_igual, maior} nos nos internos e {valor} nas folhas
     static double Avaliar(JsonElement no, Dictionary<string, double> x)
@@ -95,13 +141,25 @@ public class PrevisorRuaModelo : IPrevisorRua
     {
         if (profundidade > 64) throw new InvalidDataException("profundidade");
         if (no.TryGetProperty("valor", out var v)) { v.GetDouble(); return; }
-        if (!Atributos.Contains(no.GetProperty("atributo").GetString() ?? "")) throw new InvalidDataException("atributo");
+        if (!Nomes.Contains(no.GetProperty("atributo").GetString() ?? "")) throw new InvalidDataException("atributo");
         no.GetProperty("limite").GetDouble();
         ConferirArvore(no.GetProperty("menor_ou_igual"), profundidade + 1);
         ConferirArvore(no.GetProperty("maior"), profundidade + 1);
     }
 
-    static Func<Dictionary<string, double>, double>? Carregar(string caminho, ILogger log)
+    public static Dictionary<string, double> Atributos(DateTimeOffset local, double temperaturaC, int umidadePct, double variacao1h) => new()
+    {
+        ["temperatura_c"] = temperaturaC,
+        ["umidade_pct"] = umidadePct,
+        ["hora_sen"] = Math.Sin(2 * Math.PI * local.Hour / 24),
+        ["hora_cos"] = Math.Cos(2 * Math.PI * local.Hour / 24),
+        ["mes_sen"] = Math.Sin(2 * Math.PI * local.Month / 12),
+        ["mes_cos"] = Math.Cos(2 * Math.PI * local.Month / 12),
+        ["variacao_1h"] = variacao1h,
+        ["indice_agora"] = IndiceCalor.Calcular(temperaturaC, umidadePct),
+    };
+
+    public static Func<Dictionary<string, double>, double>? Carregar(string caminho, ILogger log)
     {
         try
         {
@@ -121,7 +179,7 @@ public class PrevisorRuaModelo : IPrevisorRua
             foreach (var item in raiz.GetProperty("atributos").EnumerateArray())
             {
                 var nome = item.GetString() ?? throw new InvalidDataException("atributo");
-                if (nome is not ("temperatura_c" or "umidade_pct" or "hora_sen" or "hora_cos" or "mes_sen" or "mes_cos" or "variacao_1h"))
+                if (!Nomes.Contains(nome))
                     throw new InvalidDataException(nome);
                 coef[nome] = tabela.GetProperty(nome).GetDouble();
             }
@@ -140,9 +198,11 @@ public class PrevisorRuaModelo : IPrevisorRua
 public class PrevisorRuaDemo : IPrevisorRua
 {
     private readonly Dictionary<int, (double Temp, int Umid, double Indice)> _horas;
+    private readonly Func<Dictionary<string, double>, double>? _modelo;
 
-    public PrevisorRuaDemo(string contentRoot)
+    public PrevisorRuaDemo(string contentRoot, string caminhoModelo, ILogger log)
     {
+        _modelo = ModeloRua.Carregar(caminhoModelo, log);
         var caminho = ArquivosDemo.Achar(contentRoot, "rua-dia-quente.csv");
         _horas = new Dictionary<int, (double, int, double)>();
         foreach (var linha in File.ReadLines(caminho).Skip(1))
@@ -159,10 +219,19 @@ public class PrevisorRuaDemo : IPrevisorRua
     public double? IndiceNoInstante(DateTimeOffset utc) =>
         _horas.TryGetValue(Relogio.HoraLocal(utc).Hour, out var h) ? h.Indice : null;
 
-    public double? TemperaturaNoInstante(DateTimeOffset utc) =>
-        _horas.TryGetValue(Relogio.HoraLocal(utc).Hour, out var h) ? h.Temp : null;
+    // o CSV é um dia de exemplo, não a rua medida agora: não serve para marcar o sensor ao vivo como suspeito (regra dos 8 °C)
+    public double? TemperaturaNoInstante(DateTimeOffset utc) => null;
 
-    public double? PreverDaquiA2h(DateTimeOffset utc) => IndiceNoInstante(utc.AddHours(2));
+    // O modelo recebe a hora do CSV como a rua de agora, com o mês de hoje e a variação desde a hora anterior.
+    public double? PreverDaquiA2h(DateTimeOffset utc)
+    {
+        if (_modelo is null) return IndiceNoInstante(utc.AddHours(2)); // sem modelo.json: a hora do CSV 2 h à frente
+        var local = Relogio.HoraLocal(utc);
+        if (!_horas.TryGetValue(local.Hour, out var agora)) return null;
+        // o CSV é um dia só: à meia-noite, a hora anterior é a das 23 h do mesmo dia
+        var variacao = _horas.TryGetValue((local.Hour + 23) % 24, out var antes) ? agora.Temp - antes.Temp : 0;
+        return _modelo(ModeloRua.Atributos(local, agora.Temp, agora.Umid, variacao));
+    }
 }
 
 public static class ArquivosDemo
@@ -196,30 +265,77 @@ public class ConsultaPrevisao
     public async Task<double?> Delta(string ambienteId, DateTimeOffset agora)
     {
         var desde = agora.AddHours(-3);
-        var leituras = (await _db.Leituras.Where(l => l.AmbienteId == ambienteId && !l.Suspeita).ToListAsync())
-            .Where(l => l.MedidoEm >= desde && l.MedidoEm <= agora)
-            .ToList();
-        var pares = new List<double>();
-        foreach (var leitura in leituras)
+        var leituras = await _db.Leituras
+            .Where(l => l.AmbienteId == ambienteId && !l.Suspeita && l.MedidoEm >= desde && l.MedidoEm <= agora)
+            .ToListAsync();
+        var amostras = leituras.Where(l => double.IsFinite(l.IndiceCalor) && double.IsFinite(l.TemperaturaC))
+            .GroupBy(l => (l.DispositivoId, Minuto: l.MedidoEm.UtcTicks / TimeSpan.TicksPerMinute))
+            .Select(g => g.OrderByDescending(l => l.MedidoEm).ThenByDescending(l => l.Id).First()).ToArray();
+        var ruaPorInstante = _rua.IndicesNosInstantes(amostras.Select(l => l.MedidoEm));
+        var pares = new List<(DateTimeOffset Instante, double Delta)>();
+        foreach (var leitura in amostras)
         {
-            var rua = _rua.IndiceNoInstante(leitura.MedidoEm);
-            if (rua is null) continue;
-            pares.Add(leitura.IndiceCalor - rua.Value);
+            var rua = ruaPorInstante[leitura.MedidoEm];
+            if (rua is null || !double.IsFinite(rua.Value)) continue;
+            var diferenca = leitura.IndiceCalor - rua.Value;
+            if (double.IsFinite(diferenca)) pares.Add((leitura.MedidoEm, diferenca));
         }
-        return pares.Count < 3 ? null : Math.Round(pares.Average(), 1);
+        var minutos = pares.GroupBy(p => p.Instante.UtcTicks / TimeSpan.TicksPerMinute)
+            .Select(g => g.Average(p => p.Delta)).ToArray();
+        if (minutos.Length < 3 || pares.Max(p => p.Instante) < agora.AddMinutes(-15)) return null;
+        var media = minutos.Average();
+        return double.IsFinite(media) ? Math.Round(media, 1) : null;
     }
 
+    // null: sem rua e sem leitura válida da sala nos últimos 15 min, não há o que prever sem inventar
     public async Task<PrevisaoSaida?> Montar(string ambienteId)
     {
-        if (!await _db.Ambientes.AnyAsync(a => a.Id == ambienteId)) return null;
         var agora = _tempo.GetUtcNow();
-        var rua = _rua.PreverDaquiA2h(agora);
-        var delta = await Delta(ambienteId, agora);
-        double? sala = delta is null || rua is null ? null : Math.Round(rua.Value + delta.Value, 1);
         var desde = agora.AddHours(-3);
         var demonstracao = _ambiente.IsEnvironment("Demo")
-            || (await _db.Leituras.Where(l => l.AmbienteId == ambienteId && l.Origem == Origem.simulada).ToListAsync()).Any(l => l.MedidoEm >= desde);
-        return new PrevisaoSaida(ambienteId, agora.AddHours(2), Math.Round(rua ?? 0, 1),
-            delta, sala, IndiceCalor.Nivel(sala ?? rua ?? 0), delta is null, demonstracao);
+            || await _db.Leituras.AnyAsync(l => l.AmbienteId == ambienteId && l.Origem == Origem.simulada && l.MedidoEm >= desde && l.MedidoEm <= agora);
+        var rua = _rua.PreverDaquiA2h(agora);
+        if (rua is not null && double.IsFinite(rua.Value))
+        {
+            var delta = await Delta(ambienteId, agora);
+            double? sala = delta is null ? null : Math.Round(rua.Value + delta.Value, 1);
+            return await Gravar(new PrevisaoSaida(ambienteId, _rua.InstanteBase(agora).AddHours(2), Math.Round(rua.Value, 1),
+                delta, sala, IndiceCalor.Nivel(sala ?? rua.Value).ToString(), delta is null, demonstracao, true), agora);
+        }
+
+        // Sem rua: persistência da média dos sensores recentes, sem favorecer o que envia mais.
+        var recentesDesde = agora.AddMinutes(-15);
+        var recentes = await _db.Leituras
+            .Where(l => l.AmbienteId == ambienteId && !l.Suspeita && l.MedidoEm >= recentesDesde && l.MedidoEm <= agora)
+            .ToListAsync();
+        var sensores = recentes.Where(l => double.IsFinite(l.IndiceCalor) && double.IsFinite(l.TemperaturaC))
+            .GroupBy(l => l.DispositivoId)
+            .Select(g => g.OrderByDescending(l => l.MedidoEm).ThenByDescending(l => l.Id).First()).ToArray();
+        if (sensores.Length == 0) return null;
+        var indice = Math.Round(sensores.Average(l => l.IndiceCalor), 1);
+        if (!double.IsFinite(indice)) return null;
+        return await Gravar(new PrevisaoSaida(ambienteId, agora.AddHours(2), 0,
+            null, indice, IndiceCalor.Nivel(indice).ToString(), false, demonstracao, false), agora);
+    }
+
+    // A previsão servida entra no histórico (tabela Previsoes), para comparar depois com o que a sala mediu.
+    // No máximo uma por sala a cada 10 min: o GET é anônimo e painel e desktop consultam a cada 30 s.
+    async Task<PrevisaoSaida> Gravar(PrevisaoSaida p, DateTimeOffset agora)
+    {
+        var janela = agora.AddMinutes(-10);
+        if (await _db.Previsoes.AnyAsync(x => x.AmbienteId == p.AmbienteId && x.CalculadaEm > janela)) return p;
+        _db.Previsoes.Add(new Previsao
+        {
+            AmbienteId = p.AmbienteId,
+            PrevistoPara = p.PrevistoPara,
+            IndiceRuaPrevisto = p.IndiceRuaPrevisto,
+            DeltaSala = p.DeltaSala,
+            IndiceSalaPrevisto = p.IndiceSalaPrevisto,
+            NivelPrevisto = Enum.Parse<Nivel>(p.NivelPrevisto),
+            SemLeiturasRecentes = p.SemLeiturasRecentes,
+            CalculadaEm = agora,
+        });
+        await _db.SaveChangesAsync();
+        return p;
     }
 }

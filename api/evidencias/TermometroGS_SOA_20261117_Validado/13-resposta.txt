@@ -1,0 +1,14 @@
+2026-11-17T09:17:08.2672306-03:00
+Ambiente: Development; MQTT desligado; conexao: ***
+DELETE http://localhost:5081/ambientes/sala-05
+X-Chave-Coordenacao: ***
+
+Corpo enviado: 
+Esperado: HTTP 204; 
+HTTP 204 No Content
+X-Content-Type-Options: nosniff
+Date: Tue, 17 Nov 2026 12:17:07 GMT
+Server: Kestrel
+
+
+Conferencia: OK

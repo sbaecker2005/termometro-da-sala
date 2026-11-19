@@ -1,0 +1,15 @@
+2026-11-17T09:17:08.6996359-03:00
+Ambiente: Development; MQTT desligado; conexao: ***
+POST http://localhost:5081/demo/semear?ambienteId=sala-03
+
+Corpo enviado: 
+Esperado: HTTP 404; 
+HTTP 404 Not Found
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Tue, 17 Nov 2026 12:17:07 GMT
+Server: Kestrel
+Content-Type: application/problem+json; charset=utf-8
+
+{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.5","title":"Not Found","status":404,"traceId":"00-02d21b6df71797f746ad2a4d667b9489-2cd0df291219be42-00"}
+Conferencia: OK

@@ -1,0 +1,16 @@
+2026-11-07T10:02:15.1953237-03:00
+Ambiente: Development; MQTT desligado; conexao: ***
+DELETE http://localhost:5080/ambientes/sala-03
+X-Chave-Coordenacao: ***
+
+Corpo enviado: 
+Esperado: HTTP 409; ambiente-com-leituras
+HTTP 409 Conflict
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Sat, 07 Nov 2026 13:02:14 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"ambiente-com-leituras"}
+Conferencia: OK

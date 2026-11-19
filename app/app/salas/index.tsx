@@ -2,10 +2,12 @@ import { Stack, router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { RotuloNivel } from '../../components/RotuloNivel';
+import { apresentarNivel } from '../../domain/nivel';
 import { listarAmbientes, type Ambiente } from '../../services/api';
 import { horaSaoPaulo, indiceEmGraus } from '../../services/hora';
 import type { RotaParams } from '../../rotas';
 import { lerProfessor, type Professor } from '../../services/professor';
+import { cores, ui } from '../../components/tema';
 
 export default function Salas() {
   const [salas, setSalas] = useState<Ambiente[]>([]);
@@ -27,7 +29,9 @@ export default function Salas() {
 
   useFocusEffect(
     useCallback(() => {
-      void lerProfessor().then(setProfessor);
+      lerProfessor()
+        .then(setProfessor)
+        .catch(() => setProfessor(null));
       carregar();
     }, [carregar]),
   );
@@ -39,6 +43,7 @@ export default function Salas() {
           title: 'Salas',
           headerRight: () => (
             <Pressable
+              style={styles.acaoCabecalho}
               onPress={() => router.push({ pathname: '/', params: { editar: '1' } satisfies RotaParams['/'] })}
               accessibilityRole="button"
             >
@@ -47,44 +52,63 @@ export default function Salas() {
           ),
         }}
       />
-      {professor ? (
-        <Text style={styles.professor}>
-          {professor.nome} · {professor.escola}
-        </Text>
-      ) : null}
       {carregando ? (
-        <View style={styles.centro}>
-          <ActivityIndicator color="#14532D" />
-          <Text>Carregando salas</Text>
+        <View style={[ui.pagina, ui.centro]}>
+          <ActivityIndicator color={cores.turquesa} />
+          <Text style={ui.texto}>Carregando salas</Text>
         </View>
       ) : erro ? (
-        <View style={styles.centro}>
-          <Text style={styles.erro}>{erro}</Text>
-          <Pressable style={styles.botao} onPress={carregar} accessibilityRole="button">
-            <Text style={styles.botaoTexto}>Tentar de novo</Text>
+        <View style={[ui.pagina, ui.centro]}>
+          <Text style={ui.secao}>Vamos tentar novamente</Text>
+          <Text accessibilityRole="alert" style={ui.erro}>{erro}</Text>
+          <Pressable style={ui.botao} onPress={carregar} accessibilityRole="button">
+            <Text style={ui.botaoTexto}>Tentar de novo</Text>
           </Pressable>
         </View>
       ) : (
         <FlatList
           data={salas}
           keyExtractor={(sala) => sala.id}
-          contentContainerStyle={salas.length === 0 ? styles.centro : styles.lista}
-          ListEmptyComponent={<Text>Nenhuma sala cadastrada.</Text>}
+          contentContainerStyle={ui.pagina}
+          ListHeaderComponent={<View style={styles.abertura}>
+            <Text style={ui.legenda}>AMBIENTES</Text>
+            <Text accessibilityRole="header" style={ui.titulo}>Como estão as salas?</Text>
+            {professor ? <View style={styles.professor}>
+              <Text style={styles.professorNome}>{professor.nome}</Text>
+              <Text style={ui.texto}>{professor.escola}</Text>
+            </View> : null}
+            <Text style={ui.texto}>Selecione uma sala para ver as condições e as orientações.</Text>
+          </View>}
+          ListEmptyComponent={<View style={ui.cartao}><Text style={ui.secao}>Nenhuma sala cadastrada</Text><Text style={ui.texto}>As salas disponíveis aparecerão aqui.</Text></View>}
           renderItem={({ item }) => (
             <Pressable
-              style={styles.cartao}
+              style={({ pressed }) => [ui.cartao, styles.cartao, { borderLeftColor: item.semLeitura ? cores.borda : apresentarNivel(item.nivelAtual).cor }, pressed && { opacity: 0.8 }]}
               onPress={() =>
                 router.push({ pathname: '/salas/[id]', params: { id: item.id } satisfies RotaParams['/salas/[id]'] })
               }
               accessibilityRole="button"
-              accessibilityLabel={`${item.nome}, ${item.nivelAtual}, ${indiceEmGraus(item.indiceAtual)}`}
+              accessibilityLabel={
+                item.semLeitura
+                  ? `${item.nome}, sem leitura`
+                  : `${item.nome}, ${apresentarNivel(item.nivelAtual).nome}, ${indiceEmGraus(item.indiceAtual)}`
+              }
             >
               <View style={styles.linha}>
                 <Text style={styles.nome}>{item.nome}</Text>
-                <RotuloNivel nivel={item.nivelAtual} />
+                {item.semLeitura ? <Text style={styles.semLeitura}>Sem leitura</Text> : <RotuloNivel nivel={item.nivelAtual} />}
               </View>
-              <Text style={styles.detalhe}>Índice de calor {indiceEmGraus(item.indiceAtual)}</Text>
-              <Text style={styles.detalhe}>Última leitura {horaSaoPaulo(item.ultimaLeituraEm)}</Text>
+              {item.semLeitura ? (
+                <Text style={ui.texto}>O sensor desta sala ainda não enviou leitura.</Text>
+              ) : (
+                <>
+                  <View style={styles.leitura}>
+                    <Text style={styles.indice}>{indiceEmGraus(item.indiceAtual)}</Text>
+                    <Text style={styles.unidade}>ÍNDICE DE CALOR</Text>
+                  </View>
+                  <Text style={ui.texto}>Última leitura {horaSaoPaulo(item.ultimaLeituraEm)}</Text>
+                </>
+              )}
+              <View style={styles.rodape}><Text style={styles.local}>{item.andar}º andar · face {item.faceSol}</Text><Text style={styles.link}>Ver sala →</Text></View>
             </Pressable>
           )}
         />
@@ -95,15 +119,27 @@ export default function Salas() {
 
 const styles = StyleSheet.create({
   tela: { flex: 1 },
-  professor: { paddingHorizontal: 16, paddingTop: 12, color: '#3F3F46' },
-  lista: { padding: 16, gap: 12 },
-  centro: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 12 },
-  cartao: { backgroundColor: '#fff', borderRadius: 12, padding: 14, gap: 6 },
-  linha: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 },
-  nome: { fontSize: 18, fontWeight: '700', color: '#18181B' },
-  detalhe: { color: '#3F3F46' },
-  erro: { color: '#B91C1C', textAlign: 'center' },
-  botao: { backgroundColor: '#14532D', borderRadius: 8, paddingHorizontal: 16, paddingVertical: 12 },
-  botaoTexto: { color: '#fff', fontWeight: '700' },
-  linkCabecalho: { color: '#fff', fontWeight: '600', paddingRight: 4 },
+  abertura: { gap: 12 },
+  professor: { borderLeftWidth: 3, borderLeftColor: cores.turquesa, paddingLeft: 12, gap: 2 },
+  professorNome: { color: cores.texto, fontSize: 15, fontWeight: '700' },
+  cartao: { borderLeftWidth: 5 },
+  linha: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 10 },
+  nome: { fontSize: 21, fontWeight: '700', color: cores.texto, flexShrink: 1 },
+  leitura: { gap: 2 },
+  indice: { fontSize: 36, fontWeight: '800', color: cores.texto, letterSpacing: -1 },
+  unidade: { fontSize: 10, fontWeight: '700', color: cores.secundario, letterSpacing: 1.1 },
+  rodape: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'space-between', paddingTop: 12, borderTopWidth: 1, borderTopColor: cores.borda },
+  local: { color: cores.secundario, fontSize: 13 },
+  link: { color: cores.turquesa, fontSize: 14, fontWeight: '700' },
+  semLeitura: {
+    backgroundColor: '#E4E4E7',
+    color: '#27272A',
+    fontWeight: '700',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    overflow: 'hidden',
+  },
+  acaoCabecalho: { minHeight: 44, minWidth: 44, paddingHorizontal: 8, justifyContent: 'center' },
+  linkCabecalho: { color: '#91E6DE', fontWeight: '700' },
 });

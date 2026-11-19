@@ -1,0 +1,124 @@
+MODELO GERAL COM AJUSTE POR SALA — 17/11/2026
+
+ATUALIZAÇÃO POSTERIOR: as pendências de tela/PNG e SQL descritas no fim deste
+registro foram concluídas. Ver desktop/docs/modelo-geral-v1/VALIDACAO.md,
+docs/resultados-testes-2026-11-17/sql-modelo-geral-v1.txt e
+output/fechamento-samuel/CONFERENCIA-PACOTES.txt para a validação dos pacotes.
+O texto abaixo preserva os resultados e limites da primeira rodada técnica.
+
+Escopo concluído
+- Um modelo de rua compartilhado; ajuste observacional separado por sala.
+- Janela interna de 3 h, última leitura por sensor/minuto, igual peso entre sensores
+  e entre minutos. Exige 3 minutos pareados e último par com até 15 min.
+- Rua: última observação válida anterior ou igual à leitura, com até 60 min.
+- Sem rua: média da última leitura válida de cada sensor nos últimos 15 min.
+- Sem histórico suficiente: ajuste ausente, sem inventar coeficiente da sala.
+- Horário-alvo: observação externa + 2 h; mapa +1 h interpola pelo tempo restante.
+- Leituras futuras, suspeitas e números não finitos não entram no ajuste.
+- Python e C# compartilham 11 casos de paridade; desempates usam horário e ID.
+- A demonstração usa 20 alunos do terceirão e 1 professor. Os 2286 W são uma
+  hipótese auxiliar de equivalência adulta, não medição corporal ou acréscimo em °C.
+- Demo do mapa: 12 leituras simuladas, quatro sensores em três minutos distintos.
+- Clientes desktop, Mobile e mural ajustados ao horário-alvo e à média recente.
+
+RESULTADOS FINAIS (todos os comandos de teste abaixo terminaram com saída 0)
+API: 134 aprovados, 0 falhas, 0 ignorados.
+  Evidência: api-modelo-geral-v1.trx, nesta pasta.
+ML: 46 testes e 53 subtestes aprovados, 4,35 s.
+  Inclui 15 testes de salas, 8 de ocupantes e a suíte anterior de 23 testes.
+Desktop: 19 aprovados, 0 falhas, 0 ignorados.
+  Evidência: desktop-modelo-geral-v1.trx, nesta pasta.
+Desktop autoteste: "Autoteste: 6 verificacoes passaram."
+Mobile: 23 testes aprovados, 8 suítes, 0 falhas.
+TypeScript: sem erros, saída 0, na cópia isolada já instalada em D:.
+Mural: sintaxe do único bloco JavaScript válida (vm.Script); não executa o DOM.
+Documento V1: DOCX renderizado em quatro páginas e todas inspecionadas.
+
+COMANDOS REPRODUZÍVEIS
+Diretório de trabalho: C:\Users\samue\Downloads\kit-windows-ml-soa-csharp
+
+dotnet test api/TermometroDaSala.Api.Tests/TermometroDaSala.Api.Tests.csproj --no-restore --logger "trx;LogFileName=api-modelo-geral-v1.trx" --results-directory docs/resultados-testes-2026-11-17 --verbosity quiet
+dotnet test desktop/TermometroDaSala.Desktop.sln --no-restore --disable-build-servers -m:1 --logger "trx;LogFileName=desktop-modelo-geral-v1.trx" --results-directory docs/resultados-testes-2026-11-17 --verbosity quiet
+dotnet run --project desktop/TermometroDaSala.Desktop --no-build --no-restore -- --autoteste
+
+Python 3.11.9 portátil e dependências já instaladas em:
+D:/codex-validacao-termometro-20261117-c0ce77f9efc54ab2885d0268d0cbb51c/ml-python311
+Comando da execução final:
+& 'D:/codex-validacao-termometro-20261117-c0ce77f9efc54ab2885d0268d0cbb51c/ml-python311/runtime/python.exe' -B -m pytest ml -q -p no:cacheprovider --basetemp 'D:/codex-validacao-termometro-20261117-c0ce77f9efc54ab2885d0268d0cbb51c/ml-python311/pytest-modelo-geral-v1-numerico-20261117'
+Ao repetir, escolher outro diretório --basetemp novo, pois pytest limpa esse diretório.
+
+Mobile, dentro de app:
+& 'C:/Program Files/WindowsApps/OpenAI.CodexPrimaryRuntime.v26-1116-1210-0_26.1116.1210.0_x64__3k8sg7r9htsxt/dependencies/node/bin/node.exe' --experimental-strip-types --test 'domain/*.test.ts'
+TypeScript, a partir da raiz do kit:
+$mobileQa = 'D:/codex-validacao-termometro-20261117-c0ce77f9efc54ab2885d0268d0cbb51c/app'
+Copy-Item -LiteralPath './app/domain/previsao.ts' -Destination "$mobileQa/domain/previsao.ts"
+Copy-Item -LiteralPath './app/app/salas/[id].tsx' -Destination "$mobileQa/app/salas/[id].tsx"
+& 'C:/Program Files/WindowsApps/OpenAI.CodexPrimaryRuntime.v26-1116-1210-0_26.1116.1210.0_x64__3k8sg7r9htsxt/dependencies/node/bin/node.exe' "$mobileQa/node_modules/typescript/bin/tsc" --noEmit --project "$mobileQa/tsconfig.json"
+
+Ocorrências do ambiente
+- O sandbox bloqueou processos do Node (spawn EPERM) e acesso a dependências ML
+  externas. As execuções autorizadas fora do sandbox concluíram sem instalar nada.
+- Uma execução desktop restrita não produziu resultado; a repetição autorizada,
+  com um processo de build e servidores desativados, aprovou os 19 testes.
+  Os workers órfãos dessa tentativa foram encerrados por ID e filiação conferidos;
+  a sessão interrompida terminou com saída 1 e não é contabilizada como aprovação.
+- Node avisou MODULE_TYPELESS_PACKAGE_JSON; os 23 testes concluíram sem falhas.
+
+Arquivos da revisão (caminhos relativos à raiz indicada acima)
+ml/salas.py
+ml/test_salas.py
+ml/casos-ajuste-salas.json
+ml/README.md
+api/TermometroDaSala.Api/Servicos/PrevisaoSala.cs
+api/TermometroDaSala.Api/Servicos/MapaTermico.cs
+api/TermometroDaSala.Api/Controllers/DemoController.cs
+api/TermometroDaSala.Api/wwwroot/index.html
+api/TermometroDaSala.Api.Tests/AjusteSalaTestes.cs
+api/TermometroDaSala.Api.Tests/MapaHorizonteTestes.cs
+api/TermometroDaSala.Api.Tests/ApiTestes.cs
+api/TermometroDaSala.Api.Tests/MapaTestes.cs
+api/README.md
+api/evidencias/gerar-evidencias.ps1
+ferramentas/abrir-apresentacao.ps1
+desktop/TermometroDaSala.Desktop/Dominio/Previsao.cs
+desktop/TermometroDaSala.Desktop/Telas/TelaCoordenacao.cs
+desktop/TermometroDaSala.Desktop/Telas/TelaCoordenacao.Designer.cs
+desktop/TermometroDaSala.Desktop/ValidacoesAutoteste.cs
+app/domain/previsao.ts
+app/app/salas/[id].tsx
+CONTRATO.md
+docs/MAPA-TERMICO.md
+docs/FECHAMENTO-ML-SOA-CSHARP.md
+ENTREGA.md
+output/especificacao-v1/Termometro-da-Sala-V1.docx
+output/especificacao-v1/qa/gerar_documento.py
+output/especificacao-v1/qa/Termometro-da-Sala-V1-antes-modelo-geral.docx (backup)
+output/especificacao-v1/qa/render/ (PDF e páginas para inspeção)
+docs/resultados-testes-2026-11-17/api-modelo-geral-v1.trx
+docs/resultados-testes-2026-11-17/desktop-modelo-geral-v1.trx
+docs/resultados-testes-2026-11-17/ml-modelo-geral-v1.txt
+
+Integridade: hashes SHA-256 conferidos antes/depois, sem alterações
+ml/modelo.json e api/TermometroDaSala.Api/modelo/modelo.json:
+22AD57D6ED04B42B70B1D5BE44CF616F46B00A6A13BDC214213C0F98D0E8D118
+ml/modelo_pontos.json:
+829DBC7DDFE949E741AD86188DF23F1C6207A0226D4DB32B418D5E27D2D0AF0D
+ml/termometro_da_sala.ipynb:
+A65A62BBF60EDE434A2FDBE1120AE254E48ED5FAA565D0352FB00CFDD6148596
+
+Limites e continuidade
+- Esta rodada valida fontes locais, lógica e contratos. Não repetiu SQL Server,
+  Insomnia, inspeção visual nativa, PNG exportado nem dispositivo Mobile físico.
+- Os ensaios anteriores dessas interfaces/banco continuam históricos; não provam
+  visualmente os textos e horários desta revisão. Os testes API usam SQLite.
+- Os ZIPs de entrega/handoff e pacotes do grupo existentes antecedem esta revisão;
+  regenerar a partir das fontes atuais e conferir antes de distribuir novamente.
+- Nenhum commit, push, publicação ou mensagem ao grupo foi feito nesta rodada.
+- Modelo e notebook não foram retreinados/reexecutados nesta rodada. Suas métricas
+  anteriores avaliam o índice externo, não a precisão deste ajuste em salas reais.
+- Ocupação/idade e outros fatores planejados ainda não são atributos treinados;
+  dependem de dados locais para demonstrar benefício e estimar coeficientes.
+- Dados reais, avaliação temporal por sala e validação em salas não vistas são
+  necessários antes de afirmar generalização em CRAS, escolas ou faixas etárias.
+- Sem campo de horário de recebimento nas leituras, uma consulta histórica não
+  reproduz perfeitamente quais dados já estavam disponíveis naquele instante.

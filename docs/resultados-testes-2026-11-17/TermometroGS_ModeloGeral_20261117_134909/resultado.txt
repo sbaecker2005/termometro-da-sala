@@ -1,0 +1,35 @@
+2026-11-17T13:49:09.6156798-03:00
+SQL Server Express real; HTTP 5082; MQTT 18884 em loopback; TermometroGS_ModeloGeral_20261117_134909
+OK: cinco migracoes aplicadas em banco novo
+OK: leitura HTTP persistida no SQL Server
+OK: leitura MQTT atravessa broker, assinante real e SQL Server
+OK: corrida HTTP/MQTT 1: exatamente uma linha para o mesmo instante
+OK: corrida HTTP/MQTT 2: exatamente uma linha para o mesmo instante
+OK: corrida HTTP/MQTT 3: exatamente uma linha para o mesmo instante
+OK: corrida HTTP/MQTT 4: exatamente uma linha para o mesmo instante
+OK: corrida HTTP/MQTT 5: exatamente uma linha para o mesmo instante
+OK: corrida HTTP/MQTT 6: exatamente uma linha para o mesmo instante
+OK: corrida HTTP/MQTT 7: exatamente uma linha para o mesmo instante
+OK: corrida HTTP/MQTT 8: exatamente uma linha para o mesmo instante
+OK: corrida HTTP/MQTT 9: exatamente uma linha para o mesmo instante
+OK: corrida HTTP/MQTT 10: exatamente uma linha para o mesmo instante
+OK: HTTP antigo recusado apos concorrencia
+OK: MQTT antigo nao duplica nem regride o timestamp
+OK: revogacao confirmada pela API real
+OK: HTTP de dispositivo revogado recusado
+OK: MQTT de dispositivo revogado nao grava leitura
+OK: falha SQL controlada apos reserva do timestamp
+OK: rollback SQL preserva leitura e timestamp anteriores
+OK: mesma leitura aceita depois de retirar a falha controlada
+OK: SQL/HTTP: ajuste isolado por sala, pesos por sensor/minuto, futuro e suspeita excluidos
+OK: SQL/HTTP: modelo de rua compartilhado entre salas
+OK: SQL/HTTP: previsoes internas refletem os ajustes distintos
+OK: SQL/HTTP: alvo ancorado na observacao valida, rua futura e temperatura invalida excluidas
+OK: SQL/HTTP: origem simulada identificada
+OK: SQL/HTTP: sensores simultaneos nao substituem tres minutos de historico
+OK: SQL/HTTP: ultimo par mais antigo que 15 minutos nao calibra sala
+OK: SQL: previsao calculada persistida no historico
+OK: SQL/HTTP: mapa +1 h usa o tempo real restante ate o alvo da previsao
+OK: SQL/HTTP: sem rua recente, media da ultima leitura valida por sensor
+OK: SQL/HTTP: sem rua e sem sensor retorna 503, sem inventar previsao
+CONCLUIDO: 32 verificacoes aprovadas. Banco preservado; nenhum banco anterior alterado.

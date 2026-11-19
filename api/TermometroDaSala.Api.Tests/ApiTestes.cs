@@ -11,11 +11,13 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TermometroDaSala.Api.Dados;
 using TermometroDaSala.Api.Dominio;
 using TermometroDaSala.Api.Filtros;
+using TermometroDaSala.Api.Servicos;
 
 namespace TermometroDaSala.Api.Tests;
 
@@ -53,7 +55,7 @@ public class ApiTestes
         var sala3 = salas.RootElement.EnumerateArray().Single(s => s.GetProperty("id").GetString() == "sala-03");
         Assert.Equal("oeste", sala3.GetProperty("faceSol").GetString());
         Assert.Equal(1, sala3.GetProperty("andar").GetInt32());
-        Assert.Equal(IndiceCalor.Nivel(IndiceCalor.Calcular(36, 40)), sala3.GetProperty("nivelAtual").GetString());
+        Assert.Equal(IndiceCalor.Nivel(IndiceCalor.Calcular(36, 40)).ToString(), sala3.GetProperty("nivelAtual").GetString());
     }
 
     [Fact]
@@ -63,7 +65,7 @@ public class ApiTestes
         var c = f.Cliente();
         using var escopo = f.Services.CreateScope();
         var db = escopo.ServiceProvider.GetRequiredService<SalaDb>();
-        var t0 = DateTimeOffset.UtcNow.AddMinutes(-20);
+        var t0 = DateTimeOffset.UtcNow.AddMinutes(-10);
         InserirPar(db, t0, 36, 32);
         InserirPar(db, t0.AddMinutes(1), 37, 33);
         db.SaveChanges();
@@ -139,6 +141,39 @@ public class ApiTestes
     }
 
     [Fact]
+    public async Task DemoRepetidoAncoraNaUltimaLeituraSemApagarHistoricoReal()
+    {
+        var agora = new DateTimeOffset(2026, 11, 17, 12, 0, 0, TimeSpan.Zero);
+        using var f = new ApiFabrica("Demo", new RelogioFixo(agora));
+        var c = f.Cliente();
+        using var escopo = f.Services.CreateScope();
+        var db = escopo.ServiceProvider.GetRequiredService<SalaDb>();
+        foreach (var quando in new[] { agora.AddDays(-1), agora })
+            db.Leituras.Add(new Leitura { AmbienteId = "sala-03", DispositivoId = "esp32-sala-03",
+                TemperaturaC = 33.4, UmidadePct = 58, IndiceCalor = IndiceCalor.Calcular(33.4, 58),
+                Nivel = Nivel.cuidado, MedidoEm = quando, Origem = Origem.dispositivo });
+        await db.SaveChangesAsync();
+
+        for (var repeticao = 0; repeticao < 2; repeticao++)
+        {
+            Assert.Equal(HttpStatusCode.Created,
+                (await c.PostAsync("/demo/semear?ambienteId=sala-03", new StringContent(""))).StatusCode);
+            var simuladas = await db.Leituras.AsNoTracking().Where(l => l.Origem == Origem.simulada).ToListAsync();
+            Assert.Equal(18, simuladas.Count);
+            Assert.Equal(agora.AddMinutes(-10), simuladas.Max(l => l.MedidoEm));
+            Assert.All(simuladas, l => Assert.InRange(l.MedidoEm, agora.AddHours(-3), agora));
+            var reais = await db.Leituras.AsNoTracking().Where(l => l.Origem == Origem.dispositivo).ToListAsync();
+            Assert.Equal(2, reais.Count);
+            Assert.Contains(reais, l => l.MedidoEm == agora.AddDays(-1));
+            Assert.Contains(reais, l => l.MedidoEm == agora);
+            using var previsao = JsonDocument.Parse(await c.GetStringAsync("/ambientes/sala-03/previsao"));
+            Assert.False(previsao.RootElement.GetProperty("semLeiturasRecentes").GetBoolean());
+            Assert.Equal(JsonValueKind.Number, previsao.RootElement.GetProperty("deltaSala").ValueKind);
+            Assert.Equal(JsonValueKind.Number, previsao.RootElement.GetProperty("indiceSalaPrevisto").ValueKind);
+        }
+    }
+
+    [Fact]
     public async Task UploadRecusaOQueNaoEJpegENomeComDoisPontos()
     {
         using var f = new ApiFabrica();
@@ -149,7 +184,7 @@ public class ApiTestes
         Assert.Equal(HttpStatusCode.BadRequest, travessia.StatusCode);
         Assert.Contains("nome-invalido", await travessia.Content.ReadAsStringAsync());
 
-        var ok = await c.PostAsync("/ocorrencias", Form("sala-03", "Sala muito quente no fim da aula", "foto.jpg", "image/jpeg", new byte[] { 0xFF, 0xD8, 0xFF, 0xD9 }));
+        var ok = await c.PostAsync("/ocorrencias", Form("sala-03", "Sala muito quente no fim da aula", "foto.jpg", "image/jpeg", JpegMinimo()));
         Assert.Equal(HttpStatusCode.Created, ok.StatusCode);
         using var doc = JsonDocument.Parse(await ok.Content.ReadAsStringAsync());
         var id = doc.RootElement.GetProperty("id").GetString();
@@ -197,6 +232,11 @@ public class ApiTestes
 
     [Theory]
     [InlineData("invalido", "Sala", 0, "leste")]
+    [InlineData("sala-3", "Sala", 0, "leste")]
+    [InlineData("sala-０３", "Sala", 0, "leste")]
+    [InlineData("sala-٠٣", "Sala", 0, "leste")]
+    [InlineData("sala-03\n", "Sala", 0, "leste")]
+    [InlineData("\nsala-03", "Sala", 0, "leste")]
     [InlineData("sala-05", " ", 0, "leste")]
     [InlineData("sala-05", "Sala", -1, "leste")]
     [InlineData("sala-05", "Sala", 21, "leste")]
@@ -259,7 +299,7 @@ public class ApiTestes
         Assert.Equal(HttpStatusCode.Unauthorized, (await c.PostAsync("/acoes", Acao())).StatusCode);
 
         Assert.Equal(HttpStatusCode.Created, (await c.PostAsync("/leituras", Corpo("sala-03", "esp32-sala-03", 30, 40, agora))).StatusCode);
-        Assert.Equal(HttpStatusCode.Created, (await c.PostAsync("/ocorrencias", Form("sala-03", "Sala muito quente no fim da aula", "foto.jpg", "image/jpeg", new byte[] { 0xFF, 0xD8, 0xFF, 0xD9 }))).StatusCode);
+        Assert.Equal(HttpStatusCode.Created, (await c.PostAsync("/ocorrencias", Form("sala-03", "Sala muito quente no fim da aula", "foto.jpg", "image/jpeg", JpegMinimo()))).StatusCode);
 
         using var escopo = f.Services.CreateScope();
         var db = escopo.ServiceProvider.GetRequiredService<SalaDb>();
@@ -294,6 +334,7 @@ public class ApiTestes
         montagem.Write(new byte[] { 0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x06, (byte)'J', (byte)'F', (byte)'I', (byte)'F' });
         montagem.Write(new byte[] { 0xFF, 0xE1, (byte)((app1.Length + 2) >> 8), (byte)(app1.Length + 2) });
         montagem.Write(app1);
+        montagem.Write(new byte[] { 0xFF, 0xC0, 0x00, 0x0B, 0x08, 0x00, 0x01, 0x00, 0x01, 0x01, 0x01, 0x11, 0x00 });
         montagem.Write(new byte[] { 0xFF, 0xDA, 0x00, 0x02, 0x01, 0xFF, 0xD9 });
         var jpeg = montagem.ToArray();
 
@@ -353,6 +394,350 @@ public class ApiTestes
         finally { Environment.SetEnvironmentVariable(chave, anterior); }
     }
 
+    [Fact]
+    public async Task UploadRecusaJpegSemQuadroOuSemVarredura()
+    {
+        using var f = new ApiFabrica();
+        var c = f.Cliente();
+        var soCabecalho = new byte[] { 0xFF, 0xD8, 0xFF, 0xD9 };
+        var poliglota = new byte[] { 0xFF, 0xD8, 0xFF }.Concat(Encoding.ASCII.GetBytes("<?php echo 1; ?>")).ToArray();
+        var semQuadro = new byte[] { 0xFF, 0xD8, 0xFF, 0xDA, 0x00, 0x02, 0x01, 0xFF, 0xD9 };
+        var larguraZero = JpegMinimo();
+        larguraZero[10] = 0x00; // largura 1 -> 0 no SOF0
+        foreach (var bytes in new[] { soCabecalho, poliglota, semQuadro, larguraZero })
+        {
+            var r = await c.PostAsync("/ocorrencias", Form("sala-03", "Sala muito quente no fim da aula", "foto.jpg", "image/jpeg", bytes));
+            Assert.Equal(HttpStatusCode.BadRequest, r.StatusCode);
+            Assert.Contains("nao-jpeg", await r.Content.ReadAsStringAsync());
+        }
+        using var escopo = f.Services.CreateScope();
+        Assert.Equal(0, escopo.ServiceProvider.GetRequiredService<SalaDb>().Ocorrencias.Count());
+    }
+
+    [Fact]
+    public async Task SemRuaForaDoDemoAPrevisaoSegueASalaENaoDizNormal()
+    {
+        using var f = new ApiFabrica(); // fora do Demo nada grava LeiturasRua
+        var c = f.Cliente();
+        var vazia = await c.GetAsync("/ambientes/sala-03/previsao");
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, vazia.StatusCode);
+        Assert.Contains("sem-dados-para-prever", await vazia.Content.ReadAsStringAsync());
+
+        var agora = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        Assert.Equal(HttpStatusCode.Created, (await c.PostAsync("/leituras", Corpo("sala-03", "esp32-sala-03", 38, 70, agora - 60))).StatusCode);
+        Assert.Equal(HttpStatusCode.Created, (await c.PostAsync("/leituras", Corpo("sala-03", "esp32-sala-03", 38, 70, agora))).StatusCode);
+        var indice = IndiceCalor.Calcular(38, 70);
+        Assert.Equal(Nivel.perigo, IndiceCalor.Nivel(indice));
+
+        using var doc = JsonDocument.Parse(await c.GetStringAsync("/ambientes/sala-03/previsao"));
+        var p = doc.RootElement;
+        Assert.Equal("perigo", p.GetProperty("nivelPrevisto").GetString());
+        Assert.False(p.GetProperty("ruaDisponivel").GetBoolean());
+        Assert.Equal(indice, p.GetProperty("indiceSalaPrevisto").GetDouble());
+        Assert.Equal(JsonValueKind.Null, p.GetProperty("deltaSala").ValueKind);
+        Assert.False(p.GetProperty("semLeiturasRecentes").GetBoolean());
+        Assert.False(p.GetProperty("demonstracao").GetBoolean());
+        Assert.Equal(HttpStatusCode.NotFound, (await c.GetAsync("/ambientes/nao-existe/previsao")).StatusCode);
+    }
+
+    [Fact]
+    public async Task DemoComRuaQuenteNaoMarcaSalaFrescaComoSuspeita()
+    {
+        var instante = new DateTimeOffset(2026, 11, 5, 17, 0, 0, TimeSpan.Zero); // 14 h em São Paulo: rua do CSV a 33,8 °C
+        using var f = new ApiFabrica("Demo", new RelogioFixo(instante));
+        var c = f.Cliente();
+        var t = instante.ToUnixTimeSeconds();
+        foreach (var (temp, quando) in new[] { (24.0, t - 120), (24.5, t - 60), (25.0, t) })
+        {
+            var r = await c.PostAsync("/leituras", Corpo("sala-03", "esp32-sala-03", temp, 40, quando));
+            Assert.Equal(HttpStatusCode.Created, r.StatusCode);
+            using var lida = JsonDocument.Parse(await r.Content.ReadAsStringAsync());
+            Assert.False(lida.RootElement.GetProperty("suspeita").GetBoolean());
+        }
+
+        using var doc = JsonDocument.Parse(await c.GetStringAsync("/ambientes/sala-03/previsao"));
+        var p = doc.RootElement;
+        Assert.True(p.GetProperty("ruaDisponivel").GetBoolean());
+        Assert.True(p.GetProperty("demonstracao").GetBoolean());
+        Assert.False(p.GetProperty("semLeiturasRecentes").GetBoolean());
+        // a rua daqui a 2 h sai do modelo.json aplicado à hora do CSV (14 h: 33,8 °C, 40%, +0,3 °C desde as 13 h, novembro)
+        using (var modelo = JsonDocument.Parse(File.ReadAllText(PrevisorModeloTestes.AcharModelo())))
+            Assert.Equal(Math.Round(PrevisorModeloTestes.Formula(modelo.RootElement, 33.8, 40, 14, 11, 33.8 - 33.5), 1), p.GetProperty("indiceRuaPrevisto").GetDouble());
+        Assert.NotEqual(Math.Round(IndiceCalor.Calcular(33.6, 40), 1), p.GetProperty("indiceRuaPrevisto").GetDouble());
+        Assert.True(p.GetProperty("deltaSala").GetDouble() < 0);
+        Assert.Equal(IndiceCalor.Nivel(p.GetProperty("indiceSalaPrevisto").GetDouble()).ToString(), p.GetProperty("nivelPrevisto").GetString());
+    }
+
+    [Fact]
+    public async Task MqttQuatroSensoresMantemAssinaturaOrdemEFormatoAntigo()
+    {
+        using var f = new ApiFabrica("Demo");
+        var c = f.Cliente();
+        Assert.Equal(HttpStatusCode.Created, (await c.PostAsync("/demo/mapa", null)).StatusCode);
+        var assinante = new AssinanteMqtt(f.Services.GetRequiredService<IServiceScopeFactory>(),
+            f.Services.GetRequiredService<IConfiguration>(), f.Services.GetRequiredService<ILogger<AssinanteMqtt>>());
+        var agora = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        var aceitas = 0;
+        foreach (var rotulo in new[] { "janela", "fundo", "porta", "centro" })
+        {
+            var id = $"demo-sala-07-{rotulo}";
+            var assinatura = Assinatura.Hex("somente-demonstracao-sala-07", "sala-07", id, 24, 60, agora);
+            var json = JsonSerializer.Serialize(new { ambienteId = "sala-07", dispositivo = id,
+                temperaturaC = 24.0, umidadePct = 60, medidoEm = agora, assinatura });
+            // Mesmo ambiente e segredo: o identificador tambem precisa estar assinado.
+            var outro = rotulo == "centro" ? "demo-sala-07-janela" : "demo-sala-07-centro";
+            await assinante.Tratar(Encoding.UTF8.GetBytes(json.Replace(id, outro)));
+            using (var consulta = f.Services.CreateScope())
+                Assert.Equal(aceitas, consulta.ServiceProvider.GetRequiredService<SalaDb>()
+                    .Leituras.Count(l => l.Origem == Origem.dispositivo));
+            await assinante.Tratar(Encoding.UTF8.GetBytes(json));
+            await assinante.Tratar(Encoding.UTF8.GetBytes(json));
+            aceitas++;
+        }
+        var antigo = await Corpo("sala-03", "esp32-sala-03", 30, 40, agora).ReadAsStringAsync();
+        await assinante.Tratar(Encoding.UTF8.GetBytes(antigo));
+        using var escopo = f.Services.CreateScope();
+        var db = escopo.ServiceProvider.GetRequiredService<SalaDb>();
+        var leituras = await db.Leituras.Where(l => l.Origem == Origem.dispositivo).ToListAsync();
+        Assert.Equal(5, leituras.Count);
+        Assert.Equal(5, leituras.Select(l => l.DispositivoId).Distinct().Count());
+        using var mapa = JsonDocument.Parse(await c.GetStringAsync("/ambientes/sala-07/mapa"));
+        var sensores = mapa.RootElement.GetProperty("pontos").EnumerateArray()
+            .Where(p => p.GetProperty("tipo").GetString() == "sensor").ToList();
+        Assert.Equal(4, sensores.Count);
+        Assert.All(sensores, p => Assert.False(p.GetProperty("semLeitura").GetBoolean()));
+    }
+
+    [Fact]
+    public async Task MqttDescartaMensagemAcimaDoLimite()
+    {
+        using var f = new ApiFabrica();
+        f.Cliente();
+        var assinante = new AssinanteMqtt(f.Services.GetRequiredService<IServiceScopeFactory>(),
+            f.Services.GetRequiredService<IConfiguration>(), f.Services.GetRequiredService<ILogger<AssinanteMqtt>>());
+        var json = await Corpo("sala-03", "esp32-sala-03", 30, 40, DateTimeOffset.UtcNow.ToUnixTimeSeconds()).ReadAsStringAsync();
+        Assert.True(Encoding.UTF8.GetByteCount(json) <= AssinanteMqtt.MaximoBytes);
+
+        await assinante.Tratar(Encoding.UTF8.GetBytes(json + new string(' ', AssinanteMqtt.MaximoBytes))); // JSON válido, só grande
+        using var escopo = f.Services.CreateScope();
+        var db = escopo.ServiceProvider.GetRequiredService<SalaDb>();
+        Assert.Equal(0, db.Leituras.Count());
+
+        await assinante.Tratar(Encoding.UTF8.GetBytes(json));
+        Assert.Equal(1, db.Leituras.Count());
+    }
+
+    [Fact]
+    public async Task OcorrenciaCriadaVoltaNaListaDaSalaEFotoSoComChave()
+    {
+        using var f = new ApiFabrica();
+        var c = f.Cliente();
+        var criada = await c.PostAsync("/ocorrencias", Form("sala-03", "Sala muito quente no fim da aula", "foto.jpg", "image/jpeg", JpegMinimo()));
+        Assert.Equal(HttpStatusCode.Created, criada.StatusCode);
+        using var doc = JsonDocument.Parse(await criada.Content.ReadAsStringAsync());
+        var id = doc.RootElement.GetProperty("id").GetString();
+
+        using var lista = JsonDocument.Parse(await c.GetStringAsync("/ambientes/sala-03/ocorrencias"));
+        var item = Assert.Single(lista.RootElement.EnumerateArray());
+        Assert.Equal(id, item.GetProperty("id").GetString());
+        Assert.Equal("sala-03", item.GetProperty("ambienteId").GetString());
+        Assert.Equal("Sala muito quente no fim da aula", item.GetProperty("descricao").GetString());
+        Assert.True(item.TryGetProperty("criadaEm", out _));
+        Assert.DoesNotContain("foto", item.GetRawText(), StringComparison.OrdinalIgnoreCase);
+        Assert.Equal("[]", await c.GetStringAsync("/ambientes/sala-01/ocorrencias"));
+        Assert.Equal(HttpStatusCode.NotFound, (await c.GetAsync("/ambientes/nao-existe/ocorrencias")).StatusCode);
+
+        var semChave = f.Cliente(false);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await semChave.GetAsync($"/ocorrencias/{id}/foto")).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await c.GetAsync($"/ocorrencias/{id}/foto")).StatusCode);
+    }
+
+    [Fact]
+    public async Task CrudDeAmbientesComLocationE409QuandoHaLeituras()
+    {
+        using var f = new ApiFabrica();
+        var c = f.Cliente();
+        var criada = await c.PostAsJsonAsync("/ambientes", new { id = "sala-05", nome = "Sala 5", andar = 1, faceSol = "oeste", temVentilador = true });
+        Assert.Equal(HttpStatusCode.Created, criada.StatusCode);
+        Assert.Equal("/ambientes/sala-05", criada.Headers.Location!.OriginalString);
+
+        using (var sala = JsonDocument.Parse(await c.GetStringAsync("/ambientes/sala-05")))
+        {
+            Assert.Equal("Sala 5", sala.RootElement.GetProperty("nome").GetString());
+            Assert.True(sala.RootElement.GetProperty("semLeitura").GetBoolean());
+        }
+        Assert.Equal(HttpStatusCode.NotFound, (await c.GetAsync("/ambientes/sala-99")).StatusCode);
+
+        var alterada = await c.PutAsJsonAsync("/ambientes/sala-05", new { id = "sala-05", nome = " Sala 5 B ", andar = 2, faceSol = "sul", temVentilador = false });
+        Assert.Equal(HttpStatusCode.OK, alterada.StatusCode);
+        using (var sala = JsonDocument.Parse(await c.GetStringAsync("/ambientes/sala-05")))
+        {
+            Assert.Equal("Sala 5 B", sala.RootElement.GetProperty("nome").GetString());
+            Assert.Equal(2, sala.RootElement.GetProperty("andar").GetInt32());
+            Assert.Equal("sul", sala.RootElement.GetProperty("faceSol").GetString());
+            Assert.False(sala.RootElement.GetProperty("temVentilador").GetBoolean());
+        }
+        Assert.Equal("id-divergente", await Motivo(await c.PutAsJsonAsync("/ambientes/sala-05", new { id = "sala-06", nome = "Sala", andar = 0, faceSol = "sul" })));
+        Assert.Equal(HttpStatusCode.NotFound, (await c.PutAsJsonAsync("/ambientes/sala-99", new { id = "sala-99", nome = "Sala", andar = 0, faceSol = "sul" })).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, (await c.PutAsJsonAsync("/ambientes/sala-05", new { id = "sala-05", nome = "Sala", andar = 0, faceSol = "nenhuma" })).StatusCode);
+
+        var semChave = f.Cliente(false);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await semChave.PutAsJsonAsync("/ambientes/sala-05", new { id = "sala-05", nome = "X", andar = 0, faceSol = "sul" })).StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await semChave.DeleteAsync("/ambientes/sala-05")).StatusCode);
+
+        Assert.Equal(HttpStatusCode.Created, (await c.PostAsync("/leituras", Corpo("sala-03", "esp32-sala-03", 30, 40, DateTimeOffset.UtcNow.ToUnixTimeSeconds()))).StatusCode);
+        var comLeituras = await c.DeleteAsync("/ambientes/sala-03");
+        Assert.Equal(HttpStatusCode.Conflict, comLeituras.StatusCode);
+        Assert.Equal("ambiente-com-leituras", await Motivo(comLeituras));
+
+        Assert.Equal(HttpStatusCode.NoContent, (await c.DeleteAsync("/ambientes/sala-05")).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await c.GetAsync("/ambientes/sala-05")).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await c.DeleteAsync("/ambientes/sala-05")).StatusCode);
+        // sala-04 sem leituras: sensor, ação, ocorrência, previsão e a foto no disco saem junto
+        Assert.Equal(HttpStatusCode.Created, (await c.PostAsJsonAsync("/acoes", new { ambienteId = "sala-04", nivel = "cuidado", descricao = "pausa para água" })).StatusCode);
+        Assert.Equal(HttpStatusCode.Created, (await c.PostAsync("/ocorrencias", Form("sala-04", "ventilador parado na sala", "sala.jpg", "image/jpeg", JpegMinimo()))).StatusCode);
+        using var escopo = f.Services.CreateScope();
+        var db = escopo.ServiceProvider.GetRequiredService<SalaDb>();
+        db.Previsoes.Add(new Previsao { AmbienteId = "sala-04", PrevistoPara = DateTimeOffset.UtcNow.AddHours(2), CalculadaEm = DateTimeOffset.UtcNow });
+        db.SaveChanges();
+        var foto = Path.Combine(f.Services.GetRequiredService<IConfiguration>()["Fotos:Pasta"]!, db.Ocorrencias.Single(o => o.AmbienteId == "sala-04").CaminhoFoto);
+        Assert.True(File.Exists(foto));
+
+        Assert.Equal(HttpStatusCode.NoContent, (await c.DeleteAsync("/ambientes/sala-04")).StatusCode);
+        Assert.False(db.Dispositivos.Any(d => d.Id == "esp32-sala-04"));
+        Assert.False(db.Acoes.Any(a => a.AmbienteId == "sala-04"));
+        Assert.False(db.Ocorrencias.Any(o => o.AmbienteId == "sala-04"));
+        Assert.False(db.Previsoes.Any(p => p.AmbienteId == "sala-04"));
+        Assert.False(File.Exists(foto));
+        Assert.True(db.Ambientes.Any(a => a.Id == "sala-03"));
+    }
+
+    [Fact]
+    public async Task AcaoInvalidaDizOMotivoELocationApontaParaODia()
+    {
+        var instante = new DateTimeOffset(2026, 11, 6, 1, 30, 0, TimeSpan.Zero); // 22h30 de 05/11 em São Paulo
+        using var f = new ApiFabrica(tempo: new RelogioFixo(instante));
+        var c = f.Cliente();
+        StringContent Acao(string nivel, string descricao) =>
+            new(JsonSerializer.Serialize(new { ambienteId = "sala-03", nivel, descricao }), Encoding.UTF8, "application/json");
+        Assert.Equal("nivel", await Motivo(await c.PostAsync("/acoes", Acao("quente", "pausa para água"))));
+        foreach (var descricao in new[] { "", "  ", "abcd", "  abcd  ", new string('a', 301) })
+            Assert.Equal("descricao", await Motivo(await c.PostAsync("/acoes", Acao("cuidado", descricao))));
+        Assert.Empty((await c.GetFromJsonAsync<AcaoSaida[]>("/acoes?dia=2026-11-05"))!);
+        var criada = await c.PostAsync("/acoes", Acao("cuidado", "  pausa para água  "));
+        Assert.Equal(HttpStatusCode.Created, criada.StatusCode);
+        Assert.Equal("/acoes?dia=2026-11-05", criada.Headers.Location!.OriginalString);
+        Assert.Equal("pausa para água", Assert.Single((await c.GetFromJsonAsync<AcaoSaida[]>("/acoes?dia=2026-11-05"))!).Descricao);
+        foreach (var descricao in new[] { "12345", new string('a', 300) })
+            Assert.Equal(HttpStatusCode.Created, (await c.PostAsync("/acoes", Acao("cuidado", $"  {descricao}  "))).StatusCode);
+        var acoes = (await c.GetFromJsonAsync<AcaoSaida[]>("/acoes?dia=2026-11-05"))!;
+        Assert.Equal(new[] { "pausa para água", "12345", new string('a', 300) }, acoes.OrderBy(a => a.Id).Select(a => a.Descricao));
+    }
+
+    [Fact]
+    public async Task RespostasLevamNosniffEProducaoLevaHsts()
+    {
+        using (var f = new ApiFabrica())
+        {
+            var r = await f.Cliente().GetAsync("/ambientes");
+            Assert.Equal("nosniff", r.Headers.GetValues("X-Content-Type-Options").Single());
+            Assert.False(r.Headers.Contains("Strict-Transport-Security"));
+        }
+
+        using var producao = new ApiFabrica("Production");
+        producao.Cliente();
+        var https = producao.CreateClient(new WebApplicationFactoryClientOptions { BaseAddress = new Uri("https://termometro.escola.test") });
+        var resposta = await https.GetAsync("/ambientes");
+        Assert.Equal(HttpStatusCode.OK, resposta.StatusCode);
+        Assert.StartsWith("max-age=", resposta.Headers.GetValues("Strict-Transport-Security").Single());
+        Assert.Equal("nosniff", resposta.Headers.GetValues("X-Content-Type-Options").Single());
+    }
+
+    [Fact]
+    public async Task NiveisVemDaTabelaEBatemComAsFaixasDoCodigo()
+    {
+        using var f = new ApiFabrica();
+        var niveis = (await f.Cliente().GetFromJsonAsync<NivelSaida[]>("/niveis"))!;
+        Assert.Equal(new[] { "frio", "normal", "atencao", "cuidado", "perigo" }, niveis.Select(n => n.Nivel));
+        Assert.Equal(18, niveis.Single(n => n.Nivel == "normal").IndiceMin);
+        Assert.Equal("Frio", niveis[0].Nome);
+        Assert.Equal("Fechar janelas, agasalhar e oferecer cobertor; à noite, avisar o plantão e levar quem estiver no cômodo mais frio para outro", niveis[0].AcaoSugerida);
+        foreach (var n in niveis)
+        {
+            Assert.Equal(n.Nivel, IndiceCalor.Nivel(n.IndiceMin).ToString());
+            if (n.IndiceMin > 0) Assert.NotEqual(n.Nivel, IndiceCalor.Nivel(n.IndiceMin - 0.1).ToString());
+            Assert.False(string.IsNullOrWhiteSpace(n.AcaoSugerida));
+        }
+    }
+
+    [Fact]
+    public async Task PrevisaoServidaEntraNoHistorico()
+    {
+        using var f = new ApiFabrica();
+        var c = f.Cliente();
+        var agora = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        Assert.Equal(HttpStatusCode.Created, (await c.PostAsync("/leituras", Corpo("sala-03", "esp32-sala-03", 33.4, 58, agora))).StatusCode);
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, (await c.GetAsync("/ambientes/sala-01/previsao")).StatusCode);
+        using var doc = JsonDocument.Parse(await c.GetStringAsync("/ambientes/sala-03/previsao"));
+        Assert.Equal(HttpStatusCode.OK, (await c.GetAsync("/ambientes/sala-03/previsao")).StatusCode); // segunda consulta em 10 min não grava outra
+
+        using var escopo = f.Services.CreateScope();
+        var gravada = Assert.Single(escopo.ServiceProvider.GetRequiredService<SalaDb>().Previsoes);
+        Assert.Equal("sala-03", gravada.AmbienteId);
+        Assert.Equal(doc.RootElement.GetProperty("indiceSalaPrevisto").GetDouble(), gravada.IndiceSalaPrevisto);
+        Assert.Equal(doc.RootElement.GetProperty("nivelPrevisto").GetString(), gravada.NivelPrevisto.ToString());
+        Assert.Equal(doc.RootElement.GetProperty("previstoPara").GetDateTimeOffset(), gravada.PrevistoPara);
+        Assert.Equal(gravada.PrevistoPara.AddHours(-2), gravada.CalculadaEm);
+    }
+
+    [Theory]
+    [InlineData(13.949, 17.9, "frio")]
+    [InlineData(13.951, 18.0, "normal")]
+    [InlineData(22.949, 26.9, "normal")]
+    [InlineData(22.951, 27.0, "atencao")]
+    [InlineData(27.949, 31.9, "atencao")]
+    [InlineData(27.951, 32.0, "cuidado")]
+    [InlineData(36.949, 40.9, "cuidado")]
+    [InlineData(36.951, 41.0, "perigo")]
+    public async Task AlertaServidoUsaSalaComDeltaEArredondamento(double rua, double sala, string nivel)
+    {
+        var agora = new DateTimeOffset(2026, 1, 15, 17, 0, 0, TimeSpan.Zero);
+        using var f = new ApiFabrica(tempo: new RelogioFixo(agora));
+        using var app = f.WithWebHostBuilder(b => b.ConfigureTestServices(s =>
+            s.AddSingleton<IPrevisorRua>(new RuaFixa(rua))));
+        using var c = app.CreateClient();
+        using var escopo = app.Services.CreateScope();
+        var db = escopo.ServiceProvider.GetRequiredService<SalaDb>();
+        db.Database.EnsureCreated();
+        for (var i = 0; i < 3; i++) InserirPar(db, agora.AddMinutes(-i), 32, 28);
+        db.SaveChanges();
+
+        using var doc = JsonDocument.Parse(await c.GetStringAsync("/ambientes/sala-03/previsao"));
+        var p = doc.RootElement;
+        Assert.Equal(4, p.GetProperty("deltaSala").GetDouble());
+        Assert.Equal(sala, p.GetProperty("indiceSalaPrevisto").GetDouble());
+        Assert.Equal(nivel, p.GetProperty("nivelPrevisto").GetString());
+        var gravada = Assert.Single(db.Previsoes);
+        Assert.Equal(sala, gravada.IndiceSalaPrevisto);
+        Assert.Equal(nivel, gravada.NivelPrevisto.ToString());
+    }
+
+    sealed class RuaFixa(double previsto) : IPrevisorRua
+    {
+        public double? IndiceNoInstante(DateTimeOffset utc) => 28;
+        public double? TemperaturaNoInstante(DateTimeOffset utc) => null;
+        public double? PreverDaquiA2h(DateTimeOffset utc) => previsto;
+    }
+
+    // SOI, SOF0 1x1 com um componente, SOS, um byte de varredura, EOI
+    static byte[] JpegMinimo() => new byte[]
+    {
+        0xFF, 0xD8,
+        0xFF, 0xC0, 0x00, 0x0B, 0x08, 0x00, 0x01, 0x00, 0x01, 0x01, 0x01, 0x11, 0x00,
+        0xFF, 0xDA, 0x00, 0x08, 0x01, 0x01, 0x00, 0x00, 0x3F, 0x00,
+        0x00, 0xFF, 0xD9,
+    };
+
     static void InserirPar(SalaDb db, DateTimeOffset quando, double sala, double rua)
     {
         db.Leituras.Add(new Leitura
@@ -362,7 +747,7 @@ public class ApiTestes
             TemperaturaC = 30,
             UmidadePct = 50,
             IndiceCalor = sala,
-            Nivel = Enum.Parse<Nivel>(IndiceCalor.Nivel(sala)),
+            Nivel = IndiceCalor.Nivel(sala),
             MedidoEm = quando,
             Origem = Origem.manual,
         });
@@ -411,16 +796,23 @@ public class ApiTestes
     }
 }
 
+public class RelogioFixo(DateTimeOffset agora) : TimeProvider
+{
+    public override DateTimeOffset GetUtcNow() => agora;
+}
+
 public class ApiFabrica : WebApplicationFactory<Program>
 {
     readonly string _ambiente;
+    readonly TimeProvider? _tempo;
     readonly SqliteConnection _conexao = new("Data Source=:memory:");
     readonly string _fotos;
     bool _pronto;
 
-    public ApiFabrica(string ambiente = "Testing")
+    public ApiFabrica(string ambiente = "Testing", TimeProvider? tempo = null)
     {
         _ambiente = ambiente;
+        _tempo = tempo;
         _fotos = Path.Combine(Path.GetTempPath(), "tds-" + Guid.NewGuid().ToString("N"));
         Environment.SetEnvironmentVariable("Banco__Migrar", "false");
         Environment.SetEnvironmentVariable("Mqtt__Desligado", "true");
@@ -454,7 +846,8 @@ public class ApiFabrica : WebApplicationFactory<Program>
         {
             services.Where(d => d.ServiceType == typeof(DbContextOptions<SalaDb>) || d.ServiceType == typeof(SalaDb)).ToList()
                 .ForEach(d => services.Remove(d));
-            services.AddDbContext<SalaDb>(o => o.UseSqlite(_conexao));
+            services.AddDbContext<SalaDb>(o => SqliteDeTeste.Usar(o, _conexao));
+            if (_tempo is not null) services.AddSingleton(_tempo);
         });
     }
 

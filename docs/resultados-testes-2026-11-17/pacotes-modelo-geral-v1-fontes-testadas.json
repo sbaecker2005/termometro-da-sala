@@ -1,0 +1,1362 @@
+[
+  {
+    "Caminho": ".gitignore",
+    "Sha256": "46EF5B921C96755823584883EA33A02F5A5B2A549445487B06346E159329D04B"
+  },
+  {
+    "Caminho": "api/.config/dotnet-tools.json",
+    "Sha256": "CD2EECC989833FD53BF357109C9E3C9D6DCAE9EBE578885FEBBF6E88610E1D01"
+  },
+  {
+    "Caminho": "api/evidencias/gerar-evidencias.ps1",
+    "Sha256": "4152859D582160B744583A43AE56A308E8B835AA9E62FDFDE61996131FD975E3"
+  },
+  {
+    "Caminho": "api/evidencias/insomnia-2026-11-17/05-revogacao.png",
+    "Sha256": "690ABD6F4CCA1575404E409723D00CC53BDACDF5F0666145A5A3F8B69F3AF742"
+  },
+  {
+    "Caminho": "api/evidencias/insomnia-2026-11-17/16-upload-201.png",
+    "Sha256": "D18F7B161C32756F3B5B1A137227454EB432FA893876E9516085DC44C66E6911"
+  },
+  {
+    "Caminho": "api/evidencias/insomnia-2026-11-17/colecao-final.png",
+    "Sha256": "0E94CB5775F541D5E5EA45C6318408B5B487AA759781876A8D047DFBA929711D"
+  },
+  {
+    "Caminho": "api/evidencias/insomnia-2026-11-17/README.md",
+    "Sha256": "D8AD383F60259B1087EC779206160B9D8FEDD3D01E5F9965CF272FFABE9E2E54"
+  },
+  {
+    "Caminho": "api/evidencias/insomnia-2026-11-17/sala-sintetica.jpg",
+    "Sha256": "658173E65646BC7A6F4E8BE60345B392820C849F14430028405574C39511064B"
+  },
+  {
+    "Caminho": "api/evidencias/README.md",
+    "Sha256": "4EB3D19E11288D22E775A3B97067961C1B4CDEF338F092CDABA1CDBF272C5C88"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/01-resposta.txt",
+    "Sha256": "25843A93746611B36E2B2CCC5A95037E721CCDCD078725477306772D00E8B16F"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/02-resposta.txt",
+    "Sha256": "B03AF8798FAC16F891BC8BC1E602AFBDB8DA7A4AE7B553F2E6EED848709BE675"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/03-resposta.txt",
+    "Sha256": "0ADDCD0DFA2CC29232F2EBC09FA7A2F4AEDF64DEC831E17E3611148D5D0846BE"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/04-resposta.txt",
+    "Sha256": "C4DAE3927F31311B5D5FF58B0A61E450A22486F2F5B9C53BA619426E63B53519"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/05-resposta.txt",
+    "Sha256": "18EB4A16D1D17167E4B962B034AE06EA1D945DE7623A5E531505ADAF80FD820A"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/06-resposta.txt",
+    "Sha256": "55E037CD451A61C76B29A8AB3FE2373223D572EC8E6CA3785A672AF38F36250A"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/07-resposta.txt",
+    "Sha256": "CCEEE156F1FFF917A0D66F19A027ADEBB435A6082D9AAED3210155CA21DF5B16"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/08-resposta.txt",
+    "Sha256": "A15A090B8D7614B1C868ABF253A8FD5693AE940DBDEAF706AB315A62037AEC5D"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/09-resposta.txt",
+    "Sha256": "69194F6B87C23789F7347B564F3350E42B722B9EDE16D53B06AFE4E49B27CA08"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/10-resposta.txt",
+    "Sha256": "DC0E7839DE54EADADEFBCD1A696ABDF573123A1D8EBA8E5848CC88DD8874268F"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/11-resposta.txt",
+    "Sha256": "CF5069037B3C3277E60F9C673227581BAD42F3F45E300F352E0E8FE7CE518AB5"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/11-verificacao-resposta.txt",
+    "Sha256": "F82FFFB199F359103813CC75A3051845D1C00419F189EB8A6CBFFEF7288929A1"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/12-resposta.txt",
+    "Sha256": "A863B2431F1A0F318A903E9C064EC1A333D6F97FB670F90A78300CFAA601F8E5"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/13-resposta.txt",
+    "Sha256": "BFC44DF04E4A2B205C7460A81D619905714FEEF62E816FCC688E49370C776499"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/13-verificacao-resposta.txt",
+    "Sha256": "F3642208FFF2C17AE960C44AFB2FF319ACFA53DBF3CA70C91DA7CFE14CB22F34"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/14-resposta.txt",
+    "Sha256": "5AB9CE88DA126AC8A3EAFFC2A0794240C6A754604A7E2D5E3E64A15DA146E122"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/15-resposta.txt",
+    "Sha256": "FF1EF6085BC5A558F632BDF1C058DC87264D53FB2EDCC22762B02FE12AE71041"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/16-resposta.txt",
+    "Sha256": "E14F65941AB2CDD8D0B20EA97E093A92E93C01AB4AE6518C992A525DD723A5AE"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/17-resposta.txt",
+    "Sha256": "6B433BB7E8D3D2E24A8C61CF745E17694BAA58B6E71C0A3A370CEDE7CF7D729B"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/18-resposta.txt",
+    "Sha256": "DE7371FFF0E93EE891DA62A95ADE7C0CFCD1A645B2A602CDF37A14E73DBA40D9"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/19-resposta.txt",
+    "Sha256": "3ED14C5E7D1E7F556FD74E82CE74486F49D261A9B3C39986CEAEA5EDC55663B9"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/20-resposta.txt",
+    "Sha256": "E01612D9848EC82EF8D4589E33A9366CF661154B727BC6A26F505FF1049FD0F1"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/21-resposta.txt",
+    "Sha256": "5BF8281FC56E622F27CA64446B1C098B27A0595A3A702D4FDB60489F03B802DF"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/22-resposta.txt",
+    "Sha256": "556A49A162308AED144CB4CFE2C44CF94D9C5EF784DF58EF3A7B1ED295FA1907"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/23-demo-resposta.txt",
+    "Sha256": "2F75F46F1C327AC417A67057D5ACFE2C9F7428AB34EB6C0E843B8B39E274A40F"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/23-resposta.txt",
+    "Sha256": "45D5E716FDEE5B1EE13F6FA657CD365D004F5C03F8E0D915AC6EEDE07F9A3158"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/24-resposta.txt",
+    "Sha256": "350E86B10780EE6239223793D1C66224BC4C4CFCF61F4B3281DB3ECF1F7BAC72"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/25a-resposta.txt",
+    "Sha256": "2B492C03ACB7D8191DB05DEAAB30A127794A528AAA6199C31D2CC04C743AA847"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/25b-resposta.txt",
+    "Sha256": "59AD03EF610E00116A717840C9E0197DD04BC934A897E4B6735E1026447D9B5D"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/25c-resposta.txt",
+    "Sha256": "775524542DE69B99672790D7C63157D47F2E36DA73FAD9AED1AA18ADE60FE6AE"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/26-resposta.txt",
+    "Sha256": "70F24949E4BEA438A1302D479F03998148A17E78397599DD2C25D1B3DB8F7B84"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/27-resposta.txt",
+    "Sha256": "C4A33F0FED6036CF33951F78E760487E8BEACA4412E022F72DCB461726095DAF"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/28-preparo-resposta.txt",
+    "Sha256": "A975252217FD64B8B12C56F6288D9715F668EA3D95AACA96050C12750216D41A"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/28-resposta.txt",
+    "Sha256": "52516A2B88CAB21A3C5A1237BE57F2E5840A990911E25DF08E4F7A2303CBC6B4"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/29-preparo-resposta.txt",
+    "Sha256": "B94FC3F7612EEC2BC07B9A87BAA501B7B6A0929F4F2B1768440F364D9175F1FC"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/29-resposta.txt",
+    "Sha256": "4FC17AEE1F23DFE0180DE20BC89AB455217BC91F8546B1B46FCA024AC8240BB9"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/30-01-resposta.txt",
+    "Sha256": "DFFAC824B6C6E4E92232598D0785606EAB8417806EDFEC47F5A68A98D8B01CD3"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/30-02-resposta.txt",
+    "Sha256": "75EFFC3BAA0F653B5998078C4973927BC4816DF93D86D930F504878A3ED39AAD"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/30-03-resposta.txt",
+    "Sha256": "6528326A0A89743BFC8746891F8FE4C8E4EC51542093187867CC825372805096"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/30-04-resposta.txt",
+    "Sha256": "DECA48054712CDCCF5D8076563DA9E50ADAF0CB6177C1FC03616A50B76F91975"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/30-05-resposta.txt",
+    "Sha256": "C12D6BEF1CD94E54275F4658A85A4265B8D712D938C02996EDD77BAD42D82E6B"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/30-06-resposta.txt",
+    "Sha256": "9760713044DFB95F95DEE1FE194CC2261033D3A3C80D79A16A88700889C795F3"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/30-07-resposta.txt",
+    "Sha256": "BEE389E1DCA22C580846488789717CC5282F7DFDE1F99FCC25107C46AA54D0C4"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/30-08-resposta.txt",
+    "Sha256": "FFBC3CBC5D3A98C15C2CACB2D5F420CD15CB48788F0B89430549ECA414938C27"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/30-09-resposta.txt",
+    "Sha256": "B57EE1CD807F40170D6A298E0D4644AA46C6F7B00C7244F7A5168A3B8A5BD558"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/30-10-resposta.txt",
+    "Sha256": "E4491B9B21B1E8F139ADEB7FC66CB7ABF0551D18F6CAC29FA05A1CE3CECE5CA8"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/30-11-resposta.txt",
+    "Sha256": "CEF7A45AD8F2EA0D44A4AFC18DE2C3DD6B0143C4420384E4C2550348AFB92390"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/30-12-resposta.txt",
+    "Sha256": "10B805294F1ED661CE1A55E1598BEDBE8BDDBA04B0ADDCE06EE2705F47008EBD"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/30-13-resposta.txt",
+    "Sha256": "257D0047DD4DF13CB1922464F55EB82B7AABD044F0CCB5FC6AF1C5F12C811A91"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/30-14-resposta.txt",
+    "Sha256": "0E9F0C70AEECE7A7A67DB631B0FFE247A5F83EA5A3079E01E2DABC378F7559B1"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/30-15-resposta.txt",
+    "Sha256": "575963F6260A1CE022C2809E19D5002985F188EF06460392EB3B59756B1A49D0"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/30-16-resposta.txt",
+    "Sha256": "398C8DEED472AF0A68A3A52401BA06BDA62E9928F496B4C115689C0755515A3B"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/30-17-resposta.txt",
+    "Sha256": "430BA137E048C1C039A00599BE5B4C22407C45F17922D69DDEFEACCBFE21C931"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/30-18-resposta.txt",
+    "Sha256": "480C8D49CADA8AD3469FECA608CC8AC61A886CABD45488A4342A2CDD497E0104"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/30-19-resposta.txt",
+    "Sha256": "AB6095A2AECEB3229C129D4C500826CE553951F794F8EAD6215C28B141FAF312"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/30-20-resposta.txt",
+    "Sha256": "CD2F8A232AFA536752B730B28C49EA11EE3CBD3A598EE3BD0DF7BD7349F7040F"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/30-21-resposta.txt",
+    "Sha256": "4953B20B4AF8E896CE52E3DE3A481D05253EC34922C816B5BB2E84C4C946966A"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/30-22-resposta.txt",
+    "Sha256": "D40D991EE9CE3A9466D256BD9E157E6BB145007E91B344FC1425209F1DC5BAA1"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/30-23-resposta.txt",
+    "Sha256": "37C44AF0B2B6200DE5F1492A362D9CCDA380F1C48316597118A269EB0561F088"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/30-24-resposta.txt",
+    "Sha256": "19413472F9A61495133B3269A1312D32C246A2C52B8B5A6B4922F5D189C8FB68"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/30-25-resposta.txt",
+    "Sha256": "3EFDA24509A93EBDECBB6FE536A0F4A4037D333F76D2A563E167BC819576E671"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/30-26-resposta.txt",
+    "Sha256": "2EEFF110E6C448A2263417C408C7ECDB6FC953654D0840840909AE207758782E"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/30-27-resposta.txt",
+    "Sha256": "424661C61F53F7224AC82B817EBE0CD071F518520C85861BC3DF7BB384D291AE"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/30-28-resposta.txt",
+    "Sha256": "ED3F89D26DF02C848C1042D8D0E304B95E64F2F7344A4AE4FD5CECADF818DA29"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/30-29-resposta.txt",
+    "Sha256": "DA4981291F53DC0DEF89B39351F4E72E411A89DACF50386795DC68FD6A39C581"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/30-30-resposta.txt",
+    "Sha256": "DBD25C62E02E56A599BB1C0EB29172277BB80EC8FF5CB1AA4B905817EF197D3B"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/30-31-resposta.txt",
+    "Sha256": "3C4E22A5AAD093B99BD3005368FB8108148DAA907F2E077557459726D571178D"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/30-limite.txt",
+    "Sha256": "C6410C9146FB2929293E7E205AA60B499B7830F8C63DEB9B20EA3AED423C33C6"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/31-resposta.txt",
+    "Sha256": "23297707BC41F6E10BA05F98C98ACECB254731DACE45A6400F70471E397FFA92"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/B1.txt",
+    "Sha256": "66F2C47A3C2AD3D7677E6F0EB082EFAB26378E858F33682A4DF034A9D16CF761"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/B2.txt",
+    "Sha256": "F1AB7FE2CE0DAF64A2926BD0968CE95035CED466A76668ECABA85E2EFF668399"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/B3.txt",
+    "Sha256": "D0B0D32F1997085EC8F2325F20628B158E7257F26F66292904E95A1E80450FC7"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/B4.txt",
+    "Sha256": "B6802DB9045DF306D1D2E3979383B39915BE2536EEAA7EDECFF9BC840DBD7A6D"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/B5.txt",
+    "Sha256": "B3FD31823367924B37BAC2FB501F681D3FC81F8E6D5DC290797722D0ACB45608"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/build.txt",
+    "Sha256": "2D92A548F64A8D3A9D462021DD88E12DBEEF5CE093858D5DAAC4A2DB8FD5BF84"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/conferencia.tsv",
+    "Sha256": "D434B9F402F2F6E95BBEB5BADFA04D7771D976CDDC2724B9DC2F9A0A854F1E84"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/E03-concorrencia.txt",
+    "Sha256": "A754E601C7071D834EA0A9F9C602A658E7F8CC87571D979501D84B08A84ABC55"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/E03-reinicio-resposta.txt",
+    "Sha256": "29FB0680CDD57B9FD87039E8A9A56C2D377DC3092499931B745D9172F8ED97D7"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/E04-tempo--660-resposta.txt",
+    "Sha256": "09EEBCD370DD4786BF4FC965B24B87F440EF3CD874A13DDE228F11579EC07946"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/E04-tempo-120-resposta.txt",
+    "Sha256": "2C205D3EB6CA035C47053175DCA6ADCDF543BC2877E36696547AA1B14D9CBA71"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/E05-normal-resposta.txt",
+    "Sha256": "D8D456800F7B5CFAA9FAA794996BF7B07ABD8EEE1EE2A24EB60DD81EB043712F"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/E05-sqli-resposta.txt",
+    "Sha256": "C698A81CCDB8872C4DD2951F764FE3604BF30E07DCA91AF09E1F2A647AB6F0D9"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/E06-absoluto-resposta.txt",
+    "Sha256": "71365176AB004A042B3986B0F58D6CA7255508E73DFEA51EEFFDE98E32BBE988"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/E06-lfi-resposta.txt",
+    "Sha256": "B12749C408ED530F9FE3A78EF529F76672CD5745D9BF629727DF1E9BF24DBD36"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/E07-conteudo-resposta.txt",
+    "Sha256": "B2ED8F64BA7BDA3B8444C896106E9A4C9092838EC61ACFC7E2EFC2034FC69E62"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/E07-nome-resposta.txt",
+    "Sha256": "1E06F70D34158FCB079CC4241720DC0374D6BF41CC58851B26FD16F9BBCB1086"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/E07-tamanho-resposta.txt",
+    "Sha256": "0266A4339B5D326B0218DEEA30F582A131C22AA42099A92CD401A3F5F5328E90"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/E08-curta-resposta.txt",
+    "Sha256": "1D67532A633A3A708407D54D8B033A68288D7895EC0F7B45EB87C81BE2E3F6EC"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/E08-faixa--11_58-resposta.txt",
+    "Sha256": "D9327448C9B716AAA8A10CA8302BFA4F10B3A2F578B295622863B506D83164D7"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/E08-faixa-33.4_-1-resposta.txt",
+    "Sha256": "2A7D0FBB1B42ED49870F8F54FEFCA125B73EECEED58B9A2B7967DC0DEF24ABF4"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/E08-faixa-33.4_101-resposta.txt",
+    "Sha256": "F1F2810C914FE127E12719FC521BE7029B8B00CEE7957B747B242247C69FDDB9"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/E08-faixa-61_58-resposta.txt",
+    "Sha256": "8B7845CA77EDE8BE534012556815E1E789E4E058BEEEB76AD6327DC99EF7D298"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/E08-longa-resposta.txt",
+    "Sha256": "E68E09F5BCC63D220FE4F059DFD50956FE5A046B464E1AD7A0A224AF0F7565C7"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/E08-sala-resposta.txt",
+    "Sha256": "525166F4DF76DD23EA79831B1D6F08896CEBBBF0DB43ED90AA8D7A7B980E5697"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/E08-sem-foto-resposta.txt",
+    "Sha256": "6E32B4B381346B881903A4211394934AC468E03B04368382FBAAADC5327B0039"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/E09-production-resposta.txt",
+    "Sha256": "BEEDFCC06EBC113A593BB409E228FD19097121EAB26400BC16932D831171E85C"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/E14-painel-resposta.txt",
+    "Sha256": "FC1445559839867A65D86C82E8A401631482BEA76B42CF969FA47E8A0D986B42"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/E15-acoes-resposta.txt",
+    "Sha256": "1294CD956774E986E4E7162A8F024A4330E4E4EE17EB75755FA3E3BC39BB5641"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/E15-chave-errada-resposta.txt",
+    "Sha256": "96A4C2CA2BEB58F66E4D9852156156DC71EAEA6B6603C9C546214E4552C6B5B0"
+  },
+  {
+    "Caminho": "api/evidencias/TermometroGS_SOA_20261117_Validado/E15-revogar-resposta.txt",
+    "Sha256": "FA8D637949FD008EA3E279E8E1BAE123490EE2E22160F2B21EE21E0DE99C6FF5"
+  },
+  {
+    "Caminho": "api/insomnia.json",
+    "Sha256": "9066D72AC5AB402AF0C1AE3AF3B9DF7D0608E335D53E615E364EBFB414DDF2FE"
+  },
+  {
+    "Caminho": "api/README.md",
+    "Sha256": "57FE02B357CFE1F37FCB37798FA408F37CC8B6CC8C3336CED0CDB0FF078E3323"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api.Tests/AjusteSalaTestes.cs",
+    "Sha256": "35C8DDF6258F621AB1970AA207FB37668410F8DBDBEE74F9645071792290CBF4"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api.Tests/ApiTestes.cs",
+    "Sha256": "8F9B8A05FCC4CD5DAA099CD71D200AF703E28C1ABFA163F14426CC8222C884D9"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api.Tests/ClienteDesktopTestes.cs",
+    "Sha256": "B4D44169C8AAF2F8E47CC490026B3EF0D6536E027E04329AC360C8FEF985006A"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api.Tests/EsquemaTestes.cs",
+    "Sha256": "EC9BE64846A1937DB9EEB17B43EED68E7D51FC3B1F173FE853FFF2B9D7107063"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api.Tests/MapaHorizonteTestes.cs",
+    "Sha256": "B21CB3D9F18EC220196F6526D278FF159B4B9330D6876737A07A8EB16F5DA0D0"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api.Tests/MapaTestes.cs",
+    "Sha256": "7992787B0C4B2DE6D97CBB45D28D2234D336573FBD9B114922A0D70BE1E0D7EB"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api.Tests/PrevisorModeloTestes.cs",
+    "Sha256": "3A9545DEC2A39C4974B3C47E84A8CA72A1D44464DC909956034487086EC34828"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api.Tests/ServicoLeiturasConcorrenciaTestes.cs",
+    "Sha256": "55985CBA3DD0D0D7A3B3FB7EC7CAFA6EC2A4BE54D5A2BB6612E30C26B05A56C0"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api.Tests/SqliteDeTeste.cs",
+    "Sha256": "2775157752FDC6355C803BBC7E7F8A674910DACF2D40D0E3BCC02AAF074DB006"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api.Tests/TermometroDaSala.Api.Tests.csproj",
+    "Sha256": "B5382DA57DF4F4048B143685C33930B28CEF1E4FD8D5208E59A8D43E5206035A"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api.Tests/VetoresTestes.cs",
+    "Sha256": "1F1A2128CBD8903BC1D09153F557A246E30681B5CB68DE0742E34965907170EE"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Contratos/AcaoEntrada.cs",
+    "Sha256": "EC0B0B1F0C75DC59EF337CEBDCF2D637DE3B1B9484D08EAA5AA59778354CB6B2"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Contratos/AmbienteEntrada.cs",
+    "Sha256": "C3C9ED172749A16CC7248D4CC9A49F564AC4DD366AFFFF50DF1BA43F10E60672"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Contratos/LeituraEntrada.cs",
+    "Sha256": "C1A8D8FDCBDD300B2D23A0BB0DED7D69D6E7C4D8AC8DE043A0D3B1181D6C61D7"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Contratos/Mapa.cs",
+    "Sha256": "111B0D13985E9AA53713238D13B5ADAF0A97C23738120C2BC102D57A6E5837A0"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Contratos/OcorrenciaEntrada.cs",
+    "Sha256": "3C392E6C00B50027A689359B1EDE42968EA6DF21A8EEFD120D6A32C3612F6B70"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Contratos/Saidas.cs",
+    "Sha256": "E0B244EEBB5EE85D40A384C4D20B0AEA9C00482DCC63C7634BD5EA4AB3506044"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Controllers/AcoesController.cs",
+    "Sha256": "3628C77E5798C24D694C1C8EC428030DB175DEE9E3A913486BE69732740AB8B4"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Controllers/AmbientesController.cs",
+    "Sha256": "1E3C120504CAD8B21D0E36CE68F1C12263F548E7CC230CD0267363361901EE52"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Controllers/DemoController.cs",
+    "Sha256": "CB6C7F96EF47E1838257695B9B764272E1F2C52BB22F6E0C925FAD2353F1C014"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Controllers/DispositivosController.cs",
+    "Sha256": "3651C8859FABDF67A7AB14F2233E1E578B90C34590ABF9D6D1AD906936DCCDE1"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Controllers/LeiturasController.cs",
+    "Sha256": "E227C8E2C566C4B9845111122BEDDB95FF8E0839BFF2D0C6850F2DF466ADC674"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Controllers/MapaController.cs",
+    "Sha256": "655C4C0CAD238E7D7315E248A1A8D4A7C7C3C5600BE126D165F2955955DA551B"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Controllers/NiveisController.cs",
+    "Sha256": "51352E99FD2744D977D1AB26CB4C4797D5E67E70B48D3A67D431CDACC5C92DFF"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Controllers/OcorrenciasController.cs",
+    "Sha256": "4D86CAF7FF4B3D7E6BD06C57BEA4EF89A533B6F566BF31892A6DC6CC6DB3BB4F"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Dados/Migrations/20261105025544_Inicial.cs",
+    "Sha256": "1E2EF6B02BCDDA38440A78F58C26547BC34EF36F39ADA308EE298C5E50104D6B"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Dados/Migrations/20261105025544_Inicial.Designer.cs",
+    "Sha256": "F707B8ACF682FE2A14EF9EBD769CA2F77441155C0FB2B9870E046EE160B528A1"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Dados/Migrations/20261105033613_Enums.cs",
+    "Sha256": "9C6CDE034E57E48F30D6E99A428D483EFF19CD718F35B33C2235328A6AB78F55"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Dados/Migrations/20261105033613_Enums.Designer.cs",
+    "Sha256": "EA21960128173F680DDB52B14521A4FFD1D58235BE61FD463A4D335C89EA01AB"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Dados/Migrations/20261105050515_SegredosPorDispositivo.cs",
+    "Sha256": "5F3184B2E31E63E5C01444CDFC3B4E950E12974D78FF4A5FFA0E96A74356D905"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Dados/Migrations/20261105050515_SegredosPorDispositivo.Designer.cs",
+    "Sha256": "5679B226CC849299FE53017BD7959CD806825F914C796AC9ACDE926B697BB143"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Dados/Migrations/20261107033211_AlertaFrio.cs",
+    "Sha256": "9F6B0FF5A558DE592041DEC287BCEC8A0194E1EBA32330F30ACD3A099D8F214E"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Dados/Migrations/20261107033211_AlertaFrio.Designer.cs",
+    "Sha256": "B0F8A6576D298C5BCD14152CE1F3E0A45003BA5C6044677379454279DD40034C"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Dados/Migrations/20261107091447_MapaTermico.cs",
+    "Sha256": "4BBFB3A4D60EAA9BE3F991CD2969E378124CA5736537C40FE97BE5BE98E1B46C"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Dados/Migrations/20261107091447_MapaTermico.Designer.cs",
+    "Sha256": "721EC06F9C1F624F719FA9BFCF1A9D8BAE24B41194E6E8A85633482F7848C14B"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Dados/Migrations/SalaDbModelSnapshot.cs",
+    "Sha256": "E3CD673D85A4468995979C730F717EDC4203A9E59CF34EF83208F87575C5BA06"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Dados/SalaDb.cs",
+    "Sha256": "EEE802B684F5743E61764FF4998500FDADF1DC62795FCE5E2C3723F2900A1C9A"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Dados/SalaDbFactory.cs",
+    "Sha256": "B52F1241B77E0BF9A6E57C2A87BCBE5C0C5A6329F76B141B9BCB64A3F15ED607"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Dominio/Contrato.cs",
+    "Sha256": "F871332AD771A1A6670C18620A513C4C033EB5CC9597BCCD6B3AF7A90A494F0B"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Dominio/Entidades/Acao.cs",
+    "Sha256": "100A5B9DF8FA02873DFAF5B1D2D5E0D899B364C961F5D51CF6B7870146042F4D"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Dominio/Entidades/Ambiente.cs",
+    "Sha256": "907D36F2C3A62A89613F3A15AB76BB4035F3FECAEB33276B8FD64239A8E39AD9"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Dominio/Entidades/Dispositivo.cs",
+    "Sha256": "73656E09549B1679D14C2AB0A862D7DE26E280BB65158A168509069BA03EF29E"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Dominio/Entidades/FaceSol.cs",
+    "Sha256": "D0C4DD3ABB59784DE6706ED8303DE18840E7C89BA56376799BE88A0BFA884DA1"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Dominio/Entidades/Leitura.cs",
+    "Sha256": "90D091A5D615915E704511DA8A4DBC638F8DDCB55FFB10B2FE2B25C4083243C2"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Dominio/Entidades/LeituraRua.cs",
+    "Sha256": "DDC2374DCBFDD251CEB663A278F712903892E910CB4F45DAE8AB701B9D7D3BEC"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Dominio/Entidades/Lugar.cs",
+    "Sha256": "6B3CA9ED2D418645A50E44CAF3FDE8222DF13A5FB5F06640014D23155AFC6C82"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Dominio/Entidades/Nivel.cs",
+    "Sha256": "6820B772A761424F02441B4DB880BCBBA531964C945F3941D08BDE42B181EA83"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Dominio/Entidades/NivelAcao.cs",
+    "Sha256": "1EEAEEBC59406A2B97D63FB73C263D4EAD87B331E5F416408BEA84A237DED4FE"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Dominio/Entidades/Ocorrencia.cs",
+    "Sha256": "E41AB772B98AC0AB6E3A295548A846AD12657BC330D2E1B6F38535CF4115D85C"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Dominio/Entidades/Origem.cs",
+    "Sha256": "FB764C3278E1AA1A8F487EA8F8FBB67295D0DE73A7E94A3D3247696A501F7D89"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Dominio/Entidades/Previsao.cs",
+    "Sha256": "AB7DA958CC9AA3A98EAD4AA0FA5900C76A6D74EF046A3A03F9CFC5761B70FDA5"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Dominio/Entidades/TipoAmbiente.cs",
+    "Sha256": "A4F1CE599AB64D97E4A095DEA1046B008D2713F51784538158ED184860595B70"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Filtros/ExigeChaveCoordenacaoAttribute.cs",
+    "Sha256": "B0DE0BD0377B505540BE1516872D2AFFDC8B59244D45CB7555DD5A1F407D6CEB"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/modelo/modelo.json",
+    "Sha256": "22AD57D6ED04B42B70B1D5BE44CF616F46B00A6A13BDC214213C0F98D0E8D118"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Program.cs",
+    "Sha256": "D4F962E07FB9B66E5E7D7FE080B842289FB8ACC1748C422CFA947976DA4ADC6B"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Servicos/AssinanteMqtt.cs",
+    "Sha256": "5D59657040E22128C089A39EED9F72B88247DAF91FA24A5791046C1882D5C9A8"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Servicos/MapaTermico.cs",
+    "Sha256": "63371620AFF3B86122780378A820086FED4C5252DDFA44E57C165640A4D40FB3"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Servicos/PrevisaoSala.cs",
+    "Sha256": "EB19527373FE0D399ED5BA4CAF2E17AF6598D66F1D44032C3EA7A66C077DABFB"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/Servicos/ServicoLeituras.cs",
+    "Sha256": "A12AF8C1DEC0C5EC969393904F9698B447EE3628377285C67FC2F77369487BE4"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/TermometroDaSala.Api.csproj",
+    "Sha256": "8DC0AAA326B589DE744028157E2FE5BE4F46A59EB1BAD70FDDC7B123664ECECA"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.Api/wwwroot/index.html",
+    "Sha256": "18ABEEA2F29FF3864DFB70255818019674B7A3F7FE90B9E0C32B4DF9952F6A5D"
+  },
+  {
+    "Caminho": "api/TermometroDaSala.sln",
+    "Sha256": "48A35998124D3E6DB9EA25D87A3CE3C4C61CBB3B5B48E6B83D01F09D95D573C9"
+  },
+  {
+    "Caminho": "app/.gitignore",
+    "Sha256": "5936B94A73A28B6735DE672B54C2C058A33C9AE1EDB62D87D6A4418E14447805"
+  },
+  {
+    "Caminho": "app/app.config.ts",
+    "Sha256": "B51E145434C0DD032B6B50F7EE88F262FB97733C21F1582A473183D67116B957"
+  },
+  {
+    "Caminho": "app/app/_layout.tsx",
+    "Sha256": "68095815955D9192A82BF23ABE2F34DFB07834D6132BAF7552C0D449A9210BF3"
+  },
+  {
+    "Caminho": "app/app/index.tsx",
+    "Sha256": "1BD4326F23A1AB30B8EF680BD8128A368D4208AF1409099EA8FA5F67F338DF19"
+  },
+  {
+    "Caminho": "app/app/salas/[id].tsx",
+    "Sha256": "A498BBAC5352EF9F189B5441B995B549494667D1D78125A065F5E9EFBA68E5E2"
+  },
+  {
+    "Caminho": "app/app/salas/[id]/ocorrencia.tsx",
+    "Sha256": "B3DB1BC0ED3151CB7C40F11C2FC35197158DA0423F6BDC7B0A410B8A8A1630BA"
+  },
+  {
+    "Caminho": "app/app/salas/index.tsx",
+    "Sha256": "53C2F1460CDE0462BCCDA7D57D7E407160B46891F08D8FB1DFF267F1C717B501"
+  },
+  {
+    "Caminho": "app/assets/android-icon-background.png",
+    "Sha256": "FB139C2DEE362EBF2070E23B96DA6FC0D43F8492DE38B8AF1FD7223E19B5861D"
+  },
+  {
+    "Caminho": "app/assets/android-icon-foreground.png",
+    "Sha256": "9E3D0315A33C6799DE601DD34CD8BF8CC3A8D16F3BF75592BAEC2CEB7240B391"
+  },
+  {
+    "Caminho": "app/assets/android-icon-monochrome.png",
+    "Sha256": "6371FC2C12E33AD2215A86C281DB3D682A81BEBE7C957A842C13B8BF00CCEB83"
+  },
+  {
+    "Caminho": "app/assets/favicon.png",
+    "Sha256": "A4E030697A7571B3E95D31860E4DA55D2F98E5E861E2B55E414F45A8556828BA"
+  },
+  {
+    "Caminho": "app/assets/icon.png",
+    "Sha256": "119462BB78EB240A65C869FC067EE599639B3CB5A41953F25C07B17D2A8C7E0F"
+  },
+  {
+    "Caminho": "app/assets/splash-icon.png",
+    "Sha256": "5F4C0A732B6325BF4071D9124D2AE67E037CB24FCC9C482EF82BEA742109A3B8"
+  },
+  {
+    "Caminho": "app/components/MapaTermico.tsx",
+    "Sha256": "8BDA243569C0DBC3C62B786A312D15FCE8DE6F55801D92D33569E778CBDE774B"
+  },
+  {
+    "Caminho": "app/components/RotuloNivel.tsx",
+    "Sha256": "C570D8AF01C35EA3462C704764EC008CDF7AD2229F63A302A46D5783A06F1474"
+  },
+  {
+    "Caminho": "app/components/tema.ts",
+    "Sha256": "D202EB8EE58944675CDE20110EDBF17A9504657A54B150AB55AD671E70F1AAFA"
+  },
+  {
+    "Caminho": "app/DECISOES.md",
+    "Sha256": "C836B3FA082E28F8F4233BFFFE862D246D6B9D9D91A805ADAF108AF345AB6295"
+  },
+  {
+    "Caminho": "app/domain/api-mapa.test.ts",
+    "Sha256": "BDA70144C1D839AF8E22A61D7A7ED9261E749A704EE384FB64C2F03A993A96BB"
+  },
+  {
+    "Caminho": "app/domain/camera.test.ts",
+    "Sha256": "788489AAB421BAE0163E708C7505B04C9E17B62082C21BE7FBE9D39CF52B204C"
+  },
+  {
+    "Caminho": "app/domain/mapa.test.ts",
+    "Sha256": "6CB059E211A96B38E3415DC81DDF7C0C07574C35060925032ABA305DFAEB532F"
+  },
+  {
+    "Caminho": "app/domain/mapa.ts",
+    "Sha256": "D6570D652F3B3AA0A987A34FC9686C42A946DDC99AC2ECC0CFA9BEF211C1742E"
+  },
+  {
+    "Caminho": "app/domain/nivel.test.ts",
+    "Sha256": "42AAE5BCB5538CF4A89FD8E7BC830E3C0D8E57226903B3C8A100F706B9D829AA"
+  },
+  {
+    "Caminho": "app/domain/nivel.ts",
+    "Sha256": "89D327421E529931EAD34F3AAEDBABED3DAE4B64894B250D759260C5E850377B"
+  },
+  {
+    "Caminho": "app/domain/ocorrencia.test.ts",
+    "Sha256": "93A6AA739A1293BF45EAEEF0E37D05947A6C3C9F2137517BDE536B7E0F9429BC"
+  },
+  {
+    "Caminho": "app/domain/ocorrencia.ts",
+    "Sha256": "57483AFEBC3EC9FD3926120A52E03616D9290BB3A9E18B2815A661E348960549"
+  },
+  {
+    "Caminho": "app/domain/previsao.test.ts",
+    "Sha256": "F162564C0FB6F3059BDB6730DEAA400F8AB6612D4A63F6C7422F2FEAF63B2F54"
+  },
+  {
+    "Caminho": "app/domain/previsao.ts",
+    "Sha256": "2F8717DC41621B43912CA20C0F58FDA5B42464692A74D41C60D3CF3CD50D984F"
+  },
+  {
+    "Caminho": "app/domain/professor.test.ts",
+    "Sha256": "6D35C36C674EAAF5D46FD40D82C6414C120F1CB069EBD630B920A7C40E886E95"
+  },
+  {
+    "Caminho": "app/domain/professor.ts",
+    "Sha256": "840E991B94FB6D99948E0CC24B2D64C9CE8CD46CE7000F413CE62CB15B08A12D"
+  },
+  {
+    "Caminho": "app/package-lock.json",
+    "Sha256": "FB56BA818CE29AEFE70B6F74E273256D4858304E029D10E0D1080B6E448A6DA8"
+  },
+  {
+    "Caminho": "app/package.json",
+    "Sha256": "8F37AC6BC808A0667172648259C6CC43B4409665EEF3D1E3871EA33D06816E35"
+  },
+  {
+    "Caminho": "app/README.md",
+    "Sha256": "967B7960C6DDDA9BB2D0A2834E8AE82872FD30534B0423F3D8FEA8D8D38E0859"
+  },
+  {
+    "Caminho": "app/rotas.ts",
+    "Sha256": "07A291B26528BBAF1445D9BDEBF99CC39B677422A1A6EE78712B4F49531E2A8C"
+  },
+  {
+    "Caminho": "app/ROTEIRO-VIDEO.md",
+    "Sha256": "A2413BA92A06FD385CAD862180FE38A2AB970F1F53FA4681A088344D52FD5DF4"
+  },
+  {
+    "Caminho": "app/services/api.ts",
+    "Sha256": "1EA208DF873B0A8DB7ADC7B2B923368ABAB009B7F313935644C553182E598318"
+  },
+  {
+    "Caminho": "app/services/camera.ts",
+    "Sha256": "428898D79666E3CC5F1C90128A9F290FB98AA2A0571CDC4C72E931E751C64A5E"
+  },
+  {
+    "Caminho": "app/services/hora.ts",
+    "Sha256": "80C976BD49876532471F3A5287F757D98432C5EB46331FD7F5D482439D8DF813"
+  },
+  {
+    "Caminho": "app/services/professor.ts",
+    "Sha256": "E9C286984B5DAB596147D6FBFFD5CD90A9353759E3D1C69D66EF5FE6C681EA5C"
+  },
+  {
+    "Caminho": "app/tsconfig.json",
+    "Sha256": "F811D8DB9BA9A251FC7CF04809E50F513C3E52B462A21702CD4FAE279326AA3E"
+  },
+  {
+    "Caminho": "CONTRATO.md",
+    "Sha256": "5C03D9B961D77B608E546774847229FE3F6DA228332A83598A2F52E2352F785D"
+  },
+  {
+    "Caminho": "demo/.gitkeep",
+    "Sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "Caminho": "demo/gerador.py",
+    "Sha256": "A8FE7C6BAA63DC68AF9EB386424A82E63B20EB295EE192D98EF86F0A86890618"
+  },
+  {
+    "Caminho": "demo/leituras-simuladas.csv",
+    "Sha256": "2A2CC1F165D91991914FAE194D45BF10398DE60BC0A24F931677758DC66AE2D4"
+  },
+  {
+    "Caminho": "demo/rua-dia-quente.csv",
+    "Sha256": "0B155A4300E5EB0388D41807A73BA1F64B98DA5B66C1BBD2FC656A0C72132138"
+  },
+  {
+    "Caminho": "desktop/CHANGELOG.md",
+    "Sha256": "F1DB3AD731EA9DC2D59FA095FDFD4FA1A0E8CB524DE3F6D85599CE55C336F28B"
+  },
+  {
+    "Caminho": "desktop/docs/mapa-20-cadeiras-calor.png",
+    "Sha256": "D6530262F1204181BF7A2E16D6BF3EC659B7C9FD182A11A01F97235357B84302"
+  },
+  {
+    "Caminho": "desktop/docs/mapa-20-cadeiras-frio-1h.png",
+    "Sha256": "382018AE77BC3FE37A9A3BCAE0FB4DB89B365F292965DD0ED30F4265031275EB"
+  },
+  {
+    "Caminho": "desktop/docs/mapa-20-cadeiras-frio.png",
+    "Sha256": "149E4DF41EFF4DC925E4351F67D9FC64EBAB89CF92B1E0518EF9F802F7AFA872"
+  },
+  {
+    "Caminho": "desktop/docs/mapa-cadeiras-C01-C20-sensores-S1-S4.png",
+    "Sha256": "B97F626399885E04E1B8CFE640E3696B315ECD43201E8D744B0ECB143BA8B079"
+  },
+  {
+    "Caminho": "desktop/docs/mapa-termico 2.png",
+    "Sha256": "382018AE77BC3FE37A9A3BCAE0FB4DB89B365F292965DD0ED30F4265031275EB"
+  },
+  {
+    "Caminho": "desktop/docs/mapa-termico.png",
+    "Sha256": "5D94B599221ED6AD2635870E1993CD1E3AA8C96D8DEB67F08DCE0D0DF3E69A59"
+  },
+  {
+    "Caminho": "desktop/docs/mapa-visual-final-1h.png",
+    "Sha256": "4AEA91A9FAF151F0D3CCB6FC6CD7373EB1D89AB941A71BDAAD905580C95353D4"
+  },
+  {
+    "Caminho": "desktop/docs/mapa-visual-final-agora.png",
+    "Sha256": "D0A279EEB7283D37AAF28937653FC22CC07BA85D76ABA37891BCADA306DEA101"
+  },
+  {
+    "Caminho": "desktop/docs/modelo-geral-v1/desktop-modo-local.jpg",
+    "Sha256": "554D9B06C2DD74AAAA90891C0B48AF18B6249E1B34198F244EDBF3AF1D3DB286"
+  },
+  {
+    "Caminho": "desktop/docs/modelo-geral-v1/desktop-sql-acessibilidade.txt",
+    "Sha256": "DD506770D66513479EC873579FBAFF9994B179E176AC34AD40DB7B5580CC9C4F"
+  },
+  {
+    "Caminho": "desktop/docs/modelo-geral-v1/desktop-sql-janela.jpg",
+    "Sha256": "441CEB9F82710722EB0CF3A5B12AE1CA9ADF1EA64E394FC5D9CF38E0B4EA3BCD"
+  },
+  {
+    "Caminho": "desktop/docs/modelo-geral-v1/desktop-sql-maximizado.jpg",
+    "Sha256": "DA1A2C44F5A3622708B7B138525E0B0263C9EEA15D971EBA60EA28246C1047F6"
+  },
+  {
+    "Caminho": "desktop/docs/modelo-geral-v1/mapa-1h-acessibilidade.txt",
+    "Sha256": "111C094E526BF90265EE639F52313699F61BAFB43D6C874BB8297923C2DFAEA3"
+  },
+  {
+    "Caminho": "desktop/docs/modelo-geral-v1/mapa-1h-exportado.png",
+    "Sha256": "5450E7B7A2681F14178AE2B4E87F2F20E896B7FAD53E5B811E0DDDAA0A6137C1"
+  },
+  {
+    "Caminho": "desktop/docs/modelo-geral-v1/mapa-1h-tela.jpg",
+    "Sha256": "9F45AF4D57490C101523884139DD7C38E39872B2BBCFDFFB55A8A770477265C5"
+  },
+  {
+    "Caminho": "desktop/docs/modelo-geral-v1/mapa-agora-acessibilidade.txt",
+    "Sha256": "453D109A34F6871704BEF75BEE4F87F8C517FCE04051C91B02F5AE2EB2A64933"
+  },
+  {
+    "Caminho": "desktop/docs/modelo-geral-v1/mapa-agora-exportado.png",
+    "Sha256": "E777BE44CDB72D1F6BA7E65C74F40D04C449D0B6FFCB27242E6868CED2069C4C"
+  },
+  {
+    "Caminho": "desktop/docs/modelo-geral-v1/mapa-agora-tela.jpg",
+    "Sha256": "1FB6CF53E6182D629DD11E49C167256A6DBAF8596128460A6B2D4319C5B55E73"
+  },
+  {
+    "Caminho": "desktop/docs/modelo-geral-v1/previsao-sala03.json",
+    "Sha256": "47AE5C9AED95930E67CD7E2B56801803D6BD84F9ED9EACE15024507614D0051C"
+  },
+  {
+    "Caminho": "desktop/docs/tela-demonstracao.png",
+    "Sha256": "B8A8528EA0E3635F4B299856FFBC00AB5804F84DCFEC381CFE2124EC46D00B90"
+  },
+  {
+    "Caminho": "desktop/docs/validacao-acoes-2026-11-17.csv",
+    "Sha256": "FCED1FA7A06ACA1EF60FC49741000E2192AA860907A331EC9CCD64E21EE073DA"
+  },
+  {
+    "Caminho": "desktop/docs/VALIDACAO-WINDOWS-2026-11-17.md",
+    "Sha256": "B4C1A21E60A4D8DD9E1BE8F0FEBEA8E05E99C7E88785815CFA392DCE7DC9C048"
+  },
+  {
+    "Caminho": "desktop/integrantes.txt",
+    "Sha256": "4F4538929E84F94FB1F943A680DB1BD6BFAD3939573CB6DEBC6AA75557A8200E"
+  },
+  {
+    "Caminho": "desktop/README.md",
+    "Sha256": "44A4A19340DD259344972D6B0F04418DD49A75EFAF1EA494102A42F702DD1FC9"
+  },
+  {
+    "Caminho": "desktop/TermometroDaSala.Desktop.sln",
+    "Sha256": "0EED0C75C986621CD569C8714EB973B5250E7372FD4BA094D5ED057BDA8870B7"
+  },
+  {
+    "Caminho": "desktop/TermometroDaSala.Desktop.Tests/DesktopTests.cs",
+    "Sha256": "8AAE2AE2EC7D1FCFB3880E2E19322BE809764D567293288B2B46D5AAF28453B2"
+  },
+  {
+    "Caminho": "desktop/TermometroDaSala.Desktop.Tests/MapaTests.cs",
+    "Sha256": "5960C427EC267762B36A48D90395CF50E1CD15B74C697EF868A1BD19696609C0"
+  },
+  {
+    "Caminho": "desktop/TermometroDaSala.Desktop.Tests/TermometroDaSala.Desktop.Tests.csproj",
+    "Sha256": "A51813160E8BA249671EE77747E181A538CA0B94600041BE1A9A1BE73E0505F9"
+  },
+  {
+    "Caminho": "desktop/TermometroDaSala.Desktop/Dominio/Acao.cs",
+    "Sha256": "D7BBAA966C65CD1E1074C2CDFC07550D66F283979D576D848CD08DBE237DD149"
+  },
+  {
+    "Caminho": "desktop/TermometroDaSala.Desktop/Dominio/CadastroInvalidoException.cs",
+    "Sha256": "938899E679748133A2DF3E7B6E007BE6C995C5B895790E0BAFB8E7F977F6738F"
+  },
+  {
+    "Caminho": "desktop/TermometroDaSala.Desktop/Dominio/HorarioEscola.cs",
+    "Sha256": "3B09D9FF8688955BC10A7A45BBCCDDA79E21909D2C5F707CC240A0877D9F0FFF"
+  },
+  {
+    "Caminho": "desktop/TermometroDaSala.Desktop/Dominio/Leitura.cs",
+    "Sha256": "B164C47F87EC97D3D68D7D58DDCA2C50EABA777D127AC74C93CAEE57CCA3B452"
+  },
+  {
+    "Caminho": "desktop/TermometroDaSala.Desktop/Dominio/Mapa.cs",
+    "Sha256": "9874B001071E2BC4C5C504164E83292F8DA96A8BEAD299518837C387EA8A96BE"
+  },
+  {
+    "Caminho": "desktop/TermometroDaSala.Desktop/Dominio/NivelCalor.cs",
+    "Sha256": "FC55A26BE92FCD60B23B173C4D4F9C33097F25B3D93563913048173B087F7143"
+  },
+  {
+    "Caminho": "desktop/TermometroDaSala.Desktop/Dominio/NivelCalorTexto.cs",
+    "Sha256": "939BE05FB297189DF4B1928B48CB6E7D8DEBA3989512B239EC546CC0AA2EFA4E"
+  },
+  {
+    "Caminho": "desktop/TermometroDaSala.Desktop/Dominio/Previsao.cs",
+    "Sha256": "EA640FD89446ACB4769940A71664322FD096C25526E591E8AE697F61F67C59B3"
+  },
+  {
+    "Caminho": "desktop/TermometroDaSala.Desktop/Dominio/Sala.cs",
+    "Sha256": "47B40153973E85CE645D00B0F176A5D0DEA8D7DD6FFDF14A788019640C6B339C"
+  },
+  {
+    "Caminho": "desktop/TermometroDaSala.Desktop/Program.cs",
+    "Sha256": "AB15E32EBCB2A9523C04B08BA696449C73453325F8529C41BBF40958F2A245FF"
+  },
+  {
+    "Caminho": "desktop/TermometroDaSala.Desktop/Servicos/Configuracao.cs",
+    "Sha256": "6E43CA8DEA37377F1076AB93B13286C5BB193317929C454663A79A6AA79F47BC"
+  },
+  {
+    "Caminho": "desktop/TermometroDaSala.Desktop/Servicos/DadosDemonstracao.cs",
+    "Sha256": "35A0431FEF5115763BFD5EDF8D7888A52F693D8832D8BEEAC8931351D79105AC"
+  },
+  {
+    "Caminho": "desktop/TermometroDaSala.Desktop/Servicos/DadosLocais.cs",
+    "Sha256": "93A7312C3A7C09E7BF3E04824DDDE664F316CA9761A81F42287D4D9AE4672C25"
+  },
+  {
+    "Caminho": "desktop/TermometroDaSala.Desktop/Servicos/DataOuVazio.cs",
+    "Sha256": "971DFBB65BFAD14CF7BB114D1214FC03195C2EA0987303A0D63019DC93429471"
+  },
+  {
+    "Caminho": "desktop/TermometroDaSala.Desktop/Servicos/ExportacaoCsv.cs",
+    "Sha256": "358C2FA4C65758BCBE0B186AEE9406391BBD9C81914E84AFA7D876ACD16E25A7"
+  },
+  {
+    "Caminho": "desktop/TermometroDaSala.Desktop/Servicos/IServicoSalas.cs",
+    "Sha256": "BA391AFD046766C0B1D0C27F1EC20D50AA616F74FEE64551E304F67C47253D7B"
+  },
+  {
+    "Caminho": "desktop/TermometroDaSala.Desktop/Servicos/ServicoSalasApi.cs",
+    "Sha256": "0B85FC1BF5643E37240DD03DD0FB16D9BC304A57723289274F4D253AD72F5C49"
+  },
+  {
+    "Caminho": "desktop/TermometroDaSala.Desktop/Servicos/ServicoSalasLocal.cs",
+    "Sha256": "0695CE15F360B38CE29B8ACE7BFBC2A7A52519EF8D3DA35AFA30B3B6EC12D5CB"
+  },
+  {
+    "Caminho": "desktop/TermometroDaSala.Desktop/Telas/CadastroSala.cs",
+    "Sha256": "13DAC0498DDF4AB55BFBA4FD28489F9E1F3252A857A9891419F0FE4622C2DF1D"
+  },
+  {
+    "Caminho": "desktop/TermometroDaSala.Desktop/Telas/CadastroSala.Designer.cs",
+    "Sha256": "A4FF8B2203F0C764B0DC0AAD440C3066AA614299AE6283BB295C260662C433DB"
+  },
+  {
+    "Caminho": "desktop/TermometroDaSala.Desktop/Telas/TelaCoordenacao.cs",
+    "Sha256": "EF2FA9CE23BB8F36A0CF69020F3BCF6FA19F826C138124463362BB38A976A3D3"
+  },
+  {
+    "Caminho": "desktop/TermometroDaSala.Desktop/Telas/TelaCoordenacao.Designer.cs",
+    "Sha256": "FA0729BE2C7B811965F8D3CE505660BDE22BF7EA1B1727D4EF91479DAACC8B82"
+  },
+  {
+    "Caminho": "desktop/TermometroDaSala.Desktop/Telas/TelaCoordenacao.Visual.cs",
+    "Sha256": "54719223841F83BB4B30CEBD5524ADC0ADD465E7BD90119437F854E1147B9479"
+  },
+  {
+    "Caminho": "desktop/TermometroDaSala.Desktop/Telas/TelaMapa.cs",
+    "Sha256": "348EDF7BCCFA1DC22DEEED9220376A63D6071D9351B9ECB6F0992220877481C5"
+  },
+  {
+    "Caminho": "desktop/TermometroDaSala.Desktop/Telas/TemaVisual.cs",
+    "Sha256": "BA65811317FEDEECBE0D6EB4B8316FF57EB3071A3759D53A6856E72164999922"
+  },
+  {
+    "Caminho": "desktop/TermometroDaSala.Desktop/termometro.ico",
+    "Sha256": "A5BAB6C79C400D14C83B309657FB16B00A975F3A96A75B6C363EAAE26D583B99"
+  },
+  {
+    "Caminho": "desktop/TermometroDaSala.Desktop/TermometroDaSala.Desktop.csproj",
+    "Sha256": "54BD1E8316E9835936F76B2AC3BE0C9F000518335AFFCF3258677F7D4D6373E6"
+  },
+  {
+    "Caminho": "desktop/TermometroDaSala.Desktop/ValidacoesAutoteste.cs",
+    "Sha256": "922886F9321C33C3CA0D161879519423C2233CA4C110AB6B088C5745FDFD7BE9"
+  },
+  {
+    "Caminho": "docs/AUDITORIA-ENTREGA.md",
+    "Sha256": "3075895FA9346601F58B09B2D06E13754EA574FDAA43B92B6EFCE5C3DE4F9890"
+  },
+  {
+    "Caminho": "docs/FECHAMENTO-ML-SOA-CSHARP.md",
+    "Sha256": "42920C4CB738C5E8AB78554E5208FDAD3D3CAF93C78BCDCA727EB84C7D9B09FF"
+  },
+  {
+    "Caminho": "docs/MAPA-TERMICO-ML.md",
+    "Sha256": "55594D8C7F5200859869659363686780A33A93001A08C2F76BF252B7F6DB05C3"
+  },
+  {
+    "Caminho": "docs/MAPA-TERMICO.md",
+    "Sha256": "B883EC722735591D10C6A5753F69922679A6171A00C686F2B68EC9B19F6E3A03"
+  },
+  {
+    "Caminho": "docs/resultados-testes-2026-11-17/api-fechamento-101.trx",
+    "Sha256": "054F9374557BBDD3C61F15C6F40E63A8706C340DF41FC0443595DD2EECBB1351"
+  },
+  {
+    "Caminho": "docs/resultados-testes-2026-11-17/api-modelo-geral-v1.trx",
+    "Sha256": "9FFFF6F358B58770AC64070648E52276EA3EA502304E5E0EB89920A404B81D76"
+  },
+  {
+    "Caminho": "docs/resultados-testes-2026-11-17/desktop-autoteste-visual-20261117.txt",
+    "Sha256": "3B2BF11079A5A4F9B0A33E3CDB6956FC2C0D5229265359078B2185AA07CD1663"
+  },
+  {
+    "Caminho": "docs/resultados-testes-2026-11-17/desktop-autoteste-zip-final-20261117.txt",
+    "Sha256": "920B5612FED1D1DFE4D1132F707438F909C4E7E2E77B84889712B0091F80B851"
+  },
+  {
+    "Caminho": "docs/resultados-testes-2026-11-17/desktop-modelo-geral-v1.trx",
+    "Sha256": "5F872BCC2688828D66D625E11B0BB1CD46D14FA1ADA340BB420453A352C23867"
+  },
+  {
+    "Caminho": "docs/resultados-testes-2026-11-17/desktop-pacote-fechamento.trx",
+    "Sha256": "6B96BE30D296C945962EA573FD28984BE8F5166434BEDBA09417CF37AF60AF27"
+  },
+  {
+    "Caminho": "docs/resultados-testes-2026-11-17/desktop-visual-20261117.trx",
+    "Sha256": "BF77ACC76B7C4920F2E9AD826BC12D91E167FC488E1FA96926D0D80DC25585C8"
+  },
+  {
+    "Caminho": "docs/resultados-testes-2026-11-17/desktop-zip-final-20261117.trx",
+    "Sha256": "A0F20666AD15E362D2B8BA6FCDB8C98BE753C66DA5895C6D004FA18952BEA032"
+  },
+  {
+    "Caminho": "docs/resultados-testes-2026-11-17/desktop-zip-final-20261117.txt",
+    "Sha256": "27649552CB6D100E64215F58B553E191D3199E4D06E2E5D8EE72AFCF503DCA66"
+  },
+  {
+    "Caminho": "docs/resultados-testes-2026-11-17/ml-demo-regressao-antes.trx",
+    "Sha256": "0F82CD04CC2752EE0DA6D5A75E1916F942D149E71E0B8A296ACE1437880AFE39"
+  },
+  {
+    "Caminho": "docs/resultados-testes-2026-11-17/ml-dependencias.txt",
+    "Sha256": "14EE9C4731FC41AA2F2B6F50DC4BD4FCC8A62539E0F2B6E8DE00FF07D21EF431"
+  },
+  {
+    "Caminho": "docs/resultados-testes-2026-11-17/ml-hashes-antes.json",
+    "Sha256": "F27C590DE46C1EA8E5530644B5E26BE0556CBB74E3DE86399E8269D8995670ED"
+  },
+  {
+    "Caminho": "docs/resultados-testes-2026-11-17/ml-modelo-geral-v1.txt",
+    "Sha256": "BE41E7E0306E9E36D3685E3879F35B288355893BE6B2213D699A417F2586E322"
+  },
+  {
+    "Caminho": "docs/resultados-testes-2026-11-17/ml-notebook-integral.txt",
+    "Sha256": "D11CC861D163CA4164EED8E31BD502A7FC2D4B669C83E5F5A20F53252FC968A2"
+  },
+  {
+    "Caminho": "docs/resultados-testes-2026-11-17/ml-pytest-python311.txt",
+    "Sha256": "38E9114DDB6AF843E53E6F8A52E8A8A3C24F3960FF5749C390EA90E3233F5CF2"
+  },
+  {
+    "Caminho": "docs/resultados-testes-2026-11-17/ml-pytest.txt",
+    "Sha256": "7E66A76AA2FB2535CF5B4C3AB35B5724CFA97FF9F5A01C02D32EC8360DBE9842"
+  },
+  {
+    "Caminho": "docs/resultados-testes-2026-11-17/TermometroGS_MQTT_20261117_091654/resultado.txt",
+    "Sha256": "E1EBBCADC1CEBB4634449F58A4D79C00AE574F3931AD18C33BBB1D7B5258FC27"
+  },
+  {
+    "Caminho": "docs/ROTEIROS-CONFERENCIA.md",
+    "Sha256": "D11400FC8D8225A7DE86E166F78F539983B19FED233A7976C98E81A07D68331B"
+  },
+  {
+    "Caminho": "ENTREGA.md",
+    "Sha256": "9E457627C04E2576C3DFFA30423AC15666FE7FEE44F604B5A2203DC40D900E9B"
+  },
+  {
+    "Caminho": "ferramentas/abrir-apresentacao.ps1",
+    "Sha256": "54D789E320C2084F37C7FA30BEF4596EF215F32BBE60AB3124264348ECB67B52"
+  },
+  {
+    "Caminho": "ferramentas/EnsaioSqlMqtt/EnsaioSqlMqtt.csproj",
+    "Sha256": "C4567A26BF1EE0981EC0B91B69FE62199F845E18A19B5CAD00D1089456A5B5A8"
+  },
+  {
+    "Caminho": "ferramentas/EnsaioSqlMqtt/Program.cs",
+    "Sha256": "8BD50410CF56601E2190A121537793943A55880316B8A74F9FA45CB29B223A7D"
+  },
+  {
+    "Caminho": "ferramentas/indice_calor.py",
+    "Sha256": "79D0FC46F10CC6B20DC8695FAB954107878C12D96267A223964FDC91DCC76817"
+  },
+  {
+    "Caminho": "ferramentas/preparar-cena-ml.ps1",
+    "Sha256": "3087090C40736B8EC05D3167562D777ABAA100E20573A60028CB805CA6276732"
+  },
+  {
+    "Caminho": "ferramentas/vetor_hmac.py",
+    "Sha256": "03E09E20DC6A48B811BA8F9F6D57C1E5B6770ADEE05CE6D4A6BDB4F62C475962"
+  },
+  {
+    "Caminho": "ml/alertas.csv",
+    "Sha256": "713AEA076D9AE876FF9D5050DE78C95D26629438F7548BA90D8BD15DF1E17848"
+  },
+  {
+    "Caminho": "ml/caso-idw.json",
+    "Sha256": "A409664172ED494D8FF43EC7514DEA9A64E6FCAC4225A0E897FF1350F38909C4"
+  },
+  {
+    "Caminho": "ml/casos-ajuste-salas.json",
+    "Sha256": "7610787F24B8FF6E2190D822374BFAE66297F85FD1E0CD91F93419D0B62CA6B9"
+  },
+  {
+    "Caminho": "ml/dados/inmet_a701.csv",
+    "Sha256": "54AC0EFD3286933852EDABC0DB9D74FCE9279B77EDE8EB6F3BAE6E8AB5102E64"
+  },
+  {
+    "Caminho": "ml/dados/sala7-simulada.csv",
+    "Sha256": "753832A7ACD48ED71EDF0F4442DBE060E2FE473CE09DED28E4D7615FAB71FD99"
+  },
+  {
+    "Caminho": "ml/extrair_a701.py",
+    "Sha256": "01AA554F8B582AE2EFA6ED31EDE74D45A0CB49532A5989211298EF662A04780B"
+  },
+  {
+    "Caminho": "ml/gerar_notebook.py",
+    "Sha256": "FD164B990DF1E674B0062C6DAAEABA1BF1148F25C9DD3CA24617FF88030D5B8B"
+  },
+  {
+    "Caminho": "ml/grade-parametros.csv",
+    "Sha256": "35105EC230278BF3C37E05E97F731ECAE4CB7AA68F26998C790C265898092BE4"
+  },
+  {
+    "Caminho": "ml/grupos-pontos.csv",
+    "Sha256": "796DB3CB294381B6B059F0159DB1AAC8CE0E757DF7706B0A4AB3427DE7C8DC41"
+  },
+  {
+    "Caminho": "ml/mapa.py",
+    "Sha256": "63C1D5197C977C053C5B4176B50D3F8C9BA3B72EC0036D120B38BFDAB40845F4"
+  },
+  {
+    "Caminho": "ml/metricas-pontos.csv",
+    "Sha256": "E590D0D32F569BC3E826FD5A02B499877806F9D40A58498D6720AE211D812C3F"
+  },
+  {
+    "Caminho": "ml/modelo_pontos.json",
+    "Sha256": "829DBC7DDFE949E741AD86188DF23F1C6207A0226D4DB32B418D5E27D2D0AF0D"
+  },
+  {
+    "Caminho": "ml/modelo.json",
+    "Sha256": "22AD57D6ED04B42B70B1D5BE44CF616F46B00A6A13BDC214213C0F98D0E8D118"
+  },
+  {
+    "Caminho": "ml/ocupantes.py",
+    "Sha256": "30051930F12F4C3BF502794A65946509DF37DDA9C7023F23C32C97A436FC5F59"
+  },
+  {
+    "Caminho": "ml/paridade-api.json",
+    "Sha256": "0785AF655195737F39B45759DA243C6252BC1059FB89CA18D47BF4B0A5E4D31B"
+  },
+  {
+    "Caminho": "ml/README.md",
+    "Sha256": "162B11E840FF19E77F778911A05FC2421ABA3E746D741D9CCEC230EA7B146527"
+  },
+  {
+    "Caminho": "ml/requirements.txt",
+    "Sha256": "72F802BA9089B72E8B0D769BCB7DE6AB205D17314CA9E5838C27E23A1139C591"
+  },
+  {
+    "Caminho": "ml/ROTEIRO-VIDEO.md",
+    "Sha256": "5818742597D40C1037BFE05AA4B671F634B061F69F1B8D3249E81D2A30C28CDA"
+  },
+  {
+    "Caminho": "ml/salas.py",
+    "Sha256": "724E74CD227DC2BD74D1F8ADD28A2E07C981C1DD8EB07E8234AC9E8CE9C4F17F"
+  },
+  {
+    "Caminho": "ml/silhuetas-pontos.csv",
+    "Sha256": "6E24C1F26E4A1BE30504BF480D183DD40182B88BEA8A496DD94074F67C5EC83B"
+  },
+  {
+    "Caminho": "ml/termometro_da_sala.ipynb",
+    "Sha256": "A65A62BBF60EDE434A2FDBE1120AE254E48ED5FAA565D0352FB00CFDD6148596"
+  },
+  {
+    "Caminho": "ml/test_alertas.py",
+    "Sha256": "CAB60AC303FB696162A9585642CD50A8BC5F832B942B56B0E9677DAF8DBAC4AD"
+  },
+  {
+    "Caminho": "ml/test_mapa.py",
+    "Sha256": "82C06BDD6D35048DF797C285F0FC24079196B9B8E02F1DA6312D909D2E121858"
+  },
+  {
+    "Caminho": "ml/test_ocupantes.py",
+    "Sha256": "5301F6C2101808ED7C747593971BE623CD111A304E82B46792148954C6C89F5A"
+  },
+  {
+    "Caminho": "ml/test_salas.py",
+    "Sha256": "3A03FBA2CCAD3124B69B7CEC1AA40920B0CA049D438A269F5388E2262BC0BCEE"
+  },
+  {
+    "Caminho": "output/apresentacao/TermometroGS_Apresentacao_20261117_094533/desktop-previsao-ml.png",
+    "Sha256": "908587BF755F80DA1787601FB9FCF05A8B63D8E5A882B335BDFDB5848E87FB2A"
+  },
+  {
+    "Caminho": "output/apresentacao/TermometroGS_Apresentacao_20261117_094533/mapa-exportado.png",
+    "Sha256": "E777BE44CDB72D1F6BA7E65C74F40D04C449D0B6FFCB27242E6868CED2069C4C"
+  },
+  {
+    "Caminho": "output/apresentacao/TermometroGS_Apresentacao_20261117_094533/mapa-tela.png",
+    "Sha256": "CA03AC41B8C047A63A482CE51F6F017BAEE5D5E44222BEBD6960366C749904EE"
+  },
+  {
+    "Caminho": "output/apresentacao/TermometroGS_Apresentacao_20261117_094533/previsao-ml.txt",
+    "Sha256": "9D35E1E009058EC2CA5A341EE4F9574FE8ED24B69F0E84A4FD697DB899E7B853"
+  },
+  {
+    "Caminho": "output/apresentacao/TermometroGS_Apresentacao_20261117_094533/protecao-porta.txt",
+    "Sha256": "78CB159C065DBB9902254AD1CC0B166947C38F7431006F1D063D43620DA99458"
+  },
+  {
+    "Caminho": "output/especificacao-v1/Termometro-da-Sala-V1.docx",
+    "Sha256": "EF373AAF0E7C0566CE342CE38C22C183539191CD949DC30624A8A06BC5A2C7C7"
+  },
+  {
+    "Caminho": "output/fechamento-samuel/COMECE-AQUI.txt",
+    "Sha256": "B9CE7AE3821A11FAA71274EB6366ECF7ABB9A3013FA01B19CFBB7CA043AB62EC"
+  },
+  {
+    "Caminho": "output/fechamento-samuel/CONFERENCIA-PACOTES.txt",
+    "Sha256": "775717E89B03847F45C78A972AB5E28F6C20CA3F27BC9B482F6460CBBE1359FC"
+  },
+  {
+    "Caminho": "output/fechamento-samuel/empacotar.ps1",
+    "Sha256": "41DFD96C6C83335A8D82E4D4A123CFBBEAAD1CF944FFFA74DF88E25AC78EBB82"
+  },
+  {
+    "Caminho": "output/fechamento-samuel/ENTREGA-INTEGRANTES.txt",
+    "Sha256": "5D3811ABD69EE9C67FB7DB7A966B519561609A43640CC7D6D7D9D2810B64535A"
+  },
+  {
+    "Caminho": "README.md",
+    "Sha256": "5101BC07AD112E1F337671DFE63D652E4BAC59CD7BD36CFCD83CC6A9ACB5CB05"
+  },
+  {
+    "Caminho": "tmp/validar-notebook-integral.py",
+    "Sha256": "483715731EB08C6AFEA65CF02732ED7693DED7DD72732989CA5E0C0151780641"
+  }
+]

@@ -1,0 +1,106 @@
+Window: "Termômetro da Sala — Coordenação", App: TermometroDaSala.Desktop.exe.
+	0 window Termômetro da Sala — Coordenação Secondary Actions: Raise ID: TelaCoordenacao
+		1 pane ID: painel
+			2 pane
+				3 text Termômetro da Sala
+				4 text COORDENAÇÃO / Monitoramento e resposta térmica
+			5 text API conectada — dados do servidor ID: status
+			6 pane API conectada — dados do servidor
+				7 pane API conectada — dados do servidor
+					8 text SALAS MONITORADAS
+					9 text ambientes na origem atual
+					10 text SALAS MONITORADAS
+				11 pane 5
+					12 text ALERTAS TÉRMICOS
+					13 text nível atual diferente de Normal
+					14 text ALERTAS TÉRMICOS
+				15 pane 1
+					16 text AÇÕES DO DIA
+					17 text registros de hoje · São Paulo
+					18 text AÇÕES DO DIA
+			19 pane 1 ID: comandos
+				20 button Atualizar ID: botaoAtualizar
+				21 button Cadastrar sala ID: botaoCadastrar
+				22 button Revogar sensor ID: botaoRevogar
+				23 button Exportar dia (CSV) ID: botaoExportar
+				24 button Mapa térmico
+			25 pane Legenda de cores ID: legenda
+				26 text NÍVEIS ID: rotuloLegenda
+				27 text Frio ID: legendaFrio
+				28 text Normal ID: legendaNormal
+				29 text Atenção ID: legendaAtencao
+				30 text Cuidado extremo ID: legendaCuidado
+				31 text Perigo ID: legendaPerigo
+				32 text Sem leitura / Sem previsão ID: legendaSemLeitura
+			33 data grid Salas ID: salas
+				34 custom Top Row
+					35 header Sala ID: 4249205706
+					36 header Nome ID: 4240198173
+					37 header Nível atual ID: 4226239245
+					38 header Última leitura (SP) ID: 4234826618
+					39 header Nível previsto ID: 4245004109
+					40 header Avisos / sensor ID: 422383799
+				309 custom Row 0
+					310 data item (item) Sala Row 0, Not sorted. Value: sala-01 ID: 4246046605
+					311 data item (item) Nome Row 0, Not sorted. Value: Sala 1 ID: 4211766267
+					312 data item (item) Nível atual Row 0, Not sorted. Value: Sem leitura ID: 4238787544
+					313 data item (item) Última leitura (SP) Row 0, Not sorted. Value: — ID: 4213543581
+					314 data item (item) Nível previsto Row 0, Not sorted. Value: Cuidado extremo às 15:49 ID: 4254783372
+					315 data item (item) Avisos / sensor Row 0, Not sorted. Value: DEMONSTRAÇÃO Histórico insuficiente para ajustar a sala; previsão da rua ID: 4223288300
+				316 custom Row 1
+					317 data item (item) Sala Row 1, Not sorted. Value: sala-02 ID: 427304143
+					318 data item (item) Nome Row 1, Not sorted. Value: Sala 2 ID: 4265737292
+					319 data item (item) Nível atual Row 1, Not sorted. Value: Sem leitura ID: 4254764719
+					320 data item (item) Última leitura (SP) Row 1, Not sorted. Value: — ID: 4223120425
+					321 data item (item) Nível previsto Row 1, Not sorted. Value: Cuidado extremo às 15:49 ID: 426757235
+					322 data item (item) Avisos / sensor Row 1, Not sorted. Value: DEMONSTRAÇÃO Histórico insuficiente para ajustar a sala; previsão da rua ID: 4260815118
+				323 custom Row 2
+					324 data item (item) Sala Row 2, Not sorted. Value: sala-03 ID: 4227077540
+					325 data item (item) Nome Row 2, Not sorted. Value: Sala 3 ID: 4242371273
+					326 data item (item) Nível atual Row 2, Not sorted. Value: Cuidado extremo ID: 4245797138
+					327 data item (item) Última leitura (SP) Row 2, Not sorted. Value: 17/11 13:44:32 ID: 429521066
+					328 data item (item) Nível previsto Row 2, Not sorted. Value: Cuidado extremo às 15:49 ID: 4218580737
+					329 data item (item) Avisos / sensor Row 2, Not sorted. Value: DEMONSTRAÇÃO ID: 4233008913
+				330 custom Row 3
+					331 data item (item) Sala Row 3, Not sorted. Value: sala-04 ID: 4256476259
+					332 data item (item) Nome Row 3, Not sorted. Value: Sala 4 ID: 4238524289
+					333 data item (item) Nível atual Row 3, Not sorted. Value: Sem leitura ID: 4211174282
+					334 data item (item) Última leitura (SP) Row 3, Not sorted. Value: — ID: 4233459681
+					335 data item (item) Nível previsto Row 3, Not sorted. Value: Cuidado extremo às 15:49 ID: 4232701678
+					336 data item (item) Avisos / sensor Row 3, Not sorted. Value: DEMONSTRAÇÃO Histórico insuficiente para ajustar a sala; previsão da rua ID: 4225879650
+				337 custom Row 4
+					338 data item (item) Sala Row 4, Not sorted. Value: sala-07 ID: 4215876907
+					339 data item (item) Nome Row 4, Not sorted. Value: Sala 7 ID: 428674443
+					340 data item (item) Nível atual Row 4, Not sorted. Value: Normal ID: 4210961125
+					341 data item (item) Última leitura (SP) Row 4, Not sorted. Value: 17/11 13:45:42 ID: 4231541268
+					342 data item (item) Nível previsto Row 4, Not sorted. Value: Normal às 15:49 ID: 4215435960
+					343 data item (item) Avisos / sensor Row 4, Not sorted. Value: DEMONSTRAÇÃO ID: 424705914
+			41 text Registrar ação para a sala selecionada ID: rotuloRegistro
+			42 pane Registrar ação para a sala selecionada ID: registro
+				43 text Nível: ID: rotuloNivel
+				44 combo box (settable, string) Nível da ação Value: Normal ID: nivel
+					45 text Nível da ação
+					46 button Open
+				47 text Descrição: ID: rotuloDescricao
+				48 text field (edit) (settable, string) Descrição da ação Description: Descreva a ação tomada (5 a 300 caracteres) ID: descricao
+				49 button Registrar ação ID: botaoRegistrar
+			50 data grid Ações do dia ID: acoes
+				51 custom Top Row
+					52 header Sala ID: 4233675143
+					53 header Nível ID: 4234640832
+					54 header Descrição ID: 4243332040
+					55 header Hora (São Paulo) ID: 4254444047
+				344 custom Row 0
+					345 data item (item) Sala Row 0, Not sorted. Value: sala-03 ID: 4245634724
+					346 data item (item) Nível Row 0, Not sorted. Value: Cuidado extremo ID: 428059334
+					347 data item (item) Descrição Row 0, Not sorted. Value: pausa para água ID: 425425146
+					348 data item (item) Hora (São Paulo) Row 0, Not sorted. Value: 13:44:28 ID: 4248826322
+			56 text Ações do dia de São Paulo (UTC−3). Dados locais não são sincronizados com a API. ID: rodape
+		57 title bar (settable, string) Value: Termômetro da Sala — Coordenação
+			58 menu bar System ID: MenuBar
+				59 menu item System
+			60 button Minimize
+			61 button Restore
+			62 button Close
+
+The focused UI element is 48 text field (edit) (settable, string) Descrição da ação Description: Descreva a ação tomada (5 a 300 caracteres) ID: descricao.

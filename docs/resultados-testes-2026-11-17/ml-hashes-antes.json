@@ -1,0 +1,37 @@
+[
+  {
+    "Algorithm": "SHA256",
+    "Hash": "A65A62BBF60EDE434A2FDBE1120AE254E48ED5FAA565D0352FB00CFDD6148596",
+    "Path": "C:\\Users\\samue\\Downloads\\kit-windows-ml-soa-csharp\\ml\\termometro_da_sala.ipynb"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "22AD57D6ED04B42B70B1D5BE44CF616F46B00A6A13BDC214213C0F98D0E8D118",
+    "Path": "C:\\Users\\samue\\Downloads\\kit-windows-ml-soa-csharp\\ml\\modelo.json"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "829DBC7DDFE949E741AD86188DF23F1C6207A0226D4DB32B418D5E27D2D0AF0D",
+    "Path": "C:\\Users\\samue\\Downloads\\kit-windows-ml-soa-csharp\\ml\\modelo_pontos.json"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "713AEA076D9AE876FF9D5050DE78C95D26629438F7548BA90D8BD15DF1E17848",
+    "Path": "C:\\Users\\samue\\Downloads\\kit-windows-ml-soa-csharp\\ml\\alertas.csv"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "E590D0D32F569BC3E826FD5A02B499877806F9D40A58498D6720AE211D812C3F",
+    "Path": "C:\\Users\\samue\\Downloads\\kit-windows-ml-soa-csharp\\ml\\metricas-pontos.csv"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "796DB3CB294381B6B059F0159DB1AAC8CE0E757DF7706B0A4AB3427DE7C8DC41",
+    "Path": "C:\\Users\\samue\\Downloads\\kit-windows-ml-soa-csharp\\ml\\grupos-pontos.csv"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "54AC0EFD3286933852EDABC0DB9D74FCE9279B77EDE8EB6F3BAE6E8AB5102E64",
+    "Path": "C:\\Users\\samue\\Downloads\\kit-windows-ml-soa-csharp\\ml\\dados\\inmet_a701.csv"
+  }
+]

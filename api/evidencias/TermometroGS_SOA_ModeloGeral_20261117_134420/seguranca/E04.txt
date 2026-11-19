@@ -1,0 +1,70 @@
+2026-11-17T13:44:33.2305008-03:00
+E04 - parte local; prints e demais itens do roteiro permanecem pendentes.
+Roteiro Insomnia revoga sala-01; ensaio temporal sala-02. ESP32 e sincronizacao fisica pendentes.
+2026-11-17T13:44:28.4080529-03:00
+Ambiente: Development; MQTT desligado; conexao: ***
+POST http://localhost:5086/dispositivos/esp32-sala-01/revogar
+X-Chave-Coordenacao: ***
+
+Corpo enviado: 
+Esperado: HTTP 200; "ativo":false
+HTTP 200 OK
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Tue, 17 Nov 2026 16:44:28 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"id":"esp32-sala-01","ativo":false}
+Conferencia: OK
+
+2026-11-17T13:44:28.4491581-03:00
+Ambiente: Development; MQTT desligado; conexao: ***
+POST http://localhost:5086/leituras
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {"ambienteId":"sala-01","dispositivo":"esp32-sala-01","temperaturaC":33.4,"umidadePct":58,"medidoEm":1794933868,"assinatura":"a2454880dab1adc7867d3ac17715c17a9b6483bceb2833fd9af188a8abe09e10"}
+Esperado: HTTP 400; dispositivo-revogado
+HTTP 400 Bad Request
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Tue, 17 Nov 2026 16:44:28 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"dispositivo-revogado"}
+Conferencia: OK
+
+2026-11-17T13:44:32.1946314-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5086/leituras
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {"ambienteId":"sala-02","dispositivo":"esp32-sala-02","temperaturaC":33.4,"umidadePct":58,"medidoEm":1794933992,"assinatura":"07f8ccd2db1f6d58539cac217bb577243c7b3e1bd36934619806ba88ca3cfc02"}
+Esperado: HTTP 400; atrasada
+HTTP 400 Bad Request
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Tue, 17 Nov 2026 16:44:32 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"atrasada"}
+Conferencia: OK
+
+2026-11-17T13:44:32.1776324-03:00
+Ambiente: Demo; MQTT desligado; conexao: ***
+POST http://localhost:5086/leituras
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {"ambienteId":"sala-02","dispositivo":"esp32-sala-02","temperaturaC":33.4,"umidadePct":58,"medidoEm":1794933212,"assinatura":"caed217bc768b80a61bf8d00285c7ce2029a74cdc7b36de75222658b80411a2f"}
+Esperado: HTTP 400; atrasada
+HTTP 400 Bad Request
+Transfer-Encoding: chunked
+X-Content-Type-Options: nosniff
+Date: Tue, 17 Nov 2026 16:44:32 GMT
+Server: Kestrel
+Content-Type: application/json; charset=utf-8
+
+{"motivo":"atrasada"}
+Conferencia: OK

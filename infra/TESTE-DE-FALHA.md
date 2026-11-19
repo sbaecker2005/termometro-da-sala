@@ -2,7 +2,14 @@
 
 ## Preparação
 
-Use somente a VM isolada e com checkpoint. Termine o README, publique a aplicação e confira HTTPS com certificado confiável. A prova pede as duas URLs: `GET /ambientes` e o painel em `/` (`wwwroot`). O script 09, com `-ProbeUri` em `/ambientes`, chama as duas antes da falha e de novo só depois do PID novo. Feche o navegador, monitor HTTP e auto-refresh antes de matar processos: uma requisição externa poderia iniciar o worker e invalidar a prova de inicialização automática.
+Use somente a VM isolada e com checkpoint. Termine o README e publique a aplicação. O 09 testa por HTTPS, então a parte pública do certificado precisa estar em `Cert:\LocalMachine\Root` **da própria VM**; o `04-iis.ps1` faz essa importação (README, passo 4, "HTTPS no laboratório"). Sem isso o `Invoke-WebRequest` para com erro de confiança antes de matar o processo. Confira antes:
+
+```powershell
+Get-ChildItem Cert:\LocalMachine\Root | Where-Object Subject -eq 'CN=api.termometro.local'
+(Invoke-WebRequest https://api.termometro.local/ambientes -UseBasicParsing).StatusCode
+```
+
+A prova pede as duas URLs: `GET /ambientes` e o painel em `/` (`wwwroot`). O script 09, com `-ProbeUri` em `/ambientes`, chama as duas antes da falha e de novo só depois do PID novo. Feche o navegador, monitor HTTP e auto-refresh antes de matar processos: uma requisição externa poderia iniciar o worker e invalidar a prova de inicialização automática.
 
 No PowerShell elevado da VM:
 
@@ -32,6 +39,8 @@ Confirme AlwaysRunning, preload, idle timeout zero, Application Initialization e
 **Rapid-Fail Protection:** mantenha habilitado. O padrão desabilita o pool ao atingir cinco falhas em cinco minutos; confira o valor efetivo. Não faça cinco tentativas para gravar o vídeo: um crash basta. Se repetir ensaio, espere mais que o intervalo configurado. Se o pool desligar, preserve eventos, corrija a causa e só então inicie manualmente; essa intervenção não conta como recuperação automática.
 
 ## Parte 2 — falha inesperada do W3SVC
+
+> **Status no ensaio de 16/11/2026: não executada.** Nesta build o W3SVC não inicia isolado do grupo compartilhado do IIS (ver E11 em [EVIDENCIAS.md](EVIDENCIAS.md)). O que está provado é a política de recuperação configurada e a recuperação do pool (parte 1). Os passos abaixo valem só para um ambiente em que o isolamento funcione; neles o PID do W3SVC só muda se o serviço estiver isolado.
 
 `Stop-Service W3SVC` ou `iisreset` são ações administrativas planejadas; não demonstram as ações de recuperação do Service Control Manager. A prova usa término inesperado do processo do serviço. **W3SVC pode compartilhar svchost com WAS/outros serviços**: o script recusa essa condição para não matar todo o grupo.
 
@@ -74,7 +83,7 @@ Depois da gravação, pode manter o isolamento na VM de laboratório. Para rever
 | Worker antes/depois | appcmd e saída do 09: PID diferente, pool Started, sem início manual |
 | Serviço antes/depois | Win32_Service e saída do 09: PID diferente, Running, recuperação SCM |
 | Configuração | IIS Manager e `sc.exe qfailure`, incluindo AlwaysRunning/preload/idle/recuperação |
-| Falha e recuperação | Visualizador de Eventos → Windows Logs → System; horário e mensagem reais |
+| Falha e recuperação | Visualizador de Eventos → Custom Views → Termometro - acompanhamento (`visao-termometro.xml`) ou Windows Logs → System; horário e mensagem reais |
 | Erro da aplicação | Windows Logs → Application, provedor IIS AspNetCore Module V2/.NET Runtime se houver |
 | HTTP após a falha | Saída do 09 e `C:\inetpub\logs\LogFiles\W3SVC<ID>\u_ex*.log`: `/ambientes` e `/`, sc-status 200 |
 | Auditoria de usuário/foto | Security: 4624/4625 e acesso a objeto 4663/4656 na pasta de fotos |

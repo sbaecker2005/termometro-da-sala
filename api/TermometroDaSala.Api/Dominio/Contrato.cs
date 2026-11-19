@@ -1,22 +1,23 @@
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
+using TermometroDaSala.Api.Dominio.Entidades;
 
 namespace TermometroDaSala.Api.Dominio;
 
 public static class IndiceCalor
 {
-    // Faixas iguais à semente de NivelAcao: 27 atenção, 32 cuidado, 41 perigo.
-    public static string Nivel(double indice)
+    // Faixas iguais à semente de NivelAcao; 18 °C é o mínimo interno recomendado pela OMS para moradias.
+    public static Nivel Nivel(double indice)
     {
-        if (indice < 27) return "normal";
-        if (indice < 32) return "atencao";
-        if (indice < 41) return "cuidado";
-        return "perigo";
+        if (indice < 18) return Entidades.Nivel.frio;
+        if (indice < 27) return Entidades.Nivel.normal;
+        if (indice < 32) return Entidades.Nivel.atencao;
+        if (indice < 41) return Entidades.Nivel.cuidado;
+        return Entidades.Nivel.perigo;
     }
 
-    public static bool EhNivel(string nivel) =>
-        nivel is "normal" or "atencao" or "cuidado" or "perigo";
+    public static bool EhNivel(string nivel) => Enum.IsDefined(typeof(Nivel), nivel);
 
     public static double Calcular(double tempC, double umidade)
     {

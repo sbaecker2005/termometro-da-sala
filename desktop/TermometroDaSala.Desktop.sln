@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TermometroDaSala.Desktop", "TermometroDaSala.Desktop\TermometroDaSala.Desktop.csproj", "{A37C27DB-7FCF-4AD3-B552-9D37AB668489}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TermometroDaSala.Desktop.Tests", "TermometroDaSala.Desktop.Tests\TermometroDaSala.Desktop.Tests.csproj", "{98E7396D-DEB5-4C95-AE74-19736E3BC578}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A37C27DB-7FCF-4AD3-B552-9D37AB668489}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A37C27DB-7FCF-4AD3-B552-9D37AB668489}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A37C27DB-7FCF-4AD3-B552-9D37AB668489}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A37C27DB-7FCF-4AD3-B552-9D37AB668489}.Release|Any CPU.Build.0 = Release|Any CPU
+		{98E7396D-DEB5-4C95-AE74-19736E3BC578}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98E7396D-DEB5-4C95-AE74-19736E3BC578}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98E7396D-DEB5-4C95-AE74-19736E3BC578}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98E7396D-DEB5-4C95-AE74-19736E3BC578}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

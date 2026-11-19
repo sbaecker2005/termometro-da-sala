@@ -1,0 +1,43 @@
+Sondagens avulsas - Termometro da Sala
+Data: 2026-11-18, entre 00h29 e 00h32 (America/Sao_Paulo)
+API: https://api.termometro.local
+Ambiente: Windows Server 2022 Standard (avaliacao), SRV-TERMOMETRO 192.168.16.10,
+          IIS em Production (ASPNETCORE_ENVIRONMENT=Production), SQL Server Express .\SQLEXPRESS.
+
+E09 - C5: /demo/semear fora do ambiente Demo (R11)
+
+  Tentativa 1, sem o parametro obrigatorio:
+    POST /demo/semear
+    obtido: HTTP 400
+    Leitura: o 400 vem da ligacao de modelo do ASP.NET Core, porque ambienteId e
+    [FromQuery] obrigatorio. A acao nao chega a executar, entao este resultado NAO
+    exercita o controle. Registrado aqui para que ninguem o leia como falha do C5.
+
+  Tentativa 2, com o parametro:
+    POST /demo/semear?ambienteId=sala-01
+    esperado: 404 (DemoController.Semear devolve NotFound fora do ambiente Demo)
+    obtido:   HTTP 404 {"type":"...rfc9110#section-15.5.5","title":"Not Found","status":404}
+    [CONFERE]
+
+  Nao coletado: a linha de log "demo semear recusado: fora-do-ambiente" e o
+  comportamento do mesmo endpoint com ASPNETCORE_ENVIRONMENT=Demo.
+
+E03 - C1: assinatura invalida e reenvio (R1, R2)
+
+  E03a  POST /leituras com assinatura "00" em sala-01
+        esperado: 400 assinatura-invalida, sem gravar
+        obtido:   HTTP 400 {"motivo":"assinatura-invalida"}  [CONFERE]
+
+  E03b-1 POST /leituras assinado corretamente (HMAC-SHA256 com o segredo de demonstracao)
+        esperado: 201
+        obtido:   201 aceita  [CONFERE]
+
+  E03b-2 mesmo corpo, mesmo medidoEm, reenviado meio segundo depois
+        esperado: 400 reenvio
+        obtido:   HTTP 400 {"motivo":"reenvio"}  [CONFERE]
+
+  Nao coletado: o mesmo par de recusas pela ingestao MQTT, e o comportamento
+  depois de reiniciar a API (a trava de reenvio depende de UltimoMedidoEm no banco,
+  nao de estado em memoria, mas isso nao foi verificado apos reinicio).
+
+Nenhum valor de chave, senha ou string de conexao aparece nesta saida.

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using TermometroDaSala.Api.Dados;
 using TermometroDaSala.Api.Dominio.Entidades;
 using TermometroDaSala.Api.Contratos;
+using TermometroDaSala.Api.Filtros;
 
 namespace TermometroDaSala.Api.Controllers;
 
@@ -39,7 +40,9 @@ public class OcorrenciasController(SalaDb _db, IHostEnvironment _ambiente, IConf
         return Created($"/ocorrencias/{id}/foto", new IdSaida(id.ToString()));
     }
 
+    // A foto pode mostrar pessoas: só a coordenação abre (R12). A lista da sala não leva a foto.
     [HttpGet("/ocorrencias/{id:guid}/foto")]
+    [ExigeChaveCoordenacao]
     public async Task<IActionResult> Foto(Guid id)
     {
         var ocorrencia = await _db.Ocorrencias.FindAsync(id);
@@ -50,10 +53,12 @@ public class OcorrenciasController(SalaDb _db, IHostEnvironment _ambiente, IConf
         return PhysicalFile(caminho, "image/jpeg");
     }
 
-    private string PastaFotos() =>
-        Path.IsPathRooted(_config["Fotos:Pasta"] ?? "")
-            ? _config["Fotos:Pasta"]!
-            : Path.Combine(_ambiente.ContentRootPath, _config["Fotos:Pasta"] ?? "fotos");
+    private string PastaFotos() => PastaFotos(_config, _ambiente);
+
+    internal static string PastaFotos(IConfiguration config, IHostEnvironment ambiente) =>
+        Path.IsPathRooted(config["Fotos:Pasta"] ?? "")
+            ? config["Fotos:Pasta"]!
+            : Path.Combine(ambiente.ContentRootPath, config["Fotos:Pasta"] ?? "fotos");
 
     private static async Task<bool> Jpeg(IFormFile foto)
     {
@@ -65,8 +70,10 @@ public class OcorrenciasController(SalaDb _db, IHostEnvironment _ambiente, IConf
     }
 
     // shortcut: não junta 0xFF de preenchimento antes do marcador; reescrever se uma câmera gravar padding.
+    // Devolve vazio se faltar quadro (SOF com altura e largura) ou varredura (SOS): confere a estrutura, não decodifica os pixels.
     private static byte[] SemApp1(byte[] jpeg)
     {
+        var temQuadro = false;
         var entrada = new MemoryStream(jpeg);
         var saida = new MemoryStream(jpeg.Length);
         var marcador = new byte[2];
@@ -77,16 +84,13 @@ public class OcorrenciasController(SalaDb _db, IHostEnvironment _ambiente, IConf
         {
             if (entrada.Read(marcador, 0, 2) != 2 || marcador[0] != 0xFF) break;
             var m = marcador[1];
-            if (m == 0xD9)
-            {
-                saida.Write(marcador, 0, 2);
-                break;
-            }
+            if (m == 0xD9) return []; // fim antes da varredura: não há imagem
             if (m == 0xDA)
             {
+                if (!temQuadro) return [];
                 saida.Write(marcador, 0, 2);
                 entrada.CopyTo(saida);
-                break;
+                return saida.ToArray();
             }
             if (m == 0x01 || m is >= 0xD0 and <= 0xD8)
             {
@@ -99,11 +103,14 @@ public class OcorrenciasController(SalaDb _db, IHostEnvironment _ambiente, IConf
             var dados = new byte[n - 2];
             if (entrada.Read(dados, 0, dados.Length) != dados.Length) break;
             if (m == 0xE1) continue;
+            // SOF0..SOF15 (C4 é DHT, C8 é reservado, CC é DAC): precisão, altura (2), largura (2)
+            if (m is >= 0xC0 and <= 0xCF and not (0xC4 or 0xC8 or 0xCC) && dados.Length >= 5)
+                temQuadro = ((dados[1] << 8) | dados[2]) > 0 && ((dados[3] << 8) | dados[4]) > 0;
             saida.Write(marcador, 0, 2);
             saida.Write(tam, 0, 2);
             saida.Write(dados, 0, dados.Length);
         }
-        return saida.ToArray();
+        return [];
     }
 
     private BadRequestObjectResult Recusar(string motivo)

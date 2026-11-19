@@ -6,11 +6,13 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Version>0.1.0</Version>
+    <Version>0.3.0</Version>
+    <ApplicationIcon>termometro.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
     <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+    <EmbeddedResource Include="termometro.ico" LogicalName="termometro.ico" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,55 @@
+VALIDAÇÃO FINAL DOS ZIPs EXTRAÍDOS — 17/11/2026
+
+Os cinco ZIPs foram gerados após congelamento de fontes/documentos/evidências,
+conferidos por entrada SHA-256, extraídos em pasta nova de D: e comparados ao
+snapshot previamente testado. O ZIP Mobile dentro do pacote Lucas é idêntico ao
+entrega-app.zip final. Nenhum arquivo privado de configuração foi lido ou copiado.
+
+Comando da verificação de integridade, na raiz do kit:
+powershell -NoProfile -File output/fechamento-samuel/conferir-modelo-geral-v1.ps1
+Resultado: saída 0, cinco pacotes aprovados.
+Registro externo de tamanhos, contagens, hashes e destinos:
+output/fechamento-samuel/PACOTES-FINAIS-MODELO-GERAL.json
+
+ENTRADAS / FONTES DE PRODUTO IDÊNTICAS AO SNAPSHOT / TAMANHO
+entrega-desktop.zip: 61 / 31 / 1.269.433 bytes
+entrega-app.zip: 40 / 36 / 604.759 bytes
+fontes-ml-soa-csharp.zip: 418 / 124 / 3.284.047 bytes
+Gui-pendencias.zip: 243 / 88 / 1.761.801 bytes
+Lucas-pendencias.zip: 270 / 124 / 2.426.803 bytes
+
+EXECUÇÃO DIRETAMENTE NAS EXTRAÇÕES FINAIS — TODOS COM SAÍDA ZERO
+Base: D:/codex-validacao-termometro-20261117-c0ce77f9efc54ab2885d0268d0cbb51c/pacotes-modelo-geral-v1-20261117/extraidos-finais
+
+Em fontes/:
+dotnet test api/TermometroDaSala.Api.Tests/TermometroDaSala.Api.Tests.csproj -c Validacao --disable-build-servers -m:1 -p:NuGetAudit=false --logger "trx;LogFileName=api-extraido-modelo-geral-v1.trx" --results-directory C:/Users/samue/Downloads/kit-windows-ml-soa-csharp/docs/resultados-testes-2026-11-17 --verbosity quiet
+Resultado: API 134/134, 0 falhas/ignorados, duração 4 s.
+& 'D:/codex-validacao-termometro-20261117-c0ce77f9efc54ab2885d0268d0cbb51c/ml-python311/runtime/python.exe' -B -m pytest ml -q -p no:cacheprovider --basetemp 'D:/codex-validacao-termometro-20261117-c0ce77f9efc54ab2885d0268d0cbb51c/pacotes-modelo-geral-v1-20261117/pytest-extraido-temp'
+Resultado: ML 46 testes + 53 subtestes, 4,97 s.
+
+Em desktop/:
+dotnet test desktop/TermometroDaSala.Desktop.sln -c Release --disable-build-servers -m:1 -p:NuGetAudit=false --logger "trx;LogFileName=desktop-extraido-modelo-geral-v1.trx" --results-directory C:/Users/samue/Downloads/kit-windows-ml-soa-csharp/docs/resultados-testes-2026-11-17 --verbosity quiet
+Resultado: desktop 19/19, 0 falhas/ignorados.
+dotnet run --project desktop/TermometroDaSala.Desktop -c Release --no-build --no-restore -- --autoteste
+Resultado: "Autoteste: 6 verificacoes passaram."
+
+Em app/app/:
+& 'C:/Program Files/WindowsApps/OpenAI.CodexPrimaryRuntime.v26-1116-1210-0_26.1116.1210.0_x64__3k8sg7r9htsxt/dependencies/node/bin/node.exe' --experimental-strip-types --test 'domain/*.test.ts'
+Resultado: Mobile 23/23, 8 suítes, 0 falhas.
+& 'C:/Program Files/WindowsApps/OpenAI.CodexPrimaryRuntime.v26-1116-1210-0_26.1116.1210.0_x64__3k8sg7r9htsxt/dependencies/node/bin/node.exe' 'D:/codex-validacao-termometro-20261117-c0ce77f9efc54ab2885d0268d0cbb51c/app/node_modules/typescript/bin/tsc' --noEmit --project 'tsconfig.json'
+Resultado: TypeScript sem erros; node_modules é junction para a instalação existente,
+após comprovar igualdade de package.json e package-lock.json. Não é nova instalação.
+
+Ao repetir, escolher novo destino de extração e novo --basetemp; preservar as
+evidências existentes. O verificador recusa destino já existente. Pytest limpa seu
+basetemp. TRXs acima ficam na pasta deste registro. A falha inicial por configuração
+ausente e sua correção estão em pacotes-modelo-geral-v1.txt.
+
+Os binários do iniciador executavel-desktop também foram atualizados e conferidos
+contra a compilação atual, com JSON público gerado apontando localhost:5080.
+Registro: desktop-binarios-modelo-geral-v1.tsv. A cópia visual usa somente 5086.
+
+Nenhum ZIP ou documento já empacotado foi alterado após esta conferência. Este
+registro fica externo aos ZIPs para não criar um ciclo de hashes. Não houve nova
+auditoria NuGet de vulnerabilidades, instalação Mobile limpa, commit, publicação,
+mensagem ao grupo ou submissão acadêmica. Ensaios locais não provam campo/VM/câmera.

@@ -1,0 +1,15 @@
+2026-11-07T10:02:15.5215423-03:00
+Ambiente: Development; MQTT desligado; conexao: ***
+PUT http://localhost:5080/ambientes/sala-01/mapa
+X-Chave-Coordenacao: ***
+Content-Type: application/json; charset=utf-8
+
+Corpo enviado: {"larguraM":6,"profundidadeM":4,"sensores":[{"id":"esp32-sala-01","posX":0,"posY":2,"rotulo":"janela"}],"lugares":[{"nome":"Cadeira 1","x":1,"y":2,"vulneravel":true}]}
+Esperado: HTTP 204; 
+HTTP 204 No Content
+X-Content-Type-Options: nosniff
+Date: Sat, 07 Nov 2026 13:02:15 GMT
+Server: Kestrel
+
+
+Conferencia: OK

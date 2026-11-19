@@ -4,7 +4,9 @@
   "private": true,
   "main": "expo-router/entry",
   "authors": [
-    "Samuel Baecker - RM [preencher]"
+    "Samuel David Baecker - RM 559269",
+    "Lucas de Almeida Villar - RM 560005",
+    "Guilherme Augusto Caseiro - RM 559765"
   ],
   "scripts": {
     "start": "expo start",

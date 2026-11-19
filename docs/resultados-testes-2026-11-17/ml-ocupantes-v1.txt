@@ -1,0 +1,47 @@
+ML V1 — estimador de ocupantes — 17/11/2026
+
+Escopo autorizado: referência e início técnico da demonstração do 3º ano,
+20 alunos e 1 professor. Módulo offline, sem treinar com dados inexistentes.
+
+Ambiente: Python 3.11.9 portátil previamente preparado no D:.
+Sem instalação de dependências. Biblioteca padrão apenas neste módulo.
+Diretório de execução: C:/Users/samue/Downloads/kit-windows-ml-soa-csharp
+
+Comando de testes executado:
+& 'D:/codex-validacao-termometro-20261117-c0ce77f9efc54ab2885d0268d0cbb51c/ml-python311/runtime/python.exe' -B -m unittest discover -s ml -p test_ocupantes.py -v
+
+Resultado: 8 testes aprovados, saída 0.
+- 20 alunos + 1 professor: 2286 W; rótulo de hipótese sem validação de campo.
+- Mudança de presença e atividade altera a soma por grupo.
+- Sala vazia conhecida resulta em zero.
+- Grupo presente sem potência deixa o total desconhecido.
+- Idade não escolhe coeficiente automaticamente.
+- Presença desconhecida, negativa, fracionária e booleana recusada.
+- Potência não positiva, não numérica, NaN/Inf e overflow recusados.
+- Entradas sem contexto ou referência recusadas.
+
+Comando de demonstração executado:
+& 'D:/codex-validacao-termometro-20261117-c0ce77f9efc54ab2885d0268d0cbb51c/ml-python311/runtime/python.exe' -B -m ml.ocupantes
+
+Resultado: saída 0; JSON com pessoas=21, potencia_total_w=2286.0,
+origem=estimativa, validado_em_campo=false e referência explícita por grupo.
+
+Fonte: EnergyPlus 26.2, Input Output Reference, tabela 1.30, coluna W/pessoa.
+https://energyplus.readthedocs.io/en/v26.2.0/guides/input-output-reference/1.14-group-internal-gains-people-lights-other-internal-zone-equipment.html
+108 W sentado em repouso; 126 W em pé relaxado. Referência adulta com
+superfície corporal de 1,8 m², adotada explicitamente só como cenário didático.
+Não é calibração de adolescentes, crianças ou berçário, nem aumento de °C.
+
+Integridade: SHA-256 conferidos antes e depois; sem alteração:
+ml/modelo.json e api/TermometroDaSala.Api/modelo/modelo.json
+22AD57D6ED04B42B70B1D5BE44CF616F46B00A6A13BDC214213C0F98D0E8D118
+ml/modelo_pontos.json
+829DBC7DDFE949E741AD86188DF23F1C6207A0226D4DB32B418D5E27D2D0AF0D
+ml/termometro_da_sala.ipynb
+A65A62BBF60EDE434A2FDBE1120AE254E48ED5FAA565D0352FB00CFDD6148596
+
+Limites: não executou treino, novo piloto, integração API/desktop ou revalidação
+das métricas do modelo. Nenhum pacote anterior foi regenerado para incorporar
+este módulo experimental. Coleta e avaliação temporal precedem sua promoção
+a atributo da previsão. O estudo Python histórico do mapa mantém seis lugares;
+o mapa atual do aplicativo tem vinte lugares e é um artefato distinto.
