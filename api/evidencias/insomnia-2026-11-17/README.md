@@ -4,7 +4,7 @@
 
 Ambiente local Scratch Pad, sem conta/sincronização: API em `http://127.0.0.1:5083`, SQL Server Express no banco exclusivo `TermometroGS_Insomnia_20261117`. Foi usada a coleção `api/insomnia.json`, com os scripts de resposta dos quatro pedidos de mapa 26–29 também carregados na interface. O ensaio não utiliza produção.
 
-Após a validação, a API temporária do Insomnia foi encerrada; o banco e os resultados na interface foram preservados. A porta 5083 não deve ser presumida ativa. A apresentação ML/desktop usa outro processo e outro banco, documentados no fechamento de Samuel.
+Após a validação, a API temporária do Insomnia foi encerrada; o banco e os resultados na interface foram preservados. A porta 5083 não deve ser presumida ativa. A apresentação ML/desktop usa outro processo e outro banco, documentados em [FECHAMENTO-ML-SOA-CSHARP.md](../../../docs/FECHAMENTO-ML-SOA-CSHARP.md).
 
 | Evidência | Resultado |
 |---|---|

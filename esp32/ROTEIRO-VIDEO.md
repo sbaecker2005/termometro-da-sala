@@ -1,51 +1,48 @@
 # Vídeo de Physical Computing — até 4 minutos
 
-Meta: **3 min 45 s** (o limite é 4 min; a folga evita perder ponto por estouro). O circuito mede a Sala 7 na solução Termômetro da Sala: quatro DHT22 no mesmo ESP32, não um projeto à parte. O vídeo tem de provar a integração: os quatro pontos de `GET /ambientes/sala-07/mapa` vêm do Wokwi, pela API real. **Não usar o modo simulado do app**: nele a sala não vem destes sensores. Não mostrar `secrets.h` aberto nem a chave em zoom.
+Projeto no Wokwi: https://wokwi.com/projects/481082666157493249
+
+Meta: **3 min 30 s** (o limite do enunciado é 4 min; a folga evita estouro). O enunciado pede três coisas, nesta ordem: apresentar brevemente a solução, explicar como o ESP32 entrou no projeto e demonstrar o funcionamento no Wokwi. O circuito mede a Sala 7 do Termômetro da Sala: quatro DHT22 no mesmo ESP32, com o mesmo tópico MQTT, o mesmo contrato de assinatura (HMAC) e os mesmos identificadores `demo-sala-07-*` que a API usa. Não é um projeto à parte.
+
+**O vídeo se grava só com a tela do Wokwi (circuito e Serial lado a lado) e a narração.** Não depende da API, do banco nem do desktop. A prova de funcionamento é o Serial: vetor HMAC conferido, quatro linhas por ciclo e quatro “Leitura publicada”. Não mostrar `secrets.h` aberto nem a chave em zoom.
 
 ## Antes de gravar
 
-1. API em ambiente Demo, com o assinante MQTT ligado e o banco migrado. Antes de cada ensaio ou tomada, pare a API e o Wokwi e recrie **somente o banco local descartável abaixo**, reservado a este roteiro. Requer LocalDB e a ferramenta EF já disponíveis (ver `api/README.md`). Em PowerShell, dentro de `api/`, execute cada comando apenas se o anterior terminar sem erro:
+1. Abrir o link do Wokwi acima, copiar `secrets.h` do `secrets.exemplo.h` se a aba estiver vazia, e deixar a janela com o circuito e o Serial (115200) lado a lado. Simulação parada.
+2. Estado de partida: o diagrama abre com a janela em **35 °C / 60 %** e fundo, porta e centro em **24 °C / 60 %**. É o que aparece no play (janela em Perigo, índice 45,1 °C, LED vermelho piscando).
+3. Ensaiar uma vez inteira com cronômetro. Cada mudança de sensor leva cerca de 10 s até as quatro “Leitura publicada”; não esperar o ciclo de 30 s do LCD (troca de página a cada 3 s).
+4. Se o NTP ou o broker público demorarem no dia, a linha “Aguardando NTP; alerta local ativo” aparece e o alerta local segue funcionando. Esperar “Leitura publicada” antes de seguir; se não vier, regravar mais tarde.
+5. Opcional, só se a API Demo estiver de pé (ver `api/README.md`): 10 a 15 s finais com `GET /ambientes/sala-07/mapa` ou o desktop em modo API mostrando os quatro pontos. Fora isso, o vídeo não pode depender disso.
+6. Publicar no YouTube como não listado e abrir o link numa aba anônima antes de enviar.
 
-   ```powershell
-   $env:ConnectionStrings__Sala='Server=(localdb)\MSSQLLocalDB;Database=TermometroRoteiroEsp32;Integrated Security=True;TrustServerCertificate=True'
-   $env:ASPNETCORE_ENVIRONMENT='Demo'
-   $env:Mqtt__Desligado='false'
-   dotnet ef database drop --force --project TermometroDaSala.Api
-   dotnet ef database update --project TermometroDaSala.Api
-   dotnet run --project TermometroDaSala.Api --no-launch-profile --urls http://localhost:5080
-   ```
+## Valores reais observados no Wokwi (18/11)
 
-   O `drop` apaga todo o histórico desse banco de demonstração; não substitua a conexão pela de um banco com dados a preservar. O perfil `http` não é usado porque fixa Development. Com a API pronta, noutra janela e antes de ligar o circuito: `Invoke-RestMethod -Method Post "http://localhost:5080/demo/mapa?periodo=tarde"` (201). Não repetir o POST depois que o circuito publicar (409).
-2. Wokwi e Serial (115200) lado a lado. Noutra janela, `http://localhost:5080/ambientes/sala-07/mapa` e `http://localhost:5080/ambientes/sala-07/leituras`.
-3. Passagem antes da tomada: os quatro DHT22 em **24 °C / 40 %** até as quatro linhas “Leitura publicada”, simulação parada. O diagrama abre a janela em 35 °C / 60 % e os outros três em 24 °C / 60 %. A API marca como suspeita um salto acima de 5 °C; sem essa passagem a janela sai de 35 °C para 24 °C. No play, pôr de novo os quatro em 24 °C / 40 % antes da primeira linha de temperatura. Se a janela publicar 35 °C, parar e repetir a passagem.
-4. Aplicativo desktop da coordenação aberto, em modo API (`ApiUrl` = `http://localhost:5080/`, ver `desktop/README.md`; a faixa de origem deve dizer API, não MODO LOCAL nem DEMONSTRAÇÃO) e com a Sala 7 selecionada. Ele fica na tela, atrás do Wokwi, até o trecho 3:05.
-5. Simulação parada, janela com Wokwi e Serial lado a lado.
+Fundo, porta e centro ficam nos valores de cada passo; só muda o que o roteiro diz.
 
-## Os quatro estados
+| Situação | DHT22 | Índice | Nível | LED |
+|---|---|---|---|---|
+| Partida do diagrama | janela 35 °C / 60 % | 45,1 °C | Perigo | vermelho piscando |
+| Todos em Normal | 24 °C / 40 % | 23,5 °C | Normal | verde |
+| Passo 2 | janela 29 °C / 50 % | 29,7 °C | Atenção | amarelo fixo |
+| Passo 3 | janela 33 °C / 55 % | 37,8 °C | Cuidado extremo | vermelho fixo |
+| Passo 4 | janela 37 °C / 55 % | 48,5 °C | Perigo | vermelho piscando (500 ms), com bip |
+| Frio | fundo 15 °C / 60 %, demais 22 °C / 60 % | 14,1 °C (fundo), 21,8 °C | Frio no fundo | amarelo |
 
-Os passos são só o DHT22 da janela (`demo-sala-07-janela`). Fundo, porta e centro ficam em 24 °C / 40 % (índice 23,5 °C, Normal) o vídeo inteiro.
-
-| Passo | Janela | Índice | Nível | LED | Salto |
-|---|---|---|---|---|---|
-| 1 | 24 °C / 40 % | 23,5 °C | Normal | verde | — |
-| 2 | 29 °C / 50 % | 29,7 °C | Atenção | amarelo fixo | 5 °C |
-| 3 | 33 °C / 55 % | 37,8 °C | Cuidado extremo | vermelho fixo | 4 °C |
-| 4 | 37 °C / 55 % | 48,5 °C | Perigo | vermelho piscando (500 ms) | 4 °C |
-
-O par 30/50 do contrato também dá Atenção (31,0 °C), mas de 24 para 30 o salto da janela é de 6 °C e a leitura sairia como suspeita; por isso o vídeo usa 29/50. Entre um passo e outro, esperar as quatro linhas “Leitura publicada” (cerca de 10 s). O LCD troca de página a cada 3 s e o ciclo completo leva 30 s: não esperar o ciclo para trocar de passo. Com os quatro na mesma temperatura, o empate deixa a janela nos dois extremos. Do passo 2 em diante o extremo quente é a janela e o frio é o fundo.
+Os ensaios completos (inclusive DHT22 inválido e “baixar todos, voltar ao perigo”) estão no `esp32/README.md`, seção Ensaio, e ficam fora do vídeo.
 
 ## Roteiro
 
 | Tempo | Mostrar | O que dizer |
 |---|---|---|
-| 0:00–0:20 | Nome do projeto, equipe e a Sala 7 com os quatro pontos. | O Termômetro da Sala mede a Sala 7 em quatro pontos: janela, fundo, porta e centro. A sala esquenta e a escola só reage quando alguém passa mal. O professor acompanha pelo app. A coordenação olha o mapa, decide e registra. |
-| 0:20–0:45 | Os quatro DHT22, o LCD, os LEDs e o buzzer; em seguida a publicação assinada de cada ponto. | Cada ponto publica a sua leitura assinada. No local, o LCD troca os pontos e os extremos, e o LED mostra o alerta mais grave. Sem internet o aviso continua. A API confere a assinatura de cada um e grava. |
-| 0:45–1:10 | Janela D15, fundo D32, porta D33, centro D25, em 3,3 V, cada um com pull-up de 10 kΩ. Verde D18, amarelo D19, vermelho D4, com 220 Ω e cátodo no GND. LCD 16x2 I2C em D21 (SDA) e D22 (SCL). Buzzer D26. Botão Ciente D27. | Janela no D15, fundo no D32, porta no D33 e centro no D25. Os LEDs seguem no D18, no D19 e no D4. O LCD está no D21 e no D22, o buzzer no D26 e o Ciente no D27. O LCD escreve o ponto e o nível por extenso. |
-| 1:10–1:35 | Play. Antes da primeira linha de temperatura, pôr os quatro em 24 °C / 40 %. No Serial, o HMAC `2f7c847dc59835d4a9bacbf9f4b642af0cc563cbf1bf90efb91d127f38297ba0` e “Vetores de calor OK”. Se a medição sair antes do NTP: “Aguardando NTP; alerta local ativo”. | O ESP32 confere o vetor do contrato, os limites, o LCD e os extremos. Se algo falhar, não segue. Sem relógio, o alerta local funciona e a leitura não sai com data inventada. |
-| 1:35–2:00 | Quatro linhas `24.0 C, 40%, indice 23.5 C, Normal` e quatro “Leitura publicada”. LED verde. LCD `janela 24.0C` ou `janela I23.5C`, segunda linha `Normal`. Mapa da sala 7 com `demo-sala-07-janela`, `demo-sala-07-fundo`, `demo-sala-07-porta` e `demo-sala-07-centro`. | Os quatro em Normal, índice 23,5, LED verde. São quatro publicações. No mapa da sala 7 estão os quatro identificadores, e a leitura do Wokwi entra com suspeita falsa. |
-| 2:00–2:50 | Passos 2, 3 e 4, só na janela, esperando as quatro “Leitura publicada”: amarelo fixo, vermelho fixo e vermelho piscando. No passo 4 o buzzer bipa; apertar Ciente: o bip para, a página da janela mostra `Perigo (ciente)` e o LED segue piscando. No extremo, `Quente janela` e `Frio fundo`. A leitura `demo-sala-07-janela` com índice 48,5 °C e `"suspeita": false`. | Subo só a janela, sem passar de 5 graus, e espero as quatro publicações. Atenção no amarelo, cuidado no vermelho fixo, perigo no vermelho piscando, índice 48,5, com bip. O LCD muda a cada 3 segundos; no extremo, Quente janela e Frio fundo. O Ciente cala o bip e não muda a leitura publicada. O LED segue piscando. A leitura da janela fica com suspeita falsa. |
-| 2:50–3:05 | Voltar só a janela para 33 °C / 55 % (vermelho fixo, sem bip). | Volto a janela a 33 graus e 55 por cento: o bip some e o vermelho fica fixo. |
-| 3:05–3:30 | Aplicativo desktop da coordenação, em modo API, na Sala 7: **Atualizar**, os quatro pontos (janela, fundo, porta, centro) no mapa com o nível de cada um, e a janela em Cuidado extremo. Em seguida, **Registrar ação** com um texto curto (mínimo de 5 caracteres) e a hora na lista de ações. | Esta é a tela da coordenação. Os quatro pontos da Sala 7 que aparecem aqui vêm do ESP32 do Wokwi, pela API: a janela está em cuidado extremo. A coordenação vê o mapa, decide e registra a ação. Quem avisa é o aparelho; quem registra é a coordenação. |
-| 3:30–3:45 | Fechar sem mostrar a chave. | Os quatro IDs de demonstração são revogados depois da avaliação. QoS 0 pode perder o lote; o desktop marca leitura antiga após 10 minutos; o mapa só usa leituras dos últimos 15 minutos. Sensor simulado pede calibração. |
+| 0:00–0:30 | Tela de abertura: nome do projeto, equipe e a Sala 7. | Somos a equipe do Termômetro da Sala, da CitizenTech. A sala de aula esquenta, a escola só reage quando alguém passa mal, e o calor não é igual em toda a sala. A solução mede a temperatura e a umidade e calcula o índice de calor. O professor recebe o alerta, a coordenação vê o mapa da sala, decide e registra a ação. |
+| 0:30–1:00 | Tela do Wokwi com o circuito parado; apontar os quatro DHT22 e o ESP32. | O ESP32 é o sensor da Sala 7 dentro dessa solução. São quatro DHT22: janela, fundo, porta e centro, porque o calor varia de um canto a outro. Cada ponto publica a sua leitura por MQTT, assinada com HMAC, no mesmo tópico e no mesmo formato que a nossa API confere e grava. Os identificadores demo-sala-07 são os mesmos da API. O circuito não é um projeto paralelo: é a ponta física da solução. |
+| 1:00–1:25 | Apontar cada peça: DHT22 em D15, D32, D33 e D25; LEDs verde, amarelo e vermelho em D18, D19 e D4; LCD no D21 e no D22; buzzer no D26; botão Ciente no D27. | Janela no D15, fundo no D32, porta no D33 e centro no D25. Os LEDs ficam no D18, D19 e D4. O LCD 16 por 2 usa o D21 e o D22, o buzzer o D26 e o botão Ciente o D27. No local, o LED mostra o alerta mais grave e o LCD escreve o ponto e o nível. Sem internet, o aviso continua. |
+| 1:25–1:55 | Play. No Serial: o vetor HMAC (`2f7c847dc59835d4a9bacbf9f4b642af0cc563cbf1bf90efb91d127f38297ba0`) e “Vetores de calor OK”; depois as quatro linhas com rótulo, ID, temperatura, umidade, índice e nível, e as quatro “Leitura publicada”. Janela em Perigo, 35 °C, índice 45,1 °C, LED vermelho piscando. | Ao ligar, o ESP32 confere o vetor de teste do contrato, os limites, o LCD e os extremos. Se algo falhar, ele não segue. Aqui está: Vetores de calor OK. A cada 10 segundos saem quatro linhas, uma por ponto, e quatro publicações. A janela começa em 35 graus, índice 45,1, Perigo. |
+| 1:55–2:15 | Pôr os quatro DHT22 em 24 °C / 40 %. Esperar as quatro linhas: `24.0 C, 40%, indice 23.5 C, Normal`. LED verde. | Coloco os quatro em 24 graus e 40 por cento. Índice 23,5, Normal, LED verde. |
+| 2:15–3:00 | Passos 2, 3 e 4, só na janela, esperando as quatro “Leitura publicada” em cada um: 29 °C / 50 % (amarelo fixo), 33 °C / 55 % (vermelho fixo), 37 °C / 55 % (vermelho piscando, bip). No passo 4, apertar Ciente: o bip para, o Serial mostra “Professor ciente do Perigo; buzzer silenciado ate o nivel baixar” e o LCD mostra `Perigo (ciente)`. | Subo só a janela. A 29 graus, Atenção, amarelo, índice 29,7. A 33, Cuidado extremo, vermelho fixo, índice 37,8. A 37 graus e 55 por cento, Perigo, índice 48,5, vermelho piscando e bip. O professor aperta Ciente: o bip para, o LCD mostra Perigo ciente, o LED segue piscando e a leitura publicada não muda. |
+| 3:00–3:15 | Voltar os quatro para o frio: fundo 15 °C / 60 %, demais 22 °C / 60 %. LED amarelo; LCD na página `Frio fundo`. | O aparelho também avisa o frio. Com o fundo a 15 graus, o LED fica amarelo e o LCD mostra Frio no fundo. |
+| 3:15–3:30 | Voltar ao Serial com as quatro “Leitura publicada”; mostrar o link do Wokwi na tela. Se a API estiver de pé, 10 s do mapa da Sala 7 com os quatro pontos. | Resumindo: o ESP32 mede os quatro pontos da Sala 7, avisa na hora no local e envia cada leitura assinada para a API da solução, onde a coordenação vê o mapa. O projeto está publicado no Wokwi, com o link na entrega. Obrigado. |
 
-Se o broker público ou o NTP falharem no dia, “Leitura publicada” não aparece e o vídeo não prova a integração. Gravar com antecedência e guardar os prints do ensaio como plano B. Ficam no ensaio, fora destes 3 min 30 s: o arranque do diagrama (janela a 35 °C), o frio (fundo a 15 °C, demais a 22 °C, 60 %), o DHT22 inválido, o reenvio da mensagem assinada, “baixar todos, voltar ao perigo” e “Sem Wi-Fi ou NTP”.
+Limites para citar se sobrar tempo (ou deixar de fora): MQTT com QoS 0 pode perder um lote; o simulador usa sensor simulado, que em campo pede calibração; os identificadores de demonstração são revogados depois da avaliação.
+
+Se o broker público ou o NTP falharem no dia, “Leitura publicada” não aparece e o vídeo não prova a publicação. Gravar com antecedência e guardar os prints do Serial como plano B.

@@ -273,7 +273,7 @@ Há também quatro testes de integração do cliente desktop em `api/TermometroD
 O autoteste não depende de pacote e retorna 0 em sucesso e 1 em falha. Os seis casos verificam limites dos campos e o encapsulamento do domínio, CSV/relógio, persistência/arquivo inválido, o contrato HTTP com um handler em memória (sem rede), a demonstração do modo local (que nunca é gravada) e as telas montadas pelo Designer, com a legenda nas mesmas cores da grade.
 As respostas usadas no teste de contrato são as que a API devolve: sala com leitura, sala sem leitura (`ultimaLeituraEm: ""`), previsão da rua, previsão sem a rua (`ruaDisponivel: false`), 503 `sem-dados-para-prever`, 503 sem esse motivo, 404 e ação com `id` numérico.
 
-Em 17/11/2026, após o novo visual, passaram **19 testes Windows e 6 verificações do autoteste**, com saída 0, também na cópia extraída do ZIP final. A interface foi conferida maximizada e em 958 × 707 com rolagem, cadastro, mapas Agora/+1 h/frio e dois PNGs completos. Cadastro e ação locais persistiram após fechar e reabrir o programa com a API desligada. Evidências e limites estão em [VALIDACAO-WINDOWS-2026-11-17.md](docs/VALIDACAO-WINDOWS-2026-11-17.md). DPI ampliado ainda não foi exercitado.
+Em 18/11/2026 (reconferido) e em 17/11/2026, após o novo visual, passaram **19 testes Windows e 6 verificações do autoteste**, com saída 0, também na cópia extraída do ZIP final. A interface foi conferida maximizada e em 958 × 707 com rolagem, cadastro, mapas Agora/+1 h/frio e dois PNGs completos. Cadastro e ação locais persistiram após fechar e reabrir o programa com a API desligada. Evidências e limites estão em [VALIDACAO-WINDOWS-2026-11-17.md](docs/VALIDACAO-WINDOWS-2026-11-17.md). DPI ampliado ainda não foi exercitado.
 
 ## Versões
 
@@ -281,7 +281,7 @@ O projeto segue versionamento semântico. O histórico completo está no [CHANGE
 
 | Versão | Data | Resumo |
 |---|---|---|
-| `v0.3.0` | 2026-11-18 | Novo visual, `TelaCoordenacao` com Designer, domínio encapsulado, modo DEMONSTRAÇÃO, mapa térmico de 20 cadeiras com legenda e exportação PNG |
+| `v0.3.0` | 2026-11-19 | Novo visual, `TelaCoordenacao` com Designer, domínio encapsulado, modo DEMONSTRAÇÃO, mapa térmico de 20 cadeiras com legenda e exportação PNG; ações de exemplo sempre no dia da escola |
 | `v0.2.0` | 2026-11-05 | Contrato com a API real (sala sem leitura e id numérico da ação), solução do Visual Studio e README |
 | `v0.1.0` | 2026-11-04 | Primeira versão do terminal da coordenação |
 

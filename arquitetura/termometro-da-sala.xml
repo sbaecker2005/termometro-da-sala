@@ -2596,7 +2596,7 @@
             </font>
           </style>
         </node>
-        <node identifier="va-app" elementRef="e-app" xsi:type="Element" x="1695" y="340" w="180" h="60">
+        <node identifier="va-app" elementRef="e-app" xsi:type="Element" x="1695" y="490" w="180" h="60">
           <style>
             <fillColor r="181" g="255" b="255" a="100" />
             <lineColor r="92" g="92" b="92" a="100" />
@@ -2605,7 +2605,7 @@
             </font>
           </style>
         </node>
-        <node identifier="va-painel" elementRef="e-painel" xsi:type="Element" x="1695" y="490" w="180" h="60">
+        <node identifier="va-painel" elementRef="e-painel" xsi:type="Element" x="1695" y="340" w="180" h="60">
           <style>
             <fillColor r="181" g="255" b="255" a="100" />
             <lineColor r="92" g="92" b="92" a="100" />
@@ -2614,7 +2614,7 @@
             </font>
           </style>
         </node>
-        <node identifier="va-leitura" elementRef="e-leitura" xsi:type="Element" x="276" y="565" w="180" h="60">
+        <node identifier="va-leitura" elementRef="e-leitura" xsi:type="Element" x="276" y="565" w="130" h="60">
           <style>
             <fillColor r="181" g="255" b="255" a="100" />
             <lineColor r="92" g="92" b="92" a="100" />
@@ -2623,7 +2623,7 @@
             </font>
           </style>
         </node>
-        <node identifier="va-previsao" elementRef="e-previsao" xsi:type="Element" x="476" y="565" w="180" h="60">
+        <node identifier="va-previsao" elementRef="e-previsao" xsi:type="Element" x="424" y="565" w="130" h="60">
           <style>
             <fillColor r="181" g="255" b="255" a="100" />
             <lineColor r="92" g="92" b="92" a="100" />
@@ -2632,7 +2632,7 @@
             </font>
           </style>
         </node>
-        <node identifier="va-do-sala" elementRef="e-do-sala" xsi:type="Element" x="676" y="565" w="180" h="60">
+        <node identifier="va-do-sala" elementRef="e-do-sala" xsi:type="Element" x="572" y="565" w="130" h="60">
           <style>
             <fillColor r="181" g="255" b="255" a="100" />
             <lineColor r="92" g="92" b="92" a="100" />
@@ -2641,7 +2641,7 @@
             </font>
           </style>
         </node>
-        <node identifier="va-do-dispositivo" elementRef="e-do-dispositivo" xsi:type="Element" x="876" y="565" w="180" h="60">
+        <node identifier="va-do-dispositivo" elementRef="e-do-dispositivo" xsi:type="Element" x="720" y="565" w="130" h="60">
           <style>
             <fillColor r="181" g="255" b="255" a="100" />
             <lineColor r="92" g="92" b="92" a="100" />
@@ -2650,7 +2650,7 @@
             </font>
           </style>
         </node>
-        <node identifier="va-do-nivelacao" elementRef="e-do-nivelacao" xsi:type="Element" x="1076" y="565" w="180" h="60">
+        <node identifier="va-do-nivelacao" elementRef="e-do-nivelacao" xsi:type="Element" x="868" y="565" w="130" h="60">
           <style>
             <fillColor r="181" g="255" b="255" a="100" />
             <lineColor r="92" g="92" b="92" a="100" />
@@ -2659,7 +2659,7 @@
             </font>
           </style>
         </node>
-        <node identifier="va-do-acao" elementRef="e-do-acao" xsi:type="Element" x="1276" y="565" w="180" h="60">
+        <node identifier="va-do-acao" elementRef="e-do-acao" xsi:type="Element" x="1016" y="565" w="130" h="60">
           <style>
             <fillColor r="181" g="255" b="255" a="100" />
             <lineColor r="92" g="92" b="92" a="100" />
@@ -2668,7 +2668,7 @@
             </font>
           </style>
         </node>
-        <node identifier="va-do-ocorrencia" elementRef="e-do-ocorrencia" xsi:type="Element" x="1476" y="565" w="180" h="60">
+        <node identifier="va-do-ocorrencia" elementRef="e-do-ocorrencia" xsi:type="Element" x="1164" y="565" w="130" h="60">
           <style>
             <fillColor r="181" g="255" b="255" a="100" />
             <lineColor r="92" g="92" b="92" a="100" />
@@ -2677,7 +2677,7 @@
             </font>
           </style>
         </node>
-        <node identifier="va-as-mapa" elementRef="e-as-mapa" xsi:type="Element" x="1420" y="435" w="210" h="60">
+        <node identifier="va-as-mapa" elementRef="e-as-mapa" xsi:type="Element" x="908" y="690" w="200" h="60">
           <style>
             <fillColor r="181" g="255" b="255" a="100" />
             <lineColor r="92" g="92" b="92" a="100" />
@@ -2686,7 +2686,7 @@
             </font>
           </style>
         </node>
-        <node identifier="va-do-posicoes" elementRef="e-do-posicoes" xsi:type="Element" x="1695" y="665" w="210" h="60">
+        <node identifier="va-do-posicoes" elementRef="e-do-posicoes" xsi:type="Element" x="572" y="690" w="278" h="60">
           <style>
             <fillColor r="181" g="255" b="255" a="100" />
             <lineColor r="92" g="92" b="92" a="100" />
@@ -2942,6 +2942,7 @@
               <color r="0" g="0" b="0" />
             </font>
           </style>
+          <bendpoint x="1400" y="650" />
         </connection>
         <connection identifier="v-aplicacao-c-186" relationshipRef="r-186" xsi:type="Relationship" source="va-as-mapa" target="va-do-posicoes">
           <style>

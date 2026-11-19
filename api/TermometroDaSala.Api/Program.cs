@@ -41,6 +41,7 @@ else
 
 builder.Services.AddScoped<ServicoLeituras>();
 builder.Services.AddScoped<ConsultaPrevisao>();
+builder.Services.AddScoped<IServicoAmbientes, ServicoAmbientes>();
 
 if (!builder.Configuration.GetValue("Mqtt:Desligado", false))
     builder.Services.AddHostedService<AssinanteMqtt>();

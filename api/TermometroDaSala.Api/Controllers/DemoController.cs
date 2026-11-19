@@ -32,7 +32,7 @@ public class DemoController(SalaDb _db, IHostEnvironment _ambiente, ILogger<Demo
             pontos.OrderBy(l => l.Nome).Select(l => (l.Nome, l.X, l.Y, l.Vulneravel));
         if (sala is null)
         {
-            sala = new Ambiente { Id = "sala-07", Nome = "Sala 7", LarguraM = 6, ProfundidadeM = 4, Lugares = lugares };
+            sala = new Ambiente("sala-07", "Sala 7", 0, FaceSol.leste, false) { LarguraM = 6, ProfundidadeM = 4, Lugares = lugares };
             for (var i = 0; i < 4; i++)
                 sala.Dispositivos.Add(new Dispositivo { Id = $"demo-sala-07-{rotulos[i]}", Rotulo = rotulos[i], PosX = xs[i], PosY = ys[i], Segredo = "somente-demonstracao-sala-07" });
             _db.Ambientes.Add(sala);

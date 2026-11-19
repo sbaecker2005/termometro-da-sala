@@ -1,6 +1,8 @@
 # Validação do desktop no Windows — 17/11/2026
 
-Ensaio pela interface real do Windows Forms, com API ASP.NET Core em Demo e SQL Server Express 2022. Banco inicial exclusivo: `TermometroGS_20261117_Local`. **Resultado atual: as correções e o novo visual foram revalidados; 19 testes Windows e 6 verificações do autoteste passaram.** A pedido do usuário, o mapa também foi ampliado para 20 cadeiras e ganhou legenda colorida fixa, incluindo frio em azul. Os ensaios anteriores estão preservados abaixo como histórico; a [integração final de ML](#integração-final-de-ml--17112026-às-09h45) acrescenta o iniciador em banco novo e a previsão após a correção do Demo.
+Ensaio pela interface real do Windows Forms, com API ASP.NET Core em Demo e SQL Server Express 2022. Banco inicial exclusivo: `TermometroGS_20261117_Local`. **Resultado atual: as correções e o novo visual foram revalidados; 19 testes Windows e 6 verificações do autoteste passaram.** Por decisão da equipe, o mapa também foi ampliado para 20 cadeiras e ganhou legenda colorida fixa, incluindo frio em azul. Os ensaios anteriores estão preservados abaixo como histórico; a [integração final de ML](#integração-final-de-ml--17112026-às-09h45) acrescenta o iniciador em banco novo e a previsão após a correção do Demo.
+
+**Reconferência de 18/11/2026:** `dotnet test` da solução: 19 aprovados, 0 falhas; `dotnet run --project TermometroDaSala.Desktop -- --autoteste`: 6 verificações passaram. As seções seguintes são o histórico cronológico do ensaio de 17/11; onde dizem que algo "não foi executado", o resultado final está nesta reconferência.
 
 ## Primeiro ensaio — antes das correções
 
@@ -61,7 +63,7 @@ O mapa atual interpola as leituras pela distância (IDW). O ML prevê o índice 
 - C01–C20 substituem os números gerais nas vinte cadeiras; S1–S4 identificam os quatro sensores. A legenda, a planta, a lista acessível e o PNG usam os mesmos códigos. Códigos são apenas apresentação: IDs e nomes da API/banco não foram alterados.
 - Tela real conferida em Agora e Previsão +1 h. Os 24 códigos permaneceram presentes, únicos e nas mesmas posições. Símbolos foram ajustados para manter códigos, cores e formas legíveis.
 - Novo [PNG com C01–C20 e S1–S4](mapa-cadeiras-C01-C20-sensores-S1-S4.png) exportado pelo desktop publicado e reaberto para inspeção: 1084 × 813 pixels, 61.105 bytes, lista completa e precauções sem cortes. As imagens anteriores documentam a etapa anterior ao acabamento.
-- `MapaTests` atualizado para verificar contadores separados, preservação de pontos/precauções coincidentes, C01–C20 e estabilidade entre períodos. Compilação da solução e publicação Release concluídas sem erros/avisos; hash da DLL publicada conferido. Revisão independente de leitura não encontrou falha material. Testes automatizados continuam reservados ao coordenador.
+- `MapaTests` atualizado para verificar contadores separados, preservação de pontos/precauções coincidentes, C01–C20 e estabilidade entre períodos. Compilação da solução e publicação Release concluídas sem erros/avisos; hash da DLL publicada conferido. Revisão independente de leitura não encontrou falha material. As suítes foram executadas em etapa posterior (ver a sessão do novo visual e a reconferência de 18/11).
 
 ## Estado deixado — ensaio anterior
 
@@ -70,7 +72,7 @@ O mapa atual interpola as leituras pela distância (IDW). O ML prevê o índice 
 - Após reiniciar a API, uma nova chave temporária foi gerada apenas na memória e herdada pela nova janela do desktop. Não foi gravada em arquivo ou log.
 - Nenhum arquivo de dados locais foi criado pelo ensaio; o modo local foi validado apenas quanto à entrada/aviso/retorno à API.
 
-## Testes para o coordenador — orientação do ensaio anterior
+## Como rodar os testes — orientação do ensaio anterior
 
 Na raiz do kit:
 
@@ -80,7 +82,7 @@ dotnet test .\api\TermometroDaSala.sln
 dotnet run --project .\desktop\TermometroDaSala.Desktop -- --autoteste
 ```
 
-Esperado: testes e autoteste aprovados, incluindo revogação do dispositivo selecionado, códigos separados por tipo, pontos coincidentes, 20 cadeiras, frio, migração idempotente e preservação de personalizações. Não executados nesta etapa, conforme divisão de trabalho com o Cérebro. A repetição visual de revogação, mapas e PNGs está concluída.
+Esperado: testes e autoteste aprovados, incluindo revogação do dispositivo selecionado, códigos separados por tipo, pontos coincidentes, 20 cadeiras, frio, migração idempotente e preservação de personalizações. Não executados nesta etapa; passaram depois (19 testes e 6 verificações do autoteste). A repetição visual de revogação, mapas e PNGs está concluída.
 
 ## Arquivos alterados
 
@@ -98,7 +100,7 @@ Esperado: testes e autoteste aprovados, incluindo revogação do dispositivo sel
 
 ## Fechamento do ensaio anterior
 
-Atualização da preparação para o grupo (17/11, aproximadamente 02h18 em São Paulo): API e projetos de testes da API/desktop compilados em Release, sem avisos nem erros. As suítes não foram executadas. API reiniciada com as correções de contrato e concorrência, PID 18544; desktop PID 3452. Banco isolado anterior preservado, MQTT desligado, chave temporária somente nos processos. `GET /ambientes` respondeu 200. Na tela, "API conectada" e a Sala 7 com C01-C20/S1-S4 foram reconferidos. O cenário de madrugada foi renovado pelo endpoint Demo: S2, C16 e C20 em frio azul. O PNG final já exportado foi aberto novamente e permanece completo e legível. Logs desta inicialização em `api/TermometroDaSala.Api/bin/validacao-grupo.out.log` e `validacao-grupo.err.log`.
+Atualização da preparação para o grupo (17/11, aproximadamente 02h18 em São Paulo): API e projetos de testes da API/desktop compilados em Release, sem avisos nem erros. As suítes não foram executadas nessa etapa; passaram depois. API reiniciada com as correções de contrato e concorrência, PID 18544; desktop PID 3452. Banco isolado anterior preservado, MQTT desligado, chave temporária somente nos processos. `GET /ambientes` respondeu 200. Na tela, "API conectada" e a Sala 7 com C01-C20/S1-S4 foram reconferidos. O cenário de madrugada foi renovado pelo endpoint Demo: S2, C16 e C20 em frio azul. O PNG final já exportado foi aberto novamente e permanece completo e legível. Logs desta inicialização em `api/TermometroDaSala.Api/bin/validacao-grupo.out.log` e `validacao-grupo.err.log`.
 
 Comandos de compilação usados nesta atualização (não executam testes):
 
@@ -111,11 +113,11 @@ A compilação paralela padrão da solução encerrou com falha sem diagnóstico
 
 - Feito: três correções concluídas; mapa ampliado para 20 cadeiras; azul de frio e distinção cadeira/sensor conferidos; cancelamento/confirmação da revogação e mapa nos dois períodos/cenários revalidados; três PNGs da primeira etapa e um PNG final com C01–C20/S1–S4 inspecionados; compilações sem erros/avisos e publicação conferida por hash.
 - Arquivos: lista acima; CSV e PNG antigos preservados. Logs de reinício em `api/TermometroDaSala.Api/bin/correcao-ui.out.log` e `correcao-ui.err.log`.
-- Testes para o coordenador: comandos acima; esperado todos aprovados.
-- Pendências: executar suítes/autoteste e conferir ZIP extraído. Na entrega geral de ML/SOA/C#, seguem evidências do Insomnia, vídeo ML, pacote final, Git e envio pela equipe.
+- Testes: comandos acima; esperado todos aprovados.
+- Pendências na época: executar suítes/autoteste e conferir ZIP extraído (feito depois). Na entrega geral de ML/SOA/C#, seguem evidências do Insomnia, vídeo ML, pacote final, Git e envio pela equipe.
 - Premissas que caíram: publicar por cima do kit não garantiu atualizar a DLL com timestamp futuro; hashes divergentes e desenho antigo revelaram isso. Publicação foi corrigida e conferida por hash antes do ensaio final.
 
-Não foram validados persistência de novos registros no modo local, câmera/Wokwi, Insomnia, ZIP extraído nem suíte automatizada. Limites: dados simulados, +1 h aproximado e posições distintas muito próximas ainda podem sobrepor os números; isso não ocorreu no layout validado.
+Nesta etapa ainda não tinham sido validados persistência de novos registros no modo local, câmera/Wokwi, Insomnia, ZIP extraído nem suíte automatizada (tudo conferido depois, na sessão do novo visual). Limites: dados simulados, +1 h aproximado e posições distintas muito próximas ainda podem sobrepor os números; isso não ocorreu no layout validado.
 
 ## Sessão do novo visual — 17/11/2026
 
@@ -179,7 +181,7 @@ O comando `powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\ferramentas
 | Suíte da API depois da correção | **101/101 aprovados**, sem falhas ou ignorados; [TRX atual](../../docs/resultados-testes-2026-11-17/api-fechamento-101.trx). O resultado 100/100 acima permanece como histórico anterior à nova regressão. |
 | ZIP com o novo visual | A cópia extraída passou **19/19 testes e 6/6 verificações do autoteste**; [TRX](../../docs/resultados-testes-2026-11-17/desktop-zip-final-20261117.trx) e [autoteste](../../docs/resultados-testes-2026-11-17/desktop-autoteste-zip-final-20261117.txt). A atualização documental posterior exige atualizar o arquivo e seu manifesto, sem mudança de binário. |
 
-A previsão é da sala para +2 h; o mapa +1 h continua uma aproximação espacial documentada. As leituras usadas na apresentação foram simuladas por HTTP. Não representam Wokwi, medições de Magister/Salgueiro nem validação independente do modelo em campo. O enunciado oficial e a entrevista foram conferidos/confirmados; DPI ampliado não foi inspecionado e é um limite de cobertura visual, não exigência explícita de C#. Captura visual complementar, mapa/PNG e [Insomnia 29/29](../../api/evidencias/insomnia-2026-11-17/README.md) estão concluídos. Publicação pelo Cérebro, vídeo ML e envio permanecem separados dos testes aprovados.
+A previsão é da sala para +2 h; o mapa +1 h continua uma aproximação espacial documentada. As leituras usadas na apresentação foram simuladas por HTTP. Não representam Wokwi, medições de Magister/Salgueiro nem validação independente do modelo em campo. O enunciado oficial e a entrevista foram conferidos/confirmados; DPI ampliado não foi inspecionado e é um limite de cobertura visual, não exigência explícita de C#. Captura visual complementar, mapa/PNG e [Insomnia 29/29](../../api/evidencias/insomnia-2026-11-17/README.md) estão concluídos. Vídeo da disciplina de ML e envio no Teams permanecem separados dos testes aprovados.
 
 ## Modelo geral com ajuste por sala — conferência atual
 

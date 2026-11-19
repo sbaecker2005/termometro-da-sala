@@ -64,10 +64,10 @@ public class SalaDb : DbContext
 
         // Segredo de demonstração por dispositivo. Não é chave de produção.
         model.Entity<Ambiente>().HasData(
-            new Ambiente { Id = "sala-01", Nome = "Sala 1", Tipo = TipoAmbiente.sala, Andar = 0, FaceSol = FaceSol.leste, TemVentilador = true },
-            new Ambiente { Id = "sala-02", Nome = "Sala 2", Tipo = TipoAmbiente.sala, Andar = 0, FaceSol = FaceSol.norte, TemVentilador = true },
-            new Ambiente { Id = "sala-03", Nome = "Sala 3", Tipo = TipoAmbiente.sala, Andar = 1, FaceSol = FaceSol.oeste, TemVentilador = true },
-            new Ambiente { Id = "sala-04", Nome = "Sala 4", Tipo = TipoAmbiente.sala, Andar = 2, FaceSol = FaceSol.sul, TemVentilador = false });
+            new Ambiente("sala-01", "Sala 1", 0, FaceSol.leste, true),
+            new Ambiente("sala-02", "Sala 2", 0, FaceSol.norte, true),
+            new Ambiente("sala-03", "Sala 3", 1, FaceSol.oeste, true),
+            new Ambiente("sala-04", "Sala 4", 2, FaceSol.sul, false));
         model.Entity<Dispositivo>().HasData(
             new Dispositivo { Id = "esp32-sala-01", AmbienteId = "sala-01", Segredo = "segredo-de-teste-sala-01" },
             new Dispositivo { Id = "esp32-sala-02", AmbienteId = "sala-02", Segredo = "segredo-de-teste-sala-02" },

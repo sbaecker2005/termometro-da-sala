@@ -251,19 +251,29 @@ API levam `{"motivo":"..."}`; as de validação do corpo vêm no formato padrão
 ASP.NET Core (`errors`). Toda resposta leva `X-Content-Type-Options: nosniff`; em
 Production, HTTPS com `Strict-Transport-Security`.
 
+A tabela abaixo cobre todas as rotas HTTP, exceto as que têm seção própria:
+`POST /leituras` (seção 2), `GET /ambientes/{id}/previsao` (seção 4) e
+`POST /demo/semear` (seção 5). As escritas aceitam 30 pedidos por minuto por IP;
+o seguinte responde 429.
+
 | Rota | Chave | Respostas |
 |---|---|---|
+| `GET /ambientes` | não | 200 com as salas: `id`, `nome`, `andar`, `faceSol`, `nivelAtual`, `indiceAtual`, `ultimaLeituraEm`, `semLeitura`, `temVentilador`, `dispositivoId` e `sensorRevogado` |
 | `POST /ambientes` | sim | 201 com `Location: /ambientes/{id}`; 400; 409 `ambiente-existente` |
 | `GET /ambientes/{id}` | não | 200 com o mesmo objeto de cada item de `GET /ambientes`; 404 |
 | `PUT /ambientes/{id}` | sim | Corpo igual ao do POST, com o mesmo `id` da rota. 200 `{"id":...}`; 400 `id-divergente`; 404 |
 | `DELETE /ambientes/{id}` | sim | 204, levando junto dispositivos, ocorrências (e as fotos delas no disco), ações e previsões da sala; 409 `ambiente-com-leituras` (o histórico não se apaga); 404 |
+| `GET /ambientes/{id}/leituras` | não | 200 com as leituras da sala em ordem de medição (`medidoEm`, `temperaturaC`, `umidadePct`, `indiceCalor`, `nivel`, `origem`, `suspeita`, `dispositivoId`); `?formato=csv` devolve `text/csv`; 404 sala inexistente |
+| `POST /ocorrencias` | não | Multipart com `ambienteId`, `descricao` (10 a 500 caracteres) e `foto` JPEG de até 5 MB. 201 com `{"id":...}` e `Location: /ocorrencias/{id}/foto`; 400 `descricao`, `arquivo`, `nome-invalido` ou `nao-jpeg`; 404 sala inexistente. A API grava o JPEG sem o segmento EXIF |
 | `GET /ambientes/{id}/ocorrencias` | não | 200 com `[{"id","ambienteId","descricao","criadaEm"}]`, da mais recente à mais antiga, sem a foto; 404 sala inexistente |
 | `GET /ocorrencias/{id}/foto` | sim | 200 `image/jpeg`; 401 sem chave; 404. A foto pode mostrar pessoas, então só a coordenação abre |
 | `GET /niveis` | não | 200 com as 5 faixas (Frio, Normal, Atenção, Cuidado extremo e Perigo) da tabela `NiveisAcao`: `nivel`, `nome`, `indiceMin`, `acaoSugerida` (seção 3) |
+| `GET /acoes?dia=AAAA-MM-DD` | não | 200 com `[{"id","ambienteId","nivel","descricao","registradoEm"}]` do dia civil de São Paulo, da mais recente à mais antiga; 400 `dia-invalido` |
 | `POST /acoes` | sim | 201 com `Location: /acoes?dia=AAAA-MM-DD` (dia de São Paulo); 400 `nivel` ou `descricao`; 404 |
+| `POST /dispositivos/{id}/revogar` | sim | 200 `{"id":...,"ativo":false}`; 404. As leituras do dispositivo ficam; as novas são recusadas com `dispositivo-revogado` |
 | `GET /ambientes/{id}/mapa` | não | 200 com dimensões, grade, pontos e precauções (`?futuro=true` projeta +1 h); 404 sala inexistente |
 | `PUT /ambientes/{id}/mapa` | sim | 204; 400 `mapa-invalido`, `sensor-invalido` ou `sensor-fora-da-planta`; 401 sem chave; 404; 429 |
-| `POST /demo/mapa?periodo=tarde` ou `madrugada` | não (só em Demo) | 201 com `inseridas`; 400 `periodo-invalido`; 404 fora do Demo; 409 `ambiente-em-uso` |
+| `POST /demo/mapa?periodo=tarde` ou `madrugada` | não (só em Demo) | Cria ou refaz a Sala 7 (4 sensores e 20 lugares) e grava a cena de calor ou de frio. 201 com `{"inseridas":4}` e `Location: /ambientes/sala-07/mapa`; 400 `periodo-invalido`; 404 fora do Demo; 409 `ambiente-em-uso` |
 
 O app do professor lista as ocorrências da sala e não abre fotos; o desktop da
 coordenação não exibe fotos.

@@ -8,7 +8,11 @@ O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e 
 
 Sem mudanças pendentes.
 
-## [0.3.0] - 2026-11-18
+## [0.3.0] - 2026-11-19
+
+### Corrigido
+
+- As duas ações de exemplo do modo DEMONSTRAÇÃO ficam sempre no dia da escola. Entre 00h00 e 00h20 (São Paulo), a ação de "20 minutos atrás" caía no dia anterior e sumia da lista do dia; o autoteste falhava nesse horário. Novo teste cobre 00h05, 23h59 e o meio da tarde.
 
 ### Adicionado
 

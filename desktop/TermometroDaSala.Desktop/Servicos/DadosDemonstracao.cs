@@ -16,15 +16,21 @@ public static class DadosDemonstracao
         ("sala-05", "Sala 5 (exemplo)", 0, "sul", 17.9, NivelCalor.Frio, 17.0, NivelCalor.Frio)
     ];
 
-    public static DadosLocais Gerar(DateTimeOffset agora) => new()
+    public static DadosLocais Gerar(DateTimeOffset agora)
     {
-        Salas = Salas.Select(s => Sala.Exemplo(s.Id, s.Nome, s.Andar, s.Face, new Leitura(s.Indice, s.Nivel, agora.AddMinutes(-2)))).ToList(),
-        Acoes =
-        [
-            new Acao("sala-03", NivelCalor.Cuidado, "DEMONSTRAÇÃO: janelas abertas e água para a turma", agora.AddMinutes(-20)),
-            new Acao("sala-04", NivelCalor.Perigo, "DEMONSTRAÇÃO: turma levada para a biblioteca", agora.AddMinutes(-5))
-        ]
-    };
+        // As ações de exemplo ficam no dia da escola de agora: logo depois da meia-noite, "20 min atrás" seria ontem.
+        var inicioDoDia = new DateTimeOffset(HorarioEscola.Hora(agora).Date, TimeSpan.FromHours(-3));
+        DateTimeOffset Antes(int minutos) => agora.AddMinutes(-minutos) < inicioDoDia ? inicioDoDia : agora.AddMinutes(-minutos);
+        return new()
+        {
+            Salas = Salas.Select(s => Sala.Exemplo(s.Id, s.Nome, s.Andar, s.Face, new Leitura(s.Indice, s.Nivel, agora.AddMinutes(-2)))).ToList(),
+            Acoes =
+            [
+                new Acao("sala-03", NivelCalor.Cuidado, "DEMONSTRAÇÃO: janelas abertas e água para a turma", Antes(20)),
+                new Acao("sala-04", NivelCalor.Perigo, "DEMONSTRAÇÃO: turma levada para a biblioteca", Antes(5))
+            ]
+        };
+    }
 
     public static Previsao? Prever(string id, DateTimeOffset agora) => Salas.Where(s => s.Id == id).Select(s => new Previsao
     {

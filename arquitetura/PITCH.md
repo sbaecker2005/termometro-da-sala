@@ -1,6 +1,6 @@
 # Termômetro da Sala: roteiro do pitch
 
-Vídeo de até 4 minutos, enviado em Testing. Tempo total do roteiro: 3min30s, com 30 s de folga sobre o limite. São cerca de 410 palavras faladas (cerca de 2min45s a 150 palavras por minuto); o restante é a pausa das telas gravadas. O briefing pede a solução e as entregas que mais somaram: o bloco "Entregas" cumpre essa parte.
+Vídeo de até 4 minutos, enviado em Testing. Tempo total do roteiro: 3min30s, com 30 s de folga sobre o limite. São cerca de 375 palavras faladas (cerca de 2min30s a 150 palavras por minuto), mais 40 opcionais da fala do mapa térmico (2min45s no total); o restante é a pausa das telas gravadas. O briefing pede a solução e as entregas que mais somaram: o bloco "Entregas" cumpre essa parte.
 
 Cronometre o ensaio. Se passar de 3min30s, corte primeiro na demonstração, nunca no impacto, na abertura nem na frase da pessoa entrevistada. A frase entra inteira, sem completar o bloco com outra fala.
 
@@ -31,7 +31,9 @@ Se ela não aparecer, leia o crédito e a frase, com o crédito na tela. Sem alu
 
 ## Demonstração no modo demonstração (0:45 a 2:15)
 
-> O mapa térmico mostra onde cada sensor e cada lugar ficam na planta, com temperatura, nível e precauções também em texto. A alternância para daqui a uma hora é uma aproximação, e o aviso na tela diz isso.
+Fala opcional do mapa térmico, para a tela do app na sala 3; entra só se o ensaio fechar abaixo de 3min15s:
+
+> O mapa térmico mostra onde cada sensor e cada lugar ficam na planta, com temperatura, nível e precauções também em texto. A visão de daqui a uma hora desloca todos os pontos pela previsão da sala, sem modelo por ponto, e o aviso na tela diz que é uma aproximação.
 
 Gravar entre 12h e 17h, com a API no ambiente `Demo`. Antes de cada ensaio ou tomada, pare a API e o Wokwi e recrie **somente o banco local descartável abaixo**, reservado a este roteiro. Requer LocalDB e a ferramenta EF já disponíveis (ver `api/README.md`). Em PowerShell, dentro de `api/`, execute cada comando apenas se o anterior terminar sem erro:
 
@@ -46,7 +48,7 @@ dotnet run --project TermometroDaSala.Api --no-launch-profile --urls http://loca
 
 O `drop` apaga todo o histórico desse banco de demonstração; não substitua a conexão pela de um banco com dados a preservar. O perfil `http` não é usado porque fixa Development.
 
-O circuito atual de `esp32/README.md:36` usa quatro dispositivos na Sala 7; não publica na Sala 3 sem esta preparação específica. Após cada reset, as migrações recriam a Sala 3 e `esp32-sala-03` (usado aqui como porta), mas não configuram a planta. Com o Wokwi ainda parado, execute o SQL abaixo em um editor SQL já disponível, conectado a `(localdb)\MSSQLLocalDB`. Ele cadastra os outros três pontos apenas no banco descartável do pitch, reutilizando internamente o valor público de demonstração do dispositivo existente, sem exibi-lo, e configura uma planta fictícia de 6 × 4 m com seis cadeiras (a Sala 7 do exemplo, no `esp32/README.md`, tem outra planta, com vinte lugares):
+O circuito atual de `esp32/README.md:36` usa quatro dispositivos na Sala 7; não publica na Sala 3 sem esta preparação específica. Após cada reset, as migrações recriam a Sala 3 e `esp32-sala-03` (usado aqui como porta), mas não configuram a planta. Com o Wokwi ainda parado, execute o SQL abaixo em um editor SQL já disponível, conectado a `(localdb)\MSSQLLocalDB`. Ele cadastra os outros três pontos apenas no banco descartável do pitch, reutilizando internamente o valor público de demonstração do dispositivo existente, sem exibi-lo, e configura uma planta fictícia de 6 × 4 m com seis cadeiras (a Sala 7 do exemplo do `esp32/README.md`, criada por `/demo/mapa`, tem vinte cadeiras, e não esta planta de seis):
 
 ```sql
 USE [TermometroRoteiroPitch];

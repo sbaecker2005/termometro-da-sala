@@ -1,0 +1,5 @@
+Registro: 19/11/2026 00:00 (horário de Brasília)
+Comando, a partir da raiz do repositório: dotnet test api/TermometroDaSala.sln --nologo -v q
+SDK .NET 8.0.427
+
+Passed!  - Failed:     0, Passed:   138, Skipped:     0, Total:   138, Duration: 3 s - TermometroDaSala.Api.Tests.dll (net8.0)

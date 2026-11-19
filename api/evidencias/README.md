@@ -1,14 +1,14 @@
 # Evidências da API
 
-## Validação atual — 17/11/2026
+## Validação atual — 17 a 19/11/2026
 
 | Prova | Resultado observado | Registro |
 |---|---|---|
-| Suíte API com o modelo geral e ajuste por sala | **134 aprovados, zero falhas, zero ignorados** | [TRX](../../docs/resultados-testes-2026-11-17/api-modelo-geral-v1.trx) |
+| Suíte API atual, com a camada `IServicoAmbientes` e as regras de `Ambiente.Alterar()` | **138 aprovados, zero falhas, zero ignorados** | [registro](dotnet-test-atual.txt) |
+| Suíte API com o modelo geral e ajuste por sala (17/11) | **134 aprovados, zero falhas, zero ignorados** | [TRX](../../docs/resultados-testes-2026-11-17/api-modelo-geral-v1.trx) |
 | Coleta automática com SQL Server Express real, banco exclusivo da revisão | **98 verificações OK, zero divergências**, incluindo CRUD, cinco migrações, foto sintética, autorizações, mapa com 12 leituras, limite e reenvio concorrente | [conferência](TermometroGS_SOA_ModeloGeral_20261117_134420/conferencia.tsv) |
 | HTTP + broker MQTT + assinante da API + SQL Server reais | **33 verificações aprovadas**: as 21 anteriores de concorrência/revogação/rollback e 12 do modelo, ajuste por sala, horizonte, persistência e mapa +1 h | [resultado](../../docs/resultados-testes-2026-11-17/TermometroGS_ModeloGeral_20261117_135412_6ef80b60/resultado.txt), [comandos e limites](../../docs/resultados-testes-2026-11-17/sql-modelo-geral-v1.txt) |
 | Insomnia 13.4.0, Scratch Pad local — rodada anterior ao ajuste geral | **29 requisições e 29 asserções aprovadas, zero falhas**, runner 978 ms; revogação 200 e upload 201 também conferidos individualmente | [captura final](insomnia-2026-11-17/colecao-final.png), [condições e reprodução](insomnia-2026-11-17/README.md) |
-| Preparação completa da apresentação ML/desktop | Iniciador aprovado em banco novo; previsão da sala numérica, `semLeiturasRecentes=false`, desktop aberto | Registro na pasta `output/` da máquina de apresentação (não versionada) |
 | Desktop integrado, persistência e PNGs | Cadastro/ação/CSV/revogação, modo local e retorno; vinte cadeiras, quatro sensores e frio em azul | [relatório Windows](../../desktop/docs/VALIDACAO-WINDOWS-2026-11-17.md) |
 
 Os registros automáticos acima **não são prints de execução manual no Insomnia**. O ensaio MQTT usa broker local em loopback; não comprova Wokwi, internet/broker público nem IIS/VM. A foto do ensaio é uma ilustração JPEG sintética, sem pessoas, e não uma foto de escola/piloto.
@@ -45,15 +45,15 @@ Leituras, ações, ocorrências e fotos aceitas permanecem no banco/pasta local;
 
 Os relatos anteriores de falha de criptografia (08h51) e SSPI em 07/11 não descrevem as saídas atualmente vinculadas. B1, de 07/11 às 10h02, registra banco já atualizado; B2, do mesmo horário, lista as cinco migrações. `saidas/conferencia.tsv` contém 97 verificações OK e zero DIVERGE. São registros de coleta automática local, não testes unitários, prova de execução manual no Insomnia ou evidências da VM.
 
-Resultados de 08/11/2026 (~04h40), informados pelo coordenador nesta pasta: API 85 aprovados/0 falhas; desktop 18/0; app 20/0; `tsc --noEmit` do app sem erros. Não reexecutados nesta reconciliação.
+Resultados de 08/11/2026 (~04h40): API 85 aprovados/0 falhas; desktop 18/0; app 20/0; `tsc --noEmit` do app sem erros. A contagem atual da API está na tabela de validação acima.
 
-Telas, IIS/HTTPS, ESP32, MQTT e revisão visual da foto real continuam com o coordenador. B3 e a resposta 24 registram cinco faixas, incluindo Frio; B2 registra também MapaTermico.
+IIS/HTTPS, ESP32 e broker público não são cobertos por estas saídas; ficam nas pastas `infra/` e `esp32/`. B3 e a resposta 24 registram cinco faixas, incluindo Frio; B2 registra também MapaTermico.
 
 ## Saídas geradas por comando
 
 | Arquivo | Comando (a partir de `api/`) | O que mostra |
 |---|---|---|
-| [dotnet-test.txt](dotnet-test.txt) | `dotnet test api/TermometroDaSala.sln` e `dotnet test desktop/TermometroDaSala.Desktop.sln` | Registro histórico: 85 testes da API e 18 do desktop aprovados em 08/11/2026, zero falhas. A contagem atual da API (134) está na tabela de validação acima |
+| [dotnet-test.txt](dotnet-test.txt) | `dotnet test api/TermometroDaSala.sln` e `dotnet test desktop/TermometroDaSala.Desktop.sln` | Registro histórico: 85 testes da API e 18 do desktop aprovados em 08/11/2026, zero falhas. A contagem atual da API (138) está na tabela de validação acima |
 | [migracoes-idempotente.sql](migracoes-idempotente.sql) | `dotnet ef migrations script --idempotent --project TermometroDaSala.Api -o evidencias/migracoes-idempotente.sql` | Script idempotente único das 5 migrações (`Inicial`, `Enums`, `SegredosPorDispositivo`, `AlertaFrio` e `MapaTermico`). Em `CREATE TABLE [Leituras]`, só a FK para `Ambientes` tem `ON DELETE CASCADE`; a FK para `Dispositivos` fica sem ação |
 
 `dotnet ef migrations has-pending-model-changes --project TermometroDaSala.Api` responde

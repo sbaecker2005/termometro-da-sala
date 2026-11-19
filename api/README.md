@@ -9,7 +9,7 @@ Global Solution 2026.2 (CitizenTech) — Engenharia de Software, 3º ano, FIAP.
 | Campo | Conteúdo |
 |---|---|
 | Nome da CitizenTech | Termômetro da Sala |
-| Cidade e bairro | São Paulo. Piloto proposto em uma das unidades Magister ou Salgueiro (a unidade final será definida com a escola). A entrevista foi no CRAS Santo Amaro |
+| Cidade e bairro | São Paulo; a entrevista foi no CRAS Santo Amaro. O piloto em escola ainda não tem unidade, bairro e autorização definidos |
 | Cidadão beneficiado | Professor(a) e turma de uma sala sem climatização. Quem opera o sistema é a coordenação pedagógica |
 | Problema, em uma frase | Nas tardes quentes, a sala passa do limite seguro sem que ninguém meça, e a escola só reage quando alguém passa mal |
 | Como funciona | Um sensor na porta da sala mede o calor e acende verde, amarelo ou vermelho. O sistema prevê o nível da sala para daqui a 2 h. A coordenação vê todas as salas, decide e registra a ação tomada. O professor acompanha pelo app e registra ocorrências com foto |
@@ -143,12 +143,12 @@ As leituras do sensor no Wokwi, as leituras do modo demonstração e as ocorrên
 
 | Pasta | Responsabilidade |
 |---|---|
-| `Dominio/Entidades` | As 9 entidades persistidas (`Ambiente`, `Dispositivo`, `Leitura`, `LeituraRua`, `Lugar`, `Previsao`, `Ocorrencia`, `Acao` e `NivelAcao`) e os enums `Nivel`, `Origem`, `FaceSol` e `TipoAmbiente`. `Dispositivo.Revogar()` desativa o sensor sem apagar o histórico |
+| `Dominio/Entidades` | As 9 entidades persistidas (`Ambiente`, `Dispositivo`, `Leitura`, `LeituraRua`, `Lugar`, `Previsao`, `Ocorrencia`, `Acao` e `NivelAcao`) e os enums `Nivel`, `Origem`, `FaceSol` e `TipoAmbiente`. Comportamento nas próprias entidades: `Ambiente.Alterar()` é o único caminho para mudar nome, andar, face e ventilador (setters privados, mesmas regras da entrada da API) e `Dispositivo.Revogar()` desativa o sensor sem apagar o histórico |
 | `Dominio/Contrato.cs` | Regras puras, sem banco: `IndiceCalor` (NOAA e faixas, devolve o enum `Nivel`), `Assinatura` (HMAC do texto canônico), `ValidadorLeitura` (motivos de recusa e leitura suspeita) e `Relogio` (hora de São Paulo) |
 | `Contratos` | Entradas e saídas da API (DTOs). A entrada de ambiente valida com DataAnnotations; as saídas não devolvem as entidades do banco |
-| `Servicos` | Casos de uso: `ServicoLeituras` (recebe, valida e grava a leitura, vinda de HTTP ou MQTT), `ConsultaPrevisao` (monta e grava a previsão) com os previsores da rua (`PrevisorRuaModelo`, `PrevisorRuaBaseline`, `PrevisorRuaDemo`) e `ModeloRua` (lê e avalia o `modelo.json`) e `AssinanteMqtt` (serviço em segundo plano) |
+| `Servicos` | Casos de uso: `ServicoAmbientes` (interface `IServicoAmbientes`: cadastro, alteração, exclusão com as fotos, listagem e ocorrências da sala), `ServicoLeituras` (recebe, valida e grava a leitura, vinda de HTTP ou MQTT), `ConsultaPrevisao` (monta e grava a previsão) com os previsores da rua (`PrevisorRuaModelo`, `PrevisorRuaBaseline`, `PrevisorRuaDemo`) e `ModeloRua` (lê e avalia o `modelo.json`) e `AssinanteMqtt` (serviço em segundo plano) |
 | `Filtros` | `ExigeChaveCoordenacao`: devolve 401 sem o cabeçalho `X-Chave-Coordenacao` correto |
-| `Controllers` | Rotas HTTP: traduzem a requisição, chamam o domínio ou o serviço e devolvem o status |
+| `Controllers` | Rotas HTTP: traduzem a requisição, chamam o domínio ou o serviço e devolvem o status. `AmbientesController` depende só de `IServicoAmbientes` e `ConsultaPrevisao`, sem acesso direto ao `SalaDb` |
 | `Dados` | `SalaDb` (EF Core: mapeamento, FKs e semente), `SalaDbFactory` (design-time) e `Migrations` |
 
 ## Modelo de dados
@@ -372,10 +372,10 @@ status esperado na aba de testes do Insomnia (after-response com `insomnia.expec
     leitura válida recente) e `GET /niveis`. `25 POST /demo/semear` exige ambiente Demo e
     uma leitura ao vivo: 404 fora de Demo, 409 sem leitura, 201 após ela.
 11. Mapa térmico (`26` a `29`):
-    - `26 PUT /ambientes/sala-01/mapa`: planta 6 × 4 m, o sensor `esp32-sala-01` na janela (0; 2) e a Cadeira 1 em (1; 2). Exige `X-Chave-Coordenacao`; espere 204 (sem a chave, 401).
-    - `27 GET /ambientes/sala-01/mapa`: 200 com `grade`, `pontos` (janela e Cadeira 1) e `precaucoes`. Rode depois do `26`; sem leitura recente da sala-01 as temperaturas vêm nulas.
-    - `28 POST /demo/mapa?periodo=tarde` (só em Demo): 201 com `inseridas: 4`. Em seguida `GET /ambientes/sala-07/mapa` (200): a janela aparece a 35 °C em nível perigo, com troca de lugar sugerida e ambiente desigual.
-    - `29 POST /demo/mapa?periodo=madrugada` (só em Demo): 201 com `inseridas: 4`. Em seguida o mesmo `GET` (200): o canto do fundo aparece a 15 °C em nível frio.
+    - `26 Configurar mapa (204; chave obrigatoria)`, `PUT /ambientes/sala-01/mapa`: planta 6 × 4 m, o sensor `esp32-sala-01` na janela (0; 2) e a Cadeira 1 em (1; 2). Exige `X-Chave-Coordenacao`; espere 204 (sem a chave, 401).
+    - `27 GET mapa da sala-01 (200; apos configurar)`, `GET /ambientes/sala-01/mapa`: 200 com `grade`, `pontos` (janela e Cadeira 1) e `precaucoes`. Rode depois do `26`; sem leitura recente da sala-01 as temperaturas vêm nulas.
+    - `28 Demo Sala 7 tarde (201; consultar mapa com GET apos preparar)`, `POST /demo/mapa?periodo=tarde` (só em Demo): 201 com `inseridas: 4` e `Location: /ambientes/sala-07/mapa`. Em seguida `GET /ambientes/sala-07/mapa` (200): a janela aparece a 35 °C em nível perigo, com troca de lugar sugerida e ambiente desigual.
+    - `29 Demo Sala 7 madrugada (201; consultar mapa com GET apos preparar)`, `POST /demo/mapa?periodo=madrugada` (só em Demo): 201 com `inseridas: 4`. Em seguida o mesmo `GET` (200): o canto do fundo aparece a 15 °C em nível frio.
     - O `28` e o `29` substituem as leituras simuladas da Sala 7; use o banco de demonstração. Fora do Demo respondem 404.
 
 As fotos locais ficam em `TermometroDaSala.Api/fotos/`, ignorada pelo repositório.
@@ -388,18 +388,18 @@ coletor automático e registros históricos; não os apresenta como a mesma prov
 dotnet test
 ```
 
-São **134 testes xUnit aprovados, zero falhas e zero ignorados em 17/11/2026**: vetores do contrato (HMAC, índice de calor, relógio de São Paulo),
+São **138 testes xUnit aprovados, zero falhas e zero ignorados** ([registro](evidencias/dotnet-test-atual.txt)): vetores do contrato (HMAC, índice de calor, relógio de São Paulo),
 leitura do modelo de previsão (no banco e no Demo, com o mesmo valor), rotas da API (CRUD de
 salas, ocorrências, foto com chave, níveis, cabeçalhos de segurança), previsão sem rua e
 histórico, alerta da sala com delta e arredondamento nos limites 18/27/32/41 °C (frio incluído), mapa térmico (IDW, precauções e autorização do PUT),
-limite do MQTT, estrutura do JPEG e o esquema do banco. Os testes de rota usam
+limite do MQTT, estrutura do JPEG, as regras de `Ambiente.Alterar()` e o esquema do banco. Os testes de rota usam
 SQLite em memória, só no projeto de testes (a API referencia apenas o provedor do SQL
 Server). Como o SQLite não ordena `DateTimeOffset`, os testes gravam as datas como ticks UTC
 (`SqliteDeTeste.cs`), e as consultas com `WHERE` e `ORDER BY` por data rodam no banco do mesmo
 jeito que no SQL Server. `EsquemaTestes` monta o modelo com o provedor do SQL Server, sem
 conectar, e confere as FKs e o script das migrações. A suíte inclui o contrato do cliente desktop, concorrência/replay/rollback e a regressão que ancora as leituras simuladas na leitura ao vivo mais recente ao repetir o Demo em outro dia.
 
-Resultado atual: [134 testes aprovados](../docs/resultados-testes-2026-11-17/api-modelo-geral-v1.trx), incluindo os ajustes por sala e o horizonte do mapa. Reprodução a partir da raiz do kit, com as dependências restauradas:
+Resultado atual: [138 testes aprovados](evidencias/dotnet-test-atual.txt). O [TRX de 17/11](../docs/resultados-testes-2026-11-17/api-modelo-geral-v1.trx) registra os 134 da rodada anterior, já com os ajustes por sala e o horizonte do mapa; os 4 a mais são as regras de `Ambiente.Alterar()`. Reprodução a partir da raiz do kit, com as dependências restauradas:
 
 ```powershell
 dotnet test .\api\TermometroDaSala.Api.Tests\TermometroDaSala.Api.Tests.csproj -c Validacao --no-restore --nologo -v minimal -m:1 /nodeReuse:false

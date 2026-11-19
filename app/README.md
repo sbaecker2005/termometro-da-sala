@@ -7,10 +7,10 @@ Global Solution 2026.2 (CitizenTech) — Engenharia de Software, 3º ano, FIAP.
 | Campo | Conteúdo |
 |---|---|
 | Nome da CitizenTech | Termômetro da Sala |
-| Cidade e bairro | São Paulo; Magister e Salgueiro são candidatas ao piloto. Unidade, bairro e autorização ainda em definição; a entrevista foi no CRAS Santo Amaro |
+| Cidade e bairro | São Paulo; a entrevista foi no CRAS Santo Amaro. O piloto em escola ainda não tem unidade, bairro e autorização definidos |
 | Cidadão beneficiado | Professor(a) e turma de uma sala sem climatização. Quem opera o sistema é a coordenação pedagógica |
 | Problema, em uma frase | Nas tardes quentes, a sala passa do limite seguro sem que ninguém meça, e a escola só reage quando alguém passa mal |
-| Como funciona | Um sensor na porta da sala mede o calor e acende verde, amarelo ou vermelho. O sistema prevê o nível da sala para daqui a 2 h. A coordenação vê todas as salas, decide e registra a ação tomada. O professor acompanha pelo app e registra ocorrências com foto |
+| Como funciona | Sensores na sala (quatro na demonstração: janela, fundo, porta e centro) medem o calor e acendem verde, amarelo ou vermelho. O sistema prevê o nível da sala para daqui a 2 h. A coordenação vê todas as salas, decide e registra a ação tomada. O professor acompanha pelo app e registra ocorrências com foto |
 | O que cada parte faz | ESP32 (Wokwi) mede e envia a leitura assinada; API (ASP.NET Core + SQL Server) valida, grava e prevê; modelo (Python, dados do INMET) prevê o índice de calor da rua; app (React Native + Expo) para o professor; desktop (Windows Forms) para a coordenação; Windows Server hospeda a API e o painel web no IIS |
 | Link do repositório | https://github.com/sbaecker2005/termometro-da-sala |
 | Indicador de impacto | Aulas no nível "Perigo" sem ação registrada (meta: zero) e minutos entre o alerta e a ação |
