@@ -285,7 +285,7 @@ Os campos vêm dos scripts, do `infra/README.md` e do ensaio de 16/11 registrado
 1. O modelo ArchiMate: `arquitetura/termometro-da-sala.archimate`, o arquivo que abre no Archi. Ele tem seis visões: Motivação, Negócio, Aplicação, Tecnologia, Implementação e migração e "Visão em quatro camadas", que junta as quatro.
 2. Um PNG por visão, exportado no Archi com a visão aberta (**File > Export > View As Image**, formato PNG): `visao-motivacao.png`, `visao-negocio.png`, `visao-aplicacao.png`, `visao-tecnologia.png` e `visao-implementacao.png`, todos em `arquitetura/`. A visão em quatro camadas já está em `arquitetura/diagrama-archi.png`. Antes de exportar, abra cada visão e confira que nenhuma linha passa por cima do nome de um elemento; se passar, arraste o elemento, salve o modelo e exporte.
 3. O PDF do documento descritivo, exportado de `arquitetura/DOCUMENTO.md`, com capa (projeto, equipe com nome e RM, disciplina) e as imagens das visões em PNG. Imagem SVG costuma sumir na exportação; por isso o PDF usa os PNGs.
-4. O link do pitch no YouTube, como não listado, testado numa aba anônima.
+4. O link do pitch no YouTube: https://youtu.be/BLGYxb4P4Rc (aberto sem login em 19/11).
 
 Nenhum desses quatro pode ir com o marcador de preenchimento. O `.md` não substitui o PDF.
 
@@ -305,7 +305,7 @@ Nenhum desses quatro pode ir com o marcador de preenchimento. O `.md` não subst
 - [ ] Conferir a legibilidade da "Visão em quatro camadas" e gravar as seis visões abertas no Archi para os cortes do pitch
 - [x] Conferir as seis imagens no `DOCUMENTO.md`, incluindo Implementação e migração na seção 9; PDF de revisão exportado e inspecionado em 17/11
 - [ ] Aprovar o conteúdo final e exportar o PDF definitivo do documento com os PNGs após completar as pendências (18/11: `arquitetura/arquitetura-togaf.pdf` gerado por `arquitetura/gerar_pdf_html.py`, 22 páginas com as seis visões e o layout novo da Aplicação, em que nenhuma linha passa sobre o nome de um elemento; falta a aprovação do grupo)
-- [ ] Cronometrar o ensaio do pitch (meta 3min30s; se passar de 3min40s, cortar na demonstração), gravar e publicar no YouTube como não listado
+- [x] Gravar e publicar o pitch no YouTube: https://youtu.be/BLGYxb4P4Rc ("GS Testing", abre sem login)
 - [ ] Enviar `.archimate`, PNGs, PDF e link do YouTube no Teams
 
 ## Pendências da equipe
@@ -316,7 +316,7 @@ Itens que dependem de gravação, publicação ou coleta no laboratório e que n
 - [ ] Vídeo de Mobile (até 2 min, Expo Go) e ensaio no aparelho (câmera, Ajustes, teclado)
 - [ ] Vídeo de Operating Systems (6 min 39 s gravado): publicar, liberar acesso ao professor e testar o link
 - [ ] Vídeo de Physical Computing (até 4 min); projeto no Wokwi já publicado em https://wokwi.com/projects/481082666157493249
-- [ ] Pitch de TOGAF (até 4 min): cronometrar, gravar e publicar como não listado
+- [x] Pitch de TOGAF publicado: https://youtu.be/BLGYxb4P4Rc
 - [ ] Saídas de comando de OS (`infra/evidencias/`; os prints já estão em `vm-2026-11/`) e de Cybersecurity (E08, E11, E12, E13)
 - [x] PNGs das visões no Archi e PDF final de TOGAF; PDF final de Cybersecurity (18/11: PNGs conferidos e os dois PDFs gerados; falta a aprovação do grupo e o envio)
 - [x] `entrega-desktop.zip` e `entrega-app.zip` do commit final, com `entrega-pacotes.sha256` atualizado (18/11)

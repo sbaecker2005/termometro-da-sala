@@ -1,5 +1,7 @@
 # Termômetro da Sala: roteiro do pitch
 
+Vídeo publicado: https://youtu.be/BLGYxb4P4Rc
+
 Vídeo de até 4 minutos, enviado em Testing. Tempo total do roteiro: 3min30s, com 30 s de folga sobre o limite. São cerca de 375 palavras faladas (cerca de 2min30s a 150 palavras por minuto), mais 40 opcionais da fala do mapa térmico (2min45s no total); o restante é a pausa das telas gravadas. O briefing pede a solução e as entregas que mais somaram: o bloco "Entregas" cumpre essa parte.
 
 Cronometre o ensaio. Se passar de 3min30s, corte primeiro na demonstração, nunca no impacto, na abertura nem na frase da pessoa entrevistada. A frase entra inteira, sem completar o bloco com outra fala.
