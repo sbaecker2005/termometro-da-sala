@@ -123,7 +123,7 @@ No slide 8, leia só a fala acima. O indicador do piloto e onde climatizar prime
 
 ## Texto dos slides
 
-Os slides estão em [`slides-pitch.pdf`](slides-pitch.pdf) (8 slides, 16:9), com o texto abaixo. A fala de cada bloco fica nas seções acima.
+Os slides estão em [`slides-pitch.pdf`](slides-pitch.pdf) (8 slides, 16:9), com o texto abaixo. Para gravar, o roteiro slide por slide, com a fala de cada um (inclusive a do slide 7, da arquitetura TOGAF), está em [`ROTEIRO-PITCH-SLIDES.md`](ROTEIRO-PITCH-SLIDES.md). A fala de cada bloco fica nas seções acima.
 
 ### Slide 1: Termômetro da Sala (abertura)
 - Global Solution 2026.2 · CitizenTech
