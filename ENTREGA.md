@@ -116,7 +116,7 @@ README com execução, descrição e nomes: `api/README.md`.
 - [x] Preencher os nomes completos e RMs no relatório
 - [x] Na VM: cenários S1 a S3 contra o IIS em 18/11, 23/23 (`seguranca/evidencias/cenarios-ataque-laboratorio.txt`); GPO e RDP restrito (E11, parcial)
 - [x] Evidências técnicas: atendidas pelo PDF e pelo vídeo do Gui (19/11). O enunciado pede Prepared Statements, sanitização contra LFI **ou** nmap; os dois primeiros estão no PDF com os prints da VM. Nmap (E12), correlação 4663 (E11), E13 e E08 ficam como reforço opcional
-- [x] Gerar o PDF por `seguranca/pdf/README.md` e enviar no Teams (18/11: gerado sem pandoc por `seguranca/pdf/gerar_pdf_html.py`, com a mesma formatação; 49 páginas com os prints do anexo; falta só enviar)
+- [x] Gerar o PDF por `seguranca/pdf/README.md` e enviar no Teams (18/11: gerado sem pandoc por `seguranca/pdf/gerar_pdf_html.py`, com a mesma formatação; 49 páginas com os prints do anexo; entregue no Teams em 19/11 às 20:09)
 
 ## C# Windows Forms
 
@@ -141,7 +141,7 @@ O briefing desta disciplina não divide a nota em pontos. O que a página 29 ped
 - [x] Conferir visualmente a `TelaCoordenacao` no Windows: chave sem valor visível, cadastro validado, ação registrada, CSV, mapa, revogação e retorno da API; ver relatório de 17/11
 - [x] Executar a suíte atual (22/22 em 19/11) e o autoteste do desktop (seis verificações); validar sala-99 e ação persistidas após fechar e reabrir no modo local, conforme fixture da rodada. Edição/exclusão ficam na API, no ensaio de SOA; não são comandos da interface desktop nem exigência explícita do enunciado de C#
 - [x] Regenerar o ZIP do commit final, conferir numa pasta limpa e atualizar o hash em `entrega-pacotes.sha256` (19/11: gerado do `5a44933`, 60 entradas; extraído em pasta limpa: build sem erro, 22/22 testes e autoteste com saída 0)
-- [ ] Enviar ZIP e txt no Teams, um integrante
+- [x] Enviar ZIP e txt no Teams, um integrante (entregue em 19/11 às 20:07)
 
 Conferência do ZIP do desktop: extrair numa pasta vazia, fora do repositório, compilar e rodar o autoteste. O resultado tem que ser `0`. Rode na raiz do repositório, depois de gerar o `entrega-desktop.zip`.
 
@@ -182,7 +182,7 @@ Pasta de ML (README, dataset INMET A701, modelo.json): https://github.com/sbaeck
 
 - [x] Preencher nomes completos e RMs no README, no notebook e em `ml/gerar_notebook.py` (identificação sincronizada, preservando as saídas já executadas)
 - [x] Gravar o vídeo, publicar como não listado, testar em aba anônima e colocar o link no texto acima (19/11: https://youtu.be/ing8essnuOU, 1 min 48 s, abre sem login)
-- [ ] Enviar notebook, link do vídeo e link do repositório
+- [x] Enviar notebook, link do vídeo e link do repositório (entregue em 19/11 às 20:07)
 
 ## Mobile e IoT
 
@@ -306,7 +306,7 @@ Nenhum desses quatro pode ir com o marcador de preenchimento. O `.md` não subst
 - [x] Conferir as seis imagens no `DOCUMENTO.md`, incluindo Implementação e migração na seção 9; PDF de revisão exportado e inspecionado em 17/11
 - [ ] Aprovar o conteúdo final e exportar o PDF definitivo do documento com os PNGs após completar as pendências (18/11: `arquitetura/arquitetura-togaf.pdf` gerado por `arquitetura/gerar_pdf_html.py`, 22 páginas com as seis visões e o layout novo da Aplicação, em que nenhuma linha passa sobre o nome de um elemento; falta a aprovação do grupo)
 - [x] Gravar e publicar o pitch no YouTube: https://youtu.be/BLGYxb4P4Rc ("GS Testing", abre sem login)
-- [ ] Enviar `.archimate`, PNGs, PDF e link do YouTube no Teams
+- [x] Enviar `.archimate`, PNGs, PDF e link do YouTube no Teams (entregue em 19/11 às 20:11)
 
 ## Pendências da equipe
 
