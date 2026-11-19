@@ -13,12 +13,12 @@ Meta: nota 10 em todas as disciplinas. Os itens abaixo só ficam concluídos com
 | Disciplina | Preparado para revisar | O grupo ainda precisa concluir |
 |---|---|---|
 | SOA | API 138/138 (camada `IServicoAmbientes` e `Ambiente.Alterar`); cinco migrações; SQL Express 98/98 e MQTT/HTTP/SQL 33/33 nesta revisão. Insomnia 29/29 em 19/11 com um print por requisição | Publicar código e evidências no GitHub, conferir o acesso e enviar o link |
-| C# | Fontes: 22/22 testes e seis autotestes (19/11, com a correção das ações de exemplo perto da meia-noite); tela e horário, mapa C01-C20/S1-S4, frio azul, PNG Agora/+1 h e rolagem conferidos na versão atual; entrevista, PR e versões já conferidos | Um colega aprovar o PR da v0.3.0 no GitHub; enviar ZIP + TXT (ZIP do `5a44933` conferido em pasta limpa em 19/11) |
+| C# | Fontes: 22/22 testes e seis autotestes (19/11, com a correção das ações de exemplo perto da meia-noite); tela e horário, mapa C01-C20/S1-S4, frio azul, PNG Agora/+1 h e rolagem conferidos na versão atual; entrevista e versões conferidas; PR mesclado e release v0.3.0 com ZIP | Enviar ZIP + TXT |
 | ML | 48 testes e 56 subtestes (19/11); validação independente em 2026 (jan-out, modelo congelado, sem retreino): MAE 0,881 °C contra 1,340 °C da persistência ([ml/avaliacao-2026.json](ml/avaliacao-2026.json)); modelo geral com ajuste por sala e casos compartilhados com a API; modelos/notebook preservados. Histórico: 19/19 células reexecutadas, 31,95 s, modelos estruturalmente idênticos e integração visível no desktop | Gravar vídeo de até 2 min mostrando a integração atual; conferir links e enviar. Precisão real por sala depende de dados de campo |
 | Mobile | 24 testes e TypeScript sem erros nas fontes; ZIP do commit `5a44933` conferido em pasta limpa (19/11); prévia web conferida em 390 × 844 e 320 × 740, incluindo mapa, formulário, erro/vazio e identificação persistida após recarregar | Ensaiar Expo Go, câmera e retorno dos Ajustes no aparelho, teclado/fontes ampliadas, persistência nativa e integração HTTP real; gravar até 2 min e enviar ZIP + vídeo |
-| Operating Systems | Scripts e roteiros; ensaio de 16/11 na VM (AD, DNS, IIS, SQL, GPO, monitoramento, teste de falha do pool) e vídeo de 6 min 39 s gravado | Prints de E04, E06, E07, E08, E09 e E13 em `infra/evidencias/vm-2026-11/`; faltam as saídas do `10-coletar-evidencias.ps1` (E01–E03, E05, E10–E12) e o alerta disparando; publicar o vídeo e testar o link; enviar repositório e vídeo no Teams |
-| Cybersecurity | Relatório e anexo reconciliados com o laboratório de 17 e 18/11 (cenários 23/23 contra o IIS), API 134/134 e seleção de segurança 30/30 em 18/11, C1 com reserva atômica implementada, trechos de código e prints no anexo | Coletar nmap (E12), correlação 4663 (E11), consulta da API durante a queda (E13; o alerta local sem rede já foi ensaiado no Wokwi em 18/11) e prints do app (E08); revisar o PDF gerado (com os prints da VM) e enviar no Teams |
-| TOGAF | Modelo validado: 111 elementos, 190 relações, seis visões e 12 autotestes; seis diagramas inspecionados | Conferir abertura no Archi e as fontes de impacto; gerar o PDF final; gravar pitch de até 4 min, liberar acesso e enviar |
+| Operating Systems | Scripts e roteiros; ensaio de 16/11 na VM; vídeo do Gui (6 min 39 s) cobre rede/AD/DNS com PTR, grupos, GPO, RDP, HTTPS, pool, SQL e migrações, alertas, tarefa no boot, falha do pool com troca de PID, auditoria, DFS e log do IIS; 15 prints em `infra/evidencias/vm-2026-11/` | Publicar o vídeo e testar o link; enviar repositório e vídeo no Teams. Opcional: saídas do `10-coletar-evidencias.ps1` (`ipconfig`, `nslookup`, `Test-NetConnection`) |
+| Cybersecurity | Relatório e anexo reconciliados com o laboratório de 17 e 18/11 (cenários 23/23 contra o IIS); evidência técnica atendida pelos trechos de consulta parametrizada e contra LFI com os prints da VM (HTTPS, GPO, auditoria, RDP restrito, 4624), conforme o enunciado, que aceita Prepared Statements, sanitização contra LFI ou nmap; PDF do Gui concluído | Enviar o PDF no Teams |
+| TOGAF | Modelo validado: 111 elementos, 190 relações, seis visões e 12 autotestes; seis diagramas inspecionados; PDF de 22 páginas gerado; pitch publicado em https://youtu.be/BLGYxb4P4Rc | Aprovar o PDF final e revisar as fontes de impacto da seção 7; enviar no Teams |
 | Physical Computing | Firmware, contrato, roteiro e 110 verificações estruturais do circuito aprovadas | Compilar/ensaiar no Wokwi, preencher resultados e URL real; gravar até 4 min e enviar link + txt |
 
 Resultados de 17 a 19/11: API 138/138, desktop 22/22 e seis verificações do autoteste, Mobile 24/24 e TypeScript sem erros, ML 48 testes e 56 subtestes aprovados. Os resultados anteriores ficam como histórico. As releases `v0.1.0` e `v0.2.0` do desktop não têm pacotes anexos.
@@ -27,7 +27,7 @@ Provas da rodada: [API](api/evidencias/dotnet-test-atual.txt) (138 testes; [TRX 
 
 A inspeção visual da prévia web Mobile em 17/11 aprovou a identificação e suas validações, lista de seis salas, detalhe em Frio, mapa Agora/+1 h com carregamento e seleção pela lista, descrição e foto obrigatórias no formulário, persistência da identificação após recarregar, erro com nova tentativa e lista vazia. Os três cenários terminaram sem erros de console observados. A prévia usa o mock de quatro sensores e vinte cadeiras (a mesma sala da demonstração da API, em `app/domain/mapa.ts`); o mapa simulado acompanha o nível de cada sala. Ela não comprova HTTP real, câmera, teclado ou persistência nativa.
 
-Os vídeos, a coleta de evidências do laboratório e a submissão não são substituídos por revisão de código. Os ZIPs de C# e Mobile precisam ser regenerados do commit final, porque as fontes mudaram depois da última geração (desktop v0.3.0, app com 24 testes). O PDF de Cybersecurity depende das evidências pendentes dessa disciplina; o de TOGAF, do aceite do conteúdo pelo grupo.
+Os vídeos e a submissão não são substituídos por revisão de código. Os ZIPs de C# e Mobile já foram regenerados do commit final (19/11). O PDF de TOGAF depende do aceite do conteúdo pelo grupo.
 
 Artefatos de envio (os ZIPs e os PDFs não estão versionados no repositório):
 
@@ -115,7 +115,7 @@ README com execução, descrição e nomes: `api/README.md`.
 
 - [x] Preencher os nomes completos e RMs no relatório
 - [x] Na VM: cenários S1 a S3 contra o IIS em 18/11, 23/23 (`seguranca/evidencias/cenarios-ataque-laboratorio.txt`); GPO e RDP restrito (E11, parcial)
-- [ ] Na VM: nmap de duas origens (E12), correlação 4663 (E11), LED sem broker no Wokwi (E13), prints do app (E08); depois, atualizar as linhas no `seguranca/ANEXO-EVIDENCIAS.md`
+- [x] Evidências técnicas: atendidas pelo PDF e pelo vídeo do Gui (19/11). O enunciado pede Prepared Statements, sanitização contra LFI **ou** nmap; os dois primeiros estão no PDF com os prints da VM. Nmap (E12), correlação 4663 (E11), E13 e E08 ficam como reforço opcional
 - [x] Gerar o PDF por `seguranca/pdf/README.md` e enviar no Teams (18/11: gerado sem pandoc por `seguranca/pdf/gerar_pdf_html.py`, com a mesma formatação; 49 páginas com os prints do anexo; falta só enviar)
 
 ## C# Windows Forms
@@ -215,7 +215,7 @@ Pasta de ML (README, dataset INMET A701, modelo.json): https://github.com/sbaeck
 | Funcionamento completo | 2 | painel em `api/TermometroDaSala.Api/wwwroot/index.html` e `GET /ambientes`, no vídeo |
 
 - [x] VM montada e ensaio de 16/11 com os scripts `01` a `10`, registrado em `infra/EVIDENCIAS.md` (IP, data, PIDs do teste do pool)
-- [ ] Rodar `10-coletar-evidencias.ps1` na VM e juntar as saídas em `infra/evidencias/` (os prints da VM já estão em `infra/evidencias/vm-2026-11/`); não mostrar segredos
+- [x] Evidências do ambiente: vídeo do Gui e 15 prints em `infra/evidencias/vm-2026-11/` (19/11). Opcional: rodar `10-coletar-evidencias.ps1` na VM para guardar as saídas de `ipconfig`, `nslookup` e `Test-NetConnection` em `infra/evidencias/`, sem mostrar segredos
 - [x] Preencher os nomes completos e RMs no README, em `infra/EVIDENCIAS.md` e no bloco abaixo
 - [x] Vídeo gravado (6 min 39 s, limite 7 min)
 - [ ] Publicar o vídeo com acesso liberado ao professor, testar em aba anônima e colocar o link no bloco abaixo
@@ -317,9 +317,9 @@ Itens que dependem de gravação, publicação ou coleta no laboratório e que n
 - [ ] Vídeo de Operating Systems (6 min 39 s gravado): publicar, liberar acesso ao professor e testar o link
 - [ ] Vídeo de Physical Computing (até 4 min); projeto no Wokwi já publicado em https://wokwi.com/projects/481082666157493249
 - [x] Pitch de TOGAF publicado: https://youtu.be/BLGYxb4P4Rc
-- [ ] Saídas de comando de OS (`infra/evidencias/`; os prints já estão em `vm-2026-11/`) e de Cybersecurity (E08, E11, E12, E13)
-- [x] PNGs das visões no Archi e PDF final de TOGAF; PDF final de Cybersecurity (18/11: PNGs conferidos e os dois PDFs gerados; falta a aprovação do grupo e o envio)
-- [x] `entrega-desktop.zip` e `entrega-app.zip` do commit final, com `entrega-pacotes.sha256` atualizado (18/11)
+- [x] Evidências de OS e Cybersecurity: cobertas pelo vídeo e pelo PDF do Gui (19/11); as saídas do coletor de OS e o nmap ficam opcionais
+- [x] PNGs das visões no Archi e PDF final de TOGAF; PDF final de Cybersecurity (18/11: PNGs conferidos e os dois PDFs gerados; TOGAF aguarda a aprovação do grupo; falta o envio)
+- [x] `entrega-desktop.zip` e `entrega-app.zip` do commit final, com `entrega-pacotes.sha256` atualizado (regenerados em 19/11)
 - [x] Publicar o código no GitHub e conferir o acesso; depois do envio, não alterar a `main` (ou criar a tag `gs-2026.2-entrega`) (18/11: main em 0c59c4d; falta só não alterar a `main` depois do envio, ou criar a tag)
 
 ## Campos ainda em branco
