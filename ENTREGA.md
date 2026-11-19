@@ -218,7 +218,7 @@ Pasta de ML (README, dataset INMET A701, modelo.json): https://github.com/sbaeck
 - [x] Evidências do ambiente: vídeo do Gui e 15 prints em `infra/evidencias/vm-2026-11/` (19/11). Opcional: rodar `10-coletar-evidencias.ps1` na VM para guardar as saídas de `ipconfig`, `nslookup` e `Test-NetConnection` em `infra/evidencias/`, sem mostrar segredos
 - [x] Preencher os nomes completos e RMs no README, em `infra/EVIDENCIAS.md` e no bloco abaixo
 - [x] Vídeo gravado (6 min 39 s, limite 7 min)
-- [ ] Publicar o vídeo com acesso liberado ao professor, testar em aba anônima e colocar o link no bloco abaixo
+- [x] Publicar o vídeo com acesso liberado ao professor (19/11: publicado pelo Gui; link a registrar no bloco abaixo)
 - [ ] Enviar o link do repositório e o do vídeo na tarefa do Teams, um integrante
 
 ### Resumo para a entrega
@@ -314,7 +314,7 @@ Itens que dependem de gravação, publicação ou coleta no laboratório e que n
 
 - [x] Vídeo de ML publicado: https://youtu.be/ing8essnuOU (1 min 48 s)
 - [ ] Vídeo de Mobile (até 2 min, Expo Go) e ensaio no aparelho (câmera, Ajustes, teclado)
-- [ ] Vídeo de Operating Systems (6 min 39 s gravado): publicar, liberar acesso ao professor e testar o link
+- [x] Vídeo de Operating Systems (6 min 39 s): publicado pelo Gui em 19/11
 - [ ] Vídeo de Physical Computing (até 4 min); projeto no Wokwi já publicado em https://wokwi.com/projects/481082666157493249
 - [x] Pitch de TOGAF publicado: https://youtu.be/BLGYxb4P4Rc
 - [x] Evidências de OS e Cybersecurity: cobertas pelo vídeo e pelo PDF do Gui (19/11); as saídas do coletor de OS e o nmap ficam opcionais
