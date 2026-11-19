@@ -273,7 +273,7 @@ Os campos vêm dos scripts, do `infra/README.md` e do ensaio de 16/11 registrado
 | Vídeo com a solução, não um circuito à parte | `esp32/ROTEIRO-VIDEO.md` |
 | Nomes dos integrantes | `esp32/integrantes.txt` |
 
-- [ ] Publicar o projeto no Wokwi (o link ainda não está no repositório) e não versionar `secrets.h`
+- [x] Publicar o projeto no Wokwi e não versionar `secrets.h` (18/11: https://wokwi.com/projects/481082666157493249, público, com o segredo de demonstração)
 - [x] Preencher os nomes completos e RMs em `esp32/integrantes.txt` e `esp32/README.md`
 - [ ] Gravar o vídeo de até 4 min mostrando LCD (temperatura e nível), buzzer em Perigo e botão de reconhecimento no Wokwi, além do LED e da publicação assinada
 - [ ] Enviar os dois links e o txt no Teams
@@ -315,7 +315,7 @@ Itens que dependem de gravação, publicação ou coleta no laboratório e que n
 - [ ] Vídeo de ML (até 2 min): gravar, publicar como não listado, testar em aba anônima e colocar o link no texto da tarefa
 - [ ] Vídeo de Mobile (até 2 min, Expo Go) e ensaio no aparelho (câmera, Ajustes, teclado)
 - [ ] Vídeo de Operating Systems (6 min 39 s gravado): publicar, liberar acesso ao professor e testar o link
-- [ ] Vídeo de Physical Computing (até 4 min) e link do projeto no Wokwi (ainda não existe no repositório; `secrets.h` não vai)
+- [ ] Vídeo de Physical Computing (até 4 min); projeto no Wokwi já publicado em https://wokwi.com/projects/481082666157493249
 - [ ] Pitch de TOGAF (até 4 min): cronometrar, gravar e publicar como não listado
 - [ ] Prints e saídas de OS (`infra/evidencias/`) e de Cybersecurity (E08, E11, E12, E13)
 - [x] PNGs das visões no Archi e PDF final de TOGAF; PDF final de Cybersecurity (18/11: PNGs conferidos e os dois PDFs gerados; falta a aprovação do grupo e o envio)

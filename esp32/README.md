@@ -20,7 +20,7 @@ O mesmo sensor avisa calor no verão (escolas) e frio no inverno (dormitórios e
 
 | Item | Link |
 |---|---|
-| Projeto no Wokwi (público) | [preencher] |
+| Projeto no Wokwi (público) | https://wokwi.com/projects/481082666157493249 |
 | Vídeo demonstrativo (até 4 min, não listado) | [preencher] |
 | Integrantes | [`integrantes.txt`](integrantes.txt) |
 
@@ -127,12 +127,12 @@ Roteiro do vídeo: [ROTEIRO-VIDEO.md](ROTEIRO-VIDEO.md). O vídeo (meta 3 min 30
 
 | Teste | Esperado | Observado |
 |---|---|---|
-| Inicial, janela 35 C, demais 24 C | quente janela, frio fundo (empate); quatro IDs no mapa | [preencher] |
-| Fundo 15 C, demais 22 C, todos 60% | frio fundo; LED amarelo piscando; pagina FRIO | [preencher] |
-| Todos 24 C / 40% | indice 23,5 C, normal; verde | [preencher] |
-| Um ponto 37 C / 55% | indice 48,5 C; perigo, vermelho piscando e bip | [preencher] |
-| Ciente durante perigo; baixar todos, voltar ao perigo | silencia; novo perigo volta a bipar | [preencher] |
-| Um DHT22 invalido | pagina Sem leitura; demais seguem publicados e nos extremos | [preencher] |
+| Inicial, janela 35 C, demais 24 C | quente janela, frio fundo (empate); quatro IDs no mapa | OK no Wokwi (18/11): janela 35,0 C / indice 45,1 C, Perigo, LED vermelho; fundo, porta e centro 24,0 C, Normal; NTP sincronizado e quatro "Leitura publicada" por ciclo. Mapa: conferir com a API Demo |
+| Fundo 15 C, demais 22 C, todos 60% | frio fundo; LED amarelo piscando; pagina FRIO | OK no Wokwi (18/11): fundo 15,0 C / indice 14,1 C, FRIO; demais 22,0 C / 21,8 C, Normal; LED amarelo aceso; LCD com a pagina "Frio fundo" |
+| Todos 24 C / 40% | indice 23,5 C, normal; verde | OK no Wokwi (18/11): os quatro pontos com indice 23,5 C, Normal; LED verde |
+| Um ponto 37 C / 55% | indice 48,5 C; perigo, vermelho piscando e bip | OK no Wokwi (18/11): porta 37,0 C / indice 48,5 C, Perigo; LED vermelho; LCD "porta I48.5C / Perigo" |
+| Ciente durante perigo; baixar todos, voltar ao perigo | silencia; novo perigo volta a bipar | OK no Wokwi (18/11): Serial "Professor ciente do Perigo; buzzer silenciado ate o nivel baixar" e LCD "Perigo (ciente)"; com todos em Normal por um ciclo e a porta de volta a 37 C / 55%, o LCD volta a "Perigo" sem "(ciente)" (buzzer de novo) |
+| Um DHT22 invalido | pagina Sem leitura; demais seguem publicados e nos extremos | OK no Wokwi (18/11), sem o fio de dados do DHT22 do centro: Serial "centro: sensor invalido; sem publicar"; os outros tres seguem com "Leitura publicada" a cada ciclo |
 | Sem Wi-Fi ou NTP (o E13 de `seguranca/EVIDENCIAS.md`: desconectar o Wi-Fi do simulado ou o MQTT, sem desligar o broker) | LCD e alertas seguem; nada é publicado; a interface fica sem leitura recente; ao reconectar, a leitura volta | [preencher] |
 | Repetir mensagem assinada | API recusa reenvio so daquele ID | [preencher] |
 
