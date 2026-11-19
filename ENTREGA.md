@@ -218,7 +218,7 @@ Pasta de ML (README, dataset INMET A701, modelo.json): https://github.com/sbaeck
 - [x] Evidências do ambiente: vídeo do Gui e 15 prints em `infra/evidencias/vm-2026-11/` (19/11). Opcional: rodar `10-coletar-evidencias.ps1` na VM para guardar as saídas de `ipconfig`, `nslookup` e `Test-NetConnection` em `infra/evidencias/`, sem mostrar segredos
 - [x] Preencher os nomes completos e RMs no README, em `infra/EVIDENCIAS.md` e no bloco abaixo
 - [x] Vídeo gravado (6 min 39 s, limite 7 min)
-- [x] Publicar o vídeo com acesso liberado ao professor (19/11: publicado pelo Gui; link a registrar no bloco abaixo)
+- [x] Publicar o vídeo com acesso liberado ao professor (19/11: https://youtu.be/0YAHInyHltA)
 - [ ] Enviar o link do repositório e o do vídeo na tarefa do Teams, um integrante
 
 ### Resumo para a entrega
@@ -232,7 +232,7 @@ Os campos vêm dos scripts, do `infra/README.md` e do ensaio de 16/11 registrado
 | Repositório | https://github.com/sbaecker2005/termometro-da-sala |
 | Roteiro de configuração | https://github.com/sbaecker2005/termometro-da-sala/tree/main/infra (README, scripts `01` a `10` e `TESTE-DE-FALHA.md`) |
 | Evidências (prints e saídas) | https://github.com/sbaecker2005/termometro-da-sala/blob/main/infra/EVIDENCIAS.md (registro do ensaio de 16/11 e do vídeo; prints da VM em `infra/evidencias/vm-2026-11/`; saídas de comando ainda não coletadas) |
-| Vídeo (link e duração) | [PENDENTE: link do vídeo]; 6 min 39 s (limite 7 min) |
+| Vídeo (link e duração) | https://youtu.be/0YAHInyHltA; 6 min 39 s (limite 7 min) |
 | Sistema e virtualização | Windows Server 2022 Standard Avaliação, Desktop Experience, build 20348; VMware Workstation Pro 26H1, rede NAT (VMnet8) |
 | Hostname | `SRV-TERMOMETRO` |
 | IP fixo do servidor e do cliente | Servidor `192.168.16.10/24`; cliente de laboratório = host do VMware pela VMnet8, `192.168.16.1` (`infra/EVIDENCIAS.md`) |
