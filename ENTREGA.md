@@ -197,9 +197,9 @@ Pasta de ML (README, dataset INMET A701, modelo.json): https://github.com/sbaeck
 | Array `authors` com nome e RM | porta de entrada | `app/package.json` |
 
 - [x] Preencher os nomes completos e RMs em `app/package.json` e `app/README.md`
-- [ ] Gravar o vídeo no Expo Go
+- [x] Gravar o vídeo no Expo Go (https://youtu.be/Q_T1txO1fAY)
 - [x] Regenerar o ZIP do commit final, conferir nova extração com instalação limpa, TypeScript e 24 testes e atualizar o hash em `entrega-pacotes.sha256` (19/11: gerado do `5a44933`, 40 entradas; `npm ci`, TypeScript sem erro e 24/24 testes; `authors` com os três integrantes)
-- [ ] Enviar ZIP e vídeo no Teams
+- [x] Enviar ZIP e vídeo no Teams (entregue em 19/11 às 20:50)
 
 ## Operating Systems
 
@@ -313,7 +313,7 @@ Nenhum desses quatro pode ir com o marcador de preenchimento. O `.md` não subst
 Itens que dependem de gravação, publicação ou coleta no laboratório e que não podem ser preenchidos pelo texto do repositório:
 
 - [x] Vídeo de ML publicado: https://youtu.be/ing8essnuOU (1 min 48 s)
-- [ ] Vídeo de Mobile (até 2 min, Expo Go) e ensaio no aparelho (câmera, Ajustes, teclado)
+- [x] Vídeo de Mobile publicado: https://youtu.be/Q_T1txO1fAY
 - [x] Vídeo de Operating Systems (6 min 39 s): publicado pelo Gui em 19/11
 - [ ] Vídeo de Physical Computing (até 4 min); projeto no Wokwi já publicado em https://wokwi.com/projects/481082666157493249
 - [x] Pitch de TOGAF publicado: https://youtu.be/BLGYxb4P4Rc
