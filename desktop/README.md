@@ -285,7 +285,7 @@ O projeto segue versionamento semântico. O histórico completo está no [CHANGE
 | `v0.2.0` | 2026-11-05 | Contrato com a API real (sala sem leitura e id numérico da ação), solução do Visual Studio e README |
 | `v0.1.0` | 2026-11-04 | Primeira versão do terminal da coordenação |
 
-Pull request da v0.2.0: [Desktop v0.2.0](https://github.com/sbaecker2005/termometro-da-sala/pull/1). Tags: [v0.1.0](https://github.com/sbaecker2005/termometro-da-sala/releases/tag/v0.1.0) e [v0.2.0](https://github.com/sbaecker2005/termometro-da-sala/releases/tag/v0.2.0).
+Pull requests: [Desktop v0.2.0](https://github.com/sbaecker2005/termometro-da-sala/pull/1) e [Desktop v0.3.0](https://github.com/sbaecker2005/termometro-da-sala/pull/2). Tags e releases: [v0.1.0](https://github.com/sbaecker2005/termometro-da-sala/releases/tag/v0.1.0), [v0.2.0](https://github.com/sbaecker2005/termometro-da-sala/releases/tag/v0.2.0) e [v0.3.0](https://github.com/sbaecker2005/termometro-da-sala/releases/tag/v0.3.0) (com o ZIP de entrega anexado).
 
 ## Entrega
 
