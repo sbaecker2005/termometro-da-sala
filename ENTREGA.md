@@ -12,7 +12,7 @@ Meta: nota 10 em todas as disciplinas. Os itens abaixo só ficam concluídos com
 
 | Disciplina | Preparado para revisar | O grupo ainda precisa concluir |
 |---|---|---|
-| SOA | API 138/138 (camada `IServicoAmbientes` e `Ambiente.Alterar`); cinco migrações; SQL Express 98/98 e MQTT/HTTP/SQL 33/33 nesta revisão. Insomnia anterior com 29/29 asserções | Publicar código e evidências no GitHub, conferir o acesso e enviar o link |
+| SOA | API 138/138 (camada `IServicoAmbientes` e `Ambiente.Alterar`); cinco migrações; SQL Express 98/98 e MQTT/HTTP/SQL 33/33 nesta revisão. Insomnia 29/29 em 19/11 com um print por requisição | Publicar código e evidências no GitHub, conferir o acesso e enviar o link |
 | C# | Fontes: 22/22 testes e seis autotestes (19/11, com a correção das ações de exemplo perto da meia-noite); tela e horário, mapa C01-C20/S1-S4, frio azul, PNG Agora/+1 h e rolagem conferidos na versão atual; entrevista, PR e versões já conferidos | Revisão final do grupo, regenerar o ZIP a partir do commit final (v0.3.0) e enviar ZIP + TXT |
 | ML | 48 testes e 56 subtestes (19/11); validação independente em 2026 (jan-out, modelo congelado, sem retreino): MAE 0,881 °C contra 1,340 °C da persistência ([ml/avaliacao-2026.json](ml/avaliacao-2026.json)); modelo geral com ajuste por sala e casos compartilhados com a API; modelos/notebook preservados. Histórico: 19/19 células reexecutadas, 31,95 s, modelos estruturalmente idênticos e integração visível no desktop | Gravar vídeo de até 2 min mostrando a integração atual; conferir links e enviar. Precisão real por sala depende de dados de campo |
 | Mobile | 24 testes e TypeScript sem erros nas fontes (o ZIP precisa ser regenerado do commit final); prévia web conferida em 390 × 844 e 320 × 740, incluindo mapa, formulário, erro/vazio e identificação persistida após recarregar | Ensaiar Expo Go, câmera e retorno dos Ajustes no aparelho, teclado/fontes ampliadas, persistência nativa e integração HTTP real; gravar até 2 min e enviar ZIP + vídeo |
@@ -98,7 +98,7 @@ README com execução, descrição e nomes: `api/README.md`.
 
 - [x] Preencher os nomes completos e RMs em `api/README.md`
 - [x] Exercitar SQL Server Express e cinco migrações em banco exclusivo; coleta SQL com 98 verificações OK (`conferencia.tsv`) e ensaio HTTP/MQTT/SQL com 33 verificações aprovadas (as 21 anteriores estão incluídas nas 33)
-- [x] Executar a coleção no Insomnia real: 29 requisições, 29/29 asserções e zero falhas; [captura e condições](api/evidencias/insomnia-2026-11-17/README.md)
+- [x] Executar a coleção no Insomnia real: 29 requisições, 29/29 testes e zero falhas em 19/11, com a API atual e um print por requisição ([rodada de 19/11](api/evidencias/insomnia-2026-11-19/README.md); a de 17/11 fica como histórico: [captura](api/evidencias/insomnia-2026-11-17/README.md))
 - [x] Publicar o código e as evidências atuais no GitHub; depois do envio, não alterar a `main` (ou criar a tag `gs-2026.2-entrega`) (publicado em 18/11: main em 0c59c4d)
 - [ ] Enviar o link no Teams
 
@@ -280,7 +280,7 @@ Os campos vêm dos scripts, do `infra/README.md` e do ensaio de 16/11 registrado
 
 ## Testing (TOGAF) e pitch
 
-**Enviar:** quatro coisas, na mesma tarefa do Teams. O pitch de até 4 min entra nesta disciplina. Roteiro do pitch, com 3min30s: `arquitetura/PITCH.md`.
+**Enviar:** quatro coisas, na mesma tarefa do Teams. O pitch de até 4 min entra nesta disciplina. Roteiro do pitch, com 3min30s: `arquitetura/PITCH.md`; slides (8, em PDF): `arquitetura/slides-pitch.pdf`.
 
 1. O modelo ArchiMate: `arquitetura/termometro-da-sala.archimate`, o arquivo que abre no Archi. Ele tem seis visões: Motivação, Negócio, Aplicação, Tecnologia, Implementação e migração e "Visão em quatro camadas", que junta as quatro.
 2. Um PNG por visão, exportado no Archi com a visão aberta (**File > Export > View As Image**, formato PNG): `visao-motivacao.png`, `visao-negocio.png`, `visao-aplicacao.png`, `visao-tecnologia.png` e `visao-implementacao.png`, todos em `arquitetura/`. A visão em quatro camadas já está em `arquitetura/diagrama-archi.png`. Antes de exportar, abra cada visão e confira que nenhuma linha passa por cima do nome de um elemento; se passar, arraste o elemento, salve o modelo e exporte.

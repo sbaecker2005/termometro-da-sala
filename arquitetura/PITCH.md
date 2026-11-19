@@ -123,49 +123,57 @@ No slide 8, leia só a fala acima. O indicador do piloto e onde climatizar prime
 
 ## Texto dos slides
 
-### Slide 1: Termômetro da Sala
-- Samuel David Baecker - RM 559269
-- Lucas de Almeida Villar - RM 560005
-- Guilherme Augusto Caseiro - RM 559765
+Os slides estão em [`slides-pitch.pdf`](slides-pitch.pdf) (8 slides, 16:9), com o texto abaixo. A fala de cada bloco fica nas seções acima.
+
+### Slide 1: Termômetro da Sala (abertura)
+- Global Solution 2026.2 · CitizenTech
 - O calor da sala de aula, medido antes de alguém passar mal
+- Samuel David Baecker · RM 559269
+- Lucas de Almeida Villar · RM 560005
+- Guilherme Augusto Caseiro · RM 559765
 
 ### Slide 2: O problema
 - A escola só reage quando alguém passa mal
-- CRAS Santo Amaro: no mínimo 150 pessoas por dia
-- Sem climatização por orçamento; calor de janeiro a março
-- Segundo a coordenadora, nenhuma escola ou CCA que ela saiba tem ar-condicionado
+- 150 pessoas por dia: no mínimo, no CRAS Santo Amaro (São Paulo)
+- Sem climatização: por falta de orçamento, com calor de janeiro a março
+- Nenhum ar-condicionado: em nenhuma escola ou CCA que a coordenadora conheça
+- Relato da coordenadora do CRAS Santo Amaro, não medição no local
 
 ### Slide 3: Quem vive isso
 - "O conforto térmico não deve ser compreendido como um privilégio, mas como uma condição necessária para garantir dignidade, acolhimento e qualidade no atendimento à população que utiliza os serviços públicos."
-- Monalisa Daniela Pereira Amaral, coordenadora do CRAS Santo Amaro (São Paulo)
+- Monalisa Daniela Pereira Amaral, coordenadora do CRAS Santo Amaro (São Paulo) · crédito autorizado
 
-### Slide 4: Como funciona
+### Slide 4: Como funciona (medir, prever e agir)
 - Medir: sensor na porta da sala, com LED que funciona sem internet
 - Prever: nível da sala para daqui a 2 h, com dados reais do INMET
-- Agir: a coordenação decide e registra
+- Agir: a coordenação decide e registra a ação
 
-### Slide 5: A previsão
-- Exemplo: rua prevista 34 + delta da sala 4 = 38, Cuidado extremo
-- Erro médio de 0,909 °C no teste (árvore), contra 1,442 °C de "daqui a 2 h igual a agora"
-- Nenhum dado de aluno
+Depois deste slide entra a demonstração ao vivo (0:45 a 2:15).
+
+### Slide 5: A previsão (rua prevista + quanto a sala passa da rua)
+- Exemplo: rua daqui a 2 h 34 (modelo, dados do INMET) + delta da sala 4 = 38, Cuidado extremo
+- 0,909 °C de erro médio no teste de 2025, contra 1,442 °C de "daqui a 2 h igual a agora"
+- 0,881 °C confirmado em 2026 (jan–out), ano nunca usado no treino, contra 1,340 °C
+- 0 dados de aluno no sistema
 
 ### Slide 6: O impacto
-- Cerca de 3,5 milhões de alunos na rede estadual (Seduc-SP). Notícia de 20/12/2024 fala em 3 milhões
-- 67.468 de 70.346 salas sem climatização, 95,91 % (Censo 2024, tabulação CIEPP) ≈ 3,36 milhões de alunos
-- 35 alunos por turma: premissa. Onda de calor (INMET/OMM): +5 °C por 5 dias. 21 dias a 34 °C na A701, 2022–2025, não são essa contagem
-- CRAS Santo Amaro: no mínimo 150 pessoas por dia; sem climatização por orçamento; calor de janeiro a março
-- Segundo ela, nenhuma escola ou CCA que ela saiba tem ar-condicionado
+- 3,36 milhões de alunos da rede estadual de SP estudam em salas sem climatização
+- 3,5 milhões de alunos na rede estadual (Seduc-SP; notícia de 20/12/2024 fala em 3 milhões)
+- 67.468 de 70.346 salas sem climatização, 95,91 % (Censo 2024, tabulação CIEPP)
+- 21 dias ≥ 34 °C na estação A701, capital, de 2022 a 2025
+- Rodapé: premissa de 35 alunos por turma; os 21 dias não são a contagem oficial de ondas de calor (INMET/OMM: +5 °C por 5 dias seguidos)
 
-### Slide 7: A arquitetura
+### Slide 7: A arquitetura (quatro camadas no ArchiMate)
 - Motivação: nenhuma aula em Perigo sem ação (ODS 3.d, 4.a, 11.b, 13.1)
 - Negócio: medir, prever, alertar, agir, registrar
-- Aplicação e tecnologia: API, app, terminal, painel, ESP32, Windows Server
+- Aplicação: API, app do professor, terminal da coordenação, painel
+- Tecnologia: ESP32 no Wokwi, SQL Server, Windows Server com IIS
 
-### Slide 8: O que muda
+### Slide 8: O que muda (do alerta à ação registrada)
 - Próximo passo: aviso no celular de quem cuida do local, como ela pediu
 - Precauções: ventilador, janelas, água gelada e leques
 - O histórico é a prova para pedir a manutenção
 - Alerta de frio: berçário e dormitório
-- Indicador: aulas em Perigo sem ação registrada. Meta do piloto (4 semanas): zero; mediana de até 15 min entre alerta e ação
-- O histórico por sala mostra onde climatizar primeiro
+- 0 aulas em Perigo sem ação registrada: meta do piloto em 4 semanas
+- ≤ 15 min: mediana entre o alerta e a ação; o histórico por sala mostra onde climatizar primeiro
 - Termômetro da Sala

@@ -833,7 +833,7 @@
              },
     "_type":  "request",
     "_id":  "req_mapa_demo_tarde",
-    "afterResponseScript": "insomnia.test('Cena de calor: 201 e quatro sensores', () => {\n  insomnia.expect(insomnia.response.code).to.equal(201);\n  insomnia.expect(insomnia.response.json().inseridas).to.equal(4);\n});"
+    "afterResponseScript": "insomnia.test('Cena de calor: 201 e 12 leituras (4 sensores x 3 minutos)', () => {\n  insomnia.expect(insomnia.response.code).to.equal(201);\n  insomnia.expect(insomnia.response.json().inseridas).to.equal(12);\n});"
 },
 {
     "headers":  [
@@ -849,7 +849,7 @@
              },
     "_type":  "request",
     "_id":  "req_mapa_demo_madrugada",
-    "afterResponseScript": "insomnia.test('Cena de frio: 201 e quatro sensores', () => {\n  insomnia.expect(insomnia.response.code).to.equal(201);\n  insomnia.expect(insomnia.response.json().inseridas).to.equal(4);\n});"
+    "afterResponseScript": "insomnia.test('Cena de frio: 201 e 12 leituras (4 sensores x 3 minutos)', () => {\n  insomnia.expect(insomnia.response.code).to.equal(201);\n  insomnia.expect(insomnia.response.json().inseridas).to.equal(12);\n});"
 }
   ]
 }

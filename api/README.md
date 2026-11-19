@@ -374,8 +374,8 @@ status esperado na aba de testes do Insomnia (after-response com `insomnia.expec
 11. Mapa térmico (`26` a `29`):
     - `26 Configurar mapa (204; chave obrigatoria)`, `PUT /ambientes/sala-01/mapa`: planta 6 × 4 m, o sensor `esp32-sala-01` na janela (0; 2) e a Cadeira 1 em (1; 2). Exige `X-Chave-Coordenacao`; espere 204 (sem a chave, 401).
     - `27 GET mapa da sala-01 (200; apos configurar)`, `GET /ambientes/sala-01/mapa`: 200 com `grade`, `pontos` (janela e Cadeira 1) e `precaucoes`. Rode depois do `26`; sem leitura recente da sala-01 as temperaturas vêm nulas.
-    - `28 Demo Sala 7 tarde (201; consultar mapa com GET apos preparar)`, `POST /demo/mapa?periodo=tarde` (só em Demo): 201 com `inseridas: 4` e `Location: /ambientes/sala-07/mapa`. Em seguida `GET /ambientes/sala-07/mapa` (200): a janela aparece a 35 °C em nível perigo, com troca de lugar sugerida e ambiente desigual.
-    - `29 Demo Sala 7 madrugada (201; consultar mapa com GET apos preparar)`, `POST /demo/mapa?periodo=madrugada` (só em Demo): 201 com `inseridas: 4`. Em seguida o mesmo `GET` (200): o canto do fundo aparece a 15 °C em nível frio.
+    - `28 Demo Sala 7 tarde (201; consultar mapa com GET apos preparar)`, `POST /demo/mapa?periodo=tarde` (só em Demo): 201 com `inseridas: 12` (4 sensores × 3 leituras) e `Location: /ambientes/sala-07/mapa`. Em seguida `GET /ambientes/sala-07/mapa` (200): a janela aparece a 35 °C em nível perigo, com troca de lugar sugerida e ambiente desigual.
+    - `29 Demo Sala 7 madrugada (201; consultar mapa com GET apos preparar)`, `POST /demo/mapa?periodo=madrugada` (só em Demo): 201 com `inseridas: 12`. Em seguida o mesmo `GET` (200): o canto do fundo aparece a 15 °C em nível frio.
     - O `28` e o `29` substituem as leituras simuladas da Sala 7; use o banco de demonstração. Fora do Demo respondem 404.
 
 As fotos locais ficam em `TermometroDaSala.Api/fotos/`, ignorada pelo repositório.

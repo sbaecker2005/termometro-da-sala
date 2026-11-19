@@ -273,7 +273,7 @@ o seguinte responde 429.
 | `POST /dispositivos/{id}/revogar` | sim | 200 `{"id":...,"ativo":false}`; 404. As leituras do dispositivo ficam; as novas são recusadas com `dispositivo-revogado` |
 | `GET /ambientes/{id}/mapa` | não | 200 com dimensões, grade, pontos e precauções (`?futuro=true` projeta +1 h); 404 sala inexistente |
 | `PUT /ambientes/{id}/mapa` | sim | 204; 400 `mapa-invalido`, `sensor-invalido` ou `sensor-fora-da-planta`; 401 sem chave; 404; 429 |
-| `POST /demo/mapa?periodo=tarde` ou `madrugada` | não (só em Demo) | Cria ou refaz a Sala 7 (4 sensores e 20 lugares) e grava a cena de calor ou de frio. 201 com `{"inseridas":4}` e `Location: /ambientes/sala-07/mapa`; 400 `periodo-invalido`; 404 fora do Demo; 409 `ambiente-em-uso` |
+| `POST /demo/mapa?periodo=tarde` ou `madrugada` | não (só em Demo) | Cria ou refaz a Sala 7 (4 sensores e 20 lugares) e grava a cena de calor ou de frio. 201 com `{"inseridas":12}` (4 sensores × 3 leituras, uma por minuto) e `Location: /ambientes/sala-07/mapa`; 400 `periodo-invalido`; 404 fora do Demo; 409 `ambiente-em-uso` |
 
 O app do professor lista as ocorrências da sala e não abre fotos; o desktop da
 coordenação não exibe fotos.
