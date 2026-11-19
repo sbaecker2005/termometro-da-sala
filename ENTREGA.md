@@ -136,8 +136,8 @@ O briefing desta disciplina não divide a nota em pontos. O que a página 29 ped
 - [x] Preencher nomes completos, RMs e link em `desktop/integrantes.txt` e a equipe no README
 - [x] Relato de entrevista e autorização para citar nome/falas confirmados pelo grupo em 17/11/2026
 - [x] Conferir PR e versões: PR 1 aberto (`desktop/v0.2.0` para `desktop/v0.1.0`), sem reviews/merge; releases v0.1.0 e v0.2.0 existentes sem anexos
-- [ ] Publicar os ajustes atuais (v0.3.0) e conferir a correspondência entre fontes publicadas e pacote; a página 29 não exige proteção de branch, aprovação/merge do PR nem vídeo de C#
-- [ ] Opcional: PR `desktop/v0.3.0` para `main` e tag `v0.3.0`, com revisão por outro integrante
+- [x] Publicar os ajustes atuais (v0.3.0): `main` com a v0.3.0; release [v0.3.0](https://github.com/sbaecker2005/termometro-da-sala/releases/tag/v0.3.0) com o ZIP conferido
+- [x] PR [Desktop v0.3.0](https://github.com/sbaecker2005/termometro-da-sala/pull/2) mesclado e tag `v0.3.0` criada (19/11); a aprovação no GitHub não ficou registrada porque o autor não pode aprovar o próprio PR
 - [x] Conferir visualmente a `TelaCoordenacao` no Windows: chave sem valor visível, cadastro validado, ação registrada, CSV, mapa, revogação e retorno da API; ver relatório de 17/11
 - [x] Executar a suíte atual (22/22 em 19/11) e o autoteste do desktop (seis verificações); validar sala-99 e ação persistidas após fechar e reabrir no modo local, conforme fixture da rodada. Edição/exclusão ficam na API, no ensaio de SOA; não são comandos da interface desktop nem exigência explícita do enunciado de C#
 - [x] Regenerar o ZIP do commit final, conferir numa pasta limpa e atualizar o hash em `entrega-pacotes.sha256` (19/11: gerado do `5a44933`, 60 entradas; extraído em pasta limpa: build sem erro, 22/22 testes e autoteste com saída 0)
