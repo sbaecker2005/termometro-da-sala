@@ -21,7 +21,7 @@ O mesmo sensor avisa calor no verão (escolas) e frio no inverno (dormitórios e
 | Item | Link |
 |---|---|
 | Projeto no Wokwi (público) | https://wokwi.com/projects/481082666157493249 |
-| Vídeo demonstrativo (até 4 min, não listado) | [preencher] |
+| Vídeo demonstrativo (até 4 min, não listado) | https://youtu.be/vELzLClRok4 |
 | Integrantes | [`integrantes.txt`](integrantes.txt) |
 
 ## Equipe

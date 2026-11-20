@@ -275,7 +275,7 @@ Os campos vêm dos scripts, do `infra/README.md` e do ensaio de 16/11 registrado
 
 - [x] Publicar o projeto no Wokwi e não versionar `secrets.h` (18/11: https://wokwi.com/projects/481082666157493249, público, com o segredo de demonstração)
 - [x] Preencher os nomes completos e RMs em `esp32/integrantes.txt` e `esp32/README.md`
-- [ ] Gravar o vídeo de até 4 min mostrando LCD (temperatura e nível), buzzer em Perigo e botão de reconhecimento no Wokwi, além do LED e da publicação assinada
+- [x] Gravar o vídeo de até 4 min mostrando LCD (temperatura e nível), buzzer em Perigo e botão de reconhecimento no Wokwi, além do LED e da publicação assinada
 - [ ] Enviar os dois links e o txt no Teams
 
 ## Testing (TOGAF) e pitch
@@ -315,7 +315,7 @@ Itens que dependem de gravação, publicação ou coleta no laboratório e que n
 - [x] Vídeo de ML publicado: https://youtu.be/ing8essnuOU (1 min 48 s)
 - [x] Vídeo de Mobile publicado: https://youtu.be/Q_T1txO1fAY
 - [x] Vídeo de Operating Systems (6 min 39 s): publicado pelo Gui em 19/11
-- [ ] Vídeo de Physical Computing (até 4 min); projeto no Wokwi já publicado em https://wokwi.com/projects/481082666157493249
+- [x] Vídeo de Physical Computing publicado: https://youtu.be/vELzLClRok4; projeto no Wokwi em https://wokwi.com/projects/481082666157493249
 - [x] Pitch de TOGAF publicado: https://youtu.be/BLGYxb4P4Rc
 - [x] Evidências de OS e Cybersecurity: cobertas pelo vídeo e pelo PDF do Gui (19/11); as saídas do coletor de OS e o nmap ficam opcionais
 - [x] PNGs das visões no Archi e PDF final de TOGAF; PDF final de Cybersecurity (18/11: PNGs conferidos e os dois PDFs gerados; TOGAF aguarda a aprovação do grupo; falta o envio)
